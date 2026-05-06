@@ -97,15 +97,15 @@ export default function App() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-2xl border border-slate-100 min-w-[150px]">
-          <p className="font-black text-slate-900 mb-2 border-b border-slate-100 pb-2">{label}</p>
+        <div className="bg-white/95 backdrop-blur-sm p-6 rounded-[2rem] shadow-2xl border border-slate-100 min-w-[200px]">
+          <p className="font-black text-slate-900 text-lg mb-3 border-b border-slate-100 pb-3">{label}</p>
           {payload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center justify-between gap-4 py-1">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color || entry.fill }}></div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{entry.name}</span>
+            <div key={index} className="flex items-center justify-between gap-6 py-2">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color || entry.fill }}></div>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{entry.name}</span>
               </div>
-              <span className="text-sm font-black text-slate-900">{entry.value}{entry.name.toLowerCase().includes('davomat') ? '%' : ''}</span>
+              <span className="text-base font-black text-slate-900">{entry.value}{entry.name.toLowerCase().includes('davomat') ? '%' : ''}</span>
             </div>
           ))}
         </div>

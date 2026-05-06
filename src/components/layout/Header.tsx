@@ -38,43 +38,43 @@ const Header: React.FC<HeaderProps> = ({
           <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center text-white font-black text-xl md:text-2xl shadow-lg border border-indigo-400/20">R</div>
           <div className="flex flex-col justify-center">
             <h1 className="text-lg md:text-2xl leading-none select-none flex items-baseline font-black text-slate-900">
-              <span className="text-aqlvoy-3d text-base md:text-lg">RAQAMLI</span>
+              <span className=" text-base md:text-lg">RAQAMLI</span>
               <span className="text-oshpaz-bubbly text-sm md:text-base ml-1">MTT</span>
             </h1>
           </div>
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden lg:flex items-center gap-1.5 bg-white p-1.5 rounded-2xl">
+        <div className="hidden lg:flex items-center gap-1.5 bg-white p-2 rounded-2xl">
           {menuItems.map((item) => (
             <button
               key={item.name}
               onClick={() => setActiveMenu(item.name)}
-              className={`flex items-center px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+              className={`flex items-center px-6 py-3 rounded-xl text-base font-black transition-all duration-300 ${
                 activeMenu === item.name
                   ? 'bg-indigo-50 text-indigo-600 shadow-sm scale-[1.02]'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
               }`}
             >
-              <item.icon className={`mr-2.5 h-4 w-4 ${activeMenu === item.name ? 'text-indigo-500' : 'text-slate-400'}`} />
+              <item.icon className={`mr-3 h-5 w-5 ${activeMenu === item.name ? 'text-indigo-500' : 'text-slate-400'}`} />
               {item.name}
             </button>
           ))}
         </div>
 
-        <div className="hidden lg:flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-6">
           <div className="relative" ref={langRef}>
             <button 
               ref={langBtnRef}
               onClick={() => setIsLangOpen(!isLangOpen)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all"
+              className="flex items-center gap-3 px-5 py-3 rounded-xl text-base font-black text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all"
             >
-              <Globe className="h-4 w-4 text-indigo-500" />
+              <Globe className="h-5 w-5 text-indigo-500" />
               <span>UZ</span>
             </button>
             
             {isLangOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in zoom-in duration-200">
+              <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in zoom-in duration-200">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
@@ -82,7 +82,7 @@ const Header: React.FC<HeaderProps> = ({
                       notify();
                       setIsLangOpen(false);
                     }}
-                    className="w-full text-left px-5 py-3 text-sm font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                    className="w-full text-left px-6 py-4 text-base font-black text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
                   >
                     {lang.name}
                   </button>
@@ -93,9 +93,9 @@ const Header: React.FC<HeaderProps> = ({
 
           <button 
             onClick={notify}
-            className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95"
+            className="flex items-center gap-3 px-8 py-3 bg-indigo-600 text-white rounded-xl text-base font-black hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95"
           >
-            <LogIn className="h-4 w-4" />
+            <LogIn className="h-5 w-5" />
             <span>KIRISH</span>
           </button>
         </div>

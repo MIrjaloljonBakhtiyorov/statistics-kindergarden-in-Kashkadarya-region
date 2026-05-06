@@ -52,74 +52,74 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = ({ CustomTooltip }) 
 
       <div className="w-full">
         {/* Search and Filters */}
-        <div className="mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
-           <div className="relative w-full md:w-96 group">
-             <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+        <div className="mb-10 flex flex-col md:flex-row gap-6 items-center justify-between">
+           <div className="relative w-full md:w-[450px] group">
+             <Search className="absolute left-8 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
              <input
                type="text"
                placeholder="Hududni izlash..."
-               className="w-full pl-14 pr-6 py-5 bg-white border border-slate-100 rounded-[2rem] shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all font-bold text-slate-700"
+               className="w-full pl-16 pr-8 py-6 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all font-black text-lg text-slate-700 placeholder:text-slate-300"
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
              />
            </div>
            
-           <div className="flex gap-3">
+           <div className="flex gap-4">
              <button 
                onClick={() => toggleSort('attendance')}
-               className={`px-6 py-4 rounded-2xl border flex items-center gap-3 font-black text-xs uppercase tracking-widest transition-all ${sortBy === 'attendance' ? 'bg-slate-900 border-slate-900 text-white shadow-xl' : 'bg-white border-slate-100 text-slate-500 hover:bg-slate-50'}`}
+               className={`px-8 py-5 rounded-2xl border flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all ${sortBy === 'attendance' ? 'bg-slate-900 border-slate-900 text-white shadow-xl' : 'bg-white border-slate-100 text-slate-500 hover:bg-slate-50'}`}
              >
-               <ArrowUpDown className="h-4 w-4" />
+               <ArrowUpDown className="h-5 w-5" />
                Davomat
              </button>
              <button 
                onClick={() => toggleSort('count')}
-               className={`px-6 py-4 rounded-2xl border flex items-center gap-3 font-black text-xs uppercase tracking-widest transition-all ${sortBy === 'count' ? 'bg-slate-900 border-slate-900 text-white shadow-xl' : 'bg-white border-slate-100 text-slate-500 hover:bg-slate-50'}`}
+               className={`px-8 py-5 rounded-2xl border flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all ${sortBy === 'count' ? 'bg-slate-900 border-slate-900 text-white shadow-xl' : 'bg-white border-slate-100 text-slate-500 hover:bg-slate-50'}`}
              >
-               <Filter className="h-4 w-4" />
+               <Filter className="h-5 w-5" />
                MTTlar
              </button>
            </div>
         </div>
 
-        {/* Interactive Map - NOW FULL WIDTH */}
-        <div className="w-full space-y-8">
-          <div className="bg-white p-8 md:p-12 rounded-[3rem] shadow-sm border border-slate-100 relative overflow-hidden h-full min-h-[600px] flex flex-col">
+        {/* Interactive Map */}
+        <div className="w-full space-y-10">
+          <div className="bg-white p-8 md:p-14 rounded-[4rem] shadow-sm border border-slate-100 relative overflow-hidden h-full min-h-[600px] flex flex-col">
             <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
             
-            <div className="relative z-10 flex-1 flex items-center justify-center bg-slate-50/50 rounded-[3rem] border border-slate-100 p-8">
+            <div className="relative z-10 flex-1 flex items-center justify-center bg-slate-50/50 rounded-[4rem] border border-slate-100 p-10">
               <KashkadaryaMap 
                 selectedDistrict={selectedDistrict} 
                 setSelectedDistrict={setSelectedDistrict} 
               />
             </div>
 
-            <div className="relative z-10 mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center gap-4 transition-all hover:shadow-md">
-                <div className="p-4 bg-indigo-500/10 rounded-2xl">
-                  <MapPin className="h-6 w-6 text-indigo-600" />
+            <div className="relative z-10 mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 transition-all hover:shadow-md">
+                <div className="p-5 bg-indigo-500/10 rounded-2xl">
+                  <MapPin className="h-8 w-8 text-indigo-600" />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Viloyat Markazi</p>
-                  <p className="text-xl text-slate-900 font-black uppercase tracking-tight">Qarshi shahri</p>
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Viloyat Markazi</p>
+                  <p className="text-2xl text-slate-900 font-black uppercase tracking-tight">Qarshi shahri</p>
                 </div>
               </div>
-              <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between transition-all hover:shadow-md">
-                <div className="flex items-center gap-4">
-                  <div className="p-4 bg-emerald-500/10 rounded-2xl">
-                    <TrendingUp className="h-6 w-6 text-emerald-600" />
+              <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between transition-all hover:shadow-md">
+                <div className="flex items-center gap-6">
+                  <div className="p-5 bg-emerald-500/10 rounded-2xl">
+                    <TrendingUp className="h-8 w-8 text-emerald-600" />
                   </div>
                   <div>
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">O'sish sur'ati</p>
-                    <p className="text-xl text-slate-900 font-black uppercase tracking-tight">+2.4%</p>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">O'sish sur'ati</p>
+                    <p className="text-2xl text-slate-900 font-black uppercase tracking-tight">+2.4%</p>
                   </div>
                 </div>
-                <div className="h-12 w-32">
-                  <ResponsiveContainer width="100%" height="100%">
+                <div className="h-16 w-40">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <AreaChart data={[
                       { v: 40 }, { v: 60 }, { v: 50 }, { v: 80 }, { v: 70 }, { v: 95 }
                     ]}>
-                      <Area type="monotone" dataKey="v" stroke="#10b981" fill="#10b981" fillOpacity={0.1} strokeWidth={3} />
+                      <Area type="monotone" dataKey="v" stroke="#10b981" fill="#10b981" fillOpacity={0.1} strokeWidth={4} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -128,39 +128,39 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = ({ CustomTooltip }) 
           </div>
         </div>
 
-        {/* District List - Below Map */}
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* District List */}
+        <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredAndSortedDistricts.map((district) => (
             <motion.div
               key={district.name}
               id={`district-item-${district.name}`}
-              whileHover={{ y: -5 }}
+              whileHover={{ y: -8 }}
               onClick={() => setSelectedDistrict(district.name)}
-              className={`p-6 rounded-[2.5rem] border transition-all cursor-pointer ${
+              className={`p-8 rounded-[3rem] border transition-all cursor-pointer ${
                 selectedDistrict === district.name 
-                ? 'bg-slate-900 border-slate-900 shadow-2xl' 
+                ? 'bg-slate-950 border-slate-950 shadow-2xl shadow-slate-900/40' 
                 : 'bg-white border-slate-100 hover:shadow-xl hover:border-indigo-100'
               }`}
             >
-              <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl ${selectedDistrict === district.name ? 'bg-white/10' : 'bg-indigo-50'}`}>
-                   <MapPin className={`w-4 h-4 ${selectedDistrict === district.name ? 'text-white' : 'text-indigo-600'}`} />
+              <div className="flex justify-between items-start mb-6">
+                <div className={`p-4 rounded-2xl ${selectedDistrict === district.name ? 'bg-white/10' : 'bg-indigo-50'}`}>
+                   <MapPin className={`w-5 h-5 ${selectedDistrict === district.name ? 'text-white' : 'text-indigo-600'}`} />
                 </div>
-                <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${selectedDistrict === district.name ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedDistrict === district.name ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-400'}`}>
                    Sektor #{(districts.indexOf(district) % 4) + 1}
                 </div>
               </div>
-              <h5 className={`text-lg font-black uppercase tracking-tighter mb-4 ${selectedDistrict === district.name ? 'text-white' : 'text-slate-900'}`}>
+              <h5 className={`text-xl font-black uppercase tracking-tighter mb-6 ${selectedDistrict === district.name ? 'text-white' : 'text-slate-900'}`}>
                 {district.name}
               </h5>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                   <span className={`text-[10px] font-bold uppercase tracking-widest ${selectedDistrict === district.name ? 'text-white/50' : 'text-slate-400'}`}>Davomat</span>
-                   <span className={`text-sm font-black ${selectedDistrict === district.name ? 'text-emerald-400' : 'text-emerald-600'}`}>{district.attendance}%</span>
+                   <span className={`text-xs font-bold uppercase tracking-widest ${selectedDistrict === district.name ? 'text-white/50' : 'text-slate-400'}`}>Davomat</span>
+                   <span className={`text-base font-black ${selectedDistrict === district.name ? 'text-emerald-400' : 'text-emerald-600'}`}>{district.attendance}%</span>
                 </div>
                 <div className="flex items-center justify-between">
-                   <span className={`text-[10px] font-bold uppercase tracking-widest ${selectedDistrict === district.name ? 'text-white/50' : 'text-slate-400'}`}>MTTlar</span>
-                   <span className={`text-sm font-black ${selectedDistrict === district.name ? 'text-white' : 'text-slate-900'}`}>{district.count}</span>
+                   <span className={`text-xs font-bold uppercase tracking-widest ${selectedDistrict === district.name ? 'text-white/50' : 'text-slate-400'}`}>MTTlar</span>
+                   <span className={`text-base font-black ${selectedDistrict === district.name ? 'text-white' : 'text-slate-900'}`}>{district.count}</span>
                 </div>
               </div>
             </motion.div>

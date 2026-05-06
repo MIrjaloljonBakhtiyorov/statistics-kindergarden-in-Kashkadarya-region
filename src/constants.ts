@@ -57,7 +57,7 @@ export const kindergartenTypes = [
   },
 ];
 
-export const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#f43f5e', '#8b5cf6'];
+export const COLORS = ['#4042a3', '#b0740c', '#177656', '#d9092c', '#5925d3'];
 
 export const districts = [
   { 

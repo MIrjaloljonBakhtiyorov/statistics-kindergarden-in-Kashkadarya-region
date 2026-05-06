@@ -35,7 +35,7 @@ const DistrictDetailModal: React.FC<DistrictDetailModalProps> = ({ district, onC
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-slate-900/10 cursor-pointer"
+          className="fixed inset-0 cursor-pointer"
         />
 
         {/* Modal Container */}

@@ -23,7 +23,7 @@ const MTTDetailModal: React.FC<MTTDetailModalProps> = ({ selectedMTTType, setSel
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => setSelectedMTTType(null)}
-          className="absolute inset-0 bg-slate-900/10 backdrop-blur-md pointer-events-auto cursor-pointer"
+          className="absolute inset-0 pointer-events-auto cursor-pointer"
         />
         <motion.div 
           ref={modalRef}

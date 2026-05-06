@@ -32,7 +32,7 @@ const DistrictModal: React.FC<DistrictModalProps> = ({ district }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-slate-900/10 backdrop-blur-sm pointer-events-auto"
+        className="absolute inset-0 pointer-events-auto"
       />
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
