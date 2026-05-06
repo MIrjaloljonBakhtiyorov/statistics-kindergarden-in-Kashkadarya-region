@@ -1,0 +1,20 @@
+# MTT Boshqaruv Tizimi - Loyiha Konsepsiyasi
+
+Ushbu loyiha maktabgacha ta'lim muassasalarini (MTT) boshqarish va nazorat qilish uchun mo'ljallangan dashboard tizimidir.
+
+## Asosiy Bajarilgan Ishlar:
+
+### 1. MTT Management (Bog'cha boshqaruvi)
+- Dinamik CRUD tizimi: Bog'chalarni qo'shish, tahrirlash (Edit), o'chirish (Delete) va ma'lumotlarini ko'rish (View) funksiyalari amalga oshirildi.
+- State management: Tizim React `useState` yordamida dinamik qilib yangilandi.
+- Validatsiya: Yangi bog'chani ro'yxatdan o'tkazishda "tashkil topgan sana" majburiy maydon qilib belgilandi.
+- Login/Parol generatsiyasi: Har bir bog'cha uchun avtomatik login va parol tizimi ko'rsatkichi qo'shildi.
+
+### 2. UI/UX O'zgarishlar
+- Jadval (Table): MTT ma'lumotlari jadvaliga "Login/Parol" ustuni qo'shildi.
+- Navigatsiya: "Reyting va Audit" bo'limi "Taomnoma nazorati" sahifasidan ajratilib, alohida sahifaga ko'chirildi.
+- Dizayn yangilanishi: "Reyting va Audit" sahifasining interfeysi yanada zamonaviy va ma'lumotlarga asoslangan ko'rinishga keltirildi.
+
+### 3. Arxitektura va Funksional Tuzatishlar
+- Refactoring: Komponentlararo aloqalar optimallashtirildi.
+- "Reyting va Audit" bo'limi: Taomnoma nazoratidagi ortiqcha qismlar olib tashlanib, asosiy sahifaga integratsiya qilindi.

@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({
           </div>
 
           <button 
-            onClick={notify}
+            onClick={() => setActiveMenu('Kirish')}
             className="flex items-center gap-3 px-8 py-3 bg-indigo-600 text-white rounded-xl text-base font-black hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95"
           >
             <LogIn className="h-5 w-5" />
@@ -164,7 +164,10 @@ const Header: React.FC<HeaderProps> = ({
               )}
 
               <button 
-                onClick={notify}
+                onClick={() => {
+                  setActiveMenu('Kirish');
+                  setIsMenuOpen(false);
+                }}
                 className="flex items-center justify-center gap-3 px-5 py-4 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all"
               >
                 <LogIn className="h-5 w-5" />

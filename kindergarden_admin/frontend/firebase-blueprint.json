@@ -1,0 +1,25 @@
+{
+  "entities": {
+    "kindergarten": {
+      "title": "Bog'cha",
+      "description": "Bog'cha ma'lumotlari",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "district": { "type": "string" },
+        "address": { "type": "string" },
+        "type": { "type": "string" },
+        "directorName": { "type": "string" },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "district", "address"]
+    }
+  },
+  "firestore": {
+    "/kindergartens/{kindergartenId}": {
+      "schema": "kindergarten",
+      "description": "Bog'chalar kolleksiyasi"
+    }
+  }
+}

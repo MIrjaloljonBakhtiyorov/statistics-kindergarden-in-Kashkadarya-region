@@ -9,6 +9,8 @@ import TaomnomaNazorati from './components/TaomnomaNazorati';
 import WelcomeScreen from './components/WelcomeScreen';
 import RetseptlarKitobi from './components/RetseptlarKitobi';
 import MahsulotSarfi from './components/MahsulotSarfi';
+import LoginSection from './components/LoginSection';
+import AdminLogin from './components/AdminLogin';
 
 // New Components
 import Header from './components/layout/Header';
@@ -148,6 +150,8 @@ export default function App() {
             <TaomnomaNazorati />
           ) : activeMenu === 'Retseptlar kitobi' ? (
             <RetseptlarKitobi />
+          ) : activeMenu === 'Kirish' ? (
+            <AdminLogin onClose={() => setActiveMenu('Viloyat statistikasi')} />
           ) : (
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center">
               <p className="text-slate-600">Bu yerda {activeMenu} haqidagi ma'lumotlar aks etadi.</p>

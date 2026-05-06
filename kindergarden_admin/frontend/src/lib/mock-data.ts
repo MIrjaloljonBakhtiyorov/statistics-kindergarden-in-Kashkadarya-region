@@ -1,0 +1,102 @@
+import { District, Kindergarten, KindergartenType, StatusType, AIInsight, DailyMenu, Meal } from '../types';
+
+export const DISTRICTS: District[] = [
+  { id: '1', name: 'Qarshi shahri', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '2', name: 'Qarshi tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '3', name: 'Shahrisabz tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '4', name: 'Kitob tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '5', name: 'Koson tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '6', name: 'Muborak tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '7', name: 'G‘uzor tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '8', name: 'Nishon tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '9', name: 'Dehqonobod tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '10', name: 'Qamashi tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '11', name: 'Chiroqchi tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '12', name: 'Kasbi tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '13', name: 'Mirishkor tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+  { id: '14', name: 'Yakkabog‘ tumani', totalMTTs: 1, totalChildren: 1, attendedBefore9: 1, attendedAfter9: 0, absent: 0, attendancePercentage: 100, status: StatusType.GOOD },
+];
+
+export const AI_INSIGHTS: AIInsight[] = [];
+
+export const MOCK_KINDERGARTENS: Kindergarten[] = [
+  {
+    id: 'k1',
+    name: "12-sonli 'Quyoshcha' MTT",
+    type: KindergartenType.PUBLIC,
+    district: 'Qarshi shahri',
+    director: 'Alimov Abror',
+    phone: '+998 90 123 45 67',
+    totalChildren: 120,
+    attendedBefore9: 105,
+    attendedAfter9: 10,
+    absent: 5,
+    attendancePercentage: 87.5,
+    rating: 9.2,
+    status: StatusType.GOOD,
+    violationsCount: 0,
+    menuStatus: 'active',
+  },
+  {
+    id: 'k2',
+    name: "Golden Kids Private Nursery",
+    type: KindergartenType.PRIVATE,
+    district: 'Qarshi shahri',
+    director: 'Karimova Zilola',
+    phone: '+998 99 876 54 32',
+    totalChildren: 45,
+    attendedBefore9: 42,
+    attendedAfter9: 2,
+    absent: 1,
+    attendancePercentage: 93.3,
+    rating: 9.8,
+    status: StatusType.GOOD,
+    violationsCount: 0,
+    menuStatus: 'active',
+  },
+  {
+    id: 'k3',
+    name: "Baraka Oilaviy Bog'cha",
+    type: KindergartenType.HOME,
+    district: 'Koson tumani',
+    director: 'Toshmirzoeva Nilufar',
+    phone: '+998 91 222 33 44',
+    totalChildren: 25,
+    attendedBefore9: 15,
+    attendedAfter9: 5,
+    absent: 5,
+    attendancePercentage: 60.0,
+    rating: 6.5,
+    status: StatusType.PROBLEM,
+    violationsCount: 3,
+    menuStatus: 'violation',
+  },
+];
+
+export const TEN_DAY_MENU: DailyMenu[] = [
+  {
+    day: 1,
+    breakfast: { name: 'Sutli bo‘tqa (Manna)', ingredients: [{ name: 'Sut', amount: '200ml' }, { name: 'Manna', amount: '30g' }] },
+    lunch: { name: 'Mastava', ingredients: [{ name: 'Go‘sht', amount: '50g' }, { name: 'Guruch', amount: '30g' }] },
+    snack: { name: 'Pechenye va kompot', ingredients: [{ name: 'Pechenye', amount: '50g' }, { name: 'Mevalar', amount: '20g' }] },
+    dinner: { name: 'Teftel guruch bilan', ingredients: [{ name: 'Qiymat', amount: '80g' }, { name: 'Guruch', amount: '100g' }] },
+  },
+  // Simplified for mock
+];
+
+export const ATTENDANCE_TREND = [
+  { date: 'Du', attendance: 85 },
+  { date: 'Se', attendance: 88 },
+  { date: 'Ch', attendance: 82 },
+  { date: 'Pa', attendance: 90 },
+  { date: 'Ju', attendance: 87 },
+];
+
+export const MOCK_MEALS: Meal[] = [
+  { id: 'm1', code: 'T001', name: 'Palov (Osh)', images: [], ingredients: [{name: 'Guruch', quantity: '100', unit: 'g'}, {name: 'Go\'sht', quantity: '50', unit: 'g'}], technologicalCard: 'Osh tayyorlash: go\'sht qovuriladi, sabzi va piyoz qo\'shiladi, guruch demlanadi.', category: '3-7 yosh' },
+  { id: 'm2', code: 'T002', name: 'Qozonkabob', images: [], ingredients: [{name: 'Go\'sht', quantity: '150', unit: 'g'}, {name: 'Kartoshka', quantity: '200', unit: 'g'}], technologicalCard: 'Go\'sht va kartoshka qozonda qovuriladi.', category: '3-7 yosh' },
+  { id: 'm3', code: 'T003', name: 'Manti', images: [], ingredients: [{name: 'Qiymat', quantity: '100', unit: 'g'}, {name: 'Un', quantity: '150', unit: 'g'}], technologicalCard: 'Hamir yoyilib, qiymat bilan tugiladi va mantivarka pishiriladi.', category: '3-7 yosh' },
+  { id: 'm4', code: 'T004', name: 'Sutli bo\'tqa', images: [], ingredients: [{name: 'Sut', quantity: '200', unit: 'ml'}, {name: 'Guruch', quantity: '50', unit: 'g'}], technologicalCard: 'Sut qaynatiladi, guruch qo\'shib yumshoq bo\'lguncha pishiriladi.', category: '1-3 yosh' },
+  { id: 'm5', code: 'T005', name: 'Sabzavotli sho\'rva', images: [], ingredients: [{name: 'Sabzi', quantity: '50', unit: 'g'}, {name: 'Kartoshka', quantity: '100', unit: 'g'}], technologicalCard: 'Sabzavotlar to\'g\'ralib, qaynatiladi.', category: 'parhezli' },
+  { id: 'm6', code: 'T006', name: 'Bug\'da pishirilgan kotlet', images: [], ingredients: [{name: 'Go\'sht', quantity: '80', unit: 'g'}], technologicalCard: 'Qiymatdan kotletlar yasalib, bug\'da pishiriladi.', category: 'parhezli' },
+];
