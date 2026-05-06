@@ -760,8 +760,7 @@ export const NutritionMenu = () => {
                     </div>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                        <div className="relative group w-full xl:w-[400px]">
-                          <Search className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} className="sm:w-5 sm:h-5" />
-                          <input 
+                          <Search className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors sm:w-5 sm:h-5" size={18} />                          <input 
                              type="text" 
                              value={dbSearch}
                              onChange={(e) => setDbSearch(e.target.value)}

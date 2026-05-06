@@ -224,8 +224,7 @@ export const MTTManagement = () => {
       <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[32px] border border-slate-100 shadow-sm space-y-4">
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
           <div className="relative flex-1 group">
-            <Search className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={16} className="sm:w-4.5 sm:h-4.5" />
-            <input 
+            <Search className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors sm:w-4.5 sm:h-4.5" size={16} />            <input 
               type="text" placeholder="Qidirish..." 
               className="w-full pl-11 sm:pl-14 pr-4 sm:pr-6 py-3 sm:py-4 bg-slate-50 border-2 border-transparent rounded-xl sm:rounded-[22px] text-xs sm:text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all"
               value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
@@ -287,14 +286,12 @@ export const MTTManagement = () => {
         <AnimatePresence mode="wait">
           {loading ? (
             <motion.div key="loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-20 sm:py-24 text-center">
-              <Loader2 className="animate-spin mx-auto text-indigo-500" size={40} className="sm:w-12 sm:h-12" />
-              <p className="mt-4 text-[10px] sm:text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Ma'lumotlar yuklanmoqda...</p>
+              <Loader2 className="animate-spin mx-auto text-indigo-500 sm:w-12 sm:h-12" size={40} />              <p className="mt-4 text-[10px] sm:text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Ma'lumotlar yuklanmoqda...</p>
             </motion.div>
           ) : filteredData.length === 0 ? (
             <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-20 sm:py-24 text-center bg-white rounded-2xl sm:rounded-[40px] border border-dashed border-slate-200">
                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                 <Building2 className="text-slate-200" size={28} className="sm:w-8 sm:h-8" />
-               </div>
+                 <Building2 className="text-slate-200 sm:w-8 sm:h-8" size={28} />               </div>
                <h3 className="font-black text-slate-400 uppercase tracking-widest text-xs sm:text-sm">Bog‘chalar topilmadi</h3>
                <p className="text-[10px] sm:text-xs text-slate-400 mt-2 font-bold">Qidiruv yoki filtrni o‘zgartirib ko‘ring</p>
             </motion.div>

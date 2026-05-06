@@ -23,13 +23,13 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
 
     if (trimmedLogin === 'm_login' && trimmedPassword === 'm_admin') {
       localStorage.setItem('isDemoAuth', 'true');
-      window.location.href = '/admin/';
+      window.location.replace('/admin/');
       return;
     }
 
     try {
       await signInWithEmailAndPassword(auth, trimmedLogin, trimmedPassword);
-      window.location.href = '/admin/';
+      window.location.replace('/admin/');
     } catch (err: any) {
       if (err.code === 'auth/invalid-email') {
         setError('Login formatini noto‘g‘ri (email bo‘lishi kerak)');
