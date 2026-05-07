@@ -28,15 +28,15 @@ const StatsGrid: React.FC = () => {
             </div>
 
             <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-tight mb-2 h-8 flex items-center">
+              <p className="text-xs font-black text-black uppercase tracking-widest leading-tight mb-2 h-8 flex items-center">
                 {s.label}
               </p>
               <div className="flex items-baseline gap-1">
-                <p className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter">
+                <p className="text-4xl md:text-5xl font-black text-stat-blue tracking-tighter">
                   {s.value.split('%')[0]}
                 </p>
                 {s.value.includes('%') && (
-                  <span className="text-base font-black text-indigo-500">%</span>
+                  <span className="text-base font-black text-stat-blue">%</span>
                 )}
               </div>
             </div>

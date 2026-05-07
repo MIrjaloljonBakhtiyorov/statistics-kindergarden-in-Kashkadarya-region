@@ -10,6 +10,7 @@ interface WelcomeScreenProps {
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-12 relative overflow-hidden font-sans">
+      {/* ... (background elements) ... */}
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
         <motion.div 
@@ -37,9 +38,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-indigo-600/10 text-indigo-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em]"
+              className="inline-flex items-center gap-2 bg-violet-600/10 text-violet-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em]"
             >
-              <Star className="w-3 h-3 fill-indigo-600" />
+              <Star className="w-3 h-3 fill-violet-600" />
               Qashqadaryo Viloyati
             </motion.div>
             
@@ -50,7 +51,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
               className="text-5xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter"
             >
               RAQAMLI <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-sky-500">MTT TIZIMI</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600">MTT TIZIMI</span>
             </motion.h1>
             
             <motion.p 
@@ -70,7 +71,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
             className="grid grid-cols-2 gap-6"
           >
             <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4 hover:shadow-xl transition-all group">
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 bg-violet-50 rounded-2xl flex items-center justify-center text-violet-600 group-hover:scale-110 transition-transform">
                 <Zap className="h-6 w-6" />
               </div>
               <div>
@@ -96,9 +97,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
             onClick={onEnter}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="group flex items-center justify-between px-10 py-8 bg-slate-900 text-white rounded-[2.5rem] font-black text-xl uppercase tracking-widest transition-all shadow-2xl hover:shadow-indigo-500/40 relative overflow-hidden"
+            className="group flex items-center justify-between px-10 py-8 bg-slate-900 text-white rounded-[2.5rem] font-black text-xl uppercase tracking-widest transition-all shadow-2xl hover:shadow-violet-500/40 relative overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-sky-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
             <span className="relative z-10 flex items-center gap-4">
               TIZIMGA KIRISH <MousePointer2 className="w-6 h-6 animate-bounce" />
             </span>
@@ -110,7 +111,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
 
         {/* Right Side: Visual Design */}
         <div className="flex-1 bg-slate-900 relative min-h-[700px] hidden md:block overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=1631&auto=format&fit=crop')] bg-cover bg-center opacity-20"></div>
+          <div className="absolute inset-0 bg-[url('https://plus.unsplash.com/premium_photo-1663091062435-ef04d1ea008c?w=1200&auto=format&fit=crop&q=80')] bg-cover bg-center opacity-20"></div>
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/80 via-slate-900 to-slate-900"></div>
           
           {/* Animated Orbitals */}

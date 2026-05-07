@@ -10,7 +10,7 @@ const recipes = [
     servings: "10 kishi",
     calories: "180 kcal",
     ingredients: ["Oliy navli suli yormasi", "Tabiiy sigir suti", "Toza sariyog'", "Yangi rezavorlar", "Tabiiy asal"],
-    image: "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?auto=format&fit=crop&w=800&q=80",
+    image: "https://media.istockphoto.com/id/1434918490/photo/cute-little-girl-eats-fruit-salad.jpg?s=612x612&w=0&k=20&c=8zi80wlKZADN_koDY7EXg-kAzeyhiPlYdtJvM4BfLDQ=",
     chefNote: "Bolalar uchun kunning mukammal boshlanishi. Suli yormasi oshqozon uchun yengil va energiya bilan ta'minlaydi."
   },
   {

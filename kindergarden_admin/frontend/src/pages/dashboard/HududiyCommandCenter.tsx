@@ -173,7 +173,5 @@ export const HududiyCommandCenter = () => {
     </div>
   );
 };
- </div>
-    </div>
-  );
-};
+
+export default HududiyCommandCenter;

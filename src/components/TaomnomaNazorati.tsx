@@ -34,7 +34,7 @@ const foodItems = [
   { image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&h=300&fit=crop", label: "Pizza" },
   { image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=300&h=300&fit=crop", label: "Sho'rva" },
   { image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&h=300&fit=crop", label: "Qahva" },
-  { image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&h=300&fit=crop", label: "Salat" },
+  { image: "https://media.istockphoto.com/id/1434918490/photo/cute-little-girl-eats-fruit-salad.jpg?s=612x612&w=0&k=20&c=8zi80wlKZADN_koDY7EXg-kAzeyhiPlYdtJvM4BfLDQ=", label: "Salat" },
   { image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=300&h=300&fit=crop", label: "Shirinlik" },
   { image: "https://images.unsplash.com/photo-1551028150-64b9f398f678?w=300&h=300&fit=crop", label: "Go'sht" },
   { image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&h=300&fit=crop", label: "Tort" },

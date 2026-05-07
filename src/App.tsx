@@ -99,7 +99,7 @@ export default function App() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white/95 backdrop-blur-sm p-6 rounded-[2rem] shadow-2xl border border-slate-100 min-w-[200px]">
+        <div className="bg-white/95 backdrop-blur-sm p-6 rounded-[2rem] shadow-2xl border border-slate-100 min-w-[200px] relative z-[100]">
           <p className="font-black text-slate-900 text-lg mb-3 border-b border-slate-100 pb-3">{label}</p>
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center justify-between gap-6 py-2">
@@ -118,20 +118,22 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white transition-colors duration-700">
-      <Header 
-        isLangOpen={isLangOpen}
-        setIsLangOpen={setIsLangOpen}
-        isMobileMenuOpen={isMobileMenuOpen}
-        setIsMenuOpen={setIsMenuOpen}
-        langRef={langRef}
-        langBtnRef={langBtnRef}
-        mobileMenuBtnRef={mobileMenuBtnRef}
-        mobileMenuRef={mobileMenuRef}
-        menuItems={menuItems}
-        activeMenu={activeMenu}
-        setActiveMenu={setActiveMenu}
-        notify={notify}
-      />
+      {activeMenu !== 'Kirish' && (
+        <Header 
+          isLangOpen={isLangOpen}
+          setIsLangOpen={setIsLangOpen}
+          isMobileMenuOpen={isMobileMenuOpen}
+          setIsMenuOpen={setIsMenuOpen}
+          langRef={langRef}
+          langBtnRef={langBtnRef}
+          mobileMenuBtnRef={mobileMenuBtnRef}
+          mobileMenuRef={mobileMenuRef}
+          menuItems={menuItems}
+          activeMenu={activeMenu}
+          setActiveMenu={setActiveMenu}
+          notify={notify}
+        />
+      )}
 
       <main className="max-w-[1400px] mx-auto px-4 md:px-6 py-6 md:py-12 relative">
         <div className={`relative z-10 rounded-[4rem] transition-all duration-700`}>
@@ -160,7 +162,7 @@ export default function App() {
         </div>
       </main>
       
-      <Footer />
+      {activeMenu !== 'Kirish' && <Footer />}
 
       <Notification 
         showNotification={showNotification}

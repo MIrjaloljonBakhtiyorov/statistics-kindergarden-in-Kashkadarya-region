@@ -1,11 +1,11 @@
 import { Baby, School, Users, TrendingUp, LayoutGrid } from 'lucide-react';
 
 export const stats = [
-  { label: '3-7 YOSHLI BOLALAR SONI', value: '341,403', icon: Baby, color: 'from-blue-500 to-blue-600', bg: 'bg-blue-50' },
-  { label: 'JAMI MTTlar SONI', value: '4,439', icon: School, color: 'from-emerald-500 to-emerald-600', bg: 'bg-emerald-50' },
-  { label: 'MTTlardagi jami bolalar soni', value: '243,901', icon: Users, color: 'from-indigo-500 to-indigo-700', bg: 'bg-indigo-50' },
-  { label: 'BOLALARNI QAMRAB OLISH FOIZI', value: '71.44%', icon: TrendingUp, color: 'from-rose-500 to-rose-600', bg: 'bg-rose-50' },
-  { label: 'QASHQADARYODAGI MTT TURLARI', value: '5 TA', icon: LayoutGrid, color: 'from-amber-500 to-amber-600', bg: 'bg-amber-50' },
+  { label: '3-7 YOSHLI BOLALAR SONI', value: '341,403', icon: Baby, color: 'from-blue-600 to-indigo-600', bg: 'bg-blue-50/50' },
+  { label: 'JAMI MTTlar SONI', value: '4,439', icon: School, color: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-50/50' },
+  { label: 'MTTlardagi jami bolalar soni', value: '243,901', icon: Users, color: 'from-violet-600 to-purple-700', bg: 'bg-violet-50/50' },
+  { label: 'BOLALARNI QAMRAB OLISH FOIZI', value: '71.44%', icon: TrendingUp, color: 'from-rose-500 to-pink-600', bg: 'bg-rose-50/50' },
+  { label: 'QASHQADARYODAGI MTT TURLARI', value: '5 TA', icon: LayoutGrid, color: 'from-orange-500 to-amber-600', bg: 'bg-orange-50/50' },
 ];
 
 export const attendanceData = [
@@ -57,7 +57,7 @@ export const kindergartenTypes = [
   },
 ];
 
-export const COLORS = ['#4042a3', '#b0740c', '#177656', '#d9092c', '#5925d3'];
+export const COLORS = ['#2563eb', '#10b981', '#7c3aed', '#f43f5e', '#f59e0b'];
 
 export const districts = [
   { 
@@ -372,7 +372,7 @@ export const productData = [
 import { Milk, Beef, Wheat, Carrot, Pizza } from 'lucide-react';
 
 export const products = [
-  { id: 'Sut', label: 'SUT', icon: Milk, color: '#3b82f6', grad: 'from-blue-500 to-blue-600', unit: 'litr' },
+  { id: 'Sut', label: 'SUT', icon: Milk, color: '#f0f0f1', grad: 'from-blue-500 to-blue-600', unit: 'litr' },
   { id: 'Go_sht', label: 'GO\'SHT', icon: Beef, color: '#ef4444', grad: 'from-red-500 to-red-600', unit: 'kg' },
   { id: 'Guruch', label: 'GURUCH', icon: Wheat, color: '#10b981', grad: 'from-emerald-500 to-emerald-600', unit: 'kg' },
   { id: 'Sabzavot', label: 'SABZAVOT', icon: Carrot, color: '#f59e0b', grad: 'from-amber-500 to-amber-600', unit: 'kg' },
@@ -387,8 +387,8 @@ export const languages = [
 ];
 
 export const kindergartenImages = [
-  { url: 'https://plus.unsplash.com/premium_photo-1661266853185-dc6e7a783cf5?q=80&w=1470&auto=format&fit=crop', title: 'Shodumon bolajonlar' },
-  { url: 'https://plus.unsplash.com/premium_photo-1661281406994-090d20b3d61c?w=800&auto=format&fit=crop', title: 'Sog\'lom ovqatlanish' },
-  { url: 'https://plus.unsplash.com/premium_photo-1701984401543-4b635f3a03b5?q=80&w=800&auto=format&fit=crop', title: 'Ta\'lim jarayoni' },
-  { url: 'https://plus.unsplash.com/premium_photo-1681842143575-03bf1be4c11c?w=800&auto=format&fit=crop', title: 'Quvnoq o\'yinlar' },
+  { url: 'https://plus.unsplash.com/premium_photo-1663091062435-ef04d1ea008c?w=1200&auto=format&fit=crop&q=80', title: 'Shodumon bolajonlar' },
+  { url: 'https://media.istockphoto.com/id/1434918490/photo/cute-little-girl-eats-fruit-salad.jpg?s=612x612&w=0&k=20&c=8zi80wlKZADN_koDY7EXg-kAzeyhiPlYdtJvM4BfLDQ=', title: 'Sog\'lom ovqatlanish' },
+  { url: 'https://plus.unsplash.com/premium_photo-1661373657799-a9b4d6543c07?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', title: 'Ta\'lim jarayoni' },
+  { url: 'https://plus.unsplash.com/premium_photo-1723579338213-da0a162d6977?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', title: 'Quvnoq o\'yinlar' },
 ];

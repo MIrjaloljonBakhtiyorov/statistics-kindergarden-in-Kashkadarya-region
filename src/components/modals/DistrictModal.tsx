@@ -32,13 +32,13 @@ const DistrictModal: React.FC<DistrictModalProps> = ({ district }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 pointer-events-auto"
+        className="absolute inset-0 bg-transparent pointer-events-auto"
       />
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="relative z-50 bg-white/95 backdrop-blur-3xl rounded-[1%] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] border border-white/60 p-8 w-[52vw] max-h-[70vh] pointer-events-auto overflow-hidden select-none flex flex-col"
+        className="relative z-50 bg-white/95 backdrop-blur-3xl rounded-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] border border-white/60 p-8 w-[52vw] max-h-[70vh] pointer-events-auto overflow-hidden select-none flex flex-col"
       >
         {/* Background Decor */}
         <div className={`absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br ${sectorColor} opacity-5 rounded-full blur-[80px]`} />

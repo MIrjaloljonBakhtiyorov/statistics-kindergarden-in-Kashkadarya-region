@@ -1,6 +1,16 @@
 @import "tailwindcss";
 
+@layer base {
+  body {
+    @apply text-black;
+  }
+}
+
 @layer utilities {
+  .text-stat-blue {
+    color: #0000FF; /* Sharp blue */
+  }
+
   .text-aqlvoy-3d {
     @apply font-black tracking-tighter;
     background: linear-gradient(to right, #ef4444, #eab308, #22c55e, #3b82f6, #ec4899);
@@ -8,6 +18,7 @@
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1));
   }
+... (rest unchanged)
 
   .text-oshpaz-bubbly {
     @apply font-black tracking-tight;
