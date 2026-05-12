@@ -4,12 +4,12 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { BarChart3, Map, Menu, TrendingDown, TrendingUp, ShoppingCart, ChefHat } from 'lucide-react';
 import TaomnomaNazorati from './components/TaomnomaNazorati';
 import WelcomeScreen from './components/WelcomeScreen';
 import RetseptlarKitobi from './components/RetseptlarKitobi';
 import MahsulotSarfi from './components/MahsulotSarfi';
-import LoginSection from './components/LoginSection';
 import AdminLogin from './components/AdminLogin';
 
 // New Components
@@ -21,7 +21,8 @@ import MTTDetailModal from './components/modals/MTTDetailModal';
 import Notification from './components/ui/Notification';
 
 export default function App() {
-  const [activeMenu, setActiveMenu] = useState('Viloyat statistikasi');
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [isMobileMenuOpen, setIsMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -89,11 +90,11 @@ export default function App() {
   }
 
   const menuItems = [
-    { name: 'Viloyat statistikasi', icon: BarChart3 },
-    { name: 'Tumanlar statistikasi', icon: Map },
-    { name: 'Mahsulot sarfi', icon: ShoppingCart },
-    { name: 'Taomnoma nazorati', icon: Menu },
-    { name: 'Retseptlar kitobi', icon: ChefHat },
+    { name: 'Viloyat statistikasi', icon: BarChart3, path: '/viloyat-statistikasi' },
+    { name: 'Tumanlar statistikasi', icon: Map, path: '/tumanlar-statistikasi' },
+    { name: 'Mahsulot sarfi', icon: ShoppingCart, path: '/mahsulot-sarfi' },
+    { name: 'Taomnoma nazorati', icon: Menu, path: '/taomnoma-nazorati' },
+    { name: 'Retseptlar kitobi', icon: ChefHat, path: '/retseptlar-kitobi' },
   ];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -116,9 +117,11 @@ export default function App() {
     return null;
   };
 
+  const isLoginPage = location.pathname === '/login';
+
   return (
     <div className="min-h-screen bg-white transition-colors duration-700">
-      {activeMenu !== 'Kirish' && (
+      {!isLoginPage && (
         <Header 
           isLangOpen={isLangOpen}
           setIsLangOpen={setIsLangOpen}
@@ -129,40 +132,39 @@ export default function App() {
           mobileMenuBtnRef={mobileMenuBtnRef}
           mobileMenuRef={mobileMenuRef}
           menuItems={menuItems}
-          activeMenu={activeMenu}
-          setActiveMenu={setActiveMenu}
           notify={notify}
         />
       )}
 
       <main className="max-w-[1400px] mx-auto px-4 md:px-6 py-6 md:py-12 relative">
         <div className={`relative z-10 rounded-[4rem] transition-all duration-700`}>
-          {activeMenu === 'Viloyat statistikasi' ? (
-            <ViloyatStatistikasi 
-              setSelectedMTTType={setSelectedMTTType}
-              CustomTooltip={CustomTooltip}
-            />
-          ) : activeMenu === 'Tumanlar statistikasi' ? (
-            <TumanStatistikasi 
-              CustomTooltip={CustomTooltip}
-            />
-          ) : activeMenu === 'Mahsulot sarfi' ? (
-            <MahsulotSarfi />
-          ) : activeMenu === 'Taomnoma nazorati' ? (
-            <TaomnomaNazorati />
-          ) : activeMenu === 'Retseptlar kitobi' ? (
-            <RetseptlarKitobi />
-          ) : activeMenu === 'Kirish' ? (
-            <AdminLogin onClose={() => setActiveMenu('Viloyat statistikasi')} />
-          ) : (
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center">
-              <p className="text-slate-600">Bu yerda {activeMenu} haqidagi ma'lumotlar aks etadi.</p>
-            </div>
-          )}
+          <Routes>
+            <Route path="/viloyat-statistikasi" element={
+              <ViloyatStatistikasi 
+                setSelectedMTTType={setSelectedMTTType}
+                CustomTooltip={CustomTooltip}
+              />
+            } />
+            <Route path="/tumanlar-statistikasi" element={
+              <TumanStatistikasi 
+                CustomTooltip={CustomTooltip}
+              />
+            } />
+            <Route path="/mahsulot-sarfi" element={<MahsulotSarfi />} />
+            <Route path="/taomnoma-nazorati" element={<TaomnomaNazorati />} />
+            <Route path="/retseptlar-kitobi" element={<RetseptlarKitobi />} />
+            <Route path="/login" element={<AdminLogin onClose={() => navigate('/viloyat-statistikasi')} />} />
+            <Route path="/" element={<Navigate to="/viloyat-statistikasi" replace />} />
+            <Route path="*" element={
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center">
+                <p className="text-slate-600">Sahifa topilmadi.</p>
+              </div>
+            } />
+          </Routes>
         </div>
       </main>
       
-      {activeMenu !== 'Kirish' && <Footer />}
+      {!isLoginPage && <Footer />}
 
       <Notification 
         showNotification={showNotification}

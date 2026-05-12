@@ -1,11 +1,11 @@
 import { Baby, School, Users, TrendingUp, LayoutGrid } from 'lucide-react';
 
 export const stats = [
-  { label: '3-7 YOSHLI BOLALAR SONI', value: '341,403', icon: Baby, color: 'from-blue-600 to-indigo-600', bg: 'bg-blue-50/50' },
-  { label: 'JAMI MTTlar SONI', value: '4,439', icon: School, color: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-50/50' },
-  { label: 'MTTlardagi jami bolalar soni', value: '243,901', icon: Users, color: 'from-violet-600 to-purple-700', bg: 'bg-violet-50/50' },
-  { label: 'BOLALARNI QAMRAB OLISH FOIZI', value: '71.44%', icon: TrendingUp, color: 'from-rose-500 to-pink-600', bg: 'bg-rose-50/50' },
-  { label: 'QASHQADARYODAGI MTT TURLARI', value: '5 TA', icon: LayoutGrid, color: 'from-orange-500 to-amber-600', bg: 'bg-orange-50/50' },
+  { label: '3-7 YOSHLI BOLALAR SONI', value: '341,403', icon: Baby, color: 'from-[#003580] to-[#1565C0]', bg: 'bg-blue-100/50' },
+  { label: 'JAMI MTTlar SONI', value: '4,439', icon: School, color: 'from-[#1B5E20] to-[#2E7D32]', bg: 'bg-green-100/50' },
+  { label: 'MTTlardagi jami bolalar soni', value: '243,901', icon: Users, color: 'from-[#4527A0] to-[#6A1B9A]', bg: 'bg-purple-100/50' },
+  { label: 'BOLALARNI QAMRAB OLISH FOIZI', value: '71.44%', icon: TrendingUp, color: 'from-[#B71C1C] to-[#C62828]', bg: 'bg-red-100/50' },
+  { label: 'QASHQADARYODAGI MTT TURLARI', value: '5 TA', icon: LayoutGrid, color: 'from-[#E65100] to-[#BF360C]', bg: 'bg-orange-100/50' },
 ];
 
 export const attendanceData = [
@@ -57,7 +57,7 @@ export const kindergartenTypes = [
   },
 ];
 
-export const COLORS = ['#2563eb', '#10b981', '#7c3aed', '#f43f5e', '#f59e0b'];
+export const COLORS = ['#003580', '#1B5E20', '#4527A0', '#0277BD', '#00695C'];
 
 export const districts = [
   { 

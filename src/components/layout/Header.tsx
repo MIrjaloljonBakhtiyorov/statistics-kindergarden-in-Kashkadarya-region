@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Globe, LogIn, Menu, X } from 'lucide-react';
 import { languages } from '../../constants';
 
@@ -12,8 +13,6 @@ interface HeaderProps {
   mobileMenuBtnRef: React.RefObject<HTMLButtonElement>;
   mobileMenuRef: React.RefObject<HTMLDivElement>;
   menuItems: any[];
-  activeMenu: string;
-  setActiveMenu: (menu: string) => void;
   notify: () => void;
 }
 
@@ -27,14 +26,15 @@ const Header: React.FC<HeaderProps> = ({
   mobileMenuBtnRef,
   mobileMenuRef,
   menuItems,
-  activeMenu,
-  setActiveMenu,
   notify,
 }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   return (
     <header className="bg-white border-b border-slate-200/50 sticky top-0 z-50 shadow-sm">
       <nav className="max-w-[1400px] mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/viloyat-statistikasi')}>
           <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center text-white font-black text-xl md:text-2xl shadow-lg border border-indigo-400/20">R</div>
           <div className="flex flex-col justify-center">
             <h1 className="text-lg md:text-2xl leading-none select-none flex items-baseline font-black text-black">
@@ -49,14 +49,14 @@ const Header: React.FC<HeaderProps> = ({
           {menuItems.map((item) => (
             <button
               key={item.name}
-              onClick={() => setActiveMenu(item.name)}
+              onClick={() => navigate(item.path)}
               className={`flex items-center px-5 py-2.5 rounded-xl text-[15px] font-bold transition-all duration-300 ${
-                activeMenu === item.name
+                location.pathname === item.path
                   ? 'text-indigo-600 scale-[1.02]'
                   : 'text-slate-500 hover:text-slate-700'
               }`}
             >
-              <item.icon className={`mr-2.5 h-4 w-4 ${activeMenu === item.name ? 'text-indigo-500' : 'text-slate-400'}`} />
+              <item.icon className={`mr-2.5 h-4 w-4 ${location.pathname === item.path ? 'text-indigo-500' : 'text-slate-400'}`} />
               {item.name}
             </button>
           ))}
@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({
           </div>
 
           <button 
-            onClick={() => setActiveMenu('Kirish')}
+            onClick={() => navigate('/login')}
             className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95"
           >
             <LogIn className="h-4 w-4" />
@@ -118,16 +118,16 @@ const Header: React.FC<HeaderProps> = ({
               <button
                 key={item.name}
                 onClick={() => {
-                  setActiveMenu(item.name);
+                  navigate(item.path);
                   setIsMenuOpen(false);
                 }}
                 className={`flex items-center px-5 py-4 rounded-xl text-sm font-bold transition-all ${
-                  activeMenu === item.name
+                  location.pathname === item.path
                     ? 'bg-indigo-600 text-white shadow-lg'
                     : 'text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                <item.icon className={`mr-3 h-5 w-5 ${activeMenu === item.name ? 'text-white' : 'text-slate-400'}`} />
+                <item.icon className={`mr-3 h-5 w-5 ${location.pathname === item.path ? 'text-white' : 'text-slate-400'}`} />
                 {item.name}
               </button>
             ))}
@@ -165,7 +165,7 @@ const Header: React.FC<HeaderProps> = ({
 
               <button 
                 onClick={() => {
-                  setActiveMenu('Kirish');
+                  navigate('/login');
                   setIsMenuOpen(false);
                 }}
                 className="flex items-center justify-center gap-3 px-5 py-4 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all"
@@ -182,3 +182,4 @@ const Header: React.FC<HeaderProps> = ({
 };
 
 export default Header;
+
