@@ -1,9 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { 
-  School, Users, Activity, TrendingUp, 
-  Baby, CheckCircle2, MapPin
-} from 'lucide-react';
+import { School, Users, TrendingUp, MapPin } from 'lucide-react';
 
 interface DistrictModalProps {
   district: {
@@ -18,118 +15,97 @@ interface DistrictModalProps {
       types: { name: string; count: number; children: number }[];
     };
   } | null;
+  x?: number;
+  y?: number;
 }
 
-const DistrictModal: React.FC<DistrictModalProps> = ({ district }) => {
+const DistrictModal: React.FC<DistrictModalProps> = ({ district, x = 0, y = 0 }) => {
   if (!district) return null;
 
   const details = district.details;
-  const sectorColor = district.name.includes('sh.') ? 'from-blue-600 to-cyan-500' : 'from-indigo-600 to-purple-500';
+  const coverage = details?.coveragePercentage ?? district.attendance ?? 0;
+  const children = details?.totalChildren3to7 ?? 0;
+  const covered = details?.totalCoveredChildren ?? 0;
+  const mttCount = details?.totalMTT ?? district.count ?? 0;
+  const isCity = district.name.includes('sh.');
 
   return (
-    <div className="fixed inset-0 z-[1500] flex items-center justify-center p-6 pointer-events-none">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-transparent pointer-events-auto"
-      />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="relative z-50 bg-white/95 backdrop-blur-3xl rounded-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] border border-white/60 p-8 w-[52vw] max-h-[70vh] pointer-events-auto overflow-hidden select-none flex flex-col"
-      >
-        {/* Background Decor */}
-        <div className={`absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br ${sectorColor} opacity-5 rounded-full blur-[80px]`} />
-        
-        <div className="relative space-y-6 overflow-y-auto flex-1 custom-scrollbar pr-2">
-          {/* Header */}
-          <div className="flex items-center gap-4">
-            <div className={`w-14 h-14 bg-gradient-to-br ${sectorColor} rounded-xl flex items-center justify-center text-white shadow-lg relative overflow-hidden`}>
-              <Activity className="w-6 h-6 relative z-10" />
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 bg-white/10 scale-150 rotate-45" 
-              />
-            </div>
-            <div>
-              <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">{district.name}</h3>
-              <div className="flex items-center gap-2 mt-1.5">
-                <MapPin className="w-3 h-3 text-indigo-500" />
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Hududiy ko'rsatkichlar</span>
-              </div>
-            </div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.88, y: 8 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.88, y: 8 }}
+      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        position: 'fixed',
+        left: Math.min(x + 16, window.innerWidth - 280),
+        top: Math.min(y - 10, window.innerHeight - 220),
+        zIndex: 9999,
+        pointerEvents: 'none',
+        width: 260,
+      }}
+    >
+      <div style={{
+        background: 'rgba(10,14,22,0.96)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 18,
+        overflow: 'hidden',
+        boxShadow: '0 24px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset',
+      }}>
+        {/* header */}
+        <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: isCity ? '#60a5fa' : '#34d399' }} />
+            <span style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.18em', color: isCity ? '#60a5fa' : '#34d399' }}>
+              {isCity ? 'Shahar' : 'Tuman'}
+            </span>
           </div>
-
-          {/* Primary Stats Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-slate-50 p-5 rounded-[1.5rem] border border-slate-100">
-              <div className="flex items-center gap-2 mb-2">
-                <School className="w-3.5 h-3.5 text-indigo-500" />
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Jami MTTlar</span>
-              </div>
-              <p className="text-3xl font-black text-slate-900 tracking-tighter">{district.count}</p>
-            </div>
-
-            <div className="bg-slate-50 p-5 rounded-[1.5rem] border border-slate-100">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Qamrov</span>
-              </div>
-              <p className="text-3xl font-black text-slate-900 tracking-tighter">{district.attendance}%</p>
-            </div>
-          </div>
-
-          {/* Detailed Data Section */}
-          {details && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between px-1">
-                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <Baby className="w-3.5 h-3.5 text-indigo-500" />
-                  Demografik ma'lumot
-                </h4>
-              </div>
-              
-              <div className="bg-indigo-50/30 p-5 rounded-[1.5rem] border border-indigo-100/50 space-y-3">
-                <div className="flex justify-between items-center">
-                   <span className="text-[10px] font-bold text-slate-500 uppercase">3-7 yoshli bolalar</span>
-                   <span className="text-sm font-black text-indigo-600">{details.totalChildren3to7.toLocaleString()}</span>
-                </div>
-                <div className="h-px bg-indigo-100/50" />
-                <div className="flex justify-between items-center">
-                   <span className="text-[10px] font-bold text-slate-500 uppercase">Qamrab olingan</span>
-                   <span className="text-sm font-black text-emerald-600">{details.totalCoveredChildren.toLocaleString()}</span>
-                </div>
-              </div>
-
-              {/* Compact MTT Types */}
-              <div className="space-y-2">
-                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1">MTT turlari</h4>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {details.types.slice(0, 3).map((type, idx) => (
-                    <div key={idx} className="flex justify-between items-center px-5 py-2.5 bg-white rounded-xl border border-slate-100">
-                      <span className="text-[9px] font-bold text-slate-600 uppercase truncate max-w-[150px]">{type.name}</span>
-                      <span className="text-[10px] font-black text-slate-900">{type.count} ta</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Footer info */}
-          <div className="pt-5 border-t border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="text-[9px] font-black text-slate-500 uppercase">Ma'lumotlar yangilangan</span>
-            </div>
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <MapPin style={{ width: 12, height: 12, color: 'rgba(255,255,255,0.3)' }} />
+            <p style={{ fontSize: 15, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>{district.name}</p>
           </div>
         </div>
-      </motion.div>
-    </div>
+
+        {/* stats */}
+        <div style={{ padding: '10px 16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+            {[
+              { icon: School, label: 'MTTlar', value: mttCount, accent: '#818cf8' },
+              { icon: TrendingUp, label: 'Qamrov', value: `${coverage}%`, accent: '#34d399' },
+              { icon: Users, label: '3-7 yosh', value: children.toLocaleString(), accent: '#60a5fa' },
+              { icon: Users, label: 'Qamrab', value: covered.toLocaleString(), accent: '#f472b6' },
+            ].map((s, i) => (
+              <div key={i} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: '8px 10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <p style={{ fontSize: 8, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.3)', marginBottom: 3 }}>{s.label}</p>
+                <p style={{ fontSize: 14, fontWeight: 900, color: s.accent }}>{s.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* coverage bar */}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Qamrov darajasi</span>
+              <span style={{ fontSize: 10, fontWeight: 900, color: '#34d399' }}>{coverage}%</span>
+            </div>
+            <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 4, overflow: 'hidden' }}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(coverage, 100)}%` }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+                style={{ height: '100%', background: 'linear-gradient(90deg, #10b981, #34d399)', borderRadius: 4 }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* footer hint */}
+        <div style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+          <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 600, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+            Batafsil uchun bosing
+          </p>
+        </div>
+      </div>
+    </motion.div>
   );
 };
 

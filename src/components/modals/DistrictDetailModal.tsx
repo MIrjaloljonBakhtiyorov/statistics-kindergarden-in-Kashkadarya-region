@@ -7,6 +7,20 @@ import {
 } from 'lucide-react';
 import { kindergartenImages } from '../../constants';
 
+type DistrictTypeRow = {
+  name: string;
+  count: number;
+  children: number;
+};
+
+type DistrictDetails = {
+  totalChildren3to7: number;
+  totalMTT: number;
+  totalCoveredChildren: number;
+  coveragePercentage: number;
+  types: DistrictTypeRow[];
+};
+
 interface DistrictDetailModalProps {
   district: any;
   onClose: () => void;
@@ -152,10 +166,12 @@ const DistrictDetailModal: React.FC<DistrictDetailModalProps> = ({ district, onC
                             { label: 'Muassasalar', value: details.totalMTT, icon: School, color: 'text-stat-blue', bg: 'bg-purple-50' }
                           ].map((stat, i) => (
                             <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300">
-                              <div className={`w-10 h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center mb-4`}>
+                              <div className={`w-10 h-10 ${stat.bg} rounded-xl flex items-center justify-center mb-4`}>
                                 <stat.icon className="w-5 h-5" />
                               </div>
-                              <p className="text-2xl font-black text-stat-blue tracking-tighter mb-1">{stat.value.toLocaleString()}</p>
+                              <p className="text-2xl font-black text-[#003580] tracking-tighter mb-1">
+                                {stat.value.toLocaleString()} <span className="text-[14px] font-black">nafar</span>
+                              </p>
                               <p className="text-[9px] font-bold text-black uppercase tracking-widest">{stat.label}</p>
                             </div>
                           ))}

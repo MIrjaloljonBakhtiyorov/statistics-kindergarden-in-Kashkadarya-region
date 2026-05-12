@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Sector, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from 'recharts';
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Sector, BarChart, Bar, XAxis, YAxis, CartesianGrid, AreaChart, Area } from 'recharts';
 import { kindergartenTypes, COLORS, kindergartenImages, districts } from '../../constants';
 import StatsGrid from './StatsGrid';
 import { motion } from 'motion/react';
-import { Info, Users, Home, School, Building2, Building, Wallet, TrendingUp, Clock, MapPin, ArrowUpRight, ShieldCheck, BrainCircuit, Target, Lightbulb, Activity } from 'lucide-react';
+import { Info, Users, Home, School, Building2, Building, Wallet, TrendingUp, Clock, MapPin, ShieldCheck, BrainCircuit, Target, Lightbulb, Activity } from 'lucide-react';
 
 interface ViloyatStatistikasiProps {
   setSelectedMTTType: (type: any) => void;
@@ -616,59 +616,75 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
             </div>
 
             {/* Profit & Savings Analysis Section - Fullscreen (100vh) */}
-            <div className="mt-6 pt-6 border-t border-slate-100 h-[calc(100vh-4rem)] flex flex-col">
+            <div className="mt-6 pt-6 border-t border-slate-100 h-[80vh] flex flex-col">
               <div className="grid gap-6 xl:grid-cols-2 flex-1 min-h-0">
                 {/* Left Column - District Analytics (Scrollable) */}
                 <div className="flex flex-col min-h-0">
-                  <div className="flex-1 rounded-[2.5rem] border-2 border-slate-200 bg-white p-8 shadow-2xl shadow-slate-200/50 relative overflow-hidden flex flex-col min-h-0">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500"></div>
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-8 shrink-0">
-                      <div>
-                          <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-700 flex items-center gap-3 mb-2">
-                             <TrendingUp className="w-5 h-5" /> TUMANLAR KESIMIDA FOYDA TAHLILI
+                  <div className="flex-1 rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100/80 relative overflow-hidden flex flex-col min-h-0">
+                    {/* Top accent bar */}
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500" />
+
+                    {/* Header */}
+                    <div className="px-6 pt-7 pb-4 shrink-0 border-b border-slate-100">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-emerald-600 flex items-center gap-2 mb-1">
+                            <TrendingUp className="w-4 h-4" /> Tumanlar kesimida foyda tahlili
                           </p>
-                          <h4 className="text-3xl md:text-4xl font-black text-slate-950 leading-tight tracking-tighter">Tumanlararo tejalgan mablag‘lar</h4>
+                          <h4 className="text-[18px] font-black text-slate-900 leading-tight">{"Tumanlararo tejalgan mablag’lar"}</h4>
+                        </div>
+                        <div className="flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1.5">
+                          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-[11px] font-bold text-emerald-700">{districtAnalytics.length} tuman</span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto pr-3 custom-scrollbar space-y-4">
+                    {/* Scrollable list - 6 items visible, rest scrollable */}
+                    <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-3 space-y-2" style={{ maxHeight: "80vh" }}>
                       {districtAnalytics.map((item, idx) => (
-                        <motion.div 
-                          initial={{ opacity: 0, x: -10 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.01 }}
+                        <motion.div
+                          initial={{ opacity: 0, y: 6 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.03 }}
                           viewport={{ once: true }}
-                          key={item.name} 
-                          className="group flex flex-col gap-4 rounded-[2rem] border-2 border-slate-100 bg-white/70 p-6 transition-all duration-300 hover:shadow-[0_20px_60px_rgba(16,185,129,0.15)] hover:border-emerald-300 hover:bg-white sm:flex-row sm:items-center sm:justify-between cursor-pointer"
+                          key={item.name}
+                          className="group flex items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 px-4 py-3 transition-all duration-200 hover:bg-white hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-50 cursor-pointer"
                         >
-                          <div className="flex items-center gap-6">
-                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white group-hover:bg-emerald-500 transition-colors text-xl font-black shadow-lg">{String(item.rank).padStart(2, '0')}</div>
-                            <div>
-                              <p className="text-xl md:text-2xl font-black uppercase tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors">{item.name}</p>
-                              <p className="text-sm font-bold text-slate-400">{item.absent.toLocaleString()} nafar bola</p>
+                          {/* Rank + Name */}
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white group-hover:bg-emerald-500 transition-colors text-sm font-black shadow-md">
+                              {String(item.rank).padStart(2, "0")}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-black uppercase tracking-tight text-slate-800 group-hover:text-emerald-700 transition-colors truncate">{item.name}</p>
+                              <p className="text-xs font-semibold text-slate-400">{item.absent.toLocaleString()} nafar bola</p>
                             </div>
                           </div>
 
-                          <div className="flex flex-col gap-1.5 text-right">
-<div className="inline-flex items-center justify-end gap-2 rounded-xl bg-white px-5 py-2.5 text-xl md:text-2xl font-black border border-slate-100 group-hover:border-emerald-100 shadow-sm text-xl font-black tracking-tighter text-[#003580]">
-                              +{(item.profit / 1000000).toFixed(1)}m <span className="text-xs text-slate-400 uppercase ml-1">so'm</span>
-                            </div>
-                            <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 justify-end mt-1">
-                              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                              Effek: {item.efficiency}%
-                            </div>
-                          </div>
-
-                          <div className="flex h-10 items-center gap-1.5 opacity-40 group-hover:opacity-100 transition-opacity pr-2">
+                          {/* Sparkline */}
+                          <div className="hidden sm:flex h-8 items-end gap-0.5 opacity-30 group-hover:opacity-90 transition-opacity">
                             {item.sparkline.map((value, sparkIndex) => (
                               <motion.span
                                 initial={{ height: 0 }}
-                                whileInView={{ height: `${value * 3.5 + 8}px` }}
+                                whileInView={{ height: `${value * 2.5 + 6}px` }}
                                 transition={{ duration: 0.4, delay: sparkIndex * 0.03, ease: "easeOut" }}
                                 key={sparkIndex}
-                                className="block w-2 rounded-full bg-emerald-500"
+                                className="block w-1.5 rounded-full bg-emerald-500"
                               />
                             ))}
+                          </div>
+
+                          {/* Profit + Efficiency */}
+                          <div className="flex flex-col items-end gap-1 shrink-0">
+                            <div className="inline-flex items-baseline gap-1 rounded-lg bg-white border border-slate-100 group-hover:border-emerald-100 px-3 py-1.5 shadow-sm">
+                              <span className="text-base font-black tracking-tight text-[#003580]">+{(item.profit / 1000000).toFixed(1)}m</span>
+                              <span className="text-[10px] font-bold text-slate-400 uppercase">so’m</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                              Effek: {item.efficiency}%
+                            </div>
                           </div>
                         </motion.div>
                       ))}
@@ -676,118 +692,172 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                   </div>
                 </div>
 
-                {/* Right Column - Overall Profit and AI Monitoring */}
-                <div className="flex flex-col gap-6 min-h-0">
-                  {/* Overall Profit Chart */}
-                  <motion.div 
-                    whileHover={{ scale: 1.01 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    className="flex-1 min-h-0 relative overflow-hidden rounded-[3rem] bg-[#0B3B2E] p-8 text-white shadow-[0_22px_70px_rgba(0,0,0,0.28)] ring-1 ring-white/10 group flex flex-col justify-between"
+                {/* Right Column */}
+                <div className="flex flex-col gap-4 min-h-0">
+
+                  {/* ── VILOYAT UMUMIY FOYDASI ── */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex-1 min-h-0 relative overflow-hidden flex flex-col"
+                    style={{ borderRadius: 24, background: "linear-gradient(160deg,#071f14 0%,#0a2d1e 50%,#0c3824 100%)" }}
                   >
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.pattern')] opacity-5" />
-                    <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/20 blur-[80px] group-hover:bg-white/30 transition-all duration-1000" />
-                    
-                    <div className="relative z-10 space-y-6">
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="inline-flex items-center gap-3 rounded-lg bg-white/15 backdrop-blur-xl border border-white/25 px-3 py-1.5 text-[9px] uppercase tracking-[0.15em] text-white shadow-lg">
-                          <ArrowUpRight className="w-4 h-4 text-emerald-300" />
-                          <span className="font-black">VILOYAT UMUMIY FOYDASI</span>
+                    {/* ambient glow */}
+                    <div className="pointer-events-none absolute inset-0">
+                      <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full" style={{ background: "radial-gradient(circle,rgba(52,211,153,0.22) 0%,transparent 70%)" }} />
+                      <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full" style={{ background: "radial-gradient(circle,rgba(16,185,129,0.1) 0%,transparent 70%)" }} />
+                    </div>
+
+                    {/* header row */}
+                    <div className="relative z-10 flex items-center justify-between px-5 pt-5 shrink-0">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl" style={{ background: "rgba(52,211,153,0.18)", border: "1px solid rgba(52,211,153,0.25)" }}>
+                          <TrendingUp className="w-4 h-4 text-emerald-400" />
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-emerald-400/60 leading-none mb-0.5">Viloyat</p>
+                          <p className="text-[11px] font-black uppercase tracking-[0.15em] text-emerald-300/90 leading-none">Umumiy foyda</p>
                         </div>
                       </div>
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.18)" }}>
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50" />
+                          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                        </span>
+                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Live</span>
+                      </div>
+                    </div>
 
-                      <div className="space-y-2">
-                        <h2 className="text-5xl font-black tracking-tighter leading-none">
+                    {/* big metric */}
+                    <div className="relative z-10 px-5 pt-3 pb-3 shrink-0">
+                      <div className="flex items-baseline gap-2 mb-0.5">
+                        <span className="font-black text-white leading-none" style={{ fontSize: "3.2rem", letterSpacing: "-0.04em" }}>
                           {(districts.reduce((acc, d) => {
                             const total = d.details?.totalChildren3to7 || 0;
                             const cov = d.details?.totalCoveredChildren || 0;
                             return acc + (total - Math.round(cov * 0.84)) * 27600;
-                          }, 0) / 1000000000).toFixed(2)} 
-                          <span className="text-2xl font-black text-emerald-300 ml-3 uppercase tracking-tighter">mlrd</span>
-                        </h2>
-                        <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-100/80">Kunlik o'rtacha tejamkorlik</p>
+                          }, 0) / 1000000000).toFixed(2)}
+                        </span>
+                        <span className="text-base font-black text-emerald-400 uppercase tracking-wide pb-1">mlrd so'm</span>
+                      </div>
+                      <p className="text-[9px] font-semibold uppercase tracking-[0.25em]" style={{ color: "rgba(255,255,255,0.22)" }}>{"Kunlik o'rtacha tejamkorlik"}</p>
+
+                      {/* KPI row */}
+                      <div className="grid grid-cols-3 gap-2 mt-3">
+                        {[
+                          { label: "O'sish", val: "+12.4%", accent: "#34d399", bg: "rgba(52,211,153,0.08)", br: "rgba(52,211,153,0.15)" },
+                          { label: "Tumanlar", val: `${districts.length} ta`, accent: "#60a5fa", bg: "rgba(96,165,250,0.08)", br: "rgba(96,165,250,0.15)" },
+                          { label: "Samaradorlik", val: "38.2%", accent: "#fbbf24", bg: "rgba(251,191,36,0.08)", br: "rgba(251,191,36,0.15)" },
+                        ].map((k, i) => (
+                          <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.07 }}
+                            style={{ background: k.bg, border: `1px solid ${k.br}`, borderRadius: 14, padding: "8px 12px" }}>
+                            <p style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.15em", color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>{k.label}</p>
+                            <p style={{ fontSize: 15, fontWeight: 900, color: k.accent, lineHeight: 1 }}>{k.val}</p>
+                          </motion.div>
+                        ))}
                       </div>
                     </div>
 
-                    <div className="flex-1 min-h-0 mt-6 rounded-[2.5rem] bg-black/25 backdrop-blur-md border-2 border-white/15 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.35)] shadow-inner relative ring-1 ring-white/10 group/chart">
-                      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                        <LineChart data={regionalTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    {/* chart */}
+                    <div className="relative z-10 flex-1 min-h-0 px-1 pb-4" style={{ minHeight: 130 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={regionalTrend} margin={{ top: 6, right: 8, left: -22, bottom: 0 }}>
                           <defs>
-                            <linearGradient id="linePremiumVibrant" x1="0" y1="0" x2="1" y2="0">
-                              <stop offset="0%" stopColor="#6ee7b7" stopOpacity={0.9} />
-                              <stop offset="100%" stopColor="#ffffff" stopOpacity={1} />
+                            <linearGradient id="pf2" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#34d399" stopOpacity={0.28} />
+                              <stop offset="100%" stopColor="#34d399" stopOpacity={0} />
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="rgba(255, 255, 255, 0.15)" />
-                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255, 255, 255, 0.7)', fontSize: 11, fontWeight: 800 }} dy={10} />
-                          <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255, 255, 255, 0.9)', fontSize: 11, fontWeight: 900 }} />
-                          <Tooltip 
-                            cursor={{ stroke: 'rgba(255,255,255,0.2)', strokeWidth: 2 }}
+                          <CartesianGrid strokeDasharray="2 8" vertical={false} stroke="rgba(255,255,255,0.04)" />
+                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "rgba(255,255,255,0.28)", fontSize: 10, fontWeight: 600 }} dy={5} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fill: "rgba(255,255,255,0.28)", fontSize: 10, fontWeight: 600 }} />
+                          <Tooltip cursor={{ stroke: "rgba(52,211,153,0.18)", strokeWidth: 1 }}
                             content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="bg-white text-slate-950 p-4 rounded-2xl shadow-2xl">
-                                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-2">{payload[0].payload.name}</p>
-                                  <p className="font-black text-xl">{payload[0].value} <span className="text-xs text-slate-400">mlrd</span></p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }} />
-                          <Line type="monotone" dataKey="profit" stroke="url(#linePremiumVibrant)" strokeWidth={4} dot={{ r: 4, fill: '#fff' }} />
-                        </LineChart>
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div style={{ background: "#071f14", border: "1px solid rgba(52,211,153,0.25)", borderRadius: 12, padding: "8px 13px", boxShadow: "0 16px 32px rgba(0,0,0,0.5)" }}>
+                                    <p style={{ fontSize: 9, fontWeight: 800, color: "#34d399", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 3 }}>{payload[0].payload.name}</p>
+                                    <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                                      <span style={{ fontSize: 20, fontWeight: 900, color: "#fff" }}>{payload[0].value}</span>
+                                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>mlrd</span>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Area type="monotone" dataKey="profit" stroke="#34d399" strokeWidth={2.5} fill="url(#pf2)"
+                            dot={{ r: 3.5, fill: "#071f14", strokeWidth: 2, stroke: "#34d399" }}
+                            activeDot={{ r: 6, fill: "#fff", stroke: "#34d399", strokeWidth: 2 }}
+                          />
+                        </AreaChart>
                       </ResponsiveContainer>
                     </div>
                   </motion.div>
 
-                  {/* AI Monitoring Section */}
-                  <div className="flex-1 min-h-0 rounded-[3rem] border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/60 relative overflow-hidden group/ai flex flex-col">
-                    <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-100/50 rounded-full -mr-15 -mt-15 blur-3xl animate-pulse"></div>
-                    
-                    <div className="relative z-10 flex flex-col gap-2 mb-6 shrink-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600 flex items-center gap-2">
-                           <BrainCircuit className="w-4 h-4" /> AI TIZIMI
-                        </p>
-                        <div className="flex items-center gap-1 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">
-                          <span className="relative flex h-1 w-1">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-1 w-1 bg-rose-500"></span>
-                          </span>
-                          <span className="text-[7px] font-black text-rose-600 uppercase tracking-widest">LIVE</span>
+                  {/* ── AI MONITORING ── */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex-1 min-h-0 relative overflow-hidden flex flex-col"
+                    style={{ borderRadius: 24, background: "#fff", border: "1px solid #e8eaf0" }}
+                  >
+                    <div className="pointer-events-none absolute top-0 right-0 w-56 h-56 rounded-full" style={{ background: "radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 70%)", transform: "translate(30%,-30%)" }} />
+
+                    {/* header */}
+                    <div className="relative z-10 flex items-center justify-between px-5 pt-5 pb-4 shrink-0 border-b" style={{ borderColor: "#f1f3f8" }}>
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-50 border border-indigo-100">
+                          <BrainCircuit className="w-4 h-4 text-indigo-600" />
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-indigo-500 leading-none mb-0.5">AI Tizimi</p>
+                          <p className="text-[15px] font-black text-slate-900 leading-tight tracking-tight">Monitoring va Bashoratlar</p>
                         </div>
                       </div>
-                      <h5 className="text-2xl font-black text-slate-950 leading-tight tracking-tighter">Monitoring va Bashoratlar</h5>
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 border border-rose-100">
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-70" />
+                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-rose-500" />
+                        </span>
+                        <span className="text-[8px] font-black text-rose-600 uppercase tracking-widest">Live</span>
+                      </div>
                     </div>
 
-                    <div className="relative z-10 grid gap-3 grid-cols-2 flex-1 min-h-0">
+                    {/* cards grid */}
+                    <div className="relative z-10 grid grid-cols-2 gap-3 p-4 flex-1 min-h-0">
                       {[
-                        { title: 'Hududiy samaradorlik', value: '+18.6%', color: 'from-emerald-50/50 to-emerald-200/50 border-emerald-200 text-emerald-900', icon: Target, status: 'Oshmoqda' },
-                        { title: 'Nazorat zonalari', value: 'Diqqat', color: 'from-amber-50/50 to-amber-100/50 border-amber-200 text-amber-900', icon: ShieldCheck, status: 'Kuzatuv' },
-                        { title: 'Resurslar prognozi', value: '15%', color: 'from-sky-50/50 to-sky-200/50 border-sky-200 text-sky-900', icon: Lightbulb, status: 'Bashorat' },
-                        { title: 'Tizim barqarorligi', value: '99.9%', color: 'from-indigo-50/50 to-indigo-200/50 border-indigo-200 text-indigo-900', icon: Activity, status: 'Stabil' },
+                        { title: "Hududiy samaradorlik", value: "+18.6%", status: "Oshmoqda", icon: Target, accent: "#059669", bg: "#f0fdf8", br: "#d1fae5", ic: "#10b981" },
+                        { title: "Nazorat zonalari", value: "Diqqat", status: "Kuzatuv", icon: ShieldCheck, accent: "#b45309", bg: "#fffbeb", br: "#fde68a", ic: "#f59e0b" },
+                        { title: "Resurslar prognozi", value: "15%", status: "Bashorat", icon: Lightbulb, accent: "#0369a1", bg: "#f0f9ff", br: "#bae6fd", ic: "#0ea5e9" },
+                        { title: "Tizim barqarorligi", value: "99.9%", status: "Stabil", icon: Activity, accent: "#4338ca", bg: "#eef2ff", br: "#c7d2fe", ic: "#6366f1" },
                       ].map((item, idx) => (
-                        <motion.div 
-                          initial={{ opacity: 0, y: 10 }}
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, y: 8 }}
                           whileInView={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.05 }}
-                          whileHover={{ y: -3 }}
-                          key={idx} 
-                          className={`rounded-2xl p-4 shadow-[0_18px_50px_rgba(2,6,23,0.10)] border-2 border-white/40 backdrop-blur-sm flex flex-col justify-between gap-2 group cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(2,6,23,0.18)] hover:border-white/70`}
+                          whileHover={{ y: -2, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
+                          transition={{ delay: idx * 0.06 }}
+                          style={{ background: item.bg, border: `1px solid ${item.br}`, borderRadius: 16, padding: "14px", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 10 }}
                         >
-                          <div className="flex items-center justify-between">
-                            <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-md">
-                              <item.icon className="w-4 h-4 text-indigo-600" />
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 10, background: "#fff", border: `1px solid ${item.br}`, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                              <item.icon style={{ width: 15, height: 15, color: item.ic }} />
                             </div>
-                            <span className="px-1.5 py-0.5 bg-white/50 rounded-full text-[7px] font-black uppercase tracking-widest text-slate-500">{item.status}</span>
+                            <span style={{ fontSize: 8, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.15em", color: item.accent, background: "#fff", border: `1px solid ${item.br}`, borderRadius: 20, padding: "2px 8px" }}>{item.status}</span>
                           </div>
                           <div>
-                            <p className="font-black text-slate-950 uppercase text-[9px] tracking-tight mb-0.5">{item.title}</p>
-                            <p className="text-xl font-black tracking-tighter text-[#003580]">{item.value}</p>
+                            <p style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "#64748b", marginBottom: 3 }}>{item.title}</p>
+                            <p style={{ fontSize: 22, fontWeight: 900, color: item.accent, letterSpacing: "-0.03em", lineHeight: 1 }}>{item.value}</p>
                           </div>
                         </motion.div>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
+
                 </div>
               </div>
             </div>

@@ -94,7 +94,7 @@ export default function MahsulotSarfi() {
             </div>
 
             <div className="h-[400px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={400} minWidth={0} minHeight={0}>
                 <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="8 8" vertical={false} stroke="#f1f5f9" />
                   <XAxis 
