@@ -1,18 +1,11 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  X, School, Users, Baby, TrendingUp, CheckCircle2, 
-  MapPin, BarChart3, AlertCircle,
-  LayoutGrid, Target, Zap
+import {
+  X, School, Users, Baby, CheckCircle2,
+  MapPin, LayoutGrid, Target, Zap, AlertCircle,
 } from 'lucide-react';
-import { kindergartenImages } from '../../constants';
 
-type DistrictTypeRow = {
-  name: string;
-  count: number;
-  children: number;
-};
-
+type DistrictTypeRow = { name: string; count: number; children: number };
 type DistrictDetails = {
   totalChildren3to7: number;
   totalMTT: number;
@@ -26,218 +19,242 @@ interface DistrictDetailModalProps {
   onClose: () => void;
 }
 
+const TYPE_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#0ea5e9'];
+
 const DistrictDetailModal: React.FC<DistrictDetailModalProps> = ({ district, onClose }) => {
   const hasDetails = !!district?.details;
-  const details = district?.details || {
+  const details: DistrictDetails = district?.details || {
     totalChildren3to7: 0,
     totalMTT: district?.count || 0,
     totalCoveredChildren: 0,
     coveragePercentage: district?.attendance || 0,
-    types: []
+    types: [],
   };
-  
-  const districtImage = kindergartenImages[Math.floor(Math.random() * kindergartenImages.length)].url;
+  const isCity = district?.name?.includes('sh.');
+  const accentColor = isCity ? '#6366f1' : '#10b981';
+  const coverage = details.coveragePercentage;
 
   return (
     <AnimatePresence>
       {district && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-8 pointer-events-none">
-          {/* Backdrop */}
+        <>
+          {/* backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: 0 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-transparent pointer-events-auto cursor-pointer"
+            style={{ position: 'fixed', inset: 0, zIndex: 9990, background: 'transparent' }}
           />
 
-          {/* Modal Container */}
+          {/* modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 100 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 100 }}
-            className="relative bg-white w-[52vw] h-[70vh] rounded-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 flex flex-col md:flex-row pointer-events-auto"
+            initial={{ opacity: 0, y: 40, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 40, scale: 0.96 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 9991,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '24px', pointerEvents: 'none',
+            }}
           >
-            {/* LEFT SIDEBAR: Visual Identity & Key Stats */}
-            <div className="md:w-[30%] relative bg-slate-900 text-white flex flex-col overflow-hidden shrink-0">
-              {/* Background Image with Overlay */}
-              <div className="absolute inset-0">
-                <img src={districtImage} alt="" className="w-full h-full object-cover opacity-30 scale-110 blur-sm" />
-                <div className="absolute inset-0 bg-gradient-to-b from-indigo-600/40 via-slate-900/90 to-slate-900" />
-              </div>
+            <div style={{
+              width: '100%', maxWidth: 900, height: '80vh', maxHeight: 680,
+              display: 'flex', borderRadius: 28, overflow: 'hidden',
+              boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06) inset',
+              pointerEvents: 'auto',
+            }}>
 
-              <div className="relative z-10 p-6 lg:p-8 flex-1 flex flex-col justify-between">
-                <div>
-                  <button 
-                    onClick={onClose}
-                    className="mb-8 bg-white/10 hover:bg-white/20 p-3 rounded-xl text-white transition-all active:scale-90 flex items-center gap-2 group"
-                  >
-                    <X className="w-4 h-4 group-hover:rotate-90 transition-transform" />
-                    <span className="text-[9px] font-black uppercase tracking-widest">Yopish</span>
+              {/* ── LEFT PANEL ── */}
+              <div style={{
+                width: 260, flexShrink: 0, position: 'relative',
+                background: '#080f1a', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+              }}>
+                {/* glow */}
+                <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: `radial-gradient(circle, ${accentColor}33 0%, transparent 70%)`, pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: 0, left: -40, width: 160, height: 160, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+                {/* close */}
+                <div style={{ padding: '20px 20px 0' }}>
+                  <button onClick={onClose} style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: 10, padding: '7px 12px', cursor: 'pointer', color: 'rgba(255,255,255,0.5)',
+                  }}>
+                    <X style={{ width: 13, height: 13 }} />
+                    <span style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em' }}>Yopish</span>
                   </button>
+                </div>
 
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-1 bg-indigo-500 rounded-full" />
-                      <span className="text-[8px] font-black uppercase tracking-[0.2em] text-indigo-400">Statistik Dashboard</span>
+                {/* title block */}
+                <div style={{ padding: '24px 20px 0', flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 8, background: `${accentColor}22`, border: `1px solid ${accentColor}44`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <MapPin style={{ width: 13, height: 13, color: accentColor }} />
                     </div>
-                    <h3 className="text-3xl lg:text-4xl font-black tracking-tighter uppercase leading-[0.9] mb-4">
-                      {district.name.split(' ').map((word: string, i: number) => (
-                        <span key={i} className="block">{word}</span>
-                      ))}
-                    </h3>
-                    <div className="flex items-center gap-2 text-slate-400 bg-white/5 w-fit px-3 py-1.5 rounded-lg backdrop-blur-md">
-                      <MapPin className="w-3 h-3 text-indigo-500" />
-                      <span className="text-[8px] font-black uppercase tracking-widest">Qashqadaryo</span>
-                    </div>
+                    <span style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.18em', color: accentColor }}>Qashqadaryo</span>
+                  </div>
+
+                  <h2 style={{ fontSize: 32, fontWeight: 900, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1.05, marginBottom: 6 }}>
+                    {district.name}
+                  </h2>
+                  <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+                    {isCity ? 'Shahar statistikasi' : 'Tuman statistikasi'}
+                  </p>
+
+                  {/* big metrics */}
+                  <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {[
+                      { label: "3-7 yoshli bolalar", value: details.totalChildren3to7.toLocaleString(), color: '#60a5fa' },
+                      { label: "Qamrab olingan", value: details.totalCoveredChildren.toLocaleString(), color: '#34d399' },
+                      { label: "MTT muassasalar", value: details.totalMTT, color: '#a78bfa' },
+                    ].map((m, i) => (
+                      <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}
+                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 12, padding: '12px 14px' }}>
+                        <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, marginBottom: 4 }}>{m.label}</p>
+                        <p style={{ fontSize: 22, fontWeight: 900, color: m.color, letterSpacing: '-0.03em' }}>{m.value}</p>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Vertical Metrics */}
-                <div className="space-y-4">
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Qamrov</span>
-                      <span className="text-xl font-black text-indigo-400">{details.coveragePercentage}%</span>
-                    </div>
-                    <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${details.coveragePercentage}%` }}
-                        transition={{ duration: 1.5, ease: "circOut" }}
-                        className="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 rounded-full"
-                      />
-                    </div>
+                {/* coverage bar */}
+                <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Qamrov darajasi</span>
+                    <span style={{ fontSize: 13, fontWeight: 900, color: accentColor }}>{coverage}%</span>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-white/5 backdrop-blur-md p-3 rounded-2xl border border-white/10">
-                      <p className="text-[7px] font-black text-slate-500 uppercase mb-1">Bolalar</p>
-                      <p className="text-sm font-black text-white">{details.totalChildren3to7.toLocaleString()}</p>
-                    </div>
-                    <div className="bg-white/5 backdrop-blur-md p-3 rounded-2xl border border-white/10">
-                      <p className="text-[7px] font-black text-slate-500 uppercase mb-1">MTTlar</p>
-                      <p className="text-sm font-black text-white">{details.totalMTT}</p>
-                    </div>
+                  <div style={{ height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 6, overflow: 'hidden' }}>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(coverage, 100)}%` }}
+                      transition={{ duration: 1.2, ease: 'easeOut', delay: 0.2 }}
+                      style={{ height: '100%', background: `linear-gradient(90deg, ${accentColor}99, ${accentColor})`, borderRadius: 6 }}
+                    />
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* RIGHT CONTENT: Detailed Analysis Sections */}
-            <div className="flex-1 bg-slate-50 flex flex-col overflow-hidden">
-              {/* Sub-header Navigation-like Info */}
-              <div className="p-6 lg:p-8 flex justify-between items-center bg-white border-b border-slate-100 relative z-20">
-                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-                      <BarChart3 className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-black text-slate-900 tracking-tighter uppercase leading-none">Batafsil Tahlil</h4>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">Hududiy kengaytirilgan hisobotlar</p>
-                    </div>
-                 </div>
-                 <div className="hidden lg:flex items-center gap-4">
-                   <div className="flex items-center gap-3 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100">
-                     <Zap className="w-3.5 h-3.5" />
-                     <span className="text-[9px] font-black uppercase tracking-widest text-nowrap">Jonli Ma'lumot</span>
-                   </div>
-                 </div>
-              </div>
+              {/* ── RIGHT PANEL ── */}
+              <div style={{ flex: 1, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
-              {/* Scrollable Content Area */}
-              <div className="flex-1 overflow-y-auto p-6 lg:p-10 custom-scrollbar">
-                <div className="max-w-3xl mx-auto space-y-12">
-                  
+                {/* right header */}
+                <div style={{ padding: '20px 28px', background: '#fff', borderBottom: '1px solid #eef0f5', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+                  <div>
+                    <h3 style={{ fontSize: 18, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>Batafsil tahlil</h3>
+                    <p style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: 2 }}>Hududiy kengaytirilgan hisobot</p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10 }}>
+                    <Zap style={{ width: 12, height: 12, color: '#16a34a' }} />
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Jonli ma'lumot</span>
+                  </div>
+                </div>
+
+                {/* scrollable body */}
+                <div style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }} className="custom-scrollbar">
                   {hasDetails ? (
-                    <>
-                      {/* SECTION 1: Strategic Targets */}
-                      <section>
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
-                            <Target className="w-4 h-4" />
-                          </div>
-                          <h5 className="text-base font-black text-slate-900 uppercase tracking-tighter">Asosiy Ko'rsatkichlar</h5>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                          {[
-                            { label: '3-7 Yoshli Bolalar', value: details.totalChildren3to7, icon: Baby, color: 'text-stat-blue', bg: 'bg-blue-50' },
-                            { label: 'Qamrab Olingan', value: details.totalCoveredChildren, icon: Users, color: 'text-stat-blue', bg: 'bg-emerald-50' },
-                            { label: 'Muassasalar', value: details.totalMTT, icon: School, color: 'text-stat-blue', bg: 'bg-purple-50' }
-                          ].map((stat, i) => (
-                            <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300">
-                              <div className={`w-10 h-10 ${stat.bg} rounded-xl flex items-center justify-center mb-4`}>
-                                <stat.icon className="w-5 h-5" />
-                              </div>
-                              <p className="text-2xl font-black text-[#003580] tracking-tighter mb-1">
-                                {stat.value.toLocaleString()} <span className="text-[14px] font-black">nafar</span>
-                              </p>
-                              <p className="text-[9px] font-bold text-black uppercase tracking-widest">{stat.label}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </section>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
 
-                      {/* SECTION 2: Organizational Structure */}
-                      <section>
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="w-8 h-8 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center">
-                            <LayoutGrid className="w-4 h-4" />
+                      {/* KPI cards */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                          <div style={{ width: 28, height: 28, borderRadius: 8, background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Target style={{ width: 14, height: 14, color: '#6366f1' }} />
                           </div>
-                          <h5 className="text-base font-black text-slate-900 uppercase tracking-tighter">Tashkiliy Tuzilma</h5>
+                          <h4 style={{ fontSize: 12, fontWeight: 900, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Asosiy ko'rsatkichlar</h4>
                         </div>
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-12 px-6 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                             <div className="col-span-6">MTT Turi</div>
-                             <div className="col-span-3 text-center">Soni</div>
-                             <div className="col-span-3 text-right">Bolalar</div>
-                          </div>
-                          {details.types.map((type: any, i: number) => (
-                            <motion.div 
-                              key={i} 
-                              initial={{ opacity: 0, x: 20 }}
-                              whileInView={{ opacity: 1, x: 0 }}
-                              transition={{ delay: i * 0.1 }}
-                              className="grid grid-cols-12 items-center p-4 bg-white rounded-2xl border border-slate-100 hover:border-indigo-200 transition-all group"
-                            >
-                              <div className="col-span-6 flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-indigo-600 transition-colors">
-                                  <School className="w-4.5 h-4.5" />
-                                </div>
-                                <span className="font-black text-slate-700 text-xs uppercase tracking-tight">{type.name}</span>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                          {[
+                            { label: '3-7 Yoshli', value: details.totalChildren3to7, suffix: 'nafar', icon: Baby, accent: '#6366f1', bg: '#eef2ff', br: '#e0e7ff' },
+                            { label: 'Qamrab olingan', value: details.totalCoveredChildren, suffix: 'nafar', icon: Users, accent: '#10b981', bg: '#f0fdf4', br: '#bbf7d0' },
+                            { label: 'Muassasalar', value: details.totalMTT, suffix: 'ta', icon: School, accent: '#8b5cf6', bg: '#faf5ff', br: '#e9d5ff' },
+                          ].map((s, i) => (
+                            <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+                              style={{ background: '#fff', border: `1px solid ${s.br}`, borderRadius: 16, padding: '16px' }}>
+                              <div style={{ width: 32, height: 32, borderRadius: 10, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+                                <s.icon style={{ width: 15, height: 15, color: s.accent }} />
                               </div>
-                              <div className="col-span-3 text-center font-black text-slate-900 text-base">{type.count}</div>
-                              <div className="col-span-3 text-right font-black text-indigo-600 text-base">{type.children.toLocaleString()}</div>
+                              <p style={{ fontSize: 22, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.03em', lineHeight: 1 }}>
+                                {s.value.toLocaleString()}
+                              </p>
+                              <p style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: 4 }}>{s.label}</p>
                             </motion.div>
                           ))}
                         </div>
-                      </section>
-                    </>
+                      </div>
+
+                      {/* MTT types */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                          <div style={{ width: 28, height: 28, borderRadius: 8, background: '#fffbeb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <LayoutGrid style={{ width: 14, height: 14, color: '#f59e0b' }} />
+                          </div>
+                          <h4 style={{ fontSize: 12, fontWeight: 900, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.1em' }}>MTT turlari</h4>
+                        </div>
+
+                        {/* table header */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 90px', padding: '0 14px 8px', gap: 8 }}>
+                          {['Tur nomi', 'Soni', 'Bolalar'].map(h => (
+                            <span key={h} style={{ fontSize: 9, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{h}</span>
+                          ))}
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          {details.types.map((type, i) => {
+                            const pct = details.totalCoveredChildren > 0 ? (type.children / details.totalCoveredChildren) * 100 : 0;
+                            return (
+                              <motion.div key={i} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
+                                style={{ background: '#fff', border: '1px solid #f1f5f9', borderRadius: 12, padding: '12px 14px', display: 'grid', gridTemplateColumns: '1fr 80px 90px', alignItems: 'center', gap: 8 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: TYPE_COLORS[i % TYPE_COLORS.length], flexShrink: 0 }} />
+                                  <div style={{ minWidth: 0 }}>
+                                    <p style={{ fontSize: 11, fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{type.name}</p>
+                                    <div style={{ height: 3, background: '#f1f5f9', borderRadius: 3, marginTop: 4, overflow: 'hidden' }}>
+                                      <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ delay: i * 0.06 + 0.3, duration: 0.5 }}
+                                        style={{ height: '100%', background: TYPE_COLORS[i % TYPE_COLORS.length], borderRadius: 3 }} />
+                                    </div>
+                                  </div>
+                                </div>
+                                <span style={{ fontSize: 14, fontWeight: 900, color: '#0f172a', textAlign: 'center' }}>{type.count}</span>
+                                <span style={{ fontSize: 14, fontWeight: 900, color: TYPE_COLORS[i % TYPE_COLORS.length], textAlign: 'right' }}>{type.children.toLocaleString()}</span>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
                   ) : (
-                    <div className="py-12 text-center">
-                       <div className="w-16 h-16 bg-slate-100 text-slate-300 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
-                          <AlertCircle className="w-10 h-10" />
-                       </div>
-                       <h5 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-3">Ma'lumotlar To'ldirilmoqda</h5>
-                       <p className="text-slate-400 text-sm max-w-xs mx-auto font-medium">Ushbu hudud bo'yicha ma'lumotlar yaqin orada kiritiladi.</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 16 }}>
+                      <div style={{ width: 56, height: 56, background: '#f1f5f9', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <AlertCircle style={{ width: 28, height: 28, color: '#cbd5e1' }} />
+                      </div>
+                      <p style={{ fontSize: 16, fontWeight: 900, color: '#1e293b', textTransform: 'uppercase', letterSpacing: '-0.01em' }}>{"Ma'lumotlar to'ldirilmoqda"}</p>
+                      <p style={{ fontSize: 12, color: '#94a3b8', maxWidth: 260, textAlign: 'center' }}>Ushbu hudud bo'yicha ma'lumotlar yaqin orada kiritiladi.</p>
                     </div>
                   )}
                 </div>
-              </div>
 
-              {/* Final Confirmation Button */}
-              <div className="p-6 lg:p-8 bg-white border-t border-slate-100 flex justify-center">
-                 <button 
-                  onClick={onClose}
-                  className="w-full max-w-sm py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all active:scale-95 flex items-center justify-center gap-3 group"
-                >
-                  <CheckCircle2 className="w-5 h-5" />
-                  Tasdiqlash
-                </button>
+                {/* footer */}
+                <div style={{ padding: '16px 28px', background: '#fff', borderTop: '1px solid #eef0f5', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <CheckCircle2 style={{ width: 14, height: 14, color: '#10b981' }} />
+                    <span style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{"Ma'lumotlar yangilangan"}</span>
+                  </div>
+                  <button onClick={onClose} style={{
+                    padding: '10px 24px', background: '#0f172a', color: '#fff',
+                    border: 'none', borderRadius: 12, fontSize: 10, fontWeight: 900,
+                    textTransform: 'uppercase', letterSpacing: '0.15em', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 8,
+                  }}>
+                    <X style={{ width: 12, height: 12 }} />
+                    Yopish
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>
-        </div>
+        </>
       )}
     </AnimatePresence>
   );

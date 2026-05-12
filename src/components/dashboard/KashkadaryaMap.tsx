@@ -1,219 +1,223 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'motion/react';
-import { 
-  MapPin, Info, Users, School, TrendingUp, X, CheckCircle2, 
-  Activity, Target, Shield, Search, Cloud, Clock, Terminal, 
-  AlertCircle, Maximize2, Globe, Radar, Cpu
-} from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import { motion, AnimatePresence } from 'motion/react';
+import { MapPin, Activity, School, TrendingUp } from 'lucide-react';
 import { districts } from '../../constants';
 import DistrictModal from '../modals/DistrictModal';
+import L from 'leaflet';
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({ iconRetinaUrl: '', iconUrl: '', shadowUrl: '' });
 
 interface KashkadaryaMapProps {
   selectedDistrict: string | null;
   setSelectedDistrict: (name: string | null) => void;
 }
 
+// Har tuman markazi koordinatasi
+const DISTRICT_CENTERS: { name: string; lat: number; lng: number }[] = [
+  { name: "Muborak t.",     lat: 38.68, lng: 64.08 },
+  { name: "Koson t.",       lat: 38.68, lng: 65.10 },
+  { name: "Ko'kdala t.",    lat: 39.05, lng: 65.70 },
+  { name: "Chiroqchi t.",   lat: 38.92, lng: 66.55 },
+  { name: "Kitob t.",       lat: 39.12, lng: 66.90 },
+  { name: "Qarshi sh.",     lat: 38.87, lng: 65.79 },
+  { name: "Qarshi t.",      lat: 38.58, lng: 65.70 },
+  { name: "Qamashi t.",     lat: 38.62, lng: 66.52 },
+  { name: "Shahrisabz sh.", lat: 39.05, lng: 66.83 },
+  { name: "Shahrisabz t.",  lat: 38.72, lng: 67.00 },
+  { name: "Kasbi t.",       lat: 38.58, lng: 64.52 },
+  { name: "Mirishkor t.",   lat: 38.22, lng: 63.98 },
+  { name: "Nishon t.",      lat: 38.02, lng: 64.78 },
+  { name: "G'uzor t.",      lat: 38.08, lng: 65.68 },
+  { name: "Yakkabog' t.",   lat: 38.30, lng: 66.28 },
+  { name: "Dehqonobod t.",  lat: 38.10, lng: 66.92 },
+];
+
+function createPinIcon(color: string, isSelected: boolean, isCity: boolean) {
+  const size = isSelected ? 38 : isCity ? 30 : 26;
+  const svg = `
+    <svg width="${size}" height="${size * 1.3}" viewBox="0 0 30 39" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="shadow" x="-30%" y="-20%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,0.5)"/>
+        </filter>
+      </defs>
+      <path d="M15 0C7.28 0 1 6.28 1 14c0 9.5 14 25 14 25S29 23.5 29 14C29 6.28 22.72 0 15 0z"
+        fill="${color}" filter="url(#shadow)" opacity="${isSelected ? 1 : 0.88}"/>
+      <circle cx="15" cy="13" r="5.5" fill="white" opacity="0.95"/>
+      ${isSelected ? `<circle cx="15" cy="13" r="3" fill="${color}"/>` : ''}
+    </svg>`;
+  return L.divIcon({
+    html: svg,
+    className: '',
+    iconSize: [size, size * 1.3],
+    iconAnchor: [size / 2, size * 1.3],
+    popupAnchor: [0, -size * 1.3],
+  });
+}
+
+function coverageColor(pct: number): string {
+  if (pct >= 80) return '#34d399';
+  if (pct >= 65) return '#fbbf24';
+  if (pct >= 50) return '#fb923c';
+  return '#f87171';
+}
+
+function FitBounds() {
+  const map = useMap();
+  useEffect(() => {
+    map.fitBounds([[37.85, 63.7], [39.35, 67.4]], { padding: [30, 30] });
+  }, [map]);
+  return null;
+}
+
+function MapClickHandler({ onClose }: { onClose: () => void }) {
+  useMapEvents({ click: onClose });
+  return null;
+}
+
 const KashkadaryaMap: React.FC<KashkadaryaMapProps> = ({ selectedDistrict, setSelectedDistrict }) => {
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
-  const [activeLayer, setActiveLayer] = useState<'borders' | 'standard' | 'sat'>('borders');
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [logs, setLogs] = useState<string[]>(['Sektorlar sinxronizatsiyasi tugadi.', 'Hududiy ma\'lumotlar yangilandi.', '3D vizualizatsiya yuklandi.']);
-  
-  // Mouse Parallax values
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useSpring(useTransform(y, [-300, 300], [5, -5]), { stiffness: 100, damping: 30 });
-  const rotateY = useSpring(useTransform(x, [-500, 500], [-5, 5]), { stiffness: 100, damping: 30 });
+  const [hoveredDistrict, setHoveredDistrict] = useState<any>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const closeModal = useCallback(() => {
+    setSelectedDistrict(null);
+    setHoveredDistrict(null);
+  }, [setSelectedDistrict]);
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    const logInterval = setInterval(() => {
-      const msgs = ['Hududiy tahlil yangilanmoqda', 'Signal barqaror', 'Sektor 4: Yangi ma\'lumot', 'Monitoring 100%'];
-      setLogs(prev => [msgs[Math.floor(Math.random() * msgs.length)], ...prev.slice(0, 4)]);
-    }, 10000);
-    return () => { clearInterval(timer); clearInterval(logInterval); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [closeModal]);
+
+  const getDistrictData = useCallback((name: string) => {
+    return districts.find(s => s.name === name) || { count: 0, attendance: 0 };
   }, []);
 
-  const handleMouseMove = (event: React.MouseEvent) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    x.set(event.clientX - centerX);
-    y.set(event.clientY - centerY);
-  };
+  const totalMTT = districts.reduce((s, d) => s + (d.count || 0), 0);
+  const avgCoverage = Math.round(districts.reduce((s, d) => s + (d.attendance || 0), 0) / districts.length);
 
-  const districtsData = useMemo(() => [
-    { id: 1, name: 'Muborak t.', x: 22, y: 35, d: "M 5,25 L 20,20 L 35,28 L 38,45 L 25,50 L 10,45 Z" },
-    { id: 2, name: 'Koson t.', x: 38, y: 22, d: "M 20,20 L 45,15 L 55,25 L 50,40 L 35,35 L 35,28 Z" },
-    { id: 3, name: 'Ko\'kdala t.', x: 58, y: 18, d: "M 45,15 L 70,12 L 80,25 L 65,35 L 55,25 Z" },
-    { id: 4, name: 'Chiroqchi t.', x: 75, y: 28, d: "M 70,12 L 95,20 L 92,40 L 75,45 L 65,35 L 80,25 Z" },
-    { id: 5, name: 'Kitob t.', x: 88, y: 40, d: "M 92,40 L 98,50 L 95,65 L 82,60 L 75,45 Z" },
-    { id: 6, name: 'Shahrisabz sh.', x: 76, y: 45, d: "M 74,43 L 78,43 L 78,47 L 74,47 Z" },
-    { id: 7, name: 'Shahrisabz t.', x: 85, y: 65, d: "M 82,60 L 95,65 L 90,85 L 75,80 L 75,65 Z" },
-    { id: 8, name: 'Yakkabog\' t.', x: 72, y: 60, d: "M 75,45 L 82,60 L 75,65 L 75,80 L 65,75 L 60,55 Z" },
-    { id: 9, name: 'Qamashi t.', x: 60, y: 70, d: "M 50,40 L 65,35 L 75,45 L 60,55 L 65,75 L 50,85 L 45,60 Z" },
-    { id: 10, name: 'Qarshi sh.', x: 48, y: 50, d: "M 46,48 L 50,48 L 50,52 L 46,52 Z" },
-    { id: 11, name: 'Qarshi t.', x: 45, y: 60, d: "M 35,35 L 50,40 L 45,60 L 50,85 L 35,80 L 32,55 Z" },
-    { id: 12, name: 'Kasbi t.', x: 28, y: 55, d: "M 35,35 L 32,55 L 30,75 L 15,65 L 25,50 L 38,45 Z" },
-    { id: 13, name: 'Mirishkor t.', x: 15, y: 65, d: "M 5,25 L 10,45 L 15,65 L 10,90 L 2,60 Z" },
-    { id: 14, name: 'Nishon t.', x: 30, y: 85, d: "M 10,90 L 30,95 L 45,90 L 50,85 L 35,80 L 30,75 L 15,65 Z" },
-    { id: 15, name: 'G\'uzor t.', x: 60, y: 90, d: "M 50,85 L 75,80 L 85,90 L 60,98 L 45,90 Z" },
-    { id: 16, name: 'Dehqonobod t.', x: 82, y: 88, d: "M 85,90 L 90,85 L 98,75 L 95,95 L 80,98 L 60,98 Z" },
-  ], []);
-
-  const getDistrictData = (name: string) => {
-    return districts.find(s => s.name === name) || { count: 0, attendance: 0 };
-  };
-
-  const selectedData = selectedDistrict ? {
-    ...districtsData.find(d => d.name === selectedDistrict),
-    ...getDistrictData(selectedDistrict)
-  } : null;
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  }, []);
 
   return (
-    <div className="w-full h-full flex flex-col group/map animate-in fade-in duration-1000" onMouseMove={handleMouseMove}>
-      
-      {/* Upper HUD */}
-      <div className="mb-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-             <div className="w-16 h-16 bg-slate-900 rounded-[2rem] flex items-center justify-center shadow-2xl border border-white/10 relative overflow-hidden group">
-                <MapPin className="w-8 h-8 text-indigo-500 group-hover:scale-125 transition-transform" />
-                <div className="absolute inset-0 bg-indigo-500/20 animate-pulse" />
-             </div>
-             <div>
-               <h2 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter uppercase leading-tight max-w-2xl">
-                 Qashqadaryoning hududiy yer maydoni <span className="text-indigo-600">tumanlar kesimida</span>
-               </h2>
-             </div>
+    <div className="w-full h-full flex flex-col" onMouseMove={handleMouseMove}>
+
+      {/* Header */}
+      <div className="mb-6 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-[18px] flex items-center justify-center shadow-lg"
+            style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+            <MapPin className="w-7 h-7 text-indigo-300" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600 mb-1">Interaktiv xarita</p>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
+              Qashqadaryo — <span className="text-indigo-600">tumanlar xaritasi</span>
+            </h2>
           </div>
         </div>
-
-        <div className="flex gap-4">
-           <div className="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-xl flex items-center gap-6">
-              <div className="flex items-center gap-3">
-                 <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tizim holati: Stabil</span>
+        <div className="flex gap-3 flex-wrap">
+          {[
+            { icon: MapPin,     label: 'Tumanlar',    value: 16,              color: '#6366f1', bg: '#eef2ff' },
+            { icon: School,     label: 'Jami MTT',    value: totalMTT,        color: '#10b981', bg: '#f0fdf4' },
+            { icon: Activity,   label: "O'rt qamrov", value: `${avgCoverage}%`, color: '#f59e0b', bg: '#fffbeb' },
+            { icon: TrendingUp, label: 'Tanlangan',   value: selectedDistrict ?? '—', color: '#8b5cf6', bg: '#f5f3ff' },
+          ].map((s, i) => (
+            <div key={i} style={{ background:'#fff', border:'1px solid #e8eaf0', borderRadius:14, padding:'10px 14px', display:'flex', alignItems:'center', gap:10 }}>
+              <div style={{ width:32, height:32, borderRadius:10, background:s.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <s.icon style={{ width:15, height:15, color:s.color }} />
               </div>
-              <div className="h-8 w-[1px] bg-slate-100" />
-              <div className="flex items-center gap-3">
-                 <Cpu className="w-4 h-4 text-indigo-500" />
-                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Yuklanish: 14%</span>
+              <div>
+                <p style={{ fontSize:8, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'#94a3b8', marginBottom:2 }}>{s.label}</p>
+                <p style={{ fontSize:13, fontWeight:900, color:'#0f172a', lineHeight:1, maxWidth:90, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{s.value}</p>
               </div>
-           </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <motion.div 
-        style={{ rotateX, rotateY, perspective: 1500 }}
-        className="relative w-full aspect-[16/9] bg-slate-950 rounded-[1%] shadow-[0_100px_200px_-50px_rgba(0,0,0,0.6)] group/container"
-      >
-        {/* Geographic Image */}
-        <div className="absolute inset-0">
-          <img 
-            src="/map-bg.png" 
-            className={`w-full h-full object-cover transition-all duration-1000 ${activeLayer === 'borders' ? 'opacity-40 grayscale brightness-50 contrast-125' : activeLayer === 'sat' ? 'invert opacity-70 hue-rotate-180' : 'opacity-80'}`}
-          />
-          <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/90 via-transparent to-slate-950/20" />
-        </div>
+      {/* Map */}
+      <div style={{ flex:1, minHeight:0, borderRadius:20, overflow:'hidden', border:'1px solid rgba(255,255,255,0.08)', boxShadow:'0 20px 60px rgba(0,0,0,0.5)' }}>
+        <MapContainer
+          center={[38.6, 65.8]}
+          zoom={8}
+          style={{ width:'100%', height:'100%' }}
+          zoomControl={true}
+          attributionControl={false}
+        >
+          {/* Dark tile */}
+          <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+          <FitBounds />
+          <MapClickHandler onClose={() => { setSelectedDistrict(null); setHoveredDistrict(null); }} />
 
-        {/* Dynamic HUD Grid */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'linear-gradient(#4f46e5 1px, transparent 1px), linear-gradient(90deg, #4f46e5 1px, transparent 1px)', backgroundSize: '50px 50px' }}></div>
-        
-        {/* SVG Vector Layer */}
-        <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full z-20">
-          <defs>
-            <filter id="cyber-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="1.5" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-            <linearGradient id="cyber-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#6366f1" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.1" />
-            </linearGradient>
-          </defs>
-
-          {/* Data Flow Lines (Connections to Qarshi) */}
-          {districtsData.map(d => (
-            d.name !== 'Qarshi sh.' && (
-              <motion.path 
-                key={`flow-${d.id}`}
-                d={`M ${d.x},${d.y} Q ${(d.x + 48)/2},${(d.y + 50)/2 - 10} 48,50`}
-                fill="none"
-                stroke="white"
-                strokeWidth="0.1"
-                strokeDasharray="1 3"
-                opacity="0.2"
-              />
-            )
-          ))}
-
-          {districtsData.map((d) => {
-            const isHovered = hoveredId === d.id;
+          {DISTRICT_CENTERS.map((d) => {
+            const info = getDistrictData(d.name);
+            const cov = (info as any).attendance || 0;
+            const mtt = (info as any).count || 0;
             const isSelected = selectedDistrict === d.name;
-            const districtInfo = getDistrictData(d.name);
+            const isCity = d.name.includes('sh.');
+            const color = coverageColor(cov);
+            const icon = createPinIcon(color, isSelected, isCity);
 
             return (
-              <g 
-                key={d.id}
-                onMouseEnter={() => setHoveredId(d.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                onClick={() => setSelectedDistrict(isSelected ? null : d.name)}
-                className="cursor-pointer outline-none"
-              >
-                <motion.path
-                  d={d.d}
-                  initial={false}
-                  animate={{
-                    fill: isSelected ? "url(#cyber-grad)" : isHovered ? "rgba(99, 102, 241, 0.15)" : "transparent",
-                    stroke: isSelected ? "#6366f1" : isHovered ? "#818cf8" : "rgba(255,255,255,0.15)",
-                    strokeWidth: isSelected || isHovered ? 1 : 0.4,
-                    filter: isSelected || isHovered ? "url(#cyber-glow)" : "none",
-                  }}
-                  transition={{ duration: 0.4 }}
-                />
-
-                <g pointerEvents="none">
-                   <motion.text
-                     x={d.x}
-                     y={d.y}
-                     textAnchor="middle"
-                     className={`text-[2.2px] font-black uppercase tracking-widest transition-all duration-300 ${isSelected || isHovered ? 'fill-white' : 'fill-white/30'}`}
-                   >
-                     {d.name.replace(' t.', '').replace(' sh.', '')}
-                   </motion.text>
-                   {isSelected && (
-                     <motion.circle 
-                       cx={d.x} 
-                       cy={d.y + 3} 
-                       r="0.8" 
-                       fill="#6366f1" 
-                       initial={{ scale: 0 }} 
-                       animate={{ scale: [1, 1.5, 1] }} 
-                       transition={{ repeat: Infinity, duration: 2 }}
-                     />
-                   )}
-                </g>
-              </g>
+              <Marker
+                key={d.name}
+                position={[d.lat, d.lng]}
+                icon={icon}
+                eventHandlers={{
+                  mouseover: (e) => {
+                    setHoveredDistrict({ name: d.name, count: mtt, attendance: cov, details: (info as any).details });
+                    setMousePos({ x: e.originalEvent.clientX, y: e.originalEvent.clientY });
+                  },
+                  mousemove: (e) => {
+                    setMousePos({ x: e.originalEvent.clientX, y: e.originalEvent.clientY });
+                  },
+                  mouseout: () => {
+                    setHoveredDistrict(null);
+                    setSelectedDistrict(null);
+                  },
+                  click: (e) => {
+                    setSelectedDistrict(isSelected ? null : d.name);
+                    setMousePos({ x: e.originalEvent.clientX, y: e.originalEvent.clientY });
+                  },
+                }}
+              />
             );
           })}
-        </svg>
+        </MapContainer>
+      </div>
 
-        {/* District Modal Overlay */}
-        <AnimatePresence>
-          {hoveredId && (
-            <DistrictModal 
-              district={(() => {
-                const d = districtsData.find(item => item.id === hoveredId);
-                if (!d) return null;
-                const stats = getDistrictData(d.name);
-                return { name: d.name, ...stats };
-              })()}
-            />
-          )}
-        </AnimatePresence>
+      {/* Hover tooltip */}
+      <AnimatePresence>
+        {hoveredDistrict && (
+          <DistrictModal district={hoveredDistrict} x={mousePos.x} y={mousePos.y} />
+        )}
+      </AnimatePresence>
 
-      </motion.div>
+      {/* Selected pill */}
+      <AnimatePresence>
+        {selectedDistrict && (
+          <motion.div
+            initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:8 }}
+            style={{ position:'fixed', bottom:28, left:'50%', transform:'translateX(-50%)', zIndex:9000 }}
+          >
+            <div style={{ background:'rgba(15,23,42,0.95)', backdropFilter:'blur(12px)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:22, padding:'8px 20px', display:'flex', alignItems:'center', gap:10, boxShadow:'0 8px 32px rgba(0,0,0,0.4)' }}>
+              <MapPin style={{ width:13, height:13, color:'#818cf8' }} />
+              <span style={{ fontSize:12, fontWeight:900, color:'#fff' }}>{selectedDistrict}</span>
+              <div style={{ width:1, height:16, background:'rgba(255,255,255,0.15)' }} />
+              <span style={{ fontSize:10, color:'rgba(255,255,255,0.5)', fontWeight:700 }}>
+                {(getDistrictData(selectedDistrict) as any).count || 0} MTT · {(getDistrictData(selectedDistrict) as any).attendance || 0}%
+              </span>
+              <button onClick={() => setSelectedDistrict(null)}
+                style={{ background:'rgba(255,255,255,0.1)', border:'none', borderRadius:8, padding:'3px 10px', color:'rgba(255,255,255,0.6)', fontSize:12, cursor:'pointer' }}>✕</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
