@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { YangiBogchaQoshishModal } from './YangiBogchaQoshishModal';
 import { kindergartenApi } from '../../api/apiClient';
 
-const BOGCHA_PANEL_URL = 'http://localhost:3004';
+const BOGCHA_PANEL_URL = '/kindergarten/';
 
 const CredentialsModal = ({ item, onClose, onOpen }: { item: any; onClose: () => void; onOpen: () => void }) => {
   const [showPass, setShowPass] = useState(false);

@@ -15,7 +15,7 @@ const ViloyatStatistikaView: React.FC = () => {
       </div>
       <div className="flex-1 rounded-2xl overflow-hidden border border-brand-border shadow-sm" style={{ minHeight: '80vh' }}>
         <iframe
-          src="http://localhost:3000/viloyat-statistikasi"
+          src="/viloyat-statistikasi"
           className="w-full h-full border-0"
           style={{ minHeight: '80vh' }}
           title="Viloyat Statistikasi"

@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
-import { BarChart3, Map, Menu, TrendingDown, TrendingUp, ShoppingCart, ChefHat, Trophy } from 'lucide-react';
+import { BarChart3, Map, Menu, TrendingDown, TrendingUp, ShoppingCart, ChefHat, Trophy, Shield, School } from 'lucide-react';
 import TaomnomaNazorati from './components/TaomnomaNazorati';
 import WelcomeScreen from './components/WelcomeScreen';
 import RetseptlarKitobi from './components/RetseptlarKitobi';
@@ -97,6 +97,8 @@ export default function App() {
     { name: 'MTT Reyting', icon: Trophy, path: '/mtt-reyting' },
     { name: 'Taomnoma nazorati', icon: Menu, path: '/taomnoma-nazorati' },
     { name: 'Retseptlar kitobi', icon: ChefHat, path: '/retseptlar-kitobi' },
+    { name: 'Admin paneli', icon: Shield, path: '/admin/' },
+    { name: 'Bog\'chalar tizimi', icon: School, path: '/kindergarten/' },
   ];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -156,7 +158,7 @@ export default function App() {
             <Route path="/mtt-reyting" element={<MTTReyting />} />
             <Route path="/taomnoma-nazorati" element={<TaomnomaNazorati />} />
             <Route path="/retseptlar-kitobi" element={<RetseptlarKitobi />} />
-            <Route path="/login" element={<AdminLogin onClose={() => navigate('/viloyat-statistikasi')} />} />
+            <Route path="/login" element={<AdminLogin onClose={() => navigate('/admin/')} />} />
             <Route path="/" element={<Navigate to="/viloyat-statistikasi" replace />} />
             <Route path="*" element={
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center">

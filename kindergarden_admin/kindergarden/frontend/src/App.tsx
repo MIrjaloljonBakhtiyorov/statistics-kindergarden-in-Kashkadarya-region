@@ -97,8 +97,19 @@ const App: React.FC = () => {
   };
 
   if (!isAuthenticated) {
-    window.location.replace('/login');
-    return null;
+    return (
+      <div className="flex items-center justify-center h-screen bg-slate-50">
+        <div className="text-center">
+          <h1 className="text-xl font-bold">Avtorizatsiya kutilmoqda...</h1>
+          <button 
+            onClick={() => window.location.href = '/login'}
+            className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-xl"
+          >
+            Login sahifasiga o'tish
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const renderCurrentView = () => {

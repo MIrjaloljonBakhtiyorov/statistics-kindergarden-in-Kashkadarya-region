@@ -29,8 +29,14 @@ export default defineConfig(({mode}) => {
           changeOrigin: true,
           ws: true,
         },
-        '/stats': {
+        '/kindergarten-api': {
           target: 'http://127.0.0.1:3001',
+          changeOrigin: true,
+          ws: true,
+          rewrite: (path) => path.replace(/^\/kindergarten-api/, '/api'),
+        },
+        '/kindergarten': {
+          target: 'http://127.0.0.1:3004',
           changeOrigin: true,
           ws: true,
         },

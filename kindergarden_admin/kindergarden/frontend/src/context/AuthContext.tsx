@@ -19,14 +19,24 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    // Development mode: default to a mock director if no user is saved
+    const savedUser = localStorage.getItem('auth_user');
+    if (savedUser) return JSON.parse(savedUser);
+    
+    return {
+      id: 'dev-admin',
+      login: 'admin',
+      role: 'DIRECTOR',
+      full_name: 'Administrator (Auto-login)'
+    };
+  });
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('auth_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    if (user) {
+      localStorage.setItem('auth_user', JSON.stringify(user));
     }
-  }, []);
+  }, [user]);
 
   const login = (userData: User) => {
     setUser(userData);
