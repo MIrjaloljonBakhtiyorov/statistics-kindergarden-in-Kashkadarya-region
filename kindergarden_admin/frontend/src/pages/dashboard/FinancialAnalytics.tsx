@@ -518,7 +518,7 @@ export const FinancialAnalytics = () => {
 
                 {/* Donut Chart for types */}
                 <div className="mt-8 h-48 relative flex items-center justify-center">
-                   <ResponsiveContainer width="100%" height="100%">
+                   <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                       <PieChart>
                          <Pie
                            data={KINDERGARTEN_TYPE_FINANCE}
@@ -549,7 +549,7 @@ export const FinancialAnalytics = () => {
                    <TrendingUp className="text-indigo-500" size={18} /> Reja vs Real Sarf (Haftalik)
                 </h3>
                 <div className="h-64">
-                   <ResponsiveContainer width="100%" height="100%">
+                   <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                       <ComposedChart data={TREND_DATA}>
                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} />

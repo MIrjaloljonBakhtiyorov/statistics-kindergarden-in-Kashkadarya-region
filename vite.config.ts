@@ -23,6 +23,14 @@ export default defineConfig(({mode}) => {
           target: 'http://127.0.0.1:3003',
           changeOrigin: true,
           ws: true,
+          bypass: (req, res) => {
+            if (req.url === '/admin') {
+              res.writeHead(301, { Location: '/admin/' });
+              res.end();
+              return false;
+            }
+            return null;
+          }
         },
         '/api': {
           target: 'http://127.0.0.1:3002',

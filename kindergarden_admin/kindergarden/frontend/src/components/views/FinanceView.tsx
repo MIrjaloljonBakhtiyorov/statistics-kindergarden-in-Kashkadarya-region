@@ -331,7 +331,7 @@ const CostPerChildSection = ({ stats, childrenCount, products }: { stats: any, c
                </div>
             </div>
             <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F8FAFC" />
                   <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 800, fill: '#94A3B8' }} />
@@ -401,7 +401,7 @@ const CostPerChildSection = ({ stats, childrenCount, products }: { stats: any, c
          <div className="bg-white p-8 rounded-[2.5rem] border border-brand-border">
             <h4 className="font-black text-brand-depth uppercase text-xs tracking-widest mb-6">Xarajat tarkibi (%)</h4>
             <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <PieChart>
                   <Pie
                     data={topExpenses.map(p => ({ name: p.name, value: p.price * p.quantity }))}

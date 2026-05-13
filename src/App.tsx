@@ -158,7 +158,7 @@ export default function App() {
             <Route path="/mtt-reyting" element={<MTTReyting />} />
             <Route path="/taomnoma-nazorati" element={<TaomnomaNazorati />} />
             <Route path="/retseptlar-kitobi" element={<RetseptlarKitobi />} />
-            <Route path="/login" element={<AdminLogin onClose={() => navigate('/admin/')} />} />
+            <Route path="/login" element={<AdminLogin onClose={() => window.location.href = '/admin/'} />} />
             <Route path="/" element={<Navigate to="/viloyat-statistikasi" replace />} />
             <Route path="*" element={
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center">

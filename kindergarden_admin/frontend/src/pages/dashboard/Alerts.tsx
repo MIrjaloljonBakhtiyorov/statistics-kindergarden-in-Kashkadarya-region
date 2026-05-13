@@ -167,7 +167,7 @@ export const Alerts = () => {
         {/* 4. FILTER & CONTROL PANEL */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative group flex-1 sm:flex-none">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={14} className="sm:w-4 sm:h-4" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors sm:w-4 sm:h-4" size={14} />
             <input 
               type="text" 
               placeholder="Qidirish..." 

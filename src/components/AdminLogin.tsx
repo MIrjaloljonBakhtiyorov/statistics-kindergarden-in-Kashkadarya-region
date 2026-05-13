@@ -35,7 +35,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
 
       await signInWithEmailAndPassword(auth, trimmedLogin, trimmedPassword);
       if (onClose) onClose();
-      else window.location.replace('/viloyat-statistikasi');
+      else window.location.replace('/admin/');
     } catch (err: any) {
       if (err.code === 'auth/invalid-email') {
         setError('Login formatini noto‘g‘ri (email bo‘lishi kerak)');

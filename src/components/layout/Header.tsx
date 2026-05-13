@@ -31,10 +31,18 @@ const Header: React.FC<HeaderProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
 
+  const handleNavigation = (path: string) => {
+    if (path.startsWith('/admin') || path.startsWith('/kindergarten')) {
+      window.location.href = path;
+    } else {
+      navigate(path);
+    }
+  };
+
   return (
     <header className="bg-white border-b border-slate-200/50 sticky top-0 z-50 shadow-sm">
       <nav className="max-w-[1400px] mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/viloyat-statistikasi')}>
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleNavigation('/viloyat-statistikasi')}>
           <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center text-white font-black text-xl md:text-2xl shadow-lg border border-indigo-400/20">R</div>
           <div className="flex flex-col justify-center">
             <h1 className="text-lg md:text-2xl leading-none select-none flex items-baseline font-black text-black">
@@ -49,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
           {menuItems.map((item) => (
             <button
               key={item.name}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavigation(item.path)}
               className={`flex items-center px-5 py-2.5 rounded-xl text-[15px] font-bold transition-all duration-300 ${
                 location.pathname === item.path
                   ? 'text-indigo-600 scale-[1.02]'
@@ -118,7 +126,7 @@ const Header: React.FC<HeaderProps> = ({
               <button
                 key={item.name}
                 onClick={() => {
-                  navigate(item.path);
+                  handleNavigation(item.path);
                   setIsMenuOpen(false);
                 }}
                 className={`flex items-center px-5 py-4 rounded-xl text-sm font-bold transition-all ${

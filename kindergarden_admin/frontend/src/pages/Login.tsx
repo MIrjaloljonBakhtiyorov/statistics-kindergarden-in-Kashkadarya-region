@@ -99,7 +99,7 @@ export const Login: React.FC = () => {
               <div>
                 <label className="block text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 sm:mb-3 px-1">Login</label>
                 <div className="relative group">
-                  <Mail className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={16} className="sm:w-4.5 sm:h-4.5" />
+                  <Mail className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors sm:w-4.5 sm:h-4.5" size={16} />
                   <input
                     type="text"
                     value={login}
@@ -114,7 +114,7 @@ export const Login: React.FC = () => {
               <div>
                 <label className="block text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 sm:mb-3 px-1">Parol</label>
                 <div className="relative group">
-                  <Lock className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={16} className="sm:w-4.5 sm:h-4.5" />
+                  <Lock className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors sm:w-4.5 sm:h-4.5" size={16} />
                   <input
                     type="password"
                     value={password}

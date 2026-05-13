@@ -126,7 +126,7 @@ export const HududiyCommandCenter = () => {
           
           <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 flex flex-col items-center justify-center">
              <div className="relative w-40 h-40">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart>
                         <Pie data={[{ value: 245780, full: 300000 }]} dataKey="value" startAngle={90} endAngle={-270} innerRadius={60} outerRadius={70} fill="#f1f5f9" stroke="none">
                              <Cell fill="#6366f1" />
