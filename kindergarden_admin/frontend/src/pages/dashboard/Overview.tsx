@@ -148,7 +148,7 @@ export const Overview = () => {
         <div className="lg:col-span-8 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">Tuman kesimida davomat</p>
           <div className="h-[320px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={DISTRICT_DATA} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis
@@ -175,7 +175,7 @@ export const Overview = () => {
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">Bog'cha turlari</p>
           <div className="flex-1 flex items-center justify-center">
             <div className="h-[280px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <PieChart>
                   <Pie
                     data={PIE_DATA}

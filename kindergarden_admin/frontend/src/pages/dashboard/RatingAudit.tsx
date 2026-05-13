@@ -300,7 +300,7 @@ export const RatingAudit = () => {
               <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Xatolar va muvofiqlik</p>
                 <div className="h-52">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <BarChart data={VIOLATIONS_BAR} layout="vertical" margin={{ left: 10, right: 10 }}>
                       <XAxis type="number" hide />
                       <YAxis dataKey="name" type="category" axisLine={false} tickLine={false}
@@ -323,7 +323,7 @@ export const RatingAudit = () => {
               <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Qoidabuzarliklar taqsimoti</p>
                 <div className="relative h-44">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart>
                       <Pie data={VIOLATIONS_CHART} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={4} dataKey="value" strokeWidth={0}>
                         {VIOLATIONS_CHART.map((e, i) => <Cell key={i} fill={e.color} />)}
@@ -349,7 +349,7 @@ export const RatingAudit = () => {
               <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Oylik trend (30 kunlik)</p>
                 <div className="h-44">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <LineChart data={MONTHLY_TREND} margin={{ left: -20, right: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                       <XAxis dataKey="day" fontSize={9} axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontWeight: 700 }} />

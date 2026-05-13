@@ -232,7 +232,7 @@ export const AIInsights = () => {
               <SectionHeader icon={BarChartIcon} title="Tumanlar tahlili" subtitle="Risk va ballar monitoringi" />
               
               <div className="h-[250px] sm:h-[400px] w-full">
-                 <ResponsiveContainer width="100%" height="100%">
+                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <BarChart data={DISTRICT_CHART_DATA} margin={{ top: 20, right: 0, left: 0, bottom: 0 }}>
                        <defs>
                           <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
@@ -255,7 +255,7 @@ export const AIInsights = () => {
               <SectionHeader icon={PieChartIcon} title="Taomnoma" subtitle="Xatolar ulushi" />
               
               <div className="h-[200px] sm:h-[300px] w-full relative">
-                 <ResponsiveContainer width="100%" height="100%">
+                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart>
                        <Pie data={VIOLATION_DATA} cx="50%" cy="50%" innerRadius={50} sm:innerRadius={60} outerRadius={70} sm:outerRadius={85} paddingAngle={8} dataKey="value" stroke="none" cornerRadius={8}>
                           {VIOLATION_DATA.map((entry, index) => <Cell key={index} fill={entry.color} />)}
@@ -296,7 +296,7 @@ export const AIInsights = () => {
               <SectionHeader icon={TrendingUp} title="Samaradorlik Bashorati" subtitle="Kelgusi 3 oylik strategik prognoz (AI Model)" />
               
               <div className="h-[350px] w-full">
-                 <ResponsiveContainer width="100%" height="100%">
+                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <AreaChart data={PREDICTIVE_TREND} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                        <defs>
                           <linearGradient id="colorPredict" x1="0" y1="0" x2="0" y2="1">
