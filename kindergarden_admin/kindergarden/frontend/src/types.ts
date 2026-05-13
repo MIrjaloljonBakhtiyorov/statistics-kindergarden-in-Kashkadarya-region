@@ -1,8 +1,9 @@
 import React from 'react';
 
-export type UserRole = 
-  | 'DIRECTOR' 
-  | 'OPERATOR' 
+export type UserRole =
+  | 'DIRECTOR'
+  | 'ADMIN'
+  | 'OPERATOR'
   | 'STOREKEEPER' 
   | 'DIETITIAN'
   | 'KITCHEN_MANAGER' 
@@ -14,7 +15,9 @@ export type UserRole =
   | 'INSPECTOR'
   | 'PROFILES'
   | 'SUPPLY'
-  | 'FINANCE';
+  | 'FINANCE'
+  | 'VILOYAT_STATISTIKA'
+  | 'BOGCHA_BOSHQARUVI';
 
 export interface NavItem {
   id: string;

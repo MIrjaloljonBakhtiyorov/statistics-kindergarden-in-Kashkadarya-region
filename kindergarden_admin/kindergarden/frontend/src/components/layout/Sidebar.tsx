@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  LayoutDashboard, 
-  Users, 
-  Package, 
-  ClipboardCheck, 
-  Apple, 
-  ChefHat, 
-  ShieldCheck, 
-  FlaskConical, 
+  LayoutDashboard,
+  Users,
+  Package,
+  ClipboardCheck,
+  Apple,
+  ChefHat,
+  ShieldCheck,
+  FlaskConical,
   Smartphone,
   Truck,
   Coins,
@@ -16,7 +16,9 @@ import {
   Contact,
   Stethoscope,
   Camera,
-  Loader2
+  Loader2,
+  BarChart3,
+  School
 } from 'lucide-react';
 import { UserRole, NavItem } from '../../types';
 import { useAuth } from '../../context/AuthContext';
@@ -92,6 +94,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
   };
 
   const allMenuItems: NavItem[] = [
+    { id: 'VILOYAT_STATISTIKA', label: 'Viloyat Statistikasi', icon: BarChart3 },
+    { id: 'BOGCHA_BOSHQARUVI', label: "Bogcha boshqaruvi", icon: School },
     { id: 'DIRECTOR', label: 'Boshqaruv (Direktor)', icon: LayoutDashboard },
     { id: 'OPERATOR', label: 'Operator', icon: Contact },
     { id: 'TEACHER', label: 'Tarbiyachi', icon: ClipboardCheck },

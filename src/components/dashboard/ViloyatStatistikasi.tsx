@@ -129,6 +129,52 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
 
       <StatsGrid />
 
+      {/* Bog'cha Turlari Section */}
+      <div className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+        <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg mb-3">
+              <School className="w-3.5 h-3.5 text-[#003580]" />
+              <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest">Maktabgacha ta'lim muassasalari</span>
+            </div>
+            <h3 className="text-2xl font-bold text-[#003580] uppercase leading-tight">Bog'cha Turlari</h3>
+          </div>
+          <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-widest">Jami: 5 ta tur · 4,439 ta MTT</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+          {kindergartenTypes.map((type, index) => {
+            const color = COLORS[index % COLORS.length];
+            const Icon = typeIcons[index % typeIcons.length];
+            return (
+              <motion.div
+                key={index}
+                whileHover={{ y: -4, boxShadow: '0 12px 32px rgba(0,0,0,0.10)' }}
+                className="relative overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 p-5 flex flex-col gap-3 cursor-pointer transition-all"
+                onClick={() => setSelectedMTTType(type)}
+              >
+                <div className="absolute top-0 left-0 w-full h-1 rounded-t-2xl" style={{ background: color }} />
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${color}18` }}>
+                    <Icon size={20} style={{ color }} />
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg" style={{ background: `${color}18`, color }}>
+                    #{index + 1}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-[26px] font-black text-[#003580] leading-none">{type.count.toLocaleString()}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">ta MTT</p>
+                </div>
+                <p className="text-[12px] font-semibold text-slate-700 leading-snug">{type.name}</p>
+                <div className="pt-2 border-t border-slate-200">
+                  <p className="text-[11px] text-slate-500 font-medium">{type.children.toLocaleString()} <span className="text-slate-400">nafar bola</span></p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Main Analysis Section - Pie Chart - Compressed */}
       <div className="grid grid-cols-1 gap-6">
         <div className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 group/card relative overflow-hidden flex flex-col">

@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = 3002;
+  const PORT = 3004;
 
   // Body parsing middleware
   app.use(express.json());

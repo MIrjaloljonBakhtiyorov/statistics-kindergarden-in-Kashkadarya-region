@@ -27,12 +27,16 @@ import FinanceView from './components/views/FinanceView';
 import ParentView from './components/views/ParentView';
 import NutritionistView from './components/views/NutritionistView';
 import ProfilesView from './components/views/ProfilesView';
+import ViloyatStatistikaView from './components/views/ViloyatStatistikaView';
+import BogchaBoshqaruvi from './components/views/BogchaBoshqaruvi';
 
 // --- Mock Data & Constants ---
 import { UserRole } from './types';
 import { useGroups } from './features/groups/hooks/useGroups';
 
 const pathRoleMap: Record<string, UserRole> = {
+  '/viloyat-statistika': 'VILOYAT_STATISTIKA',
+  '/bogcha-boshqaruvi': 'BOGCHA_BOSHQARUVI',
   '/direktor': 'DIRECTOR',
   '/admin': 'OPERATOR',
   '/omborchi': 'STOREKEEPER',
@@ -98,6 +102,10 @@ const App: React.FC = () => {
 
   const renderCurrentView = () => {
     switch (currentRole) {
+      case 'VILOYAT_STATISTIKA':
+        return <ViloyatStatistikaView />;
+      case 'BOGCHA_BOSHQARUVI':
+        return <BogchaBoshqaruvi />;
       case 'DIRECTOR':
         return <DirectorView />;
       case 'ADMIN':

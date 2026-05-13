@@ -2,13 +2,100 @@ import { useState, useEffect } from 'react';
 import {
   Plus, Search, Filter, Building2, School, LayoutGrid, Home,
   Edit, Trash2, Loader2, MapPin, User, ChevronRight,
-  ShieldCheck, Users, Zap, Grid, List, Phone, Download, FileSpreadsheet
+  ShieldCheck, Users, Zap, Grid, List, Phone, Download, FileSpreadsheet,
+  Eye, EyeOff, Copy, ExternalLink, KeyRound, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
 import { toast } from 'sonner';
 import { YangiBogchaQoshishModal } from './YangiBogchaQoshishModal';
 import { kindergartenApi } from '../../api/apiClient';
+
+const BOGCHA_PANEL_URL = 'http://localhost:3004';
+
+const CredentialsModal = ({ item, onClose, onOpen }: { item: any; onClose: () => void; onOpen: () => void }) => {
+  const [showPass, setShowPass] = useState(false);
+  const copy = (text: string) => { navigator.clipboard.writeText(text); };
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={onClose}>
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center">
+              <KeyRound size={15} className="text-indigo-600" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kirish ma'lumotlari</p>
+              <p className="text-sm font-black text-slate-900 leading-tight truncate max-w-[180px]">{item.name}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="px-6 py-4 space-y-3">
+          {/* Username */}
+          <div className="bg-slate-50 rounded-xl px-4 py-3 border border-slate-100 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Login (Username)</p>
+              <p className="text-sm font-black text-slate-800 font-mono">{item.username || '—'}</p>
+            </div>
+            <button
+              onClick={() => copy(item.username || '')}
+              className="p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 text-slate-400 hover:text-indigo-600 transition-all"
+              title="Nusxa olish"
+            >
+              <Copy size={14} />
+            </button>
+          </div>
+
+          {/* Password */}
+          <div className="bg-slate-50 rounded-xl px-4 py-3 border border-slate-100 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Parol</p>
+              <p className="text-sm font-black text-slate-800 font-mono tracking-widest">
+                {showPass ? (item.password || 'USER1234') : '••••••••••'}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => setShowPass(v => !v)}
+                className="p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 text-slate-400 hover:text-indigo-600 transition-all"
+                title={showPass ? "Yashirish" : "Ko'rish"}
+              >
+                {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+              <button
+                onClick={() => copy(item.password || 'USER1234')}
+                className="p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 text-slate-400 hover:text-indigo-600 transition-all"
+                title="Nusxa olish"
+              >
+                <Copy size={14} />
+              </button>
+            </div>
+          </div>
+
+          <p className="text-[10px] text-slate-400 font-medium text-center">
+            Panel manzili: <span className="font-bold text-indigo-600">{BOGCHA_PANEL_URL}</span>
+          </p>
+        </div>
+
+        <div className="px-6 pb-5">
+          <button
+            onClick={onOpen}
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20"
+          >
+            <ExternalLink size={14} /> Bogcha paneliga o'tish
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string; iconBg: string }> = {
   Public:  { label: 'Davlat',  color: 'text-blue-600',   bg: 'bg-blue-50 border-blue-100',   iconBg: 'bg-blue-600' },
@@ -51,6 +138,7 @@ export const MTTManagement = () => {
   const [districtFilter, setDistrictFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [credItem, setCredItem] = useState<any>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -122,6 +210,14 @@ export const MTTManagement = () => {
 
   return (
     <div className="min-h-screen bg-[#f4f6fb] space-y-6 pb-20">
+
+      {credItem && (
+        <CredentialsModal
+          item={credItem}
+          onClose={() => setCredItem(null)}
+          onOpen={() => { window.open(BOGCHA_PANEL_URL, '_blank'); setCredItem(null); }}
+        />
+      )}
 
       <AnimatePresence>
         {isModalOpen && (
@@ -320,6 +416,13 @@ export const MTTManagement = () => {
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
                             <button
+                              onClick={e => { e.stopPropagation(); setCredItem(item); }}
+                              className="p-2 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-500 hover:text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 transition-all"
+                              title="Ko'rish / Kirish"
+                            >
+                              <Eye size={15} />
+                            </button>
+                            <button
                               onClick={e => handleEdit(e, item)}
                               className="p-2 bg-slate-50 border border-slate-100 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 transition-all"
                             >
@@ -366,6 +469,9 @@ export const MTTManagement = () => {
                         <School size={20} />
                       </div>
                       <div className="flex items-center gap-2">
+                        <button onClick={e => { e.stopPropagation(); setCredItem(item); }} className="p-1.5 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all" title="Ko'rish">
+                          <Eye size={14} />
+                        </button>
                         <button onClick={e => handleEdit(e, item)} className="p-1.5 rounded-lg text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 transition-all">
                           <Edit size={14} />
                         </button>

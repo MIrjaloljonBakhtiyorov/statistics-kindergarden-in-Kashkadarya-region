@@ -20,7 +20,15 @@ export default defineConfig(({mode}) => {
       strictPort: true,
       proxy: {
         '/admin': {
-          target: 'http://127.0.0.1:5000',
+          target: 'http://127.0.0.1:3003',
+          changeOrigin: true,
+        },
+        '/api': {
+          target: 'http://127.0.0.1:3002',
+          changeOrigin: true,
+        },
+        '/stats': {
+          target: 'http://127.0.0.1:3001',
           changeOrigin: true,
         },
       },
