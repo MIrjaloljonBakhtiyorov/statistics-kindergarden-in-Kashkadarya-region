@@ -1,337 +1,447 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Trophy, TrendingDown, MapPin, Sparkles, Zap, ShieldCheck, Target, 
-  ArrowUpRight, TrendingUp, Activity, Filter, Search, Download, 
-  BrainCircuit, ChevronDown, AlertOctagon, Info, AlertTriangle, 
-  Building2, Home, ArrowRightLeft, FileBarChart, ChevronRight
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Trophy, TrendingDown, Sparkles, Target, ShieldCheck,
+  Activity, Search, Download, BrainCircuit, AlertTriangle,
+  ChevronDown, Info, TrendingUp, Star, AlertOctagon
 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { 
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, 
-  Cell, PieChart, Pie, LineChart, Line, CartesianGrid 
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip,
+  PieChart, Pie, Cell, LineChart, Line, CartesianGrid
 } from 'recharts';
 
-// --- MOCK DATA ---
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
-const KPI_DATA = [
-  { title: "Oylik o'rtacha ball", value: "100", trend: "0.1", type: "score", icon: Activity, color: "text-indigo-600", bg: "bg-indigo-50", sparkline: [100, 100, 100, 100, 100] },
-  { title: "TOP 20 bog'chalar", value: "1", trend: "0", type: "neutral", icon: Trophy, color: "text-emerald-600", bg: "bg-emerald-50", sparkline: [1, 1, 1, 1, 1] },
-  { title: "Kritik bog'chalar", value: "0", trend: "0", type: "danger", icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-50", sparkline: [0, 0, 0, 0, 0] },
-  { title: "Gigiyena xatolari", value: "0", trend: "0", type: "danger", icon: Sparkles, color: "text-amber-600", bg: "bg-amber-50", sparkline: [0, 0, 0, 0, 0] },
-  { title: "Taomnoma xatolari", value: "0", trend: "0", type: "success", icon: Target, color: "text-blue-600", bg: "bg-blue-50", sparkline: [0, 0, 0, 0, 0] },
-  { title: "Operatsion xatolar", value: "0", trend: "0", type: "success", icon: ShieldCheck, color: "text-purple-600", bg: "bg-purple-50", sparkline: [0, 0, 0, 0, 0] },
+const KPI_ROW1 = [
+  { label: "Oylik o'rtacha ball", value: "86.4", icon: Activity,    color: "text-indigo-600", bg: "bg-indigo-50",  spark: [82,84,85,83,86,87,86] },
+  { label: "TOP bog'chalar",       value: "20",   icon: Trophy,      color: "text-emerald-600", bg: "bg-emerald-50", spark: [18,19,20,20,20,20,20] },
+  { label: "Kritik bog'chalar",    value: "12",   icon: TrendingDown, color: "text-rose-600",   bg: "bg-rose-50",   spark: [8,9,10,11,12,12,12] },
+  { label: "Gigiyena xatolari",    value: "45",   icon: Sparkles,    color: "text-amber-600",  bg: "bg-amber-50",  spark: [30,35,38,40,42,44,45] },
+  { label: "Taomnoma xatolari",    value: "28",   icon: Target,      color: "text-blue-600",   bg: "bg-blue-50",   spark: [20,22,24,25,26,27,28] },
+  { label: "Operatsion xatolar",   value: "15",   icon: ShieldCheck, color: "text-purple-600", bg: "bg-purple-50", spark: [10,11,12,13,14,15,15] },
 ];
 
-const TOP_20_DATA: any[] = [
-  { rank: 1, name: 'Namuna MTT', district: 'Qarshi sh.', type: 'Davlat', score: 100, penalty: 0, violations: 0, status: 'Excellent', reward: 'Mukofotga tavsiya' }
+const TOP_20 = [
+  { rank: 1, name: "26-sonli Xamroi MTT",   district: "Qarshi shahri",   type: "Davlat",  score: 100, penalty: 0,   violations: 0,  status: "Excellent", reward: "Mukofotga tavsiya" },
+  { rank: 2, name: "12-sonli Sarvi MTT",    district: "Kitob tumani",    type: "Davlat",  score: 98,  penalty: -2,  violations: 1,  status: "Excellent", reward: "Mukofotga tavsiya" },
+  { rank: 3, name: "20-sonli Karim MTT",    district: "Koson tumani",    type: "Davlat",  score: 92,  penalty: -8,  violations: 3,  status: "Excellent", reward: "Mukofotga tavsiya" },
+  { rank: 4, name: "8-sonli Quyoshcha MTT", district: "Qarshi tumani",   type: "Davlat",  score: 88,  penalty: -12, violations: 4,  status: "Good",      reward: "Rag'batlantirish" },
+  { rank: 5, name: "8-sonli Navruz MTT",    district: "Kitob tumani",    type: "Davlat",  score: 86,  penalty: -14, violations: 5,  status: "Good",      reward: "Rag'batlantirish" },
+  { rank: 6, name: "37-sonli Kamola MTT",   district: "Shahrisabz sh.",  type: "Xususiy", score: 82,  penalty: -18, violations: 7,  status: "Good",      reward: "Kuzatuv" },
+  { rank: 7, name: "8-sonli Deyushcha MTT", district: "Chiroqchi t.",    type: "Davlat",  score: 78,  penalty: -22, violations: 8,  status: "Warning",   reward: "Ogohlantirildi" },
+  { rank: 8, name: "7-sonli Navruz MTT",    district: "Koson tumani",    type: "Davlat",  score: 72,  penalty: -28, violations: 10, status: "Warning",   status2: "Jarima" },
 ];
 
-const DISTRICT_PERFORMANCE = [
-  { name: 'Qarshi sh.', score: 100, violations: 0 },
-  { name: 'Qarshi t.', score: 100, violations: 0 },
-  { name: 'Chiroqchi', score: 100, violations: 0 },
-  { name: 'Dehqonobod', score: 100, violations: 0 },
-  { name: 'G‘uzor', score: 100, violations: 0 },
-  { name: 'Kasbi', score: 100, violations: 0 },
-  { name: 'Kitob', score: 100, violations: 0 },
-  { name: 'Koson', score: 100, violations: 0 },
-  { name: 'Mirishkor', score: 100, violations: 0 },
-  { name: 'Muborak', score: 100, violations: 0 },
-  { name: 'Nishon', score: 100, violations: 0 },
-  { name: 'Qamashi', score: 100, violations: 0 },
-  { name: 'Shahrisabz', score: 100, violations: 0 },
-  { name: 'Yakkabog‘', score: 100, violations: 0 },
+const CATEGORY_TOP = [
+  { label: "Barcha",  items: [
+    { name: "26-sonli Xamroi MTT", score: 100, color: "bg-emerald-500" },
+    { name: "12-sonli Sarvi MTT",  score: 98,  color: "bg-emerald-500" },
+    { name: "20-sonli Karim MTT",  score: 92,  color: "bg-emerald-400" },
+    { name: "28-sonli Gulsanam MTT", score: 90, color: "bg-emerald-400" },
+    { name: "4k-sonli MTT",        score: 89,  color: "bg-amber-400" },
+  ]},
 ];
 
-const VIOLATION_PIE = [
-  { name: 'Ma\'lumot yo\'q', value: 100, color: '#e2e8f0' },
+const VIOLATIONS_CHART = [
+  { name: "Taomnoma", value: 28, color: "#6366f1" },
+  { name: "Gigiyena",  value: 45, color: "#10b981" },
+  { name: "Davomat",   value: 20, color: "#f59e0b" },
+  { name: "Sanitariya", value: 15, color: "#f43f5e" },
 ];
 
-const CRITICAL_ALERTS: any[] = [];
+const VIOLATIONS_BAR = [
+  { name: "Taomnoma",  bal: 28 },
+  { name: "Gigiyena",  bal: 45 },
+  { name: "Davomat",   bal: 20 },
+  { name: "Sanitariya", bal: 15 },
+  { name: "Foto",      bal: 8 },
+];
 
 const MONTHLY_TREND = [
-  { day: '1', score: 100 }
+  { day: "1",  score: 88 }, { day: "3",  score: 85 }, { day: "5",  score: 82 },
+  { day: "7",  score: 84 }, { day: "9",  score: 86 }, { day: "11", score: 88 },
+  { day: "13", score: 87 }, { day: "15", score: 84 }, { day: "17", score: 82 },
+  { day: "19", score: 86 }, { day: "21", score: 88 }, { day: "23", score: 87 },
+  { day: "25", score: 89 }, { day: "27", score: 86 },
 ];
 
-// --- COMPONENTS ---
+const CRITICAL_ALERTS = [
+  { title: "Al-Xorazmiy",        district: "8-sonli",           points: -45, color: "rose",   label: "JUDA PAST REYTING" },
+  { title: "Gulsanam MTT",       district: "Shahrisabz tumani", points: -18, color: "amber",  label: "OGOHLANTIRILDI" },
+  { title: "Aloqasiz MTT",       district: "Chiroqchi tumani",  points: -30, color: "rose",   label: "ALOQA YO'Q" },
+];
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const colors: Record<string, string> = {
-    'Excellent': 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    'Good': 'bg-amber-50 text-amber-600 border-amber-200',
-    'Warning': 'bg-orange-50 text-orange-600 border-orange-200',
-    'Critical': 'bg-rose-50 text-rose-600 border-rose-200'
+const METHODOLOGY = [
+  { label: "Taomnoma", penalty: "-20", color: "indigo" },
+  { label: "Gigiyena",  penalty: "-15", color: "amber" },
+  { label: "Sanitariya", penalty: "-10", color: "emerald" },
+  { label: "Operatsion", penalty: "-5", color: "purple" },
+  { label: "Davomat",    penalty: "-20", color: "rose" },
+  { label: "Foto-dalil", penalty: "-5",  color: "blue" },
+];
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+const StatusBadge = ({ s }: { s: string }) => {
+  const cfg: Record<string, string> = {
+    Excellent: "bg-emerald-50 text-emerald-600 border-emerald-200",
+    Good:      "bg-blue-50 text-blue-600 border-blue-200",
+    Warning:   "bg-amber-50 text-amber-600 border-amber-200",
+    Critical:  "bg-rose-50 text-rose-600 border-rose-200",
   };
-  return (
-    <span className={clsx("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border", colors[status] || colors.Warning)}>
-      {status}
-    </span>
-  );
+  return <span className={clsx("px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border", cfg[s] || cfg.Warning)}>{s}</span>;
 };
 
+// ─── Main ─────────────────────────────────────────────────────────────────────
+
 export const RatingAudit = () => {
-  const [activeTab, setActiveTab] = useState<'All' | 'Davlat' | 'Xususiy' | 'Oilaviy'>('All');
-  const [selectedDistrict, setSelectedDistrict] = useState('Barcha tumanlar');
-  const [selectedType, setSelectedType] = useState('Barcha turlari');
-  const [activeDropdown, setActiveDropdown] = useState<'district' | 'type' | 'status' | null>(null);
+  const [tab, setTab] = useState("Barcha");
+  const [search, setSearch] = useState("");
 
-  const DISTRICTS = [
-    'Qarshi shahri', 'Qarshi tumani', 'Chiroqchi tumani', 'Dehqonobod tumani', 
-    'G‘uzor tumani', 'Kasbi tumani', 'Kitob tumani', 'Koson tumani', 
-    'Mirishkor tumani', 'Muborak tumani', 'Nishon tumani', 'Qamashi tumani', 
-    'Shahrisabz tumani', 'Yakkabog‘ tumani'
-  ];
-  const TYPES = ['Davlat', 'Xususiy', 'Oilaviy'];
-
-  const toggleDropdown = (dropdown: 'district' | 'type' | 'status') => {
-    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
-  };
-
-  const filteredTop = activeTab === 'All' ? TOP_20_DATA.slice(0, 10) : TOP_20_DATA.filter(t => t.type === activeTab).slice(0, 10);
+  const filtered = TOP_20.filter(r =>
+    r.name.toLowerCase().includes(search.toLowerCase()) ||
+    r.district.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-[#FDFEFF] pb-20 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
-      
-      {/* 🧭 PREMIUM HEADER */}
-      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-2xl border-b border-slate-200/60 shadow-sm">
-        <div className="max-w-[1700px] mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-6">
-          <div className="flex items-center gap-3 sm:gap-6">
-            <div className="relative group shrink-0">
-               <div className="absolute -inset-1 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl sm:rounded-2xl blur opacity-25"></div>
-               <div className="relative w-10 h-10 sm:w-14 sm:h-14 bg-white rounded-lg sm:rounded-2xl flex items-center justify-center shadow-xl border border-slate-100">
-                 <Trophy className="text-indigo-600 sm:w-6 sm:h-6" size={20} />
-               </div>
+    <div className="min-h-screen bg-[#f4f6fb] pb-20 font-sans text-slate-900">
+
+      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
+        <div className="px-4 sm:px-6 lg:px-8 py-3 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white border border-slate-100 rounded-xl shadow-sm flex items-center justify-center">
+              <Trophy className="text-indigo-600" size={20} />
             </div>
             <div>
-              <h1 className="text-base sm:text-2xl lg:text-3xl font-black tracking-tight text-slate-900 leading-none">Reyting va Audit</h1>
-              <p className="text-[8px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1 sm:mt-1.5 flex items-center gap-1.5 sm:gap-2">
-                <Target size={10} className="text-indigo-500 sm:w-3 sm:h-3" /> Joriy oy monitoringi
+              <h1 className="text-lg font-black text-slate-900 leading-none">Reyting va Audit Statistikasi</h1>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                Barcha bog'chalar reytingi va jarimalar monitoringi
               </p>
             </div>
           </div>
-
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
-             {/* FILTERS */}
-             <div className="flex items-center bg-slate-100/50 p-1 rounded-xl sm:rounded-2xl border border-slate-200/50 w-full sm:w-auto gap-1">
-                <div className="relative flex-1 sm:flex-none">
-                  <button 
-                    onClick={() => toggleDropdown('district')}
-                    className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white rounded-lg sm:rounded-xl text-[9px] sm:text-[11px] font-black text-slate-700 shadow-sm border border-slate-200/50 hover:bg-slate-50 transition-all w-full sm:min-w-[120px] justify-between whitespace-nowrap"
-                  >
-                    <span className="truncate">{selectedDistrict}</span>
-                    <ChevronDown size={12} className={clsx("opacity-50 transition-transform", activeDropdown === 'district' && "rotate-180")} />
-                  </button>
-                  <AnimatePresence>
-                    {activeDropdown === 'district' && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                        className="absolute top-full left-0 mt-2 w-48 sm:w-56 bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50 p-1 sm:p-2"
-                      >
-                        <div className="max-h-48 sm:max-h-60 overflow-y-auto custom-scrollbar">
-                           <button onClick={() => { setSelectedDistrict('Barcha tumanlar'); setActiveDropdown(null); }} className="w-full text-left px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold text-slate-600 hover:bg-indigo-50 rounded-lg transition-all uppercase">Barcha tumanlar</button>
-                           {DISTRICTS.map(d => (
-                             <button key={d} onClick={() => { setSelectedDistrict(d); setActiveDropdown(null); }} className="w-full text-left px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold text-slate-600 hover:bg-indigo-50 rounded-lg transition-all uppercase">{d}</button>
-                           ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                <div className="relative flex-1 sm:flex-none">
-                  <button 
-                    onClick={() => toggleDropdown('type')}
-                    className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-[9px] sm:text-[11px] font-bold text-slate-500 hover:text-indigo-600 transition-all w-full sm:min-w-[100px] justify-between whitespace-nowrap"
-                  >
-                    <span className="truncate">{selectedType}</span>
-                    <ChevronDown size={12} className={clsx("opacity-50 transition-transform", activeDropdown === 'type' && "rotate-180")} />
-                  </button>
-                </div>
-             </div>
-            
-            <div className="relative flex-1 sm:w-40 lg:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-              <input type="text" placeholder="Qidirish..." className="w-full pl-9 pr-3 py-1.5 sm:py-2 bg-white border border-slate-200/60 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all shadow-sm" />
+          <div className="flex items-center gap-2 flex-wrap">
+            <button className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
+              Barcha tumanlar <ChevronDown size={12} className="opacity-50" />
+            </button>
+            <button className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
+              Status <ChevronDown size={12} className="opacity-50" />
+            </button>
+            <div className="relative">
+              <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Qidirish..."
+                className="pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-300 w-36" />
             </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-               <button className="p-2 sm:p-2.5 bg-white border border-slate-200 rounded-lg sm:rounded-xl text-slate-600 hover:text-indigo-600 shadow-sm"><Download size={16} className="sm:w-[18px] sm:h-[18px]" /></button>
-               <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2.5 bg-indigo-600 text-white rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
-                 XULOSA
-               </button>
-            </div>
+            <button className="p-2 bg-white border border-slate-200 rounded-xl text-slate-500 hover:bg-slate-50">
+              <Download size={15} />
+            </button>
+            <button className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
+              Xulosa
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-[1700px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-10 space-y-6 sm:space-y-10">
+      <main className="px-4 sm:px-6 lg:px-8 py-5 space-y-5">
 
-        {/* ℹ️ MONTHLY RESET INFO */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start sm:items-center gap-3 sm:gap-4 p-3 sm:p-5 bg-indigo-50/50 border border-indigo-100 rounded-xl sm:rounded-3xl">
-           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0"><Info size={16} className="sm:w-[18px] sm:h-[18px]" /></div>
-           <p className="text-[10px] sm:text-xs font-medium text-slate-600 leading-relaxed">
-             <span className="font-black text-slate-900 block sm:inline mr-1">Oylik Reyting:</span> Har oy boshida barcha bog'chalar reytingi <span className="font-bold text-indigo-600">100 balldan</span> qayta boshlanadi.
-           </p>
-        </motion.div>
-
-        {/* 📏 SCORING METHODOLOGY */}
-        <div className="space-y-4 sm:space-y-6">
-           <div className="flex items-center gap-3 px-1 sm:px-2">
-              <h3 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">Ballar metodikasi</h3>
-           </div>
-           
-           <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-4">
-              {[
-                { label: 'Taomnoma', penalty: '-20', color: 'indigo' },
-                { label: 'Gigiyena', penalty: '-15', color: 'amber' },
-                { label: 'Sanitariya', penalty: '-10', color: 'emerald' },
-                { label: 'Operatsion', penalty: '-5', color: 'purple' },
-                { label: 'Davomat', penalty: '-20', color: 'rose' },
-                { label: 'Foto-dalil', penalty: '-5', color: 'blue' },
-              ].map((item, i) => (
-                <motion.div key={i} whileHover={{ y: -3 }} className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-[24px] border border-slate-100 shadow-sm text-center flex flex-col items-center justify-center">
-                   <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 sm:mb-2">{item.label}</p>
-                   <span className="text-sm sm:text-lg font-black text-rose-600 bg-rose-50 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full">{item.penalty}</span>
-                </motion.div>
-              ))}
-           </div>
+        {/* Info banner */}
+        <div className="flex items-center gap-3 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl">
+          <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+            <Info size={16} />
+          </div>
+          <p className="text-xs font-medium text-slate-600">
+            <span className="font-black text-slate-900">Oylik Reyting: </span>
+            Har oy boshida barcha bog'chalar reytingi
+            <span className="font-bold text-indigo-600"> 100 balldan </span>
+            qayta boshlanadi. Xatolar uchun ball ayiriladi.
+          </p>
         </div>
-        
-        {/* 📊 KPI CARDS */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-6">
-          {KPI_DATA.map((kpi, idx) => (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
-              key={idx} className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[32px] border border-slate-100 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group"
-            >
-              <div className="flex justify-between items-start mb-4 sm:mb-6 relative z-10">
-                <div className={clsx("w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center shadow-inner shrink-0", kpi.bg, kpi.color)}>
-                  <kpi.icon size={16} className="sm:w-5 sm:h-5" strokeWidth={2.5} />
+
+        {/* Methodology */}
+        <div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Ballarni hisoblash va jarimalar metodikasi</p>
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+            {METHODOLOGY.map((m, i) => (
+              <div key={i} className="bg-white border border-slate-100 rounded-2xl p-4 text-center shadow-sm hover:-translate-y-1 transition-all">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">{m.label}</p>
+                <span className="text-base font-black text-rose-500">{m.penalty}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* KPI strip */}
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+          {KPI_ROW1.map((k, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all">
+              <div className="flex justify-between items-start mb-3">
+                <div className={clsx("w-9 h-9 rounded-xl flex items-center justify-center", k.bg, k.color)}>
+                  <k.icon size={17} />
                 </div>
-                <div className="text-[7px] sm:text-[9px] font-black px-1.5 sm:px-2 py-0.5 sm:py-1 bg-slate-50 text-slate-500 rounded-md sm:rounded-lg">Trend {kpi.trend}%</div>
+                {/* mini sparkline */}
+                <div className="flex items-end gap-px h-6">
+                  {k.spark.map((v, j) => (
+                    <div key={j} className="w-1 rounded-sm bg-indigo-200"
+                      style={{ height: `${(v / Math.max(...k.spark)) * 24}px` }} />
+                  ))}
+                </div>
               </div>
-              <div className="relative z-10">
-                <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5 sm:mb-1 truncate">{kpi.title}</p>
-                <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">{kpi.value}</h3>
-              </div>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 truncate">{k.label}</p>
+              <p className="text-xl font-black text-slate-900">{k.value}</p>
             </motion.div>
           ))}
         </div>
 
-        {/* 🗓️ MAIN LAYOUT */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-10">
-           
-           <div className="xl:col-span-8 space-y-6 sm:space-y-10">
-              
-              {/* SECTION 1: TOP 20 TABLE */}
-              <div className="bg-white rounded-2xl sm:rounded-[48px] border border-slate-100 shadow-xl shadow-slate-200/10 overflow-hidden flex flex-col">
-                 <div className="p-4 sm:p-10 border-b border-slate-50 flex items-center justify-between">
-                    <h2 className="text-base sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2 sm:gap-3">
-                       <Trophy className="text-amber-500 sm:w-6 sm:h-6" size={18} /> TOP Reyting
-                    </h2>
-                    <button className="text-[8px] sm:text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline">Barchasi</button>
-                 </div>
+        {/* Main grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
 
-                 <div className="overflow-x-auto">
-                    <div className="min-w-[600px]">
-                      <table className="w-full text-left border-collapse">
-                         <thead>
-                            <tr className="bg-slate-50/50 text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] sm:tracking-[0.2em] border-b border-slate-100">
-                               <th className="px-4 sm:px-8 py-3 sm:py-5">O'rin</th>
-                               <th className="px-4 sm:px-6 py-3 sm:py-5">Nomi</th>
-                               <th className="px-4 sm:px-6 py-3 sm:py-5 text-center">Ball</th>
-                               <th className="px-4 sm:px-6 py-3 sm:py-5 text-center">Status</th>
-                               <th className="px-4 sm:px-6 py-3 sm:py-5">Tavsiya</th>
-                            </tr>
-                         </thead>
-                         <tbody className="divide-y divide-slate-50">
-                            {TOP_20_DATA.map((row, i) => (
-                               <tr key={i} className="hover:bg-indigo-50/30 transition-colors group">
-                                  <td className="px-4 sm:px-8 py-3 sm:py-4"><div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-slate-50 flex items-center justify-center font-black text-[10px] sm:text-xs text-slate-400">#{row.rank}</div></td>
-                                  <td className="px-4 sm:px-6 py-3 sm:py-4">
-                                     <p className="font-black text-slate-900 text-[11px] sm:text-xs">{row.name}</p>
-                                     <p className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase mt-0.5">{row.district}</p>
-                                  </td>
-                                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-center">
-                                     <span className="text-sm sm:text-base font-black text-slate-900">{row.score}</span>
-                                  </td>
-                                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-center"><StatusBadge status={row.status} /></td>
-                                  <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap"><span className="text-[8px] sm:text-[9px] font-black uppercase text-emerald-600 tracking-wider">{row.reward}</span></td>
-                               </tr>
-                            ))}
-                         </tbody>
-                      </table>
-                    </div>
-                 </div>
+          {/* Left: TOP 20 + charts */}
+          <div className="xl:col-span-8 space-y-5">
+
+            {/* TOP 20 Table */}
+            <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-50">
+                <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                  <Trophy size={17} className="text-amber-500" /> TOP 20 Bog'chalar Reytingi
+                </h2>
+                <button className="text-[10px] font-black text-indigo-500 uppercase tracking-widest hover:underline">
+                  Barchasini ko'rish
+                </button>
               </div>
 
-              {/* CHARTS */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-                 <div className="bg-white rounded-2xl sm:rounded-[40px] border border-slate-100 p-4 sm:p-8">
-                    <h3 className="text-[10px] sm:text-sm font-black text-slate-900 mb-4 sm:mb-6 uppercase tracking-wider">Tumanlar balli</h3>
-                    <div className="h-[200px] sm:h-[250px]">
-                       <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={DISTRICT_PERFORMANCE} layout="vertical">
-                             <XAxis type="number" domain={[0, 100]} hide />
-                             <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 8, fontWeight: 900, fill: '#64748b' }} width={60} />
-                             <RechartsTooltip cursor={{ fill: '#f8fafc' }} />
-                             <Bar dataKey="score" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={16} />
-                          </BarChart>
-                       </ResponsiveContainer>
-                    </div>
-                 </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[700px]">
+                  <thead>
+                    <tr className="bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                      <th className="px-5 py-3 text-left">O'rin</th>
+                      <th className="px-4 py-3 text-left">Bog'cha nomi</th>
+                      <th className="px-4 py-3 text-left">Tuman</th>
+                      <th className="px-4 py-3 text-center">Ball</th>
+                      <th className="px-4 py-3 text-center">Jarimalar</th>
+                      <th className="px-4 py-3 text-center">Xatolar</th>
+                      <th className="px-4 py-3 text-center">Status</th>
+                      <th className="px-5 py-3 text-left">Tavsiya</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map((r, i) => (
+                      <tr key={i} className="border-b border-slate-50 hover:bg-indigo-50/30 transition-colors text-xs">
+                        <td className="px-5 py-3">
+                          <div className={clsx("w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs",
+                            r.rank === 1 ? "bg-amber-100 text-amber-600" :
+                            r.rank === 2 ? "bg-slate-100 text-slate-500" :
+                            r.rank === 3 ? "bg-orange-100 text-orange-500" : "bg-slate-50 text-slate-400")}>
+                            #{r.rank}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 font-black text-slate-900">{r.name}</td>
+                        <td className="px-4 py-3 text-slate-500 text-[11px]">{r.district}</td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={clsx("text-sm font-black", r.score >= 90 ? "text-emerald-600" : r.score >= 75 ? "text-amber-500" : "text-rose-500")}>
+                            {r.score}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className="text-[11px] font-black text-rose-500">{r.penalty}</span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className="text-[11px] font-bold text-slate-600">{r.violations}</span>
+                        </td>
+                        <td className="px-4 py-3 text-center"><StatusBadge s={r.status} /></td>
+                        <td className="px-5 py-3">
+                          <span className={clsx("text-[9px] font-black uppercase tracking-wider",
+                            r.reward === "Mukofotga tavsiya" ? "text-emerald-600" :
+                            r.reward === "Rag'batlantirish" ? "text-blue-500" : "text-amber-500")}>
+                            {r.reward}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-                 <div className="bg-white rounded-2xl sm:rounded-[40px] border border-slate-100 p-4 sm:p-8">
-                    <h3 className="text-[10px] sm:text-sm font-black text-slate-900 mb-4 sm:mb-6 uppercase tracking-wider">Xatolar taqsimoti</h3>
-                    <div className="h-[200px] sm:h-[250px] relative">
-                       <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                             <Pie data={VIOLATION_PIE} cx="50%" cy="50%" innerRadius={40} sm:innerRadius={50} outerRadius={60} sm:outerRadius={70} paddingAngle={4} dataKey="value">
-                                {VIOLATION_PIE.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-                             </Pie>
-                          </PieChart>
-                       </ResponsiveContainer>
-                       <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
-                          <span className="text-base sm:text-xl font-black text-slate-900">100%</span>
-                       </div>
+            {/* Category top + violation bar */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {/* Category */}
+              <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                <div className="flex gap-2 mb-4 flex-wrap">
+                  {["Barcha", "Davlat", "Xususiy", "Oilaviy"].map(t => (
+                    <button key={t} onClick={() => setTab(t)}
+                      className={clsx("px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all",
+                        tab === t ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200")}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Kategoriyalar Top 10</p>
+                <div className="space-y-2.5">
+                  {CATEGORY_TOP[0].items.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <span className="text-[10px] font-black text-slate-400 w-4">{i + 1}</span>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-[11px] font-bold text-slate-800">{item.name}</span>
+                          <span className="text-[11px] font-black text-slate-900">{item.score}</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                          <div className={clsx("h-full rounded-full", item.color)} style={{ width: `${item.score}%` }} />
+                        </div>
+                      </div>
                     </div>
-                 </div>
+                  ))}
+                </div>
               </div>
 
-           </div>
+              {/* Violations bar */}
+              <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Xatolar va muvofiqlik</p>
+                <div className="h-52">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={VIOLATIONS_BAR} layout="vertical" margin={{ left: 10, right: 10 }}>
+                      <XAxis type="number" hide />
+                      <YAxis dataKey="name" type="category" axisLine={false} tickLine={false}
+                        tick={{ fontSize: 10, fontWeight: 700, fill: "#64748b" }} width={70} />
+                      <Tooltip contentStyle={{ borderRadius: 10, border: "none", fontSize: 11 }} />
+                      <Bar dataKey="bal" radius={[0, 4, 4, 0]} barSize={18}>
+                        {VIOLATIONS_BAR.map((_, i) => (
+                          <Cell key={i} fill={["#6366f1","#10b981","#f59e0b","#f43f5e","#8b5cf6"][i]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
 
-           <div className="xl:col-span-4 space-y-6 sm:space-y-10">
-              <div className="bg-slate-950 p-6 sm:p-10 rounded-2xl sm:rounded-[48px] text-white shadow-2xl relative overflow-hidden">
-                 <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-indigo-600/10 blur-[60px] sm:blur-[80px] rounded-full" />
-                 <div className="relative z-10">
-                    <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-                       <div className="w-10 h-10 sm:w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-2xl border border-white/10 shrink-0"><BrainCircuit size={20} className="text-indigo-300 sm:w-6 sm:h-6" /></div>
-                       <h2 className="text-base sm:text-xl font-black tracking-tight">AI Audit</h2>
+            {/* Charts row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {/* Pie */}
+              <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Qoidabuzarliklar taqsimoti</p>
+                <div className="relative h-44">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={VIOLATIONS_CHART} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={4} dataKey="value" strokeWidth={0}>
+                        {VIOLATIONS_CHART.map((e, i) => <Cell key={i} fill={e.color} />)}
+                      </Pie>
+                      <Tooltip contentStyle={{ borderRadius: 10, border: "none", fontSize: 11 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-xl font-black text-slate-900">100%</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  {VIOLATIONS_CHART.map(v => (
+                    <div key={v.name} className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: v.color }} />
+                      <span className="text-[10px] font-bold text-slate-500">{v.name}</span>
                     </div>
-
-                    <div className="p-4 sm:p-6 bg-white/5 border border-white/10 rounded-xl sm:rounded-[28px] mb-6 sm:mb-8">
-                       <p className="text-[11px] sm:text-sm font-medium leading-relaxed text-slate-300 italic">
-                          "Tizimda ma'lumotlar kutilmoqda. Ma'lumotlar kiritilgandan so'ng AI avtomatik tahlil va tavsiyalar beradi."
-                       </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                       <button className="py-2.5 sm:py-3.5 bg-indigo-600 text-white rounded-lg sm:rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-indigo-500 transition-all">Hisobot</button>
-                       <button className="py-2.5 sm:py-3.5 bg-white/10 text-white border border-white/20 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-white/20 transition-all">Audit</button>
-                    </div>
-                 </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="space-y-4 sm:space-y-6">
-                 <h3 className="text-base sm:text-lg font-black text-slate-900 px-1 sm:px-2 uppercase tracking-wider flex items-center gap-2"><AlertTriangle size={18} className="text-rose-500 sm:w-5 sm:h-5" /> Ogohlantirishlar</h3>
-                 <div className="p-5 sm:p-6 bg-slate-50 border border-slate-100 rounded-2xl sm:rounded-3xl text-center">
-                    <p className="text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest">Hozircha xabarlar yo'q</p>
-                 </div>
+              {/* Line trend */}
+              <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Oylik trend (30 kunlik)</p>
+                <div className="h-44">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={MONTHLY_TREND} margin={{ left: -20, right: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="day" fontSize={9} axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontWeight: 700 }} />
+                      <YAxis fontSize={9} axisLine={false} tickLine={false} tick={{ fill: "#94a3b8" }} domain={[70, 100]} />
+                      <Tooltip contentStyle={{ borderRadius: 10, border: "none", fontSize: 11 }} />
+                      <Line type="monotone" dataKey="score" name="Ball" stroke="#6366f1" strokeWidth={2.5} dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-           </div>
+            </div>
+          </div>
+
+          {/* Right: AI + Critical */}
+          <div className="xl:col-span-4 space-y-5">
+
+            {/* AI Audit */}
+            <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/15 blur-[80px] rounded-full" />
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 bg-white/10 rounded-xl border border-white/10 flex items-center justify-center">
+                    <BrainCircuit size={18} className="text-indigo-300" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-base">AI Audit Xulosasi</h3>
+                    <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Real-time analysis</p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-white/5 border border-white/10 rounded-xl mb-4">
+                  <p className="text-[11px] font-medium text-slate-300 leading-relaxed italic">
+                    "Shu oyda Shahrisabz tumanida kechikishlar me'yordan 65% oshdi. Koson tumanida taomnoma buzilishlari 3 turiga yetdi. Tezkor choralar ko'rish tavsiya etiladi."
+                  </p>
+                </div>
+
+                {/* Score indicators */}
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  {[
+                    { label: "Davomat ball",  val: "92.5a", color: "text-emerald-400" },
+                    { label: "Taomnoma ball", val: "81.3a",  color: "text-amber-400" },
+                  ].map((s, i) => (
+                    <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{s.label}</p>
+                      <p className={clsx("text-lg font-black", s.color)}>{s.val}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button className="py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all">
+                    Hisobot
+                  </button>
+                  <button className="py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all">
+                    Audit berish
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Critical alerts */}
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+                <AlertOctagon size={13} className="text-rose-500" /> Kritik Ogohlantirishlar
+              </p>
+              <div className="space-y-3">
+                {CRITICAL_ALERTS.map((a, i) => (
+                  <div key={i} className={clsx("bg-white border rounded-2xl p-4 shadow-sm",
+                    a.color === "rose" ? "border-rose-100" : "border-amber-100")}>
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className={clsx("text-[9px] font-black uppercase tracking-widest",
+                          a.color === "rose" ? "text-rose-500" : "text-amber-500")}>{a.label}</p>
+                        <p className="text-sm font-black text-slate-900 mt-0.5">{a.title}</p>
+                        <p className="text-[10px] text-slate-400 font-medium">{a.district}</p>
+                      </div>
+                      <span className={clsx("text-sm font-black", a.color === "rose" ? "text-rose-500" : "text-amber-500")}>
+                        {a.points}
+                      </span>
+                    </div>
+                    <button className={clsx("text-[9px] font-black uppercase tracking-widest border px-3 py-1.5 rounded-lg transition-all",
+                      a.color === "rose"
+                        ? "border-rose-200 text-rose-500 hover:bg-rose-50"
+                        : "border-amber-200 text-amber-500 hover:bg-amber-50")}>
+                      Batafsil ko'rish
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-
       </main>
     </div>
   );

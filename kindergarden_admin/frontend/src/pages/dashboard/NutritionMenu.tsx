@@ -852,10 +852,122 @@ export const NutritionMenu = () => {
           )}
           {/* TAB 5: AI ANALYSIS */}
           {activeTab === 'ai-analysis' && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               className="space-y-10 sm:space-y-16"
             >
+              {/* ── Taomnoma Xulosasi Card ── */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Pie card */}
+                <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm flex flex-col">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-11 h-11 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                      <Sparkles size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Taomnoma Xulosasi</h3>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Qoidabuzarliklar taqsimoti</p>
+                    </div>
+                  </div>
+
+                  {/* Custom donut */}
+                  <div className="flex items-center justify-center my-4">
+                    <div className="relative w-44 h-44">
+                      <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                        {[
+                          { pct: 35, color: "#6366f1", offset: 0 },
+                          { pct: 25, color: "#f59e0b", offset: 35 },
+                          { pct: 15, color: "#f43f5e", offset: 60 },
+                          { pct: 25, color: "#94a3b8", offset: 75 },
+                        ].map((s, i) => {
+                          const r = 38, circ = 2 * Math.PI * r;
+                          return (
+                            <circle key={i}
+                              cx="50" cy="50" r={r}
+                              fill="none"
+                              stroke={s.color}
+                              strokeWidth="14"
+                              strokeLinecap="round"
+                              strokeDasharray={`${(s.pct / 100) * circ - 3} ${circ}`}
+                              strokeDashoffset={-((s.offset / 100) * circ)}
+                            />
+                          );
+                        })}
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-black text-slate-900">100%</span>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Jami xatolar</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Legend */}
+                  <div className="space-y-2.5 mt-2">
+                    {[
+                      { label: "Taomnoma", pct: "35%", color: "#6366f1" },
+                      { label: "Gigiyena",  pct: "25%", color: "#f59e0b" },
+                      { label: "Davomat",   pct: "15%", color: "#f43f5e" },
+                      { label: "Boshqa",    pct: "25%", color: "#94a3b8" },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-100 group hover:bg-white hover:shadow-sm transition-all cursor-pointer">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                          <span className="text-[11px] font-black text-slate-700 uppercase tracking-wider">{item.label}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-black text-slate-900">{item.pct}</span>
+                          <ChevronRight size={13} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* AI Summary cards */}
+                <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { title: "Vitaminlar balansı", score: "92%", status: "Optimal", color: "emerald", icon: "🥦", desc: "Kunlik vitaminlar me'yori 92% qoplangan. A, D, C vitaminlari yetarli." },
+                    { title: "Kaloriya me'yori",   score: "88%", status: "Yaxshi",  color: "blue",    icon: "⚡", desc: "1-3 yosh: 1200 kkal, 3-7 yosh: 1800 kkal. O'rtacha 88% bajarildi." },
+                    { title: "Protein balansi",    score: "74%", status: "O'rta",   color: "amber",   icon: "🥩", desc: "Protein miqdori belgilangan me'yordan pastroq. Qo'shimcha manba kerak." },
+                    { title: "Gigiyena nazorati",  score: "96%", status: "A'lo",    color: "indigo",  icon: "🧼", desc: "Sanitariya holati a'lo darajada. Barcha mahsulotlar sertifikatlangan." },
+                    { title: "Tuz va shakar",      score: "81%", status: "Normal",  color: "purple",  icon: "🧂", desc: "Tuz me'yori to'g'ri kuzatilmoqda. Shakar bolalarga mos miqdorda." },
+                    { title: "Suv va suyuqlik",    score: "95%", status: "Optimal", color: "cyan",    icon: "💧", desc: "Kunlik suyuqlik me'yori to'liq bajarilmoqda. Kompot va suv yetarli." },
+                  ].map((card, i) => (
+                    <div key={i} className={clsx("bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all")}>
+                      <div className="flex items-start justify-between mb-3">
+                        <span className="text-2xl">{card.icon}</span>
+                        <span className={clsx("text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-wider",
+                          card.color === "emerald" ? "bg-emerald-50 text-emerald-600" :
+                          card.color === "blue"    ? "bg-blue-50 text-blue-600" :
+                          card.color === "amber"   ? "bg-amber-50 text-amber-600" :
+                          card.color === "indigo"  ? "bg-indigo-50 text-indigo-600" :
+                          card.color === "purple"  ? "bg-purple-50 text-purple-600" :
+                                                     "bg-cyan-50 text-cyan-600"
+                        )}>{card.status}</span>
+                      </div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{card.title}</p>
+                      <p className={clsx("text-2xl font-black mb-2",
+                        card.color === "emerald" ? "text-emerald-500" :
+                        card.color === "blue"    ? "text-blue-500" :
+                        card.color === "amber"   ? "text-amber-500" :
+                        card.color === "indigo"  ? "text-indigo-500" :
+                        card.color === "purple"  ? "text-purple-500" : "text-cyan-500"
+                      )}>{card.score}</p>
+                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mb-2">
+                        <div className={clsx("h-full rounded-full",
+                          card.color === "emerald" ? "bg-emerald-500" :
+                          card.color === "blue"    ? "bg-blue-500" :
+                          card.color === "amber"   ? "bg-amber-400" :
+                          card.color === "indigo"  ? "bg-indigo-500" :
+                          card.color === "purple"  ? "bg-purple-500" : "bg-cyan-500"
+                        )} style={{ width: card.score }} />
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-medium leading-relaxed">{card.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="space-y-3 sm:space-y-4 px-4 bg-white p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] shadow-sm border border-slate-100">
                  <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 sm:p-3 bg-indigo-600 text-white rounded-xl sm:rounded-2xl shadow-lg shadow-indigo-200 shrink-0">
@@ -991,6 +1103,209 @@ export const NutritionMenu = () => {
                        </div>
                     </div>
                  ))}
+
+                 {/* ── Oziq-ovqat va vitamin analizi ── */}
+                 <div className="bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-sm">
+                   <div className="flex items-center gap-3 mb-6">
+                     <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600"><Sparkles size={18} /></div>
+                     <div>
+                       <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">Oziq-ovqat va Vitamin Analizi</h3>
+                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Har bir element bo'yicha AI diagnostikasi</p>
+                     </div>
+                   </div>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                     {[
+                       { name: "Vitamin A", val: 100, status: "Optimal", color: "#fbbf24", desc: "Monitoring faol" },
+                       { name: "Vitamin C", val: 100, status: "Optimal", color: "#f87171", desc: "Monitoring faol" },
+                       { name: "Vitamin D", val: 100, status: "Optimal", color: "#60a5fa", desc: "Monitoring faol" },
+                       { name: "Kalsiy",    val: 100, status: "Optimal", color: "#34d399", desc: "Monitoring faol" },
+                       { name: "Temir",     val: 88,  status: "Yaxshi",  color: "#a78bfa", desc: "Monitoring faol" },
+                       { name: "Oqsillar",  val: 95,  status: "Optimal", color: "#f472b6", desc: "Monitoring faol" },
+                     ].map((v, i) => (
+                       <div key={i} className="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-md transition-all">
+                         <div className="flex justify-between items-start mb-4">
+                           <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl" style={{ backgroundColor: v.color + "20" }}>
+                             {["🌟","🍊","☀️","🦴","🩸","🥩"][i]}
+                           </div>
+                           <span className="text-[9px] font-black px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 uppercase tracking-wider">{v.status}</span>
+                         </div>
+                         <h4 className="text-base font-black text-slate-900 mb-0.5">{v.name}</h4>
+                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">{v.desc}</p>
+                         <div className="flex justify-between text-[10px] font-black uppercase mb-1">
+                           <span className="text-slate-400">Muvofiqlik</span>
+                           <span className="text-slate-900">{v.val}%</span>
+                         </div>
+                         <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                           <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${v.val}%`, backgroundColor: v.color }} />
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+
+                 {/* ── Hududiy liderlar & Kritik hududlar ── */}
+                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                   <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm">
+                     <div className="flex items-center gap-3 mb-5">
+                       <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center"><Trophy className="text-amber-500" size={18} /></div>
+                       <div>
+                         <h3 className="text-sm font-black text-slate-900 uppercase">Hududiy liderlar (TOP 5)</h3>
+                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Eng yaxshi taomnoma ko'rsatkichlari</p>
+                       </div>
+                     </div>
+                     <div className="space-y-3">
+                       {[
+                         { name: "Qarshi shahri", score: 97, type: "Public" },
+                         { name: "Shahrisabz sh.", score: 94, type: "Public" },
+                         { name: "Kitob tumani",   score: 91, type: "Davlat" },
+                         { name: "Koson tumani",   score: 89, type: "Public" },
+                         { name: "Muborak t.",     score: 88, type: "Oilaviy" },
+                       ].map((d, i) => (
+                         <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all">
+                           <div className={clsx("w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm",
+                             i === 0 ? "bg-amber-100 text-amber-600" : i === 1 ? "bg-slate-100 text-slate-500" : "bg-orange-50 text-orange-400")}>
+                             {i + 1}
+                           </div>
+                           <div className="flex-1">
+                             <div className="flex justify-between items-center mb-1">
+                               <span className="text-sm font-black text-slate-900">{d.name}</span>
+                               <span className="text-sm font-black text-emerald-600">{d.score}</span>
+                             </div>
+                             <span className="text-[9px] font-black text-slate-400 bg-blue-50 text-blue-500 px-2 py-0.5 rounded-md uppercase">{d.type}</span>
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                     <div className="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl">
+                       <p className="text-[10px] font-bold text-indigo-600 italic">"Ushbu tumanlarning oziq-ovqat nazorati modelini butun viloyatga Best Practice sifatida joriy etish tavsiya etiladi."</p>
+                     </div>
+                   </div>
+
+                   <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm">
+                     <div className="flex items-center gap-3 mb-5">
+                       <div className="w-9 h-9 bg-rose-50 rounded-xl flex items-center justify-center"><AlertTriangle className="text-rose-500" size={18} /></div>
+                       <div>
+                         <h3 className="text-sm font-black text-slate-900 uppercase">Kritik hududlar (TOP 5)</h3>
+                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">E'tibor talab qiluvchi tumanlar</p>
+                       </div>
+                     </div>
+                     <div className="space-y-3">
+                       {[
+                         { name: "Chiroqchi t.", score: 64, issue: "Taomnoma" },
+                         { name: "Dehqonobod t.", score: 68, issue: "Gigiyena" },
+                         { name: "Nishon t.",     score: 71, issue: "Davomat" },
+                         { name: "Qamashi t.",    score: 73, issue: "Taomnoma" },
+                         { name: "Kasbi t.",      score: 75, issue: "Sanitariya" },
+                       ].map((d, i) => (
+                         <div key={i} className="flex items-center gap-3 p-3 bg-rose-50/50 rounded-xl border border-rose-100 hover:bg-white hover:shadow-sm transition-all">
+                           <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center text-rose-500 font-black text-sm">!</div>
+                           <div className="flex-1">
+                             <div className="flex justify-between items-center mb-1">
+                               <span className="text-sm font-black text-slate-900">{d.name}</span>
+                               <span className="text-sm font-black text-rose-600">{d.score}</span>
+                             </div>
+                             <span className="text-[9px] font-black text-rose-400 uppercase">Muammo: {d.issue}</span>
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                     <div className="mt-4 p-4 bg-rose-50 border border-rose-100 rounded-2xl">
+                       <p className="text-[10px] font-bold text-rose-500 italic">"Ushbu hududlarda tizimli monitoring kechikmoqda. Auditorlar guruhini yuborish zarur."</p>
+                     </div>
+                   </div>
+                 </div>
+
+                 {/* ── Sog'lomlashtirish rejasi ── */}
+                 <div className="bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-sm">
+                   <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+                     <div>
+                       <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                         <ShieldCheck className="text-rose-500" size={20} /> Past reytingli bog'chalarni "Sog'lomlashtirish" rejasi
+                       </h3>
+                       <span className="text-[9px] font-black text-rose-500 bg-rose-50 px-3 py-1 rounded-full mt-1 inline-block uppercase">Kritik holat: 12 ta bog'cha</span>
+                     </div>
+                   </div>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                     {[
+                       { step: "01", title: "Avtomatik Diagnostika", desc: "Reytingi past bog'chalar uchun AI algoritmi orqali past ko'rsatkich sabablarini 1 soat ichida aniqlash.", color: "rose", icon: "🔍", rec: "Foto-hisobotlar chastotasini oshirish." },
+                       { step: "02", title: "Kadrlar Bilimini Yangilash", desc: "Muammoli MTT xodimlari uchun AI platformasida maxsus blits-kurs va test sinovlarini tashkil etish.", color: "orange", icon: "👥", rec: "Oshpazlar uchun sanitariya vebinari." },
+                       { step: "03", title: "Resurslarni Qayta Taqsimlash", desc: "Vitamin va ozuqa yetishmovchiligi aniqlangan hududlarga qo'shni omborlardan zaxiralarni yo'naltirish.", color: "amber", icon: "📦", rec: "Vitamin D zaxirasini 20% ga oshirish." },
+                       { step: "04", title: "Raqamli Nazoratni Kuchaytirish", desc: "24 soat davomida har bir jarayonni onlayn video-tahlil orqali AI nazoratiga o'tkazish.", color: "indigo", icon: "⚡", rec: "Face-ID tizimini qayta kalibrlash." },
+                     ].map((s, i) => (
+                       <div key={i} className="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-md transition-all">
+                         <div className={clsx("w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md mb-4 text-xl",
+                           s.color === "rose" ? "bg-rose-500" : s.color === "orange" ? "bg-orange-500" : s.color === "amber" ? "bg-amber-500" : "bg-indigo-600")}>
+                           {s.icon}
+                         </div>
+                         <p className="text-[8px] font-black text-slate-300 mb-1">{s.step}</p>
+                         <h4 className="text-sm font-black text-slate-900 mb-2">{s.title}</h4>
+                         <p className="text-[11px] font-medium text-slate-500 leading-relaxed mb-3">{s.desc}</p>
+                         <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                           <p className={clsx("text-[9px] font-black uppercase tracking-tight",
+                             s.color === "rose" ? "text-rose-500" : s.color === "orange" ? "text-orange-500" : s.color === "amber" ? "text-amber-500" : "text-indigo-500")}>
+                             {s.rec}
+                           </p>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                   {/* AI bashorat banner */}
+                   <div className="mt-5 p-5 bg-slate-900 rounded-2xl text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                     <div className="flex items-center gap-4">
+                       <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center"><Sparkles size={22} className="text-indigo-400 animate-pulse" /></div>
+                       <p className="text-sm text-slate-300 max-w-xl leading-relaxed">
+                         <span className="text-white font-black">AI Strategik Bashorati: </span>
+                         "Agar ushbu bog'chalarda <span className="text-indigo-400">48 soat</span> ichida ijobiy siljish kuzatilmasa, tizim avtomatik ravishda ta'minotchi korxonaga nisbatan 'Kritik' ogohlantirish yuboradi."
+                       </p>
+                     </div>
+                     <button className="shrink-0 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-black text-xs uppercase tracking-widest transition-all whitespace-nowrap">
+                       Barcha buyruqlarni ijro etish
+                     </button>
+                   </div>
+                 </div>
+
+                 {/* ── AI Strategik Tavsiyalar ── */}
+                 <div className="bg-slate-950 rounded-[32px] p-6 sm:p-10 text-white relative overflow-hidden">
+                   <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/15 blur-[120px] rounded-full" />
+                   <div className="relative z-10">
+                     <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+                       <div className="flex items-center gap-4">
+                         <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
+                           <Zap size={26} className="text-amber-400" />
+                         </div>
+                         <div>
+                           <h3 className="text-xl font-black tracking-tight italic">AI Strategik Tavsiyalar</h3>
+                           <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mt-0.5">Autonomous Governance v4.0</p>
+                         </div>
+                       </div>
+                       <button className="px-5 py-2.5 bg-white text-slate-900 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all">
+                         Batafsil hisobotni yuklash
+                       </button>
+                     </div>
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                       {[
+                         { title: "Auditorlar Nazorati",       text: "Chiroqchi va Koson tumanlariga zudlik bilan auditorlar guruhini yuborish va joyida o'rganish.", icon: ShieldCheck, color: "emerald" },
+                         { title: "Logistika Optimizatsiyasi", text: "Logistika provayderini qayta ko'rib chiqish va kechikishlar uchun jarima sanksiyalarini qo'llash.", icon: Zap,        color: "amber" },
+                         { title: "Xarajatlarni Boshqarish",  text: "Xususiy bog'chalar uchun xarajatlarni optimallashtirish bo'yicha yangi raqamli metodik qo'llanma.", icon: Database,   color: "indigo" },
+                         { title: "Biometrik Monitoring",     text: "Raqamli davomatni (Face ID/Biometriya) barcha bog'chalarda majburiy etib belgilash.", icon: Users,       color: "rose" },
+                       ].map((t, i) => (
+                         <div key={i} className="flex items-start gap-4 p-5 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all">
+                           <div className={clsx("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0",
+                             t.color === "emerald" ? "bg-emerald-500/10 text-emerald-400" :
+                             t.color === "amber"   ? "bg-amber-500/10 text-amber-400" :
+                             t.color === "indigo"  ? "bg-indigo-500/10 text-indigo-400" :
+                                                     "bg-rose-500/10 text-rose-400")}>
+                             <t.icon size={22} />
+                           </div>
+                           <div>
+                             <h4 className="text-sm font-black text-white mb-1">{t.title}</h4>
+                             <p className="text-[11px] font-medium text-slate-400 leading-relaxed">{t.text}</p>
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                 </div>
 
                  {/* FINAL DAILY AI VERDICT */}
                  <div className="mx-1 sm:mx-4 mt-6 sm:mt-8 bg-slate-900 rounded-[32px] sm:rounded-[60px] p-6 sm:p-12 text-white border-t-4 sm:border-t-8 border-indigo-500 shadow-2xl relative overflow-hidden">

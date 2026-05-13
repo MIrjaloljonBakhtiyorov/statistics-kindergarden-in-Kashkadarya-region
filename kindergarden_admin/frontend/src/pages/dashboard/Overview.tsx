@@ -1,375 +1,331 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Users, Clock, AlertTriangle, ShieldAlert, 
-  Sparkles, Search, Filter, Activity, 
-  Building2, Home, Map as MapIcon, ArrowUpRight, 
-  ChevronRight, BarChart3, TrendingUp, TrendingDown, MapPin, X
+import {
+  Users, Clock, AlertTriangle, ShieldAlert,
+  Building2, Home, Filter, TrendingUp, TrendingDown,
+  MapPin, X, Zap, Activity
 } from 'lucide-react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts';
 import { clsx } from 'clsx';
 
+const KPI_ROW1 = [
+  { title: "Jami bolalar", val: "145,230", trend: 2.5, icon: Users, color: "indigo" },
+  { title: "09:00 gacha", val: "135,100", trend: 1.2, icon: Clock, color: "emerald" },
+  { title: "09:00 dan keyin", val: "6,500", trend: -1.5, icon: AlertTriangle, color: "amber" },
+  { title: "Kelmaganlar", val: "3,630", trend: -0.8, icon: ShieldAlert, color: "rose" },
+];
 
-// PREMIUM DATA SETS
-const KPIs = [
-  {title: "Jami kontingent", val: "12,482", trend: 1.2, icon: Users, color: "indigo"},
-  {title: "Ertalabki qabul", val: "11,850", trend: 0.8, icon: Clock, color: "emerald"},
-  {title: "Kechikkanlar", val: "432", trend: -5.4, icon: AlertTriangle, color: "amber"},
-  {title: "Sababsiz kelmaganlar", val: "200", trend: -12.1, icon: ShieldAlert, color: "rose"},
-  {title: "Jami muassasalar", val: "842", trend: 0.5, icon: Building2, color: "violet"},
-  {title: "Davlat MTT", val: "320", trend: 0, icon: Home, color: "blue"},
-  {title: "Nodavlat MTT", val: "522", trend: 2.1, icon: Building2, color: "sky"},
-  {title: "Oilaviy MTT", val: "150", trend: 1.4, icon: Home, color: "cyan"},
+const KPI_ROW2 = [
+  { title: "Umumiy bog'chalar", val: "1,240", trend: 0, icon: Building2, color: "violet" },
+  { title: "Private", val: "450", trend: 5.2, icon: Home, color: "orange" },
+  { title: "Public", val: "600", trend: 0.1, icon: Building2, color: "blue" },
+  { title: "Home", val: "190", trend: 3.4, icon: Home, color: "teal" },
 ];
 
 const DISTRICT_DATA = [
-  {name: "Qarshi sh.", jami: 4500, gacha9: 4200},
-  {name: "Qarshi t.", jami: 3200, gacha9: 3000},
-  {name: "Shahrisabz sh.", jami: 2800, gacha9: 2600},
-  {name: "Shahrisabz t.", jami: 3500, gacha9: 3300},
-  {name: "Kitob", jami: 2400, gacha9: 2200},
-  {name: "Koson", jami: 3100, gacha9: 2900},
-  {name: "Muborak", jami: 1800, gacha9: 1700},
-  {name: "G‘uzor", jami: 2200, gacha9: 2100},
+  { name: "Qarshi sh.", jami: 15000, qabul: 13500 },
+  { name: "Qarshi t.", jami: 13000, qabul: 11800 },
+  { name: "Shahrisabz sh.", jami: 10500, qabul: 9800 },
+  { name: "Shahrisabz t.", jami: 9800, qabul: 9100 },
+  { name: "Kitob", jami: 9200, qabul: 8400 },
+  { name: "Koson", jami: 10800, qabul: 9900 },
+  { name: "Muborak", jami: 8500, qabul: 7900 },
+  { name: "G'uzor", jami: 7200, qabul: 6600 },
+  { name: "Nishon", jami: 7500, qabul: 6900 },
+  { name: "Dehqonobod", jami: 6200, qabul: 5700 },
+  { name: "Qamashi", jami: 8800, qabul: 8200 },
+  { name: "Chiroqchi", jami: 13200, qabul: 12000 },
+  { name: "Kasbi", jami: 6800, qabul: 6200 },
+  { name: "Mirishkor", jami: 5900, qabul: 5400 },
+  { name: "Yakkabog'", jami: 6400, qabul: 5900 },
+  { name: "Beshkent", jami: 5600, qabul: 5100 },
 ];
 
 const PIE_DATA = [
-  {name: 'Davlat', value: 320, color: '#6366f1'},
-  {name: 'Nodavlat', value: 522, color: '#0ea5e9'},
-  {name: 'Oilaviy', value: 150, color: '#10b981'},
+  { name: "Home", value: 190, color: "#10b981" },
+  { name: "Private", value: 450, color: "#f59e0b" },
+  { name: "Public", value: 600, color: "#6366f1" },
 ];
 
-const TOP_PERFORMERS = [
-  {name: "Prezident MTT", hudud: "Qarshi sh.", foiz: 99.2, status: 'excellent'},
-  {name: "Nihol innovatsion", hudud: "Shahrisabz", foiz: 98.5, status: 'excellent'},
-  {name: "Gulyalo MTT", hudud: "Kitob", foiz: 97.8, status: 'good'},
+const BOTTOM_DISTRICTS = [
+  { name: "12-sonli bog'cha", hudud: "Qarshi t.", kechikkan: 12, davomat: 88 },
+  { name: "5-sonli bog'cha", hudud: "G'uzor", kechikkan: 8, davomat: 92 },
+  { name: "21-sonli bog'cha", hudud: "Nishon", kechikkan: 15, davomat: 85 },
 ];
+
+const DISTRICT_MONITOR = [
+  { name: "Qarshi sh.", davomat: 95 },
+  { name: "Qarshi t.", davomat: 92 },
+  { name: "Shahrisabz sh.", davomat: 95 },
+  { name: "Shahrisabz t.", davomat: 95 },
+  { name: "Kitob", davomat: 91 },
+  { name: "Koson", davomat: 88 },
+  { name: "Muborak", davomat: 97 },
+  { name: "G'uzor", davomat: 90 },
+  { name: "Nishon", davomat: 91 },
+  { name: "Dehqonobod", davomat: 92 },
+  { name: "Qamashi", davomat: 93 },
+  { name: "Chiroqchi", davomat: 92 },
+  { name: "Kasbi", davomat: 90 },
+];
+
+const KpiCard = ({ kpi }: { kpi: typeof KPI_ROW1[0] }) => (
+  <div className="bg-white border border-slate-100 rounded-2xl p-5 flex flex-col gap-3 shadow-sm relative overflow-hidden">
+    <div className="flex justify-between items-start">
+      <div className={clsx(
+        "w-10 h-10 rounded-xl flex items-center justify-center",
+        kpi.color === "indigo" && "bg-indigo-50 text-indigo-500",
+        kpi.color === "emerald" && "bg-emerald-50 text-emerald-500",
+        kpi.color === "amber" && "bg-amber-50 text-amber-500",
+        kpi.color === "rose" && "bg-rose-50 text-rose-500",
+        kpi.color === "violet" && "bg-violet-50 text-violet-500",
+        kpi.color === "orange" && "bg-orange-50 text-orange-500",
+        kpi.color === "blue" && "bg-blue-50 text-blue-500",
+        kpi.color === "teal" && "bg-teal-50 text-teal-500",
+      )}>
+        <kpi.icon size={20} />
+      </div>
+      <span className={clsx(
+        "text-[11px] font-bold flex items-center gap-1",
+        kpi.trend > 0 ? "text-emerald-500" : kpi.trend < 0 ? "text-rose-500" : "text-slate-400"
+      )}>
+        {kpi.trend > 0 ? <TrendingUp size={12} /> : kpi.trend < 0 ? <TrendingDown size={12} /> : null}
+        {kpi.trend > 0 ? "+" : ""}{kpi.trend}%
+      </span>
+    </div>
+    <div>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{kpi.title}</p>
+      <h3 className="text-2xl font-black text-slate-900 tracking-tight">{kpi.val}</h3>
+    </div>
+    {/* subtle bg icon */}
+    <div className="absolute -bottom-3 -right-3 opacity-5">
+      <kpi.icon size={64} />
+    </div>
+  </div>
+);
 
 export const Overview = () => {
-  const [showFullReport, setShowFullReport] = useState(false);
-  const currentTime = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+  const [showReport, setShowReport] = useState(false);
 
   return (
-    <div className="space-y-8 pb-24 bg-[#f8fafc] min-h-screen text-slate-900">
-      
-      {/* Header Strategy */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 px-2">
+    <div className="space-y-6 pb-20 bg-[#f4f6fb] min-h-screen">
+
+      {/* Page Header */}
+      <div className="bg-white border border-slate-100 rounded-2xl px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            Viloyat Statistikasi
-            <span className="text-[10px] font-black bg-indigo-500 text-white px-2 py-0.5 rounded-full uppercase tracking-widest animate-pulse">Live</span>
-          </h1>
-          <p className="text-sm font-bold text-slate-400 mt-1 flex items-center gap-2">
-            <MapIcon size={14} className="text-indigo-500" />
-            Qashqadaryo viloyati bo‘yicha real vaqt rejimidagi monitoring
+          <h1 className="text-xl font-black text-slate-900 tracking-tight">Viloyat statistikasi</h1>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
+            Qashqadaryo viloyati bo'yicha monitoring
           </p>
         </div>
-        
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white rounded-2xl border border-slate-100 shadow-sm">
-            <Clock size={16} className="text-slate-400" />
-            <span className="text-xs font-black text-slate-600 uppercase tracking-wider">Oxirgi yangilanish: {currentTime}</span>
-          </div>
-          <button className="flex items-center gap-2 px-6 py-2.5 bg-[#0f172a] text-white rounded-2xl text-xs font-black hover:bg-black transition-all shadow-xl shadow-black/10 active:scale-95">
-            <Activity size={16} /> Eksport (.PDF)
+          <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
+            <Filter size={14} /> Filtr
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded-xl text-xs font-bold text-white hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
+            <Activity size={14} /> Live Report
           </button>
         </div>
       </div>
 
-      {/* KPI Grid - Reimagined */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {KPIs.slice(0, 4).map((kpi, idx) => (
-          <motion.div 
-            key={idx} 
-            whileHover={{ y: -5, transition: { duration: 0.2 } }}
-            className="group relative bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden"
-          >
-            <div className={clsx(
-              "absolute -top-12 -right-12 w-32 h-32 blur-3xl opacity-20 transition-all duration-500 group-hover:opacity-40",
-              `bg-${kpi.color}-500`
-            )} />
-            
-            <div className="flex justify-between items-start mb-6">
-              <div className={clsx(
-                "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
-                `bg-${kpi.color}-50 text-${kpi.color}-600`
-              )}>
-                <kpi.icon size={24} />
-              </div>
-              <div className={clsx(
-                "flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black",
-                kpi.trend >= 0 ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"
-              )}>
-                {kpi.trend >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                {Math.abs(kpi.trend)}%
-              </div>
-            </div>
-            
-            <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-[0.1em] mb-1">{kpi.title}</p>
-              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{kpi.val}</h3>
-            </div>
-          </motion.div>
-        ))}
+      {/* KPI Row 1 */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        {KPI_ROW1.map((kpi, i) => <KpiCard key={i} kpi={kpi} />)}
       </div>
 
-      {/* Main Analytics Hub */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* District Chart Card */}
-        <div className="lg:col-span-8 bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <h3 className="text-xl font-black text-slate-900 tracking-tight">Hududiy Monitoring</h3>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Tumanlar kesimida davomat statistikasi</p>
-            </div>
-            <div className="flex gap-2">
-               <button className="p-2 hover:bg-slate-50 rounded-xl transition-colors"><Search size={18} className="text-slate-400" /></button>
-               <button className="p-2 hover:bg-slate-50 rounded-xl transition-colors"><Filter size={18} className="text-slate-400" /></button>
-            </div>
-          </div>
-          
-          <div className="h-[350px] w-full">
+      {/* KPI Row 2 */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        {KPI_ROW2.map((kpi, i) => <KpiCard key={i} kpi={kpi} />)}
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        {/* Bar Chart */}
+        <div className="lg:col-span-8 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">Tuman kesimida davomat</p>
+          <div className="h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={DISTRICT_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorJami" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                  </linearGradient>
-                  <linearGradient id="colorGacha9" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
+              <BarChart data={DISTRICT_DATA} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" fontSize={10} fontWeight={900} axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
-                <YAxis fontSize={10} fontWeight={900} axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
-                <Tooltip 
-                  contentStyle={{ 
-                    borderRadius: '24px', 
-                    border: 'none', 
-                    boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
-                    padding: '20px'
-                  }}
-                  itemStyle={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '10px' }}
+                <XAxis
+                  dataKey="name"
+                  fontSize={9}
+                  fontWeight={700}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#94a3b8' }}
                 />
-                <Bar dataKey="jami" name="Kontingent" fill="url(#colorJami)" radius={[8, 8, 0, 0]} barSize={24} />
-                <Bar dataKey="gacha9" name="Qabul" fill="url(#colorGacha9)" radius={[8, 8, 0, 0]} barSize={24} />
+                <YAxis fontSize={9} axisLine={false} tickLine={false} tick={{ fill: '#94a3b8' }} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontSize: '11px' }}
+                />
+                <Bar dataKey="jami" name="Jami" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={14} />
+                <Bar dataKey="qabul" name="Qabul" fill="#10b981" radius={[4, 4, 0, 0]} barSize={14} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Pie Distribution Card */}
-        <div className="lg:col-span-4 bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40 flex flex-col items-center">
-          <div className="self-start mb-8">
-            <h3 className="text-xl font-black text-slate-900 tracking-tight">Muassasalar</h3>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Tizim bo'yicha taqsimot</p>
-          </div>
-          
-          <div className="h-[280px] w-full relative">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie 
-                  data={PIE_DATA} 
-                  dataKey="value" 
-                  cx="50%" 
-                  cy="50%" 
-                  innerRadius={70} 
-                  outerRadius={100} 
-                  paddingAngle={8}
-                  strokeWidth={0}
-                >
-                  {PIE_DATA.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
-              <span className="text-4xl font-black text-slate-900 tracking-tighter">992</span>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Jami MTT</span>
+        {/* Pie Chart */}
+        <div className="lg:col-span-4 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">Bog'cha turlari</p>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="h-[280px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={PIE_DATA}
+                    dataKey="value"
+                    cx="50%"
+                    cy="45%"
+                    innerRadius={75}
+                    outerRadius={110}
+                    paddingAngle={4}
+                    strokeWidth={0}
+                  >
+                    {PIE_DATA.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
+                  </Pie>
+                  <Legend
+                    iconType="circle"
+                    iconSize={8}
+                    formatter={(value) => <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>{value}</span>}
+                  />
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 w-full gap-3 mt-8">
-            {PIE_DATA.map(item => (
-              <div key={item.name} className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{backgroundColor: item.color}} />
-                  <span className="text-xs font-black text-slate-600 uppercase tracking-wider">{item.name}</span>
-                </div>
-                <span className="text-sm font-black text-slate-900">{item.value}</span>
-              </div>
-            ))}
           </div>
         </div>
       </div>
 
-      {/* AI Intelligence Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Main AI Insights Card */}
-        <div className="lg:col-span-8 bg-[#020617] p-10 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
-          
-          <div className="relative z-10">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-14 h-14 bg-indigo-500 rounded-[1.5rem] flex items-center justify-center shadow-2xl shadow-indigo-500/40 ring-4 ring-indigo-500/20">
-                <Sparkles size={28} className="text-white animate-pulse" />
-              </div>
-              <div>
-                <h4 className="text-2xl font-black tracking-tight">AI Analitik Markaz</h4>
-                <p className="text-indigo-400/60 font-black text-[10px] uppercase tracking-[0.3em] mt-1">Smart Management Engine</p>
-              </div>
-            </div>
+      {/* Bottom Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <div className="p-6 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-md">
-                   <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-3">Tizim Xulosasi</p>
-                   <p className="text-lg font-medium text-slate-200 leading-relaxed italic">
-                     "Viloyat bo'yicha davomat barqaror o'sishda (0.8%). Qarshi shahrida resurslar taqsimoti optimallashtirilishi zarur."
-                   </p>
+        {/* Left: AI + District Monitor */}
+        <div className="lg:col-span-8 space-y-6">
+
+          {/* AI Analitika */}
+          <div className="bg-indigo-700 rounded-2xl p-6 text-white">
+            <div className="flex items-center gap-2 mb-3">
+              <Zap size={18} className="text-yellow-300" />
+              <h3 className="font-black text-base">AI Chuqur Analitika</h3>
+            </div>
+            <p className="text-sm text-indigo-200 leading-relaxed italic">
+              "Ma'lumotlar tahlili: Davlat bog'chalari eng barqaror davomatga ega. Xususiy sektorda kechikishlar oshmoqda. Qarshi va Chiroqchi tumanlarida monitoringni kuchaytirish zarur."
+            </p>
+          </div>
+
+          {/* Eng past davomat TOP */}
+          <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Eng past davomat — TOP 5</p>
+            <div className="space-y-3">
+              {BOTTOM_DISTRICTS.map((item, i) => (
+                <div key={i} className="flex items-center gap-4 py-3 border-b border-slate-50 last:border-0">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-xs font-black text-indigo-500">
+                    #{i + 1}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-black text-slate-900">{item.name}</p>
+                    <p className="text-[10px] font-bold text-slate-400 flex items-center gap-1 mt-0.5">
+                      <MapPin size={9} /> {item.hudud}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-black text-rose-500">{item.kechikkan} kechikkan</p>
+                    <p className="text-[10px] font-bold text-slate-400">{item.davomat}% davomat</p>
+                  </div>
                 </div>
-                <div className="flex gap-4">
-                  <button onClick={() => setShowFullReport(true)} className="flex-1 py-4 bg-indigo-500 text-white rounded-2xl text-xs font-black hover:bg-indigo-600 transition-all shadow-xl shadow-indigo-500/20 uppercase tracking-widest">To'liq Hisobot</button>
-                  <button className="px-6 py-4 bg-white/5 border border-white/10 text-white rounded-2xl text-xs font-black hover:bg-white/10 transition-all uppercase tracking-widest"><BarChart3 size={18} /></button>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  {label: 'Samaradorlik', val: '94%'},
-                  {label: 'Xavf darajasi', val: 'Low'},
-                  {label: 'Oziq-ovqat', val: '98%'},
-                  {label: 'Moliya', val: 'High'},
-                ].map((stat, i) => (
-                  <div key={i} className="p-5 bg-white/[0.03] border border-white/5 rounded-[2rem] flex flex-col justify-center items-center">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
-                    <p className="text-xl font-black text-white tracking-tight">{stat.val}</p>
+              ))}
+            </div>
+          </div>
+
+          {/* Hududiy boshqaruv monitori */}
+          <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">Hududiy boshqaruv monitori</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {DISTRICT_MONITOR.map((d, i) => {
+                const barColor = d.davomat >= 93 ? "bg-emerald-500" : d.davomat >= 89 ? "bg-amber-400" : "bg-rose-500";
+                return (
+                  <div key={i} className="space-y-2">
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{d.name}</p>
+                    <p className="text-lg font-black text-slate-900">
+                      {d.davomat}%
+                      <span className="text-[9px] font-black text-slate-400 ml-1">DAVOMAT</span>
+                    </p>
+                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${d.davomat}%` }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                        className={clsx("h-full rounded-full", barColor)}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: AI Command Center */}
+        <div className="lg:col-span-4 bg-[#0f172a] rounded-2xl p-6 text-white flex flex-col gap-5 shadow-sm">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={16} className="text-indigo-400" />
+            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">AI Command Center</p>
+          </div>
+
+          <div className="space-y-3 flex-1">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+              <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-1">Urgent Alert</p>
+              <p className="text-xs font-medium text-slate-300">Qarshi tumanida davomat 4.2% ga pasaydi.</p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+              <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-1">Risk Warning</p>
+              <p className="text-xs font-medium text-slate-300">5 ta bog'chada ta'minot xavfi bor.</p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+              <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1">Good News</p>
+              <p className="text-xs font-medium text-slate-300">Muborak tumanida davomat 97% ga yetdi.</p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setShowReport(true)}
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20"
+          >
+            Full Report
+          </button>
+        </div>
+      </div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {showReport && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95 }}
+              className="bg-white rounded-2xl p-8 max-w-lg w-full shadow-2xl relative">
+              <button onClick={() => setShowReport(false)} className="absolute top-5 right-5 p-2 hover:bg-slate-100 rounded-xl transition-all">
+                <X size={18} className="text-slate-400" />
+              </button>
+              <h3 className="text-xl font-black text-slate-900 mb-1">AI To'liq Hisobot</h3>
+              <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-6">May 2026</p>
+              <div className="space-y-4">
+                {["Davlat", "Xususiy", "Oilaviy"].map(type => (
+                  <div key={type} className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-3">{type} MTT</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="text-center"><p className="text-lg font-black text-emerald-600">142</p><p className="text-[9px] font-black text-slate-400 uppercase">A'lo</p></div>
+                      <div className="text-center"><p className="text-lg font-black text-amber-600">86</p><p className="text-[9px] font-black text-slate-400 uppercase">O'rta</p></div>
+                      <div className="text-center"><p className="text-lg font-black text-rose-600">12</p><p className="text-[9px] font-black text-slate-400 uppercase">Past</p></div>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Top Performers Sidebar */}
-        <div className="lg:col-span-4 bg-white p-8 rounded-[3.5rem] border border-slate-100 shadow-xl shadow-slate-200/40">
-           <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Etalon Muassasalar (TOP)</h4>
-           <div className="space-y-4">
-             {TOP_PERFORMERS.map((mtt, i) => (
-               <div key={i} className="group p-5 bg-slate-50 rounded-[2rem] border border-slate-100 hover:bg-white hover:shadow-2xl hover:border-transparent transition-all duration-500">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center font-black text-indigo-500 shadow-sm">
-                      {i + 1}
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-black text-slate-900 tracking-tighter">{mtt.foiz}%</p>
-                      <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Davomat</p>
-                    </div>
-                  </div>
-                  <h5 className="font-black text-slate-800 text-sm mb-1 group-hover:text-indigo-600 transition-colors">{mtt.name}</h5>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                    <MapPin size={10} /> {mtt.hudud}
-                  </p>
-               </div>
-             ))}
-           </div>
-        </div>
-      </div>
-
-      {/* District Status Strip - Mini Cards */}
-      <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-2xl shadow-slate-200/50">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
-            <div>
-              <h4 className="text-2xl font-black text-slate-900 tracking-tight">Hududiy Boshqaruv</h4>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Barcha tumanlar kesimida KPI ko'rsatkichlar</p>
-            </div>
-            <div className="flex gap-4">
-               {['#10b981', '#f59e0b', '#ef4444'].map((color, i) => (
-                 <div key={i} className="flex items-center gap-2">
-                   <div className="w-3 h-3 rounded-full shadow-lg" style={{backgroundColor: color}} />
-                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{i === 0 ? 'Yuqori' : i === 1 ? 'O\'rta' : 'Past'}</span>
-                 </div>
-               ))}
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {DISTRICT_DATA.map((d, i) => {
-              const percentage = d.jami > 0 ? Math.round((d.gacha9/d.jami)*100) : 0;
-              let statusColor = "bg-emerald-500";
-              if (percentage < 90) statusColor = "bg-amber-500";
-              if (percentage < 75) statusColor = "bg-rose-500";
-              
-              return (
-                <div key={i} className="p-6 bg-slate-50 rounded-[2.5rem] border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500 group">
-                   <div className="flex justify-between items-center mb-4">
-                      <p className="text-xs font-black text-slate-900 uppercase tracking-wider">{d.name}</p>
-                      <span className="text-lg font-black text-indigo-600">{percentage}%</span>
-                   </div>
-                   <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden shadow-inner">
-                     <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${percentage}%` }}
-                        className={clsx("h-full shadow-lg", statusColor)} 
-                     />
-                   </div>
-                   <div className="mt-4 flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                     <span>Qabul: {d.gacha9}</span>
-                     <span>Jami: {d.jami}</span>
-                   </div>
-                </div>
-              );
-            })}
-          </div>
-      </div>
-
-      <AnimatePresence>
-        {showFullReport && (
-          <motion.div initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}} className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xl flex items-center justify-center p-4">
-            <motion.div initial={{scale: 0.9, y: 20}} animate={{scale: 1, y: 0}} exit={{scale: 0.9, y: 20}} className="bg-white rounded-[3.5rem] p-12 max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl relative">
-               <button onClick={() => setShowFullReport(false)} className="absolute top-8 right-8 p-3 hover:bg-slate-100 rounded-2xl transition-all"><X size={24} className="text-slate-400" /></button>
-               
-               <div className="mb-10">
-                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">AI Chuqur Tahlil</h3>
-                  <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-2">To'liq tizimli hisobot — 2026-yil May</p>
-               </div>
-               
-               <div className="space-y-10">
-                  {['Davlat', 'Nodavlat', 'Oilaviy'].map(type => (
-                    <div key={type} className="group">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-1.5 h-8 bg-indigo-500 rounded-full" />
-                        <h4 className="text-xl font-black text-slate-800 tracking-tight">{type} MTT Analitikasi</h4>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                          <div className="p-6 bg-emerald-50 rounded-[2rem] border border-emerald-100/50">
-                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">A'lo</p>
-                            <p className="text-2xl font-black text-emerald-900">142</p>
-                          </div>
-                          <div className="p-6 bg-amber-50 rounded-[2rem] border border-amber-100/50">
-                            <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">O'rta</p>
-                            <p className="text-2xl font-black text-amber-900">86</p>
-                          </div>
-                          <div className="p-6 bg-rose-50 rounded-[2rem] border border-rose-100/50">
-                            <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1">Past</p>
-                            <p className="text-2xl font-black text-rose-900">12</p>
-                          </div>
-                      </div>
-                    </div>
-                  ))}
-               </div>
-
-               <div className="mt-12 p-8 bg-[#020617] rounded-[2.5rem] text-white">
-                  <h5 className="font-black text-indigo-400 text-xs uppercase tracking-widest mb-3">Strategik Tavsiya</h5>
-                  <p className="text-slate-300 font-medium leading-relaxed italic text-sm">
-                    "Kelgusi 3 oy davomida nodavlat sektorida davomatni 5% ga oshirish uchun raqamli monitoring tizimini kengaytirish tavsiya etiladi."
-                  </p>
-               </div>
             </motion.div>
           </motion.div>
         )}

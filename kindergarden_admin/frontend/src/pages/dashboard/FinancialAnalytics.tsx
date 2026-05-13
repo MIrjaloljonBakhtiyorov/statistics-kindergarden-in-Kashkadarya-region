@@ -567,6 +567,142 @@ export const FinancialAnalytics = () => {
           </div>
         </div>
 
+        {/* ── 4 Premium KPI ── */}
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          {[
+            { label: "Davomat",        value: "94.2%", sub: "Kutilgan: 96%", trend: null,    icon: Activity,   color: "amber",   bg: "bg-amber-50",   iconColor: "text-amber-500" },
+            { label: "Kunlik xarajat", value: "185.4 mln", sub: null,        trend: "+4.2%", icon: Calculator, color: "blue",    bg: "bg-blue-50",    iconColor: "text-blue-500" },
+            { label: "Tejalgan mablag'", value: "42.8 mln", sub: "Davomat hisobiga", trend: null, icon: Wallet, color: "teal",  bg: "bg-teal-50",    iconColor: "text-teal-500" },
+            { label: "O'rtacha ball",   value: "86.4",  sub: "/ 100",         trend: null,    icon: TrendingUp, color: "green",  bg: "bg-emerald-50", iconColor: "text-emerald-500" },
+          ].map((k, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
+              className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all relative overflow-hidden">
+              <div className="flex justify-between items-start mb-4">
+                <div className={clsx("w-10 h-10 rounded-xl flex items-center justify-center", k.bg, k.iconColor)}>
+                  <k.icon size={20} />
+                </div>
+                {k.trend && (
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-600">{k.trend}</span>
+                )}
+              </div>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{k.label}</p>
+              <p className="text-2xl font-black text-slate-900 tracking-tight">{k.value}</p>
+              {k.sub && <p className="text-[10px] font-bold text-indigo-500 flex items-center gap-1 mt-1"><TrendingUp size={10} /> {k.sub}</p>}
+            </motion.div>
+          ))}
+        </div>
+
+        {/* ── 2 Donut Charts ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {[
+            {
+              title: "Tejalgan mablag' taqsimoti", sub: "Tumanlar kesimida (mln so'm)",
+              total: "42.8", totalLabel: "Jami tejалган (mln)",
+              data: [
+                { name: "Qarshi sh.",     value: 12.4, color: "#6366f1" },
+                { name: "Shahrisabz",     value: 8.2,  color: "#10b981" },
+                { name: "Kitob",          value: 7.6,  color: "#f59e0b" },
+                { name: "Koson",          value: 6.8,  color: "#f43f5e" },
+                { name: "Chiroqchi",      value: 7.8,  color: "#8b5cf6" },
+              ]
+            },
+            {
+              title: "Oziq-ovqat xarajatlari", sub: "Tumanlar kesimida (mln so'm)",
+              total: "217.5", totalLabel: "Jami xarajat (mln)",
+              data: [
+                { name: "Qarshi sh.",     value: 58.4, color: "#6366f1" },
+                { name: "Shahrisabz",     value: 42.2, color: "#10b981" },
+                { name: "Kitob",          value: 36.6, color: "#f59e0b" },
+                { name: "Koson",          value: 45.8, color: "#f43f5e" },
+                { name: "Chiroqchi",      value: 34.5, color: "#8b5cf6" },
+              ]
+            },
+          ].map((chart, ci) => (
+            <div key={ci} className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                  <PieChartIcon size={18} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">{chart.title}</h3>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{chart.sub}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-6">
+                <div className="relative h-48 w-48 shrink-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={chart.data} cx="50%" cy="50%" innerRadius={58} outerRadius={80}
+                        paddingAngle={4} dataKey="value" strokeWidth={0} cornerRadius={6}>
+                        {chart.data.map((e, i) => <Cell key={i} fill={e.color} />)}
+                      </Pie>
+                      <Tooltip contentStyle={{ borderRadius: 10, border: "none", fontSize: 11 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-2xl font-black text-slate-900">{chart.total}</span>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center leading-tight">{chart.totalLabel}</span>
+                  </div>
+                </div>
+                <div className="flex-1 space-y-2.5">
+                  {chart.data.map((d, i) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                        <span className="text-[11px] font-bold text-slate-600">{d.name}</span>
+                      </div>
+                      <span className="text-[11px] font-black text-slate-900">{d.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── AI Strategik Tavsiyalar ── */}
+        <div className="bg-slate-950 rounded-[32px] p-8 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/15 blur-[120px] rounded-full" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center border border-amber-500/20">
+                  <BrainCircuit size={28} className="text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black italic tracking-tight">AI Strategik Tavsiyalar</h3>
+                  <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mt-0.5">Autonomous Governance v4.0</p>
+                </div>
+              </div>
+              <button className="px-5 py-2.5 bg-white text-slate-900 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all">
+                Batafsil hisobotni yuklash
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                { title: "Auditorlar Nazorati",        text: "Chiroqchi va Koson tumanlariga zudlik bilan auditorlar guruhini yuborish va joyida o'rganish.",           icon: ShieldAlert, color: "emerald" },
+                { title: "Logistika Optimizatsiyasi",  text: "Logistika provayderini qayta ko'rib chiqish va kechikishlar uchun jarima sanksiyalarini qo'llash.",       icon: TrendingUp,  color: "amber" },
+                { title: "Xarajatlarni Boshqarish",   text: "Xususiy bog'chalar uchun xarajatlarni optimallashtirish bo'yicha yangi raqamli metodik qo'llanma.",       icon: Wallet,      color: "indigo" },
+                { title: "Biometrik Monitoring",      text: "Raqamli davomatni (Face ID/Biometriya) barcha bog'chalarda majburiy etib belgilash va integratsiya qilish.", icon: Users,       color: "rose" },
+              ].map((t, i) => (
+                <div key={i} className="flex items-start gap-4 p-5 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all">
+                  <div className={clsx("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0",
+                    t.color === "emerald" ? "bg-emerald-500/10 text-emerald-400" :
+                    t.color === "amber"   ? "bg-amber-500/10 text-amber-400" :
+                    t.color === "indigo"  ? "bg-indigo-500/10 text-indigo-400" :
+                                           "bg-rose-500/10 text-rose-400")}>
+                    <t.icon size={22} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-white mb-1">{t.title}</h4>
+                    <p className="text-[11px] font-medium text-slate-400 leading-relaxed">{t.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
       </main>
 
       {/* 📄 SECTION 10 — REPORT GENERATOR MODAL */}

@@ -47,7 +47,7 @@ export default function App() {
 
   if (!user) {
     return (
-      <Router>
+      <Router basename="/admin">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
@@ -57,7 +57,7 @@ export default function App() {
   }
 
   return (
-    <Router>
+    <Router basename="/admin">
       <Toaster position="top-center" richColors />
       <DashboardLayout>
         <Routes>
@@ -76,11 +76,11 @@ export default function App() {
               <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm">
                 <h2 className="text-3xl font-black text-slate-900 tracking-tight">Tizim sozlamalari</h2>
                 <p className="text-slate-500 mt-3 font-medium text-lg leading-relaxed">
-                  Ushbu bo'lim hozirda ishlab chiqilmoqda. Tez orada bu yerda tizim parametrlarini boshqarish imkoniyati paydo bo'ladi.
+                  Ushbu bo'lim hozirda ishlab chiqilmoqda.
                 </p>
                 <div className="mt-8 flex gap-4">
                   <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
-                    <Settings className="animate-spin-slow" />
+                    <Settings />
                   </div>
                   <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
                     <ShieldCheck />
