@@ -75,7 +75,7 @@ const FinanceView: React.FC = () => {
   const fetchChildrenCount = async () => {
     try {
       const res = await apiClient.get('/children');
-      setChildrenCount(res.data.length);
+      setChildrenCount(Array.isArray(res.data) ? res.data.length : 0);
     } catch (err) {
       console.error(err);
     }
@@ -83,9 +83,12 @@ const FinanceView: React.FC = () => {
 
   const stats = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
-    const todayTotal = transactions.filter(t => t.date === today).reduce((sum, t) => sum + t.amount, 0);
-    const monthTotal = transactions.reduce((sum, t) => sum + t.amount, 0);
-    const weeklyNeedsTotal = requiredProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+    const txList = Array.isArray(transactions) ? transactions : [];
+    const reqList = Array.isArray(requiredProducts) ? requiredProducts : [];
+    
+    const todayTotal = txList.filter(t => t.date === today).reduce((sum, t) => sum + t.amount, 0);
+    const monthTotal = txList.reduce((sum, t) => sum + t.amount, 0);
+    const weeklyNeedsTotal = reqList.reduce((sum, p) => sum + (p.price * p.quantity), 0);
     
     // Formula: Haftalik ehtiyoj / jami bolalar / 5 kun (bir kunlik sarf uchun)
     const perChildDaily = childrenCount > 0 ? (weeklyNeedsTotal / childrenCount / 5) : 0;
@@ -137,7 +140,7 @@ const FinanceView: React.FC = () => {
 
       {/* Navigation Tabs */}
       <div className="bg-white p-2 rounded-[1.5rem] border border-brand-border shadow-sm flex flex-wrap gap-1">
-        {tabs.map((tab) => (
+        {(Array.isArray(tabs) ? tabs : []).map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as FinanceTab)}
@@ -208,7 +211,7 @@ const WeeklyNeedsSection = ({ products }: { products: any[] }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {products.length === 0 ? (
+              {(!Array.isArray(products) || products.length === 0) ? (
                 <tr><td colSpan={6} className="p-20 text-center text-brand-muted font-bold">Ehtiyojlar topilmadi</td></tr>
               ) : (
                 products.map((p, i) => (
@@ -225,7 +228,7 @@ const WeeklyNeedsSection = ({ products }: { products: any[] }) => {
                 ))
               )}
             </tbody>
-            {products.length > 0 && (
+            {Array.isArray(products) && products.length > 0 && (
               <tfoot className="bg-slate-50/50">
                  <tr>
                     <td colSpan={5} className="px-10 py-6 text-right font-black uppercase text-xs text-brand-muted">Jami:</td>
@@ -277,10 +280,10 @@ const ExpensesSection = ({ transactions }: { transactions: any[] }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {transactions.length === 0 && (
+              {(!Array.isArray(transactions) || transactions.length === 0) && (
                 <tr><td colSpan={6} className="p-10 text-center text-brand-muted font-bold">Tranzaksiyalar topilmadi</td></tr>
               )}
-              {transactions.map((row, idx) => (
+              {(Array.isArray(transactions) ? transactions : []).map((row, idx) => (
                 <tr key={idx} className="hover:bg-brand-primary/[0.02] transition-colors group">
                   <td className="px-8 py-6 text-xs font-bold text-brand-slate uppercase tracking-tighter">{row.date}</td>
                   <td className="px-8 py-6">
@@ -312,7 +315,7 @@ const CostPerChildSection = ({ stats, childrenCount, products }: { stats: any, c
   ];
 
   const topExpenses = useMemo(() => {
-    return [...products]
+    return [...(Array.isArray(products) ? products : [])]
       .sort((a, b) => (b.price * b.quantity) - (a.price * a.quantity))
       .slice(0, 5);
   }, [products]);
@@ -379,7 +382,7 @@ const CostPerChildSection = ({ stats, childrenCount, products }: { stats: any, c
                {topExpenses.length === 0 ? (
                  <p className="text-white/40 text-xs font-bold">Ma'lumot yo'q</p>
                ) : (
-                 topExpenses.map((p, idx) => (
+                 (Array.isArray(topExpenses) ? topExpenses : []).map((p, idx) => (
                    <div key={idx} className="bg-white/5 p-5 rounded-2xl border border-white/10 flex justify-between items-center group/item hover:bg-white/10 transition-all">
                       <div>
                         <p className="text-xs font-black uppercase text-brand-primary tracking-widest mb-1">{p.name}</p>
@@ -404,7 +407,7 @@ const CostPerChildSection = ({ stats, childrenCount, products }: { stats: any, c
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <PieChart>
                   <Pie
-                    data={topExpenses.map(p => ({ name: p.name, value: p.price * p.quantity }))}
+                    data={(Array.isArray(topExpenses) ? topExpenses : []).map(p => ({ name: p.name, value: p.price * p.quantity }))}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -412,7 +415,7 @@ const CostPerChildSection = ({ stats, childrenCount, products }: { stats: any, c
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {topExpenses.map((entry, index) => (
+                    {(Array.isArray(topExpenses) ? topExpenses : []).map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={['#4F46E5', '#10B981', '#F59E0B', '#F43F5E', '#8B5CF6'][index % 5]} />
                     ))}
                   </Pie>
@@ -421,7 +424,7 @@ const CostPerChildSection = ({ stats, childrenCount, products }: { stats: any, c
               </ResponsiveContainer>
             </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
-               {topExpenses.map((p, idx) => (
+               {(Array.isArray(topExpenses) ? topExpenses : []).map((p, idx) => (
                  <div key={idx} className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#F43F5E', '#8B5CF6'][idx % 5] }}></div>
                     <span className="text-[10px] font-bold text-brand-muted truncate">{p.name}</span>

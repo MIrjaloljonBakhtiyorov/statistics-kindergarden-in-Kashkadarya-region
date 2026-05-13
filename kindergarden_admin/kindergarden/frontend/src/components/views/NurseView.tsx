@@ -73,21 +73,24 @@ const NurseView: React.FC = () => {
 
   // --- KPI Calculations ---
   const stats = useMemo(() => {
-    const total = allChildren.length;
+    const safeChildren = Array.isArray(allChildren) ? allChildren : [];
+    const total = safeChildren.length;
     // Basic age calculation from birth_date or age_category
-    const age1_3 = allChildren.filter(c => c.age_category === '1-3 yosh' || c.age_category === 'Kichik yosh').length;
-    const age3_7 = allChildren.filter(c => c.age_category === '3-7 yosh' || c.age_category === 'Katta yosh' || c.age_category === 'Tayyorlov guruh').length;
+    const age1_3 = safeChildren.filter(c => c.age_category === '1-3 yosh' || c.age_category === 'Kichik yosh').length;
+    const age3_7 = safeChildren.filter(c => c.age_category === '3-7 yosh' || c.age_category === 'Katta yosh' || c.age_category === 'Tayyorlov guruh').length;
     // In our generic schema, 'is_allergic' might not be directly on child object, we check allergies field or watchlist
-    const allergyCount = allChildren.filter(c => c.allergies && c.allergies.trim() !== '').length;
+    const allergyCount = safeChildren.filter(c => c.allergies && c.allergies.trim() !== '').length;
     // We assume 'status' or checking recent history for 'Kasal'. We'll approximate from allChildren if possible, or use a default if not tracked directly.
-    const sickCount = allChildren.filter(c => c.medical_notes?.toLowerCase().includes('kasal') || c.status === 'SICK').length || 0; // Fallback to 0 if not tracked globally this way
+    const sickCount = safeChildren.filter(c => c.medical_notes?.toLowerCase().includes('kasal') || c.status === 'SICK').length || 0; // Fallback to 0 if not tracked globally this way
 
     return { total, age1_3, age3_7, sickCount, allergyCount };
   }, [allChildren]);
 
   const groupSummaries = useMemo(() => {
-    return groups.map(g => {
-      const groupChildren = allChildren.filter(c => c.group_id === g.id);
+    const safeGroups = Array.isArray(groups) ? groups : [];
+    const safeChildren = Array.isArray(allChildren) ? allChildren : [];
+    return safeGroups.map(g => {
+      const groupChildren = safeChildren.filter(c => c.group_id === g.id);
       const sick = groupChildren.filter(c => c.medical_notes?.toLowerCase().includes('kasal') || c.status === 'SICK').length;
       const allergy = groupChildren.filter(c => c.allergies && c.allergies.trim() !== '').length;
       return { ...g, total: groupChildren.length, sick, allergy };
@@ -245,7 +248,7 @@ const NurseView: React.FC = () => {
               <div className="lg:col-span-2 space-y-6">
                 <h3 className="text-xl font-black text-brand-depth">Guruhlar nazorati</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {groupSummaries.map(g => (
+                  {(Array.isArray(groupSummaries) ? groupSummaries : []).map(g => (
                     <div 
                       key={g.id} 
                       onClick={() => handleOpenGroup(g)}
@@ -305,7 +308,7 @@ const NurseView: React.FC = () => {
                   )}
                   
                   {/* Miniature alert list based on real allergy data */}
-                  {allergies.slice(0, 5).map((a: any, idx: number) => (
+                  {(Array.isArray(allergies) ? allergies : []).slice(0, 5).map((a: any, idx: number) => (
                     <div key={idx} className="flex gap-3 p-3 bg-slate-50 border border-brand-border rounded-xl">
                       <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></div>
                       <div>
@@ -359,7 +362,7 @@ const NurseView: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {allChildren
+                    {(Array.isArray(allChildren) ? allChildren : [])
                       .filter(c => c.group_id === selectedGroup.id)
                       .filter(c => (c.first_name + ' ' + c.last_name).toLowerCase().includes(searchQuery.toLowerCase()))
                       .map((child: any) => {
@@ -444,8 +447,8 @@ const NurseView: React.FC = () => {
                 <h3 className="text-xl font-black text-brand-depth mb-6 flex items-center gap-2"><History size={20} className="text-brand-primary"/> Tibbiy Tarix (Timeline)</h3>
                 
                 <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-brand-border before:to-transparent">
-                  {history.filter(h => h.child_id === selectedChild.id).length > 0 ? (
-                    history.filter(h => h.child_id === selectedChild.id).map((record, idx) => (
+                  {(Array.isArray(history) ? history : []).filter(h => h.child_id === selectedChild.id).length > 0 ? (
+                    (Array.isArray(history) ? history : []).filter(h => h.child_id === selectedChild.id).map((record, idx) => (
                       <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                         <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-slate-50 text-brand-slate group-[.is-active]:bg-emerald-500 group-[.is-active]:text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
                           {record.is_sick ? <AlertTriangle size={14}/> : <Activity size={14}/>}

@@ -89,11 +89,13 @@ const LabView: React.FC = () => {
   };
 
   const stats = useMemo(() => {
-    const pendingSampling = kitchenTasks.filter(t => (t.status === 'TAYYOR' || t.status === 'SUZISHGA_TAYYOR') && !samples.find(s => s.dish_id === t.id));
+    const safeKitchenTasks = Array.isArray(kitchenTasks) ? kitchenTasks : [];
+    const safeSamples = Array.isArray(samples) ? samples : [];
+    const pendingSampling = safeKitchenTasks.filter(t => (t.status === 'TAYYOR' || t.status === 'SUZISHGA_TAYYOR') && !safeSamples.find(s => s.dish_id === t.id));
     return {
-      total: samples.length,
-      pending: samples.filter(s => s.status === 'COLLECTED' || s.status === 'STORED').length,
-      critical: samples.filter(s => s.risk_level === 'CRITICAL').length,
+      total: safeSamples.length,
+      pending: safeSamples.filter(s => s.status === 'COLLECTED' || s.status === 'STORED').length,
+      critical: safeSamples.filter(s => s.risk_level === 'CRITICAL').length,
       samplingNeeded: pendingSampling.length
     };
   }, [samples, kitchenTasks]);
@@ -234,7 +236,7 @@ const LabView: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                      {samples.map(sample => (
+                      {(Array.isArray(samples) ? samples : []).map(sample => (
                         <tr key={sample.sample_id} className="group hover:bg-slate-50/80 transition-all cursor-pointer" onClick={() => setSelectedSample(sample)}>
                           <td className="px-10 py-6">
                             <div className="flex items-center gap-5">
@@ -356,7 +358,7 @@ const LabView: React.FC = () => {
               </div>
               
               <div className="space-y-4">
-                 {kitchenTasks.filter(t => (t.status === 'TAYYOR' || t.status === 'SUZISHGA_TAYYOR') && !samples.find(s => s.dish_id === t.id)).length === 0 ? (
+                 {(Array.isArray(kitchenTasks) ? kitchenTasks : []).filter(t => (t.status === 'TAYYOR' || t.status === 'SUZISHGA_TAYYOR') && !(Array.isArray(samples) ? samples : []).find(s => s.dish_id === t.id)).length === 0 ? (
                    <div className="text-center py-12 space-y-4">
                       <div className="w-20 h-20 bg-emerald-50 rounded-[2.5rem] flex items-center justify-center mx-auto text-emerald-500">
                         <ShieldCheck size={40} />
@@ -367,7 +369,7 @@ const LabView: React.FC = () => {
                       </div>
                    </div>
                  ) : (
-                   kitchenTasks.filter(t => (t.status === 'TAYYOR' || t.status === 'SUZISHGA_TAYYOR') && !samples.find(s => s.dish_id === t.id)).map(task => (
+                   (Array.isArray(kitchenTasks) ? kitchenTasks : []).filter(t => (t.status === 'TAYYOR' || t.status === 'SUZISHGA_TAYYOR') && !(Array.isArray(samples) ? samples : []).find(s => s.dish_id === t.id)).map(task => (
                     <div 
                       key={task.id} 
                       onClick={() => {

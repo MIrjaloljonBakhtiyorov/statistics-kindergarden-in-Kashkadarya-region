@@ -92,7 +92,7 @@ const DirectorView: React.FC = () => {
                   Bugun uchun menu kiritilmagan
                 </div>
               ) : (
-                menu.map((item, i) => (
+                (Array.isArray(menu) ? menu : []).map((item, i) => (
                   <div key={i} className="flex items-center justify-between p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-100">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white flex items-center justify-center text-brand-primary font-bold text-[9px] sm:text-[10px] border border-brand-border">
@@ -151,7 +151,7 @@ const DirectorView: React.FC = () => {
                     Analizlar mavjud emas
                   </div>
                 ) : (
-                  samples.map((s, i) => (
+                  (Array.isArray(samples) ? samples : []).map((s, i) => (
                     <div key={i} className="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-brand-primary/20 transition-all group">
                       <div className="flex justify-between items-start mb-2">
                         <div className="min-w-0">
