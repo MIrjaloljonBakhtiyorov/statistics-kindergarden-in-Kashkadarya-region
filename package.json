@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
-    "build-all": "vite build && cd kindergarden_admin/frontend && npm install && npm run build && cd ../.. && mkdir -p dist/admin && cp -r kindergarden_admin/frontend/dist/* dist/admin/",
+    "build-all": "vite build && cd kindergarden_admin/frontend && npm install && npm run build && cd ../.. && cd kindergarden_admin/kindergarden/frontend && npm install && npm run build && cd ../../../ && mkdir -p dist/admin dist/kindergarten && cp -r kindergarden_admin/frontend/dist/* dist/admin/ && cp -r kindergarden_admin/kindergarden/frontend/dist/* dist/kindergarten/",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
