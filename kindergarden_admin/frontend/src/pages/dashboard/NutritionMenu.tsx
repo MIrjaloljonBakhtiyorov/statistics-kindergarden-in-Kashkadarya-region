@@ -368,7 +368,7 @@ export const NutritionMenu = () => {
                        {(subTab === 'all' ? [...AGE_GROUPS, { id: 'diet', label: 'Parhez', icon: Stethoscope, color: 'text-rose-600 bg-rose-50' }, { id: 'drinks', label: 'Ichimliklar', icon: Droplets, color: 'text-blue-600 bg-blue-50' }] : 
                          subTab === 'diet' ? [{ id: 'diet', label: 'Parhez', icon: Stethoscope, color: 'text-rose-600 bg-rose-50' }] :
                          subTab === 'drinks' ? [{ id: 'drinks', label: 'Ichimliklar', icon: Droplets, color: 'text-blue-600 bg-blue-50' }] :
-                         AGE_GROUPS.filter(g => g.id === subTab)).map((group) => {
+                         (Array.isArray(AGE_GROUPS) ? AGE_GROUPS : []).filter(g => g.id === subTab)).map((group) => {
                           
                           const isDrink = group.id === 'drinks';
                           const isDiet = group.id === 'diet';

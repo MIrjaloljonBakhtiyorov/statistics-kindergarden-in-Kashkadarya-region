@@ -45,7 +45,7 @@ export const DailyMenuCreationModal: React.FC<DailyMenuCreationModalProps> = ({ 
 
   if (!isOpen) return null;
 
-  const filteredDB = MOCK_DB.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredDB = (Array.isArray(MOCK_DB) ? MOCK_DB : []).filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const MEAL_TIMES = ['Nonushta', 'Tushlik', 'Poldnik', 'Kechki ovqat'];
 

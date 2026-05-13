@@ -141,10 +141,10 @@ export const Districts = () => {
     return () => clearInterval(t);
   }, []);
 
-  const filtered = DISTRICTS.filter(d => d.name.toLowerCase().includes(search.toLowerCase()));
-  const total = DISTRICTS.reduce((a, d) => a + d.totalChildren, 0);
-  const avg = Math.round(DISTRICTS.reduce((a, d) => a + d.attendancePercentage, 0) / DISTRICTS.length);
-  const sorted = [...DISTRICTS].sort((a, b) => b.attendancePercentage - a.attendancePercentage);
+  const filtered = (Array.isArray(DISTRICTS) ? DISTRICTS : []).filter(d => d.name.toLowerCase().includes(search.toLowerCase()));
+  const total = (Array.isArray(DISTRICTS) ? DISTRICTS : []).reduce((a, d) => a + d.totalChildren, 0);
+  const avg = DISTRICTS.length > 0 ? Math.round(DISTRICTS.reduce((a, d) => a + d.attendancePercentage, 0) / DISTRICTS.length) : 0;
+  const sorted = [...(Array.isArray(DISTRICTS) ? DISTRICTS : [])].sort((a, b) => b.attendancePercentage - a.attendancePercentage);
   const best = sorted[0];
   const worst = sorted[sorted.length - 1];
 

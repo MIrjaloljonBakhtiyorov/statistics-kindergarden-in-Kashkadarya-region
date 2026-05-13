@@ -99,7 +99,7 @@ export const RatingAudit = () => {
   const [tab, setTab] = useState("Barcha");
   const [search, setSearch] = useState("");
 
-  const filtered = TOP_20.filter(r =>
+  const filtered = (Array.isArray(TOP_20) ? TOP_20 : []).filter(r =>
     r.name.toLowerCase().includes(search.toLowerCase()) ||
     r.district.toLowerCase().includes(search.toLowerCase())
   );

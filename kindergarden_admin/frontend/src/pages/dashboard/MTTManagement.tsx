@@ -160,7 +160,7 @@ export const MTTManagement = () => {
     if (!confirm("Ushbu bog'chani o'chirishni tasdiqlaysizmi?")) return;
     try {
       await kindergartenApi.delete(id);
-      setData(d => d.filter(i => i.id !== id));
+      setData(d => (Array.isArray(d) ? d : []).filter(i => i.id !== id));
       toast.success("Bog'cha muvaffaqiyatli o'chirildi");
     } catch { toast.error("O'chirishda xatolik yuz berdi"); }
   };
@@ -195,17 +195,17 @@ export const MTTManagement = () => {
     finally { setLoading(false); }
   };
 
-  const filtered = data.filter(i =>
+  const filtered = Array.isArray(data) ? data.filter(i =>
     (i.name?.toLowerCase().includes(searchTerm.toLowerCase()) || i.directorName?.toLowerCase().includes(searchTerm.toLowerCase())) &&
     (!districtFilter || i.district === districtFilter) &&
     (!typeFilter || i.type === typeFilter)
-  );
+  ) : [];
 
   const stats = [
-    { label: 'Jami muassasalar',  val: data.length,                               icon: Building2,  iconBg: 'bg-indigo-600' },
-    { label: 'Davlat (Public)',   val: data.filter(i => i.type === 'Public').length,  icon: School,     iconBg: 'bg-blue-500' },
-    { label: 'Xususiy (Private)', val: data.filter(i => i.type === 'Private').length, icon: LayoutGrid, iconBg: 'bg-purple-500' },
-    { label: 'Oilaviy (Home)',    val: data.filter(i => i.type === 'Home').length,    icon: Home,       iconBg: 'bg-amber-500' },
+    { label: 'Jami muassasalar',  val: Array.isArray(data) ? data.length : 0,                               icon: Building2,  iconBg: 'bg-indigo-600' },
+    { label: 'Davlat (Public)',   val: Array.isArray(data) ? data.filter(i => i.type === 'Public').length : 0,  icon: School,     iconBg: 'bg-blue-500' },
+    { label: 'Xususiy (Private)', val: Array.isArray(data) ? data.filter(i => i.type === 'Private').length : 0, icon: LayoutGrid, iconBg: 'bg-purple-500' },
+    { label: 'Oilaviy (Home)',    val: Array.isArray(data) ? data.filter(i => i.type === 'Home').length : 0,    icon: Home,       iconBg: 'bg-amber-500' },
   ];
 
   return (

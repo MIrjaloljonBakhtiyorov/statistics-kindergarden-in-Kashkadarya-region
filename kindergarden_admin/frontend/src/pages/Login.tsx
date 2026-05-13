@@ -138,7 +138,7 @@ export const Login: React.FC = () => {
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 sm:py-5 rounded-xl sm:rounded-2xl shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 sm:gap-3 disabled:opacity-50 transform active:scale-[0.98]"
               >
                 {loading ? (
-                  <Loader2 className="animate-spin" size={18} className="sm:w-5 sm:h-5" />
+                  <Loader2 className="animate-spin sm:w-5 sm:h-5" size={18} />
                 ) : (
                   <>
                     <span className="text-sm sm:text-lg">Tizimga kirish</span>

@@ -630,7 +630,7 @@ export const FinancialAnalytics = () => {
               </div>
               <div className="flex items-center gap-6">
                 <div className="relative h-48 w-48 shrink-0">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart>
                       <Pie data={chart.data} cx="50%" cy="50%" innerRadius={58} outerRadius={80}
                         paddingAngle={4} dataKey="value" strokeWidth={0} cornerRadius={6}>

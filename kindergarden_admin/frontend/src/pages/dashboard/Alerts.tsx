@@ -132,7 +132,7 @@ export const Alerts = () => {
   const [filter, setFilter] = useState('Barchasi');
   const [search, setSearch] = useState('');
 
-  const filteredAlerts = MOCK_ALERTS.filter(alert => {
+  const filteredAlerts = (Array.isArray(MOCK_ALERTS) ? MOCK_ALERTS : []).filter(alert => {
     const matchesFilter = 
       filter === 'Barchasi' || 
       (filter === 'Faqat xatoliklar' && alert.status === 'error') ||
