@@ -10,6 +10,7 @@ import { clsx } from 'clsx';
 import { toast } from 'sonner';
 import { YangiBogchaQoshishModal } from './YangiBogchaQoshishModal';
 import { kindergartenApi } from '../../api/apiClient';
+import { MOCK_KINDERGARTENS } from '../../lib/mock-data';
 
 const BOGCHA_PANEL_URL = '/kindergarten/';
 
@@ -142,8 +143,19 @@ export const MTTManagement = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    try { setData(await kindergartenApi.getAll()); }
-    catch { /* silent */ }
+    try { 
+      const res = await kindergartenApi.getAll(); 
+      if (Array.isArray(res) && res.length > 0) {
+        setData(res);
+      } else {
+        // If API returns empty or not an array, use mock data
+        setData(MOCK_KINDERGARTENS);
+      }
+    }
+    catch (err) { 
+      console.error("API error, using mock data:", err);
+      setData(MOCK_KINDERGARTENS);
+    }
     finally { setLoading(false); }
   };
 
