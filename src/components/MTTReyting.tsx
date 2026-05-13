@@ -318,7 +318,7 @@ export default function MTTReyting() {
             </div>
           ) : (
             <div className="px-4 pb-8">
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={300} minWidth={0} minHeight={0}>
                 <BarChart data={sorted} margin={{ top: 5, right: 10, left: 0, bottom: 48 }} barCategoryGap="30%">
                   <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="short" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 8, fontWeight: 800 }} height={56} angle={-40} textAnchor="end" />

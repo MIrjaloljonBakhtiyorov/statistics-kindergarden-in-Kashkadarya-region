@@ -211,7 +211,7 @@ export default function MahsulotSarfi() {
               transition={{ duration: 0.3 }}
               className="px-4 pb-8"
             >
-              <ResponsiveContainer width="100%" height={320}>
+              <ResponsiveContainer width="100%" height={320} minWidth={0} minHeight={0}>
                 {chartType === 'bar' ? (
                   <BarChart data={filteredData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }} barCategoryGap="30%">
                     <defs>

@@ -114,7 +114,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
             whileHover={{ y: -5 }}
             className="group relative overflow-hidden rounded-[1.5rem] shadow-xl aspect-[4/3.5] border-2 border-white"
           >
-            <img 
+            <img  
               src={img.url} 
               alt={img.title} 
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
@@ -201,7 +201,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                 </p>
                 <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Jami</p>
               </div>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <PieChart>
                   <Pie
                     {...({ activeIndex, activeShape: renderActiveShape } as any)}
@@ -807,9 +807,8 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
 
                     {/* chart */}
                     <div className="relative z-10 flex-1 min-h-0 px-1 pb-4" style={{ minHeight: 130 }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={regionalTrend} margin={{ top: 6, right: 8, left: -22, bottom: 0 }}>
-                          <defs>
+                      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                        <AreaChart data={regionalTrend} margin={{ top: 6, right: 8, left: -22, bottom: 0 }}>                          <defs>
                             <linearGradient id="pf2" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="#34d399" stopOpacity={0.28} />
                               <stop offset="100%" stopColor="#34d399" stopOpacity={0} />

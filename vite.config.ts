@@ -22,14 +22,17 @@ export default defineConfig(({mode}) => {
         '/admin': {
           target: 'http://127.0.0.1:3003',
           changeOrigin: true,
+          ws: true,
         },
         '/api': {
           target: 'http://127.0.0.1:3002',
           changeOrigin: true,
+          ws: true,
         },
         '/stats': {
           target: 'http://127.0.0.1:3001',
           changeOrigin: true,
+          ws: true,
         },
       },
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

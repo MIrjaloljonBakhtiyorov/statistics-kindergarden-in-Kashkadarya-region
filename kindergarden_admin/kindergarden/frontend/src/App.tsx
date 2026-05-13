@@ -97,7 +97,8 @@ const App: React.FC = () => {
   };
 
   if (!isAuthenticated) {
-    return <LoginView />;
+    window.location.replace('/login');
+    return null;
   }
 
   const renderCurrentView = () => {

@@ -8,6 +8,7 @@ import { BogchaFormData, defaultFormData } from '../types/bogcha.types';
 
 interface Props {
   onClose: () => void;
+  onSave: (data: BogchaFormData) => void;
 }
 
 const DISTRICTS = [

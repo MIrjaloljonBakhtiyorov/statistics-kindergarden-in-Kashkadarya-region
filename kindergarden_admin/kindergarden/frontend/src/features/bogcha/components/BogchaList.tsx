@@ -1,18 +1,22 @@
 import React from 'react';
 import { Plus, School, MapPin, User, Users, CheckCircle, XCircle } from 'lucide-react';
 
-interface BogchaListProps {
-  onAdd: () => void;
+interface Bogcha {
+  id: number;
+  nomi: string;
+  turi: string;
+  tuman: string;
+  direktor: string;
+  bolalar: number;
+  faol: boolean;
 }
 
-const mockBogchalar = [
-  { id: 1, nomi: '1-sonli "Nilufar" MTT', turi: 'Davlat', tuman: 'Qarshi sh.', direktor: 'Xolmatova N.', bolalar: 215, faol: true },
-  { id: 2, nomi: '12-sonli "Bahor" MTT', turi: 'Oilaviy', tuman: 'Muborak t.', direktor: 'Toshmatov J.', bolalar: 48, faol: true },
-  { id: 3, nomi: '"Kamolot" xususiy MTT', turi: 'Nodavlat', tuman: 'Shahrisabz sh.', direktor: 'Ergasheva M.', bolalar: 32, faol: false },
-  { id: 4, nomi: '5-sonli "Gulbahor" MTT', turi: 'Davlat', tuman: 'Qarshi t.', direktor: 'Nazarov A.', bolalar: 190, faol: true },
-];
+interface BogchaListProps {
+  onAdd: () => void;
+  bogchalar: Bogcha[];
+}
 
-const BogchaList: React.FC<BogchaListProps> = ({ onAdd }) => {
+const BogchaList: React.FC<BogchaListProps> = ({ onAdd, bogchalar }) => {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -33,10 +37,10 @@ const BogchaList: React.FC<BogchaListProps> = ({ onAdd }) => {
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Jami bogchalar', value: mockBogchalar.length, color: 'text-[#003580]', bg: 'bg-blue-50' },
-          { label: 'Faol bogchalar', value: mockBogchalar.filter(b => b.faol).length, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Jami bolalar', value: mockBogchalar.reduce((s, b) => s + b.bolalar, 0), color: 'text-indigo-600', bg: 'bg-indigo-50' },
-          { label: 'Nofarol', value: mockBogchalar.filter(b => !b.faol).length, color: 'text-rose-600', bg: 'bg-rose-50' },
+          { label: 'Jami bogchalar', value: bogchalar.length, color: 'text-[#003580]', bg: 'bg-blue-50' },
+          { label: 'Faol bogchalar', value: bogchalar.filter(b => b.faol).length, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'Jami bolalar', value: bogchalar.reduce((s, b) => s + b.bolalar, 0), color: 'text-indigo-600', bg: 'bg-indigo-50' },
+          { label: 'Nofarol', value: bogchalar.filter(b => !b.faol).length, color: 'text-rose-600', bg: 'bg-rose-50' },
         ].map((s, i) => (
           <div key={i} className={`${s.bg} rounded-2xl p-4 border border-white`}>
             <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
@@ -65,9 +69,9 @@ const BogchaList: React.FC<BogchaListProps> = ({ onAdd }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {mockBogchalar.map((b) => (
+              {bogchalar.map((b, index) => (
                 <tr key={b.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-slate-400 font-bold">{b.id}</td>
+                  <td className="px-6 py-4 text-slate-400 font-bold">{index + 1}</td>
                   <td className="px-6 py-4 font-bold text-[#003580]">{b.nomi}</td>
                   <td className="px-6 py-4">
                     <span className="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 text-[11px] font-bold">{b.turi}</span>

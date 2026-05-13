@@ -121,7 +121,7 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-0 divide-y xl:divide-y-0 xl:divide-x divide-slate-100">
           {/* Bar chart */}
           <div className="p-6" style={{ height: 480 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={ranked} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 6" horizontal={false} stroke="#f1f5f9" />
                 <XAxis type="number" axisLine={false} tickLine={false}
