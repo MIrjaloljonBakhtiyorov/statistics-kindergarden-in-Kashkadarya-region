@@ -5,11 +5,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
-import { BarChart3, Map, Menu, TrendingDown, TrendingUp, ShoppingCart, ChefHat } from 'lucide-react';
+import { BarChart3, Map, Menu, TrendingDown, TrendingUp, ShoppingCart, ChefHat, Trophy } from 'lucide-react';
 import TaomnomaNazorati from './components/TaomnomaNazorati';
 import WelcomeScreen from './components/WelcomeScreen';
 import RetseptlarKitobi from './components/RetseptlarKitobi';
 import MahsulotSarfi from './components/MahsulotSarfi';
+import MTTReyting from './components/MTTReyting';
 import AdminLogin from './components/AdminLogin';
 
 // New Components
@@ -93,6 +94,7 @@ export default function App() {
     { name: 'Viloyat statistikasi', icon: BarChart3, path: '/viloyat-statistikasi' },
     { name: 'Tumanlar statistikasi', icon: Map, path: '/tumanlar-statistikasi' },
     { name: 'Mahsulot sarfi', icon: ShoppingCart, path: '/mahsulot-sarfi' },
+    { name: 'MTT Reyting', icon: Trophy, path: '/mtt-reyting' },
     { name: 'Taomnoma nazorati', icon: Menu, path: '/taomnoma-nazorati' },
     { name: 'Retseptlar kitobi', icon: ChefHat, path: '/retseptlar-kitobi' },
   ];
@@ -151,6 +153,7 @@ export default function App() {
               />
             } />
             <Route path="/mahsulot-sarfi" element={<MahsulotSarfi />} />
+            <Route path="/mtt-reyting" element={<MTTReyting />} />
             <Route path="/taomnoma-nazorati" element={<TaomnomaNazorati />} />
             <Route path="/retseptlar-kitobi" element={<RetseptlarKitobi />} />
             <Route path="/login" element={<AdminLogin onClose={() => navigate('/viloyat-statistikasi')} />} />

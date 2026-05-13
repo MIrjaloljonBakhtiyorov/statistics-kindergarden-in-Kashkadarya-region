@@ -53,29 +53,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <aside className={clsx(
-      "w-64 sm:w-72 lg:w-64 h-screen bg-[#0f172a] text-slate-400 flex flex-col fixed left-0 top-0 border-r border-[#1e293b] z-[100] transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-2xl shadow-black/50",
+      "w-64 sm:w-72 lg:w-72 h-screen bg-[#020617] text-slate-400 flex flex-col fixed left-0 top-0 border-r border-white/5 z-[100] transition-transform duration-300 ease-in-out lg:translate-x-0",
       isOpen ? "translate-x-0" : "-translate-x-full"
     )}>
-      <div className="p-4 sm:p-6 flex items-center justify-between border-b border-[#1e293b]">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/20 ring-1 ring-white/10">
-            <ShieldCheck size={18} className="sm:w-5 sm:h-5" />
+      {/* Premium Glow Effect */}
+      <div className="absolute top-0 left-0 w-full h-64 bg-indigo-600/5 blur-[100px] pointer-events-none" />
+      
+      <div className="p-6 sm:p-8 flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-500/20 ring-1 ring-white/20">
+            <ShieldCheck size={22} />
           </div>
           <div>
-            <h1 className="font-black text-white text-[11px] sm:text-sm leading-tight tracking-[0.02em] uppercase">Kashkadarya</h1>
-            <p className="text-[8px] sm:text-[10px] text-indigo-400/60 font-bold uppercase tracking-widest mt-0.5">MTT Management</p>
+            <h1 className="font-black text-white text-base leading-tight tracking-tight uppercase">Kashkadarya</h1>
+            <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-[0.2em] mt-0.5">Premium ERP</p>
           </div>
         </div>
         <button 
           onClick={onClose}
-          className="lg:hidden p-2 text-slate-400 hover:text-white transition-colors"
+          className="lg:hidden p-2 text-slate-400 hover:text-white transition-colors bg-white/5 rounded-lg"
         >
           <X size={20} />
         </button>
       </div>
 
-      <nav className="flex-1 py-6 sm:py-8 px-3 sm:px-4 space-y-1 sm:space-y-1.5 overflow-y-auto custom-scrollbar">
-        <p className="px-4 text-[8px] sm:text-[9px] font-black text-slate-600 tracking-[0.2em] uppercase mb-4">Main Monitor</p>
+      <nav className="flex-1 py-4 px-4 space-y-1.5 overflow-y-auto custom-scrollbar relative z-10">
+        <div className="px-4 py-2">
+          <p className="text-[10px] font-black text-slate-500 tracking-[0.3em] uppercase mb-4 opacity-50">Analytics & Control</p>
+        </div>
+        
         {menuItems.map((item) => (
           <NavLink
             key={item.path}
@@ -85,38 +91,49 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             }}
             className={({ isActive }) =>
               clsx(
-                "group flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl transition-all duration-200 border border-transparent",
+                "group flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-300 border",
                 isActive 
-                  ? "bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-600/10 border-white/5 scale-[1.02]" 
-                  : "hover:bg-slate-800/50 hover:text-slate-200"
+                  ? "bg-white/5 border-white/10 text-white shadow-2xl shadow-indigo-500/5" 
+                  : "border-transparent hover:bg-white/[0.03] hover:text-slate-200"
               )
             }
           >
-            <item.icon size={16} className={clsx("sm:w-[18px] sm:h-[18px] transition-transform group-hover:scale-110")} />
-            <span className="text-[11px] sm:text-xs">{item.label}</span>
+            <div className={clsx(
+              "w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300",
+              "group-hover:bg-indigo-500/10 group-hover:text-indigo-400"
+            )}>
+              <item.icon size={18} className="transition-transform group-hover:scale-110" />
+            </div>
+            <span className="text-[13px] font-bold tracking-tight">{item.label}</span>
             {item.label === 'Alertlar' && (
-              <span className="ml-auto bg-rose-500 text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-lg shadow-rose-500/20">12</span>
+              <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white shadow-lg shadow-rose-500/20">12</span>
             )}
+            
+            {/* Active Indicator Pin */}
+            <div className={clsx(
+              "absolute left-0 w-1 h-6 bg-indigo-500 rounded-r-full transition-all duration-300 opacity-0",
+              "group-[.active]:opacity-100"
+            )} />
           </NavLink>
         ))}
       </nav>
 
-      <div className="p-4 sm:p-6 border-t border-[#1e293b] bg-[#020617]/50 space-y-2">
-        <div className="flex items-center gap-3 px-4 py-2 sm:py-2.5 bg-slate-800/40 border border-white/5 rounded-xl group cursor-pointer transition-all hover:bg-slate-800">
-           <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-700/50 flex items-center justify-center text-slate-300">
-              <Settings size={14} className="sm:w-4 sm:h-4" />
+      <div className="p-6 border-t border-white/5 bg-black/20 space-y-3 relative z-10">
+        <div className="flex items-center gap-3.5 px-4 py-3 bg-white/[0.03] border border-white/5 rounded-2xl group cursor-pointer transition-all hover:bg-white/[0.06]">
+           <div className="w-8 h-8 rounded-xl bg-slate-800/50 flex items-center justify-center text-slate-400 group-hover:text-white transition-colors">
+              <Settings size={16} />
            </div>
-           <span className="text-[11px] sm:text-xs font-bold text-slate-300">Sozlamalar</span>
+           <span className="text-[13px] font-bold text-slate-400 group-hover:text-white transition-colors">Sozlamalar</span>
         </div>
 
         <button 
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2 sm:py-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl group cursor-pointer transition-all hover:bg-rose-500 hover:text-white"
+          className="w-full flex items-center gap-3.5 px-4 py-3 bg-rose-500/5 border border-rose-500/10 rounded-2xl group cursor-pointer transition-all hover:bg-rose-500 hover:text-white shadow-lg hover:shadow-rose-500/20"
         >
-           <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-500 group-hover:bg-white/20 group-hover:text-white">
-              <LogOut size={14} className="sm:w-4 sm:h-4" />
+           <div className="w-8 h-8 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500 group-hover:bg-white/20 group-hover:text-white transition-all">
+              <LogOut size={16} />
            </div>
-           <span className="text-[11px] sm:text-xs font-bold text-rose-500 group-hover:text-white">Chiqish</span>
+           <span className="text-[13px] font-bold text-rose-500 group-hover:text-white">Chiqish</span>
         </button>
       </div>
     </aside>

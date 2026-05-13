@@ -10,7 +10,7 @@ const recipes = [
     servings: "10 kishi",
     calories: "180 kcal",
     ingredients: ["Oliy navli suli yormasi", "Tabiiy sigir suti", "Toza sariyog'", "Yangi rezavorlar", "Tabiiy asal"],
-    image: "https://media.istockphoto.com/id/1434918490/photo/cute-little-girl-eats-fruit-salad.jpg?s=612x612&w=0&k=20&c=8zi80wlKZADN_koDY7EXg-kAzeyhiPlYdtJvM4BfLDQ=",
+    image: "https://images.unsplash.com/photo-1495214783159-3503fd1b572d?auto=format&fit=crop&w=800&q=80",
     chefNote: "Bolalar uchun kunning mukammal boshlanishi. Suli yormasi oshqozon uchun yengil va energiya bilan ta'minlaydi."
   },
   {
@@ -32,7 +32,7 @@ const recipes = [
     servings: "10 kishi",
     calories: "410 kcal",
     ingredients: ["Alanga guruchi", "Yosh buzoq go'shti", "Sariq sabzi", "Bedana tuxumi", "Zig'ir yog'i"],
-    image: "https://images.unsplash.com/photo-1512058560366-cd242d4532be?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=800&q=80",
     chefNote: "An'anaviy taomimizning bolalar uchun maxsus yog'sizlantirilgan va vitaminlarga boyitilgan varianti."
   },
   {
@@ -43,7 +43,7 @@ const recipes = [
     servings: "5 kishi",
     calories: "120 kcal",
     ingredients: ["Brokkoli", "Shirin kartoshka", "Yangi qaymoq", "Muskat yong'og'i"],
-    image: "https://images.unsplash.com/photo-1620011928097-6a1bdc90858e?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80",
     chefNote: "Oshqozon-ichak tizimi nozik bolalar uchun maxsus parhezli, vitaminlarga o'ta boy sabzavotli aralashma."
   },
   {
@@ -54,7 +54,7 @@ const recipes = [
     servings: "10 kishi",
     calories: "90 kcal",
     ingredients: ["Yangi uzilgan apelsin", "Shirin olma", "Yalpiz yaprog'i"],
-    image: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1622597467836-f3e7e4d5b995?auto=format&fit=crop&w=800&q=80",
     chefNote: "Immun tizimini ko'taruvchi, C vitaminiga boy, shakarsiz tabiiy meva sharbati."
   },
   {
@@ -65,7 +65,7 @@ const recipes = [
     servings: "8 kishi",
     calories: "210 kcal",
     ingredients: ["Yumshoq tovuq filesi", "Yangi ismaloq", "Limon sharbati", "Zaytun yog'i"],
-    image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=800&q=80",
     chefNote: "Oqsil va temir moddasining ajoyib manbai. Yengil hazm bo'ladi va mushaklar o'sishiga yordam beradi."
   },
   {
@@ -76,7 +76,7 @@ const recipes = [
     servings: "10 kishi",
     calories: "200 kcal",
     ingredients: ["Oliy nav manna krupasi", "Toza sut", "Yangi qulupnay", "Tabiiy vanil"],
-    image: "https://images.unsplash.com/photo-1621267860478-75fb07871b60?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1517093157656-b9eccef91cb1?auto=format&fit=crop&w=800&q=80",
     chefNote: "Kichkintoylar sevib iste'mol qiluvchi, shirin va mayin teksturali klassik nonushta."
   },
   {
@@ -87,7 +87,7 @@ const recipes = [
     servings: "20 kishi",
     calories: "85 kcal",
     ingredients: ["Qorag'at", "Malina", "Olma", "Asal", "Darchin"],
-    image: "https://images.unsplash.com/photo-1497534446932-c946e7358af8?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?auto=format&fit=crop&w=800&q=80",
     chefNote: "Qish kunlarida bolalarni sovuqdan asrovchi, vitaminlarga to'la shifobaxsh qaynatma."
   },
   {
@@ -98,7 +98,7 @@ const recipes = [
     servings: "6 kishi",
     calories: "230 kcal",
     ingredients: ["Yumshoq tvorog", "Pishgan banan", "Tuxum", "Un", "Ozroq shakar"],
-    image: "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=800&q=80",
     chefNote: "Kalsiyga boy va juda mazali. Nonushta uchun ajoyib tanlov."
   },
   {
@@ -111,7 +111,117 @@ const recipes = [
     ingredients: ["Mol go'shti", "Qovoq", "Piyoz", "Un", "Sariyog'"],
     image: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80",
     chefNote: "Bug'da pishirilgani sababli barcha vitaminlar saqlanib qoladi. Bolalar uchun juda foydali."
-  }
+  },
+  {
+    id: 11,
+    title: "Tovuq sho'rva",
+    category: "3-7",
+    time: "40 min",
+    servings: "10 kishi",
+    calories: "150 kcal",
+    ingredients: ["Tovuq", "Sabzi", "Kartoshka", "Piyoz", "Ko'k"],
+    image: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80",
+    chefNote: "Yumshoq va shifobaxsh. Bolalar uchun kundalik sho'rva."
+  },
+  {
+    id: 12,
+    title: "Qovoqli shirko'cha",
+    category: "1-3",
+    time: "30 min",
+    servings: "8 kishi",
+    calories: "170 kcal",
+    ingredients: ["Qovoq", "Sut", "Un", "Sariyog'", "Tuz"],
+    image: "https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?auto=format&fit=crop&w=800&q=80",
+    chefNote: "Beta-karotinga boy, mayda bolalar uchun eng foydali taomlardan biri."
+  },
+  {
+    id: 13,
+    title: "Yashil no'xatli guruch",
+    category: "parhez",
+    time: "35 min",
+    servings: "10 kishi",
+    calories: "240 kcal",
+    ingredients: ["Guruch", "Yashil no'xat", "Zaytun yog'i", "Ko'k piyoz"],
+    image: "https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?auto=format&fit=crop&w=800&q=80",
+    chefNote: "Yengil va foydali. Oqsil va uglevod muvozanati mukammal."
+  },
+  {
+    id: 14,
+    title: "Olcha va o'rik kompoti",
+    category: "ichimlik",
+    time: "15 min",
+    servings: "15 kishi",
+    calories: "110 kcal",
+    ingredients: ["Olcha", "O'rik", "Shakar", "Suv", "Limon"],
+    image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=800&q=80",
+    chefNote: "Tabiiy mevalar asosida tayyorlangan mazali va vitaminga boy ichimlik."
+  },
+  {
+    id: 15,
+    title: "Sabzavotli omlet",
+    category: "1-3",
+    time: "15 min",
+    servings: "5 kishi",
+    calories: "190 kcal",
+    ingredients: ["Tuxum", "Pomidor", "Qalampir", "Piyoz", "Yog'"],
+    image: "https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=800&q=80",
+    chefNote: "Protein va vitaminlarga boy tez tayyorlanadigan nonushta."
+  },
+  {
+    id: 16,
+    title: "Bug'da pishirilgan baliq",
+    category: "parhez",
+    time: "40 min",
+    servings: "8 kishi",
+    calories: "220 kcal",
+    ingredients: ["Oq baliq", "Kartoshka", "Limon", "Ko'k", "Zaytun yog'i"],
+    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80",
+    chefNote: "Omega-3 yog'lariga boy. Miya rivojlanishi uchun juda foydali."
+  },
+  {
+    id: 17,
+    title: "Lavlagi salatasi",
+    category: "parhez",
+    time: "20 min",
+    servings: "8 kishi",
+    calories: "95 kcal",
+    ingredients: ["Lavlagi", "Smetana", "Chesnok", "Ko'k"],
+    image: "https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?auto=format&fit=crop&w=800&q=80",
+    chefNote: "Qon yaratishga yordam beruvchi temir moddasiga boy taom."
+  },
+  {
+    id: 18,
+    title: "Mastava",
+    category: "3-7",
+    time: "55 min",
+    servings: "12 kishi",
+    calories: "290 kcal",
+    ingredients: ["Mol go'sht", "Guruch", "Pomidor", "Sabzi", "Kartoshka"],
+    image: "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?auto=format&fit=crop&w=800&q=80",
+    chefNote: "O'zbekona an'anaviy taom. To'yimli va vitaminlarga boy."
+  },
+  {
+    id: 19,
+    title: "Qatiq va meva",
+    category: "1-3",
+    time: "5 min",
+    servings: "6 kishi",
+    calories: "140 kcal",
+    ingredients: ["Tabiiy qatiq", "Banan", "Qulupnay", "Asal"],
+    image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80",
+    chefNote: "Probiotiklarga boy. Ichak florasi uchun juda foydali."
+  },
+  {
+    id: 20,
+    title: "Bug'doy uni non",
+    category: "3-7",
+    time: "60 min",
+    servings: "20 kishi",
+    calories: "160 kcal",
+    ingredients: ["Bug'doy uni", "Xamirturush", "Suv", "Tuz", "Yog'"],
+    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80",
+    chefNote: "Toza bug'doy unidan tayyorlangan, tolaga boy va to'yimli kundalik non."
+  },
 ];
 
 export default function RetseptlarKitobi() {
@@ -123,94 +233,91 @@ export default function RetseptlarKitobi() {
 
   return (
     <div className="space-y-6 md:space-y-12">
-      {/* Top Banner with Mascot */}
-      <div className="w-full overflow-hidden rounded-[1.5rem] md:rounded-[4rem] shadow-2xl relative bg-white border border-slate-100">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-50/50 -skew-x-12 translate-x-10 md:translate-x-20"></div>
-        <div className="relative flex flex-col md:flex-row items-center gap-6 md:gap-8 p-6 md:p-16">
-          <div className="flex-1 text-center md:text-left space-y-3 md:space-y-6">
-            <h1 className="text-3xl md:text-8xl font-black leading-[0.9] tracking-tighter">
-              <span className="block text-slate-900 drop-shadow-sm">AQLVOY</span>
-              <span className="block text-indigo-600 drop-shadow-md">OSHPAZ</span>
+      {/* Top Banner */}
+      <div className="w-full overflow-hidden rounded-3xl relative bg-white border border-slate-100 shadow-xl">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-50/60 -skew-x-12 translate-x-16" />
+        <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 opacity-60" />
+
+        <div className="relative flex flex-col md:flex-row items-center gap-6 px-8 py-10 md:px-16 md:py-14">
+          <div className="flex-1 space-y-5">
+            <h1 className="text-5xl md:text-8xl font-black leading-none tracking-tighter">
+              <span className="block text-slate-900">AQLVOY</span>
+              <span className="block text-indigo-600">OSHPAZ</span>
             </h1>
-            <h2 className="text-sm md:text-3xl font-bold text-slate-700 leading-tight">
-              Ushbu loyiha <span className="text-indigo-600 italic underline decoration-indigo-200 decoration-4 underline-offset-4">Sh. Sh. Mirziyoyeva</span> tashabbusi va g‘oyasi asosida ishlab chiqildi
-            </h2>
-            <p className="text-[10px] md:text-lg text-slate-500 font-medium max-w-2xl leading-relaxed italic">
-              Maktabgacha ta’lim tashkilotlari tarbiyalanuvchilari uchun mo‘ljallangan maxsus „Retseptlar kitobi“ loyihasining muallifi va rahbari.
+            <p className="text-base md:text-xl font-bold text-slate-800 leading-snug max-w-lg">
+              Ushbu loyiha <span className="text-indigo-600 underline underline-offset-2">Sh. Sh. Mirziyoyeva</span> tashabbusi va g&apos;oyasi asosida ishlab chiqildi
+            </p>
+            <p className="text-xs md:text-sm text-slate-500 italic leading-relaxed max-w-md">
+              Maktabgacha ta&apos;lim tashkilotlari tarbiyalanuvchilari uchun mo&apos;ljallangan maxsus &ldquo;Retseptlar kitobi&rdquo; loyihasining muallifi va rahbari.
             </p>
           </div>
-          <div className="w-2/3 md:w-1/3 shrink-0 relative">
-            <div className="absolute inset-0 bg-indigo-200 rounded-full blur-3xl opacity-30 animate-pulse"></div>
-            <img 
-              src="/welcome_image.png" 
-              alt="Aqlvoy Oshpaz Mascot" 
-              className="relative w-full h-auto drop-shadow-[0_10px_30px_rgba(79,70,229,0.2)] md:drop-shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:rotate-2 transition-transform duration-500"
+          <div className="w-64 md:w-96 shrink-0 relative">
+            <div className="absolute inset-0 bg-indigo-200 rounded-full blur-3xl opacity-20 animate-pulse" />
+            <img
+              src="/welcome_image.png"
+              alt="Aqlvoy Oshpaz"
+              className="relative w-full h-auto drop-shadow-2xl hover:scale-105 transition-transform duration-500 rotate-3"
             />
           </div>
         </div>
       </div>
 
-      {/* Authors and Reviewers Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-10">
-        <div className="xl:col-span-2 space-y-6 md:space-y-10">
-          <div className="bg-white p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-xl border border-slate-100 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -mr-16 -mt-16 opacity-50"></div>
-            <h3 className="text-xl md:text-3xl font-black text-slate-900 mb-6 md:mb-10 flex items-center gap-3 md:gap-4 uppercase tracking-tight">
-              <div className="w-1.5 h-6 md:h-10 bg-indigo-600 rounded-full"></div>
-              Mualliflar
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 md:gap-y-8">
-              {[
-                { name: "Sh. Sh. Mirziyoyeva", role: "Maktabgacha ta’lim tashkilotlari uchun retseptlar kitobini ishlab chiqish g‘oyasi muallifi va loyiha rahbari" },
-                { name: "B. Chustiy", role: "“Chustiy Group” tarmog‘ining rahbari" },
-                { name: "U. T. Muxiddinov", role: "t.f.n., Maktabgacha ta’lim vazirligi boshqarma boshlig‘i" },
-                { name: "G. U. Nasurova", role: "t.f.n., Maktabgacha ta’lim vazirligi bosh mutaxassisi" },
-                { name: "A. M. Mirzaxamedov", role: "Bolalar ovqatlantirish bo‘yicha texnolog" },
-                { name: "Y. G. Tem", role: "Maktabgacha ta’lim vazirligi Bosh boshqarma boshlig‘ining o‘rinbosari" },
-                { name: "A. R. Sodiqov", role: "Bolalar ovqatlantirish bo‘yicha texnolog" },
-                { name: "B. Babaxanov", role: "“Chustiy Group” texnologi, bosh-oshpazi" },
-                { name: "T. Xalilov", role: "“Chustiy Group” bosh oshpazi" },
-                { name: "Ya. Alimov", role: "Bosh-konditer, “Chustiy Group” tarmog‘ining novvoyi" },
-                { name: "G. I. Shapxova", role: "t.f.d., professor, Toshkent tibbiyot akademiyasi" },
-                { name: "R. A. Qosimov", role: "t.f.n., Sanitariya-epidemiologiya xizmati bosh mutaxassisi" },
-                { name: "E. S. Tsoy", role: "JSSTning O‘zbekistondagi vakolatxonasi milliy mutaxassisi" }
-              ].map((author, index) => (
-                <div key={index} className="group border-b border-slate-50 pb-4 md:pb-6 last:border-0">
-                  <h4 className="font-black text-slate-900 text-sm md:text-lg mb-1 group-hover:text-indigo-600 transition-colors">{author.name}</h4>
-                  <p className="text-[10px] md:text-xs text-slate-500 font-bold leading-relaxed uppercase tracking-wider">{author.role}</p>
-                </div>
-              ))}
-            </div>
+      {/* Authors - always visible, compact */}
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm px-6 py-5 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1.5 h-4 bg-indigo-600 rounded-full" />
+            <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Mualliflar</p>
           </div>
-        </div>
-
-        <div className="xl:col-span-1">
-          <div className="bg-slate-900 p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] shadow-2xl sticky top-6">
-            <h3 className="text-xl md:text-2xl font-black text-white mb-6 md:mb-8 flex items-center gap-3 md:gap-4 uppercase tracking-tight">
-              <div className="w-1.5 h-6 md:h-8 bg-indigo-500 rounded-full"></div>
-              Retsenzentlar
-            </h3>
-            <div className="space-y-6 md:space-y-8">
-              {[
-                { name: "I. E. Borodina", role: "JSSTning Yevropa mintaqaviy byurosining xalqaro maslahatchisi" },
-                { name: "D. A. Zaredinov", role: "t.f.d., professor, “Gigiena” kafedrasi mudiri" },
-                { name: "N. J. Ermatov", role: "t.f.d., professor, “Gigiena va ovqatlanish” kafedrasi mudiri" }
-              ].map((reviewer, index) => (
-                <div key={index} className="border-l-2 border-indigo-500/30 pl-4 md:pl-6">
-                  <h4 className="font-black text-white text-sm md:text-lg mb-1">{reviewer.name}</h4>
-                  <p className="text-[9px] md:text-[10px] text-indigo-300 font-bold leading-relaxed uppercase tracking-widest">{reviewer.role}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-8 md:mt-12 pt-8 md:pt-12 border-t border-white/10">
-              <div className="flex items-center gap-4">
-                <ChefHat className="h-8 w-8 text-indigo-500" />
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2.5">
+            {[
+              { name: "Sh. Sh. Mirziyoyeva", role: "Loyiha muallifi va rahbari" },
+              { name: "B. Chustiy", role: "\"Chustiy Group\" rahbari" },
+              { name: "U. T. Muxiddinov", role: "t.f.n., MTV boshqarma boshlig'i" },
+              { name: "G. U. Nasurova", role: "t.f.n., MTV bosh mutaxassisi" },
+              { name: "A. M. Mirzaxamedov", role: "Ovqatlantirish texnologi" },
+              { name: "Y. G. Tem", role: "MTV o'rinbosari" },
+              { name: "A. R. Sodiqov", role: "Ovqatlantirish texnologi" },
+              { name: "B. Babaxanov", role: "\"Chustiy Group\" bosh oshpaz" },
+              { name: "T. Xalilov", role: "\"Chustiy Group\" oshpazi" },
+              { name: "Ya. Alimov", role: "Bosh konditer, novvoy" },
+              { name: "G. I. Shapxova", role: "t.f.d., professor, TTA" },
+              { name: "R. A. Qosimov", role: "t.f.n., SES mutaxassisi" },
+              { name: "E. S. Tsoy", role: "JSST milliy mutaxassisi" },
+            ].map((a, i) => (
+              <div key={i} className="flex items-start gap-1.5">
+                <div className="w-1 h-1 rounded-full bg-indigo-300 mt-1.5 shrink-0" />
                 <div>
-                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">Kitob holati</p>
-                  <p className="text-white font-black">TASDIQLANGAN</p>
+                  <p className="text-[11px] font-black text-slate-800 leading-tight">{a.name}</p>
+                  <p className="text-[9px] font-bold text-slate-400 leading-tight">{a.role}</p>
                 </div>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1.5 h-4 bg-slate-300 rounded-full" />
+            <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Retsenzentlar</p>
+          </div>
+          <div className="space-y-2.5">
+            {[
+              { name: "I. E. Borodina", role: "JSST xalqaro maslahatchisi" },
+              { name: "D. A. Zaredinov", role: "t.f.d., Gigiena kafedrasi mudiri" },
+              { name: "N. J. Ermatov", role: "t.f.d., Ovqatlanish kafedrasi mudiri" },
+            ].map((r, i) => (
+              <div key={i} className="flex items-start gap-1.5">
+                <div className="w-1 h-1 rounded-full bg-slate-300 mt-1.5 shrink-0" />
+                <div>
+                  <p className="text-[11px] font-black text-slate-800 leading-tight">{r.name}</p>
+                  <p className="text-[9px] font-bold text-slate-400 leading-tight">{r.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2">
+            <ChefHat className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <p className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">Kitob tasdiqlangan</p>
           </div>
         </div>
       </div>
@@ -293,7 +400,7 @@ export default function RetseptlarKitobi() {
                 <div className="bg-amber-50/50 p-2.5 md:p-4 rounded-xl md:rounded-2xl border border-amber-100/50 mb-4 md:mb-6">
                   <p className="text-[10px] md:text-xs text-amber-800 font-medium italic leading-relaxed">
                     <span className="font-black not-italic text-amber-600 mr-1.5 md:mr-2 uppercase text-[8px] md:text-[10px]">Maslahat:</span>
-                    "{recipe.chefNote}"
+                    &ldquo;{recipe.chefNote}&rdquo;
                   </p>
                 </div>
 

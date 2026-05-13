@@ -372,11 +372,11 @@ export const productData = [
 import { Milk, Beef, Wheat, Carrot, Pizza } from 'lucide-react';
 
 export const products = [
-  { id: 'Sut', label: 'SUT', icon: Milk, color: '#f0f0f1', grad: 'from-blue-500 to-blue-600', unit: 'litr' },
-  { id: 'Go_sht', label: 'GO\'SHT', icon: Beef, color: '#ef4444', grad: 'from-red-500 to-red-600', unit: 'kg' },
-  { id: 'Guruch', label: 'GURUCH', icon: Wheat, color: '#10b981', grad: 'from-emerald-500 to-emerald-600', unit: 'kg' },
-  { id: 'Sabzavot', label: 'SABZAVOT', icon: Carrot, color: '#f59e0b', grad: 'from-amber-500 to-amber-600', unit: 'kg' },
-  { id: 'Non', label: 'NON', icon: Pizza, color: '#a855f7', grad: 'from-purple-500 to-purple-600', unit: 'dona' },
+  { id: 'Sut', label: 'SUT', icon: Milk, color: '#2563eb', grad: 'from-blue-600 to-blue-700', unit: 'litr' },
+  { id: 'Go_sht', label: 'GO\'SHT', icon: Beef, color: '#dc2626', grad: 'from-red-600 to-red-700', unit: 'kg' },
+  { id: 'Guruch', label: 'GURUCH', icon: Wheat, color: '#059669', grad: 'from-emerald-600 to-emerald-700', unit: 'kg' },
+  { id: 'Sabzavot', label: 'SABZAVOT', icon: Carrot, color: '#d97706', grad: 'from-amber-600 to-amber-700', unit: 'kg' },
+  { id: 'Non', label: 'NON', icon: Pizza, color: '#7c3aed', grad: 'from-violet-600 to-violet-700', unit: 'dona' },
 ];
 
 export const languages = [

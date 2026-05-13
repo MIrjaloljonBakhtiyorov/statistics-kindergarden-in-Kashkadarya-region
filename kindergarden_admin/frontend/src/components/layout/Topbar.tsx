@@ -11,6 +11,12 @@ interface TopbarProps {
 
 export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
   const navigate = useNavigate();
+  const [time, setTime] = React.useState(new Date());
+
+  React.useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -22,71 +28,67 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
     }
   };
 
+  const formattedTime = time.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const formattedDate = time.toLocaleDateString('uz-UZ', { day: '2-digit', month: 'short', year: 'numeric' });
+
   return (
-    <header className="h-16 lg:h-20 bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-[80] flex items-center justify-between px-3 sm:px-6 lg:px-8 w-full gap-2">
-      <div className="flex items-center gap-1.5 sm:gap-4 overflow-hidden">
+    <header className="h-20 lg:h-24 bg-white/60 backdrop-blur-2xl border-b border-slate-200/40 sticky top-0 z-[80] flex items-center justify-between px-6 sm:px-10 w-full gap-4 transition-all">
+      <div className="flex items-center gap-6 overflow-hidden">
         <button 
           onClick={onMenuClick}
-          className="lg:hidden p-1.5 sm:p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-all shrink-0"
+          className="lg:hidden p-3 text-slate-600 hover:bg-slate-100 rounded-2xl transition-all shrink-0"
         >
-          <Menu size={20} />
+          <Menu size={24} />
         </button>
 
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <div className="w-8 h-8 lg:w-10 lg:h-10 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-600/20 shrink-0">
-            <LayoutGrid size={18} className="text-white" />
-          </div>
-          <div className="hidden xs:block">
-            <h1 className="text-[10px] sm:text-xs lg:text-sm font-black text-slate-900 tracking-tight leading-tight">Kashkadarya MTT</h1>
-            <p className="text-[8px] sm:text-[9px] lg:text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Boshqaruv</p>
-          </div>
-        </div>
-        
-        <div className="hidden lg:block h-8 w-[1px] bg-slate-200 mx-2"></div>
-
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full border border-emerald-100 shrink-0">
+        <div className="hidden sm:flex items-center gap-3 px-5 py-2.5 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 shrink-0 group transition-all hover:bg-indigo-50 hover:shadow-lg hover:shadow-indigo-500/5">
           <motion.div 
             animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"
+            transition={{ duration: 3, repeat: Infinity }}
+            className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.6)]"
           />
-          <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest flex items-center gap-1">
-            Live <span className="hidden md:inline-block">Monitor</span>
+          <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] flex items-center gap-2">
+            System <span className="hidden md:inline-block">Status: Online</span>
           </span>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 shrink-0">
-        <div className="hidden xl:flex items-center gap-2 text-slate-400 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200/60">
-          <Clock size={14} className="text-indigo-500" />
-          <span className="text-[11px] font-mono font-black text-slate-600 uppercase tracking-tight">24-MAY, 2024 · 09:42</span>
+      <div className="flex items-center gap-4 sm:gap-8 shrink-0">
+        <div className="hidden xl:flex flex-col items-end gap-0.5">
+          <div className="flex items-center gap-2 text-slate-900">
+            <Clock size={14} className="text-indigo-500" />
+            <span className="text-xs font-black tracking-tighter">{formattedTime}</span>
+          </div>
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{formattedDate}</span>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-3">
-          <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all relative group">
-            <Bell size={20} />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
+        <div className="h-10 w-[1px] bg-slate-200/60 hidden sm:block"></div>
+
+        <div className="flex items-center gap-4 sm:gap-6">
+          <button className="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all relative group shadow-sm hover:shadow-indigo-500/10 active:scale-95">
+            <Bell size={22} />
+            <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 rounded-full ring-4 ring-white shadow-lg"></span>
           </button>
           
-          <div className="h-6 w-[1px] bg-slate-200 hidden xs:block mx-1"></div>
-          
-          <div className="flex items-center gap-1.5 sm:gap-3 pl-1 group">
-            <div className="text-right hidden md:block">
-              <span className="block text-xs font-black text-slate-900 leading-none">Mirjalol S.</span>
-              <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Admin</span>
+          <div className="flex items-center gap-4 pl-2 group">
+            <div className="text-right hidden md:block select-none">
+              <span className="block text-sm font-black text-slate-900 leading-none group-hover:text-indigo-600 transition-colors">Mirjalol S.</span>
+              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Super Admin</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 transition-all hover:scale-105 hover:border-indigo-200 hover:bg-indigo-50 shadow-sm">
-                <span className="text-[10px] sm:text-xs font-black font-mono">MS</span>
+            
+            <div className="relative">
+              <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-white flex items-center justify-center text-slate-700 transition-all group-hover:scale-110 group-hover:rotate-3 shadow-xl shadow-slate-200/50 group-hover:shadow-indigo-500/10 cursor-pointer overflow-hidden ring-1 ring-slate-200/60">
+                <span className="text-xs font-black font-mono">MS</span>
               </div>
-              <button 
-                onClick={handleLogout}
-                className="p-1.5 sm:p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
-                title="Chiqish"
-              >
-                <LogOut size={18} />
-              </button>
             </div>
+
+            <button 
+              onClick={handleLogout}
+              className="p-3 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-2xl transition-all shadow-sm hover:shadow-rose-500/10 active:scale-95"
+              title="Chiqish"
+            >
+              <LogOut size={20} />
+            </button>
           </div>
         </div>
       </div>

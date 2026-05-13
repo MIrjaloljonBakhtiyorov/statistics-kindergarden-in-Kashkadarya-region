@@ -14,7 +14,7 @@ import { FinancialAnalytics } from './pages/dashboard/FinancialAnalytics';
 import { MenuStatistics } from './pages/dashboard/MenuStatistics';
 import { Alerts } from './pages/dashboard/Alerts';
 import { Login } from './pages/Login';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Settings, ShieldCheck } from 'lucide-react';
 import { Toaster } from 'sonner';
 
 export default function App() {
@@ -71,7 +71,24 @@ export default function App() {
           <Route path="/financial-stats" element={<FinancialAnalytics />} />
           <Route path="/menu-stats" element={<MenuStatistics />} />
           <Route path="/alerts" element={<Alerts />} />
-          <Route path="/settings" element={<div className="p-8"><h2 className="text-2xl font-bold">Tizim sozlamalari</h2><p className="text-slate-500 mt-2">Bu bo'lim ish jarayonida...</p></div>} />
+          <Route path="/settings" element={
+            <div className="p-8 max-w-4xl mx-auto">
+              <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Tizim sozlamalari</h2>
+                <p className="text-slate-500 mt-3 font-medium text-lg leading-relaxed">
+                  Ushbu bo'lim hozirda ishlab chiqilmoqda. Tez orada bu yerda tizim parametrlarini boshqarish imkoniyati paydo bo'ladi.
+                </p>
+                <div className="mt-8 flex gap-4">
+                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                    <Settings className="animate-spin-slow" />
+                  </div>
+                  <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                    <ShieldCheck />
+                  </div>
+                </div>
+              </div>
+            </div>
+          } />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </DashboardLayout>
