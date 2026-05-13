@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_KINDERGARTEN_API_URL || '/kindergarten-api';
+
 const apiClient = axios.create({
-  baseURL: '/kindergarten-api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

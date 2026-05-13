@@ -55,14 +55,15 @@ const App: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const [currentRole, setCurrentRole] = useState<UserRole>(() => {
     // URL dan rolni aniqlash
-    const path = window.location.pathname;
+    const path = window.location.pathname.replace('/kindergarten', '');
     return pathRoleMap[path] || 'DIRECTOR';
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { groups } = useGroups();
 
   useEffect(() => {
-    if (user && window.location.pathname === '/') {
+    const basePath = window.location.pathname.replace('/kindergarten', '');
+    if (user && (basePath === '/' || basePath === '')) {
       // Login qilganda va path bo'sh bo'lsa, foydalanuvchi roliga o'tamiz
       if (user.role === 'ADMIN') {
         setCurrentRole('OPERATOR');
@@ -75,7 +76,7 @@ const App: React.FC = () => {
   // URL o'zgarganda rolni yangilash
   useEffect(() => {
     const handleLocationChange = () => {
-      const path = window.location.pathname;
+      const path = window.location.pathname.replace('/kindergarten', '');
       if (pathRoleMap[path]) {
         setCurrentRole(pathRoleMap[path]);
       }
@@ -89,10 +90,11 @@ const App: React.FC = () => {
   const handleRoleChange = (role: UserRole) => {
     setCurrentRole(role);
     const path = Object.keys(pathRoleMap).find(key => pathRoleMap[key] === role);
+    const prefix = window.location.pathname.startsWith('/kindergarten') ? '/kindergarten' : '';
     if (path) {
-      window.history.pushState(null, '', path);
+      window.history.pushState(null, '', prefix + path);
     } else {
-      window.history.pushState(null, '', '/');
+      window.history.pushState(null, '', prefix + '/');
     }
   };
 
