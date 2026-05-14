@@ -269,6 +269,86 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
           </div>
         </div>
 
+        {/* ── PREMIUM PHOTO BANNER ── */}
+        <div className="mb-8">
+          {/* Sarlavha */}
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+            <span className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-400">Prezident tashrifi</span>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+          </div>
+
+          {/* 2 ta katta banner — bir qatorda */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Maqsad banner */}
+            <div className="relative rounded-[2rem] overflow-hidden shadow-2xl">
+              <img
+                src="https://www.uzreport.news/fotobank/image/cf2cfb0173dfb779fbec4bc5bcb76e48.jpeg"
+                alt="Maktabgacha ta'lim"
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0a2010]/75 via-[#0a2010]/20 to-transparent" />
+              <div className="absolute inset-0 flex items-center px-8">
+                <div>
+                  <p className="text-[11px] font-bold text-green-300 uppercase tracking-widest mb-2">Maqsad</p>
+                  <h3 className="text-[24px] font-black text-white leading-tight max-w-xs">
+                    2030 yilga kelib qamrov <span className="text-green-300">90%</span>ga yetkazish
+                  </h3>
+                </div>
+              </div>
+            </div>
+
+            {/* Hero banner */}
+            <div className="relative rounded-[2rem] overflow-hidden shadow-2xl">
+              <img
+                src="https://static.xabar.uz/crop/3/7/960__80_377301991.jpg"
+                alt="Prezident MTTda"
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0a2010]/80 via-[#0a2010]/30 to-transparent" />
+              <div className="absolute inset-0 flex items-center px-8">
+                <div className="max-w-xs">
+                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold text-white uppercase tracking-widest bg-white/15 border border-white/25 mb-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                    Maktabgacha ta'lim tizimi
+                  </span>
+                  <h2 className="text-[22px] font-black text-white leading-tight mb-2">
+                    Har bir bola — <span className="text-green-300">davlatning g'amxo'rligi</span> ostida
+                  </h2>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 4 ta kichik rasm */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            {[
+              { src: "https://data.daryo.uz/media/2019/06/cb53393f-5e8f-1bca-ec10-3f63a339d103.jpg", label: "Bolalar bilan suhbat" },
+              { src: "https://xabar.uz/static/crop/4/8/920__95_482040167.jpg", label: "MTT ochilish marosimi" },
+              { src: "https://xabar.uz/static/crop/3/5/920__95_3585833392.jpg", label: "Zamonaviy ta'lim muhiti" },
+              { src: "https://xabar.uz/static/crop/3/3/920__95_330319174.jpg", label: "Tarbiyachilar bilan" },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08, duration: 0.5 }}
+                viewport={{ once: true }}
+                className="relative rounded-2xl overflow-hidden group shadow-md"
+              >
+                <img
+                  src={item.src}
+                  alt={item.label}
+                  style={{ width: '100%', height: 'auto', display: 'block' }}
+                  className="group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <p className="absolute bottom-3 left-3 right-3 text-[11px] font-bold text-white leading-tight">{item.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
         {/* Tizimli Nazorat va Xarajatlar - Compressed */}
         <div className="bg-white p-6 md:p-10 rounded-[2.5rem] border border-slate-200 relative overflow-hidden shadow-sm">
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-slate-100 rounded-full -mr-32 -mt-32 opacity-50 border border-slate-200"></div>
@@ -423,21 +503,21 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
 
                {/* Right — Premium Card */}
                <div className="flex flex-col min-h-[680px]">
-                  {/* Hero — Islom Karimov rasmi */}
+                  {/* Hero — Shavkat Mirziyoyev rasmi */}
                   <div className="relative h-80 shrink-0">
                     <img
-                      src="https://www.gazeta.uz/media/img/2017/01/vXKIp814857723652592_b.jpg"
-                      alt="Islom Karimov"
+                      src="https://static.xabar.uz/crop/2/4/736_736_95_2491735778.jpg"
+                      alt="Shavkat Mirziyoyev"
                       className="w-full h-full object-cover object-top"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-b from-[#003580]/20 via-[#003580]/50 to-[#003580]/95" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#1a5c2a]/20 to-[#1a5c2a]/75" />
                     <div className="absolute inset-0 p-6 flex flex-col justify-end gap-2">
                       <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full w-fit text-[10px] font-semibold text-white uppercase tracking-widest bg-white/15 border border-white/25">
-                        <TrendingUp className="w-3 h-3 text-amber-300" />
-                        Birinchi Prezident iqtiboslari
+                        <TrendingUp className="w-3 h-3 text-green-300" />
+                        Prezident iqtiboslari
                       </span>
                       <h4 className="text-[22px] font-bold text-white leading-tight">
-                        Islom Karimov — <span className="text-amber-300">Farzandlar haqida</span>
+                        Shavkat Mirziyoyev — <span className="text-green-300">Maktabgacha ta'lim haqida</span>
                       </h4>
                     </div>
                   </div>
@@ -447,31 +527,31 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
 
                     {/* Muallif + 2-rasm */}
                     <div className="flex items-start gap-4 pb-3 border-b border-slate-100">
-                      <div className="w-24 h-28 rounded-xl overflow-hidden shrink-0 ring-2 ring-blue-200 shadow-md">
+                      <div className="w-24 h-28 rounded-xl overflow-hidden shrink-0 ring-2 ring-green-200 shadow-md">
                         <img
-                          src="https://islomkarimov.uz/source/Mustaqillik/0V2A3235.JPG"
-                          alt="Islom Karimov"
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRucZHGEZvR9oLQ7fZdH7sqc0IJm5rMi7LUUg&s"
+                          alt="Shavkat Mirziyoyev"
                           className="w-full h-full object-cover object-top"
                         />
                       </div>
                       <div className="flex flex-col justify-center gap-1">
-                        <p className="text-[15px] font-bold text-[#003580] leading-tight">Islom Karimov</p>
-                        <p className="text-[11px] font-medium text-slate-500 leading-snug">O'zbekiston Respublikasining Birinchi Prezidenti</p>
-                        <p className="text-[11px] font-medium text-slate-400">1938 — 2016</p>
+                        <p className="text-[15px] font-bold text-[#1a5c2a] leading-tight">Shavkat Mirziyoyev</p>
+                        <p className="text-[11px] font-medium text-slate-500 leading-snug">O'zbekiston Respublikasi Prezidenti</p>
+                        <p className="text-[11px] font-medium text-slate-400">2016 — hozirgi kungacha</p>
                       </div>
                     </div>
 
                     {/* 1-iqtibos */}
-                    <blockquote className="bg-blue-50 border-l-4 border-[#003580] rounded-r-xl pl-4 pr-4 py-3">
+                    <blockquote className="bg-green-50 border-l-4 border-[#1a5c2a] rounded-r-xl pl-4 pr-4 py-3">
                       <p className="text-[12px] text-slate-700 font-medium leading-relaxed italic">
-                        "Hali suyagi qotmagan farzandlarimizni o'z holiga tashlab qo'ysak, tarbiyasi, ilmi va ma'naviyati bilan shug'ullanmasak, kelajakda ularning komil insonlar bo'lib yetishmog'iga kim kafolat bera oladi?"
+                        "Biz yurtimizda Uchinchi Renessansni barpo etish masalasini strategik vazifa sifatida oldimizga qo'yib, uni milliy g'oya darajasiga ko'tarmoqdamiz. Biz maktabgacha ta'lim va maktab ta'limi, oliy ta'lim tizimi hamda ilmiy-madaniy muassasalarni bo'lg'usi Renessansning to'rt uzviy halqasi, deb bilamiz."
                       </p>
                     </blockquote>
 
                     {/* 2-iqtibos */}
                     <blockquote className="bg-slate-50 border-l-4 border-amber-400 rounded-r-xl pl-4 pr-4 py-3">
                       <p className="text-[12px] text-slate-700 font-medium leading-relaxed italic">
-                        "Bizning farzandlarimiz bizdan ko'ra kuchli, bilimli, dono va albatta baxtli bo'lishlari shart."
+                        "Bog'cha tarbiyachisi, maktab muallimi, professor-o'qituvchilar va ilmiy-ijodiy ziyolilarimizni esa yangi Uyg'onish davrining to'rt tayanch ustuni, deb hisoblaymiz."
                       </p>
                     </blockquote>
 
@@ -906,6 +986,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
