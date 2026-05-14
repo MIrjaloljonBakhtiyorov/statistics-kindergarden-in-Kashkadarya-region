@@ -97,8 +97,6 @@ export default function App() {
     { name: 'MTT Reyting', icon: Trophy, path: '/mtt-reyting' },
     { name: 'Taomnoma nazorati', icon: Menu, path: '/taomnoma-nazorati' },
     { name: 'Retseptlar kitobi', icon: ChefHat, path: '/retseptlar-kitobi' },
-    { name: 'Admin paneli', icon: Shield, path: '/admin/' },
-    { name: 'Bog\'chalar tizimi', icon: School, path: '/kindergarten/' },
   ];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
