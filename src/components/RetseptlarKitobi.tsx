@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, ChefHat, Clock, Users, Flame, Heart } from 'lucide-react';
+import { motion } from 'motion/react';
 
 const recipes = [
   {
@@ -239,16 +240,16 @@ export default function RetseptlarKitobi() {
         <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 opacity-60" />
 
         <div className="relative flex flex-col md:flex-row items-center gap-6 px-8 py-10 md:px-16 md:py-14">
-          <div className="flex-1 space-y-5">
+          <div className="flex-1 space-y-6">
             <h1 className="text-5xl md:text-8xl font-black leading-none tracking-tighter">
               <span className="block text-slate-900">AQLVOY</span>
               <span className="block text-indigo-600">OSHPAZ</span>
             </h1>
-            <p className="text-base md:text-xl font-bold text-slate-800 leading-snug max-w-lg">
-              Ushbu loyiha <span className="text-indigo-600 underline underline-offset-2">Sh. Sh. Mirziyoyeva</span> tashabbusi va g&apos;oyasi asosida ishlab chiqildi
+            <p className="text-lg md:text-2xl font-bold text-slate-800 leading-snug max-w-lg">
+              Ushbu loyiha <span className="text-indigo-600 underline underline-offset-4">Sh. Sh. Mirziyoyeva</span> tashabbusi va g&apos;oyasi asosida ishlab chiqildi
             </p>
-            <p className="text-xs md:text-sm text-slate-500 italic leading-relaxed max-w-md">
-              Maktabgacha ta&apos;lim tashkilotlari tarbiyalanuvchilari uchun mo&apos;ljallangan maxsus &ldquo;Retseptlar kitobi&rdquo; loyihasining muallifi va rahbari.
+            <p className="text-sm md:text-base text-slate-500 italic leading-relaxed max-w-md">
+              Maktabgacha ta&apos;lim tashkilotlari tarbiyalanuvchilari uchun mo&apos;ljallangan maxsus &ldquo;Retseptlar kitobi&rdquo; loyihasining muallifi va rahbari. Kitob bolalarning to&apos;g&apos;ri ovqatlanishi va sog&apos;lom rivojlanishini ta&apos;minlash maqsadida yaratilgan.
             </p>
           </div>
           <div className="w-64 md:w-96 shrink-0 relative">
@@ -265,11 +266,11 @@ export default function RetseptlarKitobi() {
       {/* Authors - always visible, compact */}
       <div className="bg-white border border-slate-100 rounded-2xl shadow-sm px-6 py-5 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1.5 h-4 bg-indigo-600 rounded-full" />
-            <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Mualliflar</p>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="w-1.5 h-5 bg-indigo-600 rounded-full" />
+            <p className="text-[13px] font-black text-slate-900 uppercase tracking-widest">Mualliflar</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2.5">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
             {[
               { name: "Sh. Sh. Mirziyoyeva", role: "Loyiha muallifi va rahbari" },
               { name: "B. Chustiy", role: "\"Chustiy Group\" rahbari" },
@@ -285,40 +286,121 @@ export default function RetseptlarKitobi() {
               { name: "R. A. Qosimov", role: "t.f.n., SES mutaxassisi" },
               { name: "E. S. Tsoy", role: "JSST milliy mutaxassisi" },
             ].map((a, i) => (
-              <div key={i} className="flex items-start gap-1.5">
-                <div className="w-1 h-1 rounded-full bg-indigo-300 mt-1.5 shrink-0" />
+              <div key={i} className="flex items-start gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-2 shrink-0" />
                 <div>
-                  <p className="text-[11px] font-black text-slate-800 leading-tight">{a.name}</p>
-                  <p className="text-[9px] font-bold text-slate-400 leading-tight">{a.role}</p>
+                  <p className="text-[13px] font-black text-slate-800 leading-tight">{a.name}</p>
+                  <p className="text-[11px] font-semibold text-slate-400 leading-tight mt-0.5">{a.role}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1.5 h-4 bg-slate-300 rounded-full" />
-            <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Retsenzentlar</p>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="w-1.5 h-5 bg-slate-300 rounded-full" />
+            <p className="text-[13px] font-black text-slate-900 uppercase tracking-widest">Retsenzentlar</p>
           </div>
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {[
               { name: "I. E. Borodina", role: "JSST xalqaro maslahatchisi" },
               { name: "D. A. Zaredinov", role: "t.f.d., Gigiena kafedrasi mudiri" },
               { name: "N. J. Ermatov", role: "t.f.d., Ovqatlanish kafedrasi mudiri" },
             ].map((r, i) => (
-              <div key={i} className="flex items-start gap-1.5">
-                <div className="w-1 h-1 rounded-full bg-slate-300 mt-1.5 shrink-0" />
+              <div key={i} className="flex items-start gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-2 shrink-0" />
                 <div>
-                  <p className="text-[11px] font-black text-slate-800 leading-tight">{r.name}</p>
-                  <p className="text-[9px] font-bold text-slate-400 leading-tight">{r.role}</p>
+                  <p className="text-[13px] font-black text-slate-800 leading-tight">{r.name}</p>
+                  <p className="text-[11px] font-semibold text-slate-400 leading-tight mt-0.5">{r.role}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="mt-4 flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2">
-            <ChefHat className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <p className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">Kitob tasdiqlangan</p>
+          <div className="mt-5 flex items-center gap-2.5 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+            <ChefHat className="w-4 h-4 text-emerald-600 shrink-0" />
+            <p className="text-[12px] font-black text-emerald-700 uppercase tracking-wider">Kitob rasmiy tasdiqlangan</p>
           </div>
+        </div>
+      </div>
+
+      {/* ── SHAHNOZA MIRZIYOYEVA TASHABBUSI ── */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-4">
+          <div className="h-px w-8 bg-rose-300" />
+          <span className="text-[11px] font-black uppercase tracking-[0.25em] text-rose-400">Ijtimoiy tashabbus</span>
+          <div className="h-px flex-1 bg-gradient-to-r from-rose-100 to-transparent" />
+        </div>
+
+        {/* Asosiy karta */}
+        <div className="rounded-[2rem] overflow-hidden shadow-2xl" style={{ background: 'linear-gradient(135deg, #1a0a1e 0%, #2d1b3d 50%, #1a0a1e 100%)' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2">
+            <div className="relative min-h-[340px]">
+              <img
+                src="https://data.daryo.uz/media/cache/2019/04/photo_2019-04-04_17-05-07-680x453.jpg"
+                alt="Shahnoza Mirziyoyeva"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', minHeight: 340 }}
+              />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, transparent 60%, #1a0a1e)' }} />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #1a0a1e 0%, transparent 50%)' }} />
+              <div className="absolute bottom-5 left-5">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black text-rose-300 uppercase tracking-widest border" style={{ background: 'rgba(244,63,94,0.12)', borderColor: 'rgba(244,63,94,0.3)' }}>
+                  <Heart className="w-3 h-3 fill-rose-400 text-rose-400" />
+                  Ijtimoiy tashabbus
+                </span>
+              </div>
+            </div>
+            <div className="p-8 flex flex-col justify-center gap-5">
+              <h4 className="text-[26px] font-black text-white leading-tight">
+                Nogironligi bo'lgan bolalarga <span className="text-rose-300">birgalikda qanot bag'ishlaylik!</span>
+              </h4>
+              <p className="text-[14px] leading-relaxed font-medium" style={{ color: 'rgba(203,213,225,0.85)' }}>
+                O'zbekiston Respublikasi Prezidentining katta qizi Shahnoza Mirziyoyeva nogironligi bo'lgan bolalarga yordam ko'rsatish, ularni jamiyatga to'liq qo'shish va teng imkoniyatlar yaratish bo'yicha faol ijtimoiy tashabbus bilan chiqmoqda.
+              </p>
+              <blockquote className="border-l-4 border-rose-400 pl-4">
+                <p className="text-[13px] italic font-medium text-rose-200 leading-relaxed">
+                  "Har bir bola — alohida dunyo. Ularning qalbidagi nur bizning kelajagimizdir. Biror bolaning ko'zlarida umid ko'rsak, uni so'ndirmasligimiz kerak."
+                </p>
+                <p className="text-[11px] font-black text-rose-400 uppercase tracking-wider mt-2">— Shahnoza Mirziyoyeva</p>
+              </blockquote>
+              <div className="flex flex-wrap gap-2 pt-2">
+                {["Maxsus ehtiyojli bolalar", "Inklyuziv ta'lim", "Ijtimoiy qo'llab-quvvatlash", "Teng imkoniyatlar"].map((tag, i) => (
+                  <span key={i} className="text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full" style={{ background: 'rgba(244,63,94,0.15)', color: '#fda4af', border: '1px solid rgba(244,63,94,0.2)' }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 3 ta kichik rasm */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { src: "https://data.daryo.uz/media/cache/2019/04/photo_2019-04-04_17-05-07-680x453.jpg", label: "Bolalar bilan uchrashuv", desc: "Maxsus ehtiyojli bolalarga sovg'alar topshirildi" },
+            { src: "https://data.daryo.uz/media/cache/2019/04/photo_2019-04-04_17-05-34-680x453.jpg", label: "G'amxo'rlik lahzasi", desc: "Har bir bolaga alohida e'tibor va mehribonlik" },
+            { src: "https://data.daryo.uz/media/cache/2019/04/photo_2019-04-04_17-05-25-680x453.jpg", label: "Birga kuchli", desc: "Jamiyat va davlat birgalikda ishlaydi" },
+          ].map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              viewport={{ once: true }}
+              className="group rounded-2xl overflow-hidden shadow-md relative"
+            >
+              <img
+                src={item.src}
+                alt={item.label}
+                style={{ width: '100%', height: 220, objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                className="group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(26,10,30,0.85) 0%, transparent 55%)' }} />
+              <div className="absolute bottom-4 left-4 right-4">
+                <p className="text-[13px] font-black text-white mb-1">{item.label}</p>
+                <p className="text-[11px] text-rose-200 font-medium">{item.desc}</p>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
 
