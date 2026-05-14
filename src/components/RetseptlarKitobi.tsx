@@ -55,7 +55,7 @@ const recipes = [
     servings: "10 kishi",
     calories: "90 kcal",
     ingredients: ["Yangi uzilgan apelsin", "Shirin olma", "Yalpiz yaprog'i"],
-    image: "https://images.unsplash.com/photo-1622597467836-f3e7e4d5b995?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=800&q=80",
     chefNote: "Immun tizimini ko'taruvchi, C vitaminiga boy, shakarsiz tabiiy meva sharbati."
   },
   {
@@ -187,7 +187,7 @@ const recipes = [
     servings: "8 kishi",
     calories: "95 kcal",
     ingredients: ["Lavlagi", "Smetana", "Chesnok", "Ko'k"],
-    image: "https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
     chefNote: "Qon yaratishga yordam beruvchi temir moddasiga boy taom."
   },
   {
@@ -249,7 +249,7 @@ export default function RetseptlarKitobi() {
               Ushbu loyiha <span className="text-indigo-600 underline underline-offset-4">Sh. Sh. Mirziyoyeva</span> tashabbusi va g&apos;oyasi asosida ishlab chiqildi
             </p>
             <p className="text-sm md:text-base text-slate-500 italic leading-relaxed max-w-md">
-              Maktabgacha ta&apos;lim tashkilotlari tarbiyalanuvchilari uchun mo&apos;ljallangan maxsus &ldquo;Retseptlar kitobi&rdquo; loyihasining muallifi va rahbari. Kitob bolalarning to&apos;g&apos;ri ovqatlanishi va sog&apos;lom rivojlanishini ta&apos;minlash maqsadida yaratilgan.
+              Maktabgacha ta&apos;lim tashkilotlari tarbiyalanuvchilari uchun mo&apos;ljallangan maxsus &ldquo;AQLVOY OSHPAZ&rdquo; loyihasining muallifi va rahbari. Kitob bolalarning to&apos;g&apos;ri ovqatlanishi va sog&apos;lom rivojlanishini ta&apos;minlash maqsadida yaratilgan.
             </p>
           </div>
           <div className="w-64 md:w-96 shrink-0 relative">
@@ -268,7 +268,7 @@ export default function RetseptlarKitobi() {
         <div className="md:col-span-2">
           <div className="flex items-center gap-2 mb-5">
             <div className="w-1.5 h-5 bg-indigo-600 rounded-full" />
-            <p className="text-[13px] font-black text-slate-900 uppercase tracking-widest">Mualliflar</p>
+            <p className="text-[16px] font-black text-slate-900 uppercase tracking-widest">Mualliflar</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
             {[
@@ -289,8 +289,8 @@ export default function RetseptlarKitobi() {
               <div key={i} className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-2 shrink-0" />
                 <div>
-                  <p className="text-[13px] font-black text-slate-800 leading-tight">{a.name}</p>
-                  <p className="text-[11px] font-semibold text-slate-400 leading-tight mt-0.5">{a.role}</p>
+                  <p className="text-[15px] font-black text-slate-800 leading-tight">{a.name}</p>
+                  <p className="text-[13px] font-semibold text-slate-400 leading-tight mt-0.5">{a.role}</p>
                 </div>
               </div>
             ))}
@@ -299,7 +299,7 @@ export default function RetseptlarKitobi() {
         <div>
           <div className="flex items-center gap-2 mb-5">
             <div className="w-1.5 h-5 bg-slate-300 rounded-full" />
-            <p className="text-[13px] font-black text-slate-900 uppercase tracking-widest">Retsenzentlar</p>
+            <p className="text-[16px] font-black text-slate-900 uppercase tracking-widest">Retsenzentlar</p>
           </div>
           <div className="space-y-3">
             {[
@@ -310,8 +310,8 @@ export default function RetseptlarKitobi() {
               <div key={i} className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-2 shrink-0" />
                 <div>
-                  <p className="text-[13px] font-black text-slate-800 leading-tight">{r.name}</p>
-                  <p className="text-[11px] font-semibold text-slate-400 leading-tight mt-0.5">{r.role}</p>
+                  <p className="text-[15px] font-black text-slate-800 leading-tight">{r.name}</p>
+                  <p className="text-[13px] font-semibold text-slate-400 leading-tight mt-0.5">{r.role}</p>
                 </div>
               </div>
             ))}
