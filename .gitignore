@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+*.err.log
+npm-debug.log*
+
+# Local databases and uploads
+*.sqlite
+*.sqlite3
+backend/uploads/
+
+# Tool/workspace metadata
+.sixth/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
