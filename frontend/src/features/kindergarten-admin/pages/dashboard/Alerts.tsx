@@ -186,8 +186,8 @@ export const Alerts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const loadAlerts = useCallback(async () => {
-    setLoading(true);
+  const loadAlerts = useCallback(async (showLoader = true) => {
+    if (showLoader) setLoading(true);
     setError('');
     try {
       const response = await apiClient.get('/kindergartens/alerts', {
@@ -198,27 +198,23 @@ export const Alerts = () => {
           search: appliedSearch || undefined,
         },
       });
-      
-      const alerts = Array.isArray(response.data?.alerts) ? response.data.alerts : [];
-      const summary = { ...emptySummary, ...(response.data?.summary || {}) };
-      const pagination = { ...emptyPagination, ...(response.data?.pagination || {}) };
-      
-      setAlerts(alerts);
-      setSummary(summary);
-      setPagination(pagination);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Alertlarni yuklab bo'lmadi";
-      setError(errorMessage);
+      setAlerts(Array.isArray(response.data?.alerts) ? response.data.alerts : []);
+      setSummary({ ...emptySummary, ...(response.data?.summary || {}) });
+      setPagination({ ...emptyPagination, ...(response.data?.pagination || {}) });
+    } catch {
+      setError("Alertlarni yuklab bo'lmadi");
       setAlerts([]);
       setSummary(emptySummary);
       setPagination(emptyPagination);
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   }, [appliedSearch, filter, page]);
 
   useEffect(() => {
     loadAlerts();
+    const timer = window.setInterval(() => loadAlerts(false), 30_000);
+    return () => window.clearInterval(timer);
   }, [loadAlerts]);
 
   const filterTabs = useMemo(() => [
@@ -344,7 +340,7 @@ export const Alerts = () => {
               </p>
               <button
                 type="button"
-                onClick={loadAlerts}
+                onClick={() => loadAlerts()}
                 className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-[12px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                 disabled={loading}
               >

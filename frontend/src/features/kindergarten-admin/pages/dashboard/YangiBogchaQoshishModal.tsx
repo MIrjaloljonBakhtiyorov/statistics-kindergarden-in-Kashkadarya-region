@@ -388,7 +388,6 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
       { weight: 2, done: hasSelected('type') },
       { weight: 3, done: hasNumber('workHours', true) },
       { weight: 3, done: hasSelected('district') },
-      { weight: 3, done: hasText('licenseFile') },
       { weight: 3, done: hasText('address') },
       { weight: 3, done: hasText('directorName') },
       { weight: 2, done: hasNumber('directorBirthYear', true) },
@@ -410,10 +409,6 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
       { weight: 2, done: !allValues?.hasWarehouse || hasText('warehouseManager') },
       { weight: 2, done: hasSelected('financeType') },
       { weight: 5, done: hasNumber('budget') },
-      { weight: 3, done: hasText('brokerageDocumentFile') },
-      { weight: 3, done: hasText('commissionOrder') },
-      { weight: 3, done: hasText('commissionApprovedDate') },
-      { weight: 3, done: hasText('commissionValidUntil') },
       { weight: 5, done: hasLocation },
       { weight: 1, done: hasSelected('status') },
       { weight: 1, done: hasNumber('threshold') },
@@ -423,12 +418,6 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
     const completedWeight = progressItems.reduce((sum, item) => sum + (item.done ? item.weight : 0), 0);
     return Math.min(100, Math.round((completedWeight / totalWeight) * 100));
   }, [allValues]);
-
-  const canSave = completionPercentage >= 100;
-
-  const handleIncompleteSave = () => {
-    toast.error(`Ma'lumotlarni to'liq kiriting. Hozir ${completionPercentage}% to'ldirilgan.`);
-  };
 
   const handleNext = async () => {
     const stepFields: any = {
@@ -445,10 +434,6 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
   };
 
   const onSubmit = async (data: any) => {
-    if (!canSave) {
-        handleIncompleteSave();
-        return;
-    }
     try {
         const nurseCount = Number(data.nurseCount || 0);
         const payload = {
@@ -774,13 +759,9 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                     <button onClick={handleNext} className="px-6 sm:px-12 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-900 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all flex items-center gap-2 sm:gap-3 shadow-xl whitespace-nowrap">Keyingisi <ChevronRight size={16} /></button>
                 ) : (
                     <button
-                      onClick={canSave ? handleSubmit(onSubmit, onInvalid) : handleIncompleteSave}
-                      aria-disabled={!canSave}
-                      className={clsx(
-                        "px-6 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl text-white font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all flex items-center gap-2 sm:gap-3 shadow-xl whitespace-nowrap",
-                        canSave ? "bg-emerald-600 hover:bg-emerald-700" : "bg-slate-300 cursor-not-allowed shadow-none"
-                      )}
-                      title={canSave ? "Saqlash" : "100% to'ldirilgandan keyin saqlanadi"}
+                      onClick={handleSubmit(onSubmit, onInvalid)}
+                      className="px-6 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-emerald-600 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all flex items-center gap-2 sm:gap-3 shadow-xl whitespace-nowrap hover:bg-emerald-700"
+                      title="Saqlash"
                     >
                       <Save size={16} /> Saqlash
                     </button>

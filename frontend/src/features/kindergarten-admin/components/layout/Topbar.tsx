@@ -53,8 +53,8 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
             transition={{ duration: 3, repeat: Infinity }}
             className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.6)]"
           />
-          <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] flex items-center gap-2">
-            Tizim <span className="hidden md:inline-block">holati: onlayn</span>
+          <span className="max-w-[210px] text-[10px] font-black leading-4 text-indigo-600 sm:max-w-[280px] lg:max-w-none">
+            Bu qism dasturchi tomonidan ishlab chiqilyapti
           </span>
         </div>
       </div>
