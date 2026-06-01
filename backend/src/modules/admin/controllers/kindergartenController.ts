@@ -46,29 +46,6 @@ const normalizeWorkHours = (value) => {
   return [4, 9, 9.5, 10.5, 12, 24].includes(numberValue) ? numberValue : 9.5;
 };
 
-/**
- * Validates filter parameter
- * @param {string} filter - Filter type
- * @returns {string} - Validated filter value
- */
-const validateAlertFilter = (filter) => {
-  const validFilters = ['all', 'kindergarten', 'medical', 'menu', 'important'];
-  const normalizedFilter = String(filter || 'all').toLowerCase();
-  return validFilters.includes(normalizedFilter) ? normalizedFilter : 'all';
-};
-
-/**
- * Validates and normalizes pagination parameters
- * @param {number} page - Current page number
- * @param {number} pageSize - Items per page
- * @returns {Object} - Validated {page, pageSize} object
- */
-const validatePaginationParams = (page, pageSize) => {
-  const validatedPageSize = Math.min(Math.max(Number(pageSize || 50), 1), 50);
-  const validatedPage = Math.max(Number(page || 1), 1);
-  return { page: validatedPage, pageSize: validatedPageSize };
-};
-
 const WORK_HOUR_GROUPS = {
   SHORT_4: { hours: [4], meals: ['BREAKFAST'] },
   DAY_9_105: { hours: [9, 9.5, 10.5], meals: ['BREAKFAST', 'LUNCH', 'TEA'] },
@@ -107,21 +84,6 @@ const ensureAdminAlertEventsTable = async () => {
   await run(`CREATE INDEX IF NOT EXISTS idx_admin_alert_events_entity ON admin_alert_events (entity_type, entity_id, event_type)`);
 };
 
-/**
- * Records an admin alert event to the database
- * @param {Object} params - Alert event parameters
- * @param {string} params.eventType - Type of event (e.g., 'KINDERGARTEN_CREATED')
- * @param {string} params.category - Category of alert
- * @param {string} params.status - Alert status (error, warning, success, update)
- * @param {string} params.title - Alert title
- * @param {string} params.context - Alert context/description
- * @param {string} params.actor - Who triggered the event (default: 'Admin')
- * @param {string} params.entityType - Type of entity affected
- * @param {number|string} params.entityId - ID of entity affected
- * @param {string} params.actionUrl - URL to navigate to when alert is clicked
- * @param {Array} params.details - Additional detail fields
- * @returns {Promise<string>} - UUID of created alert event
- */
 const recordAdminAlertEvent = async ({
   eventType,
   category,
@@ -165,6 +127,327 @@ const parseAlertDetails = (value) => {
   } catch {
     return [];
   }
+};
+
+const normalizeDistrictKey = (value) => String(value || "Noma'lum tuman")
+  .trim()
+  .toLowerCase()
+  .replace(/[\u2018\u2019\u02bb`]/g, "'")
+  .replace(/g'uzor/g, 'guzor');
+
+const percent = (part, total) => Number(total || 0) > 0 ? Math.round((Number(part || 0) * 100) / Number(total || 0)) : 0;
+
+const ensureAdminAIInsightsTable = async () => {
+  await run(`CREATE TABLE IF NOT EXISTS admin_ai_insight_cache (
+    cache_key TEXT PRIMARY KEY,
+    date TEXT NOT NULL,
+    provider TEXT NOT NULL,
+    model TEXT,
+    analysis_json TEXT NOT NULL,
+    snapshot_json TEXT NOT NULL,
+    generated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NOT NULL
+  )`);
+  await run(`CREATE INDEX IF NOT EXISTS idx_admin_ai_insight_cache_expires ON admin_ai_insight_cache (expires_at)`);
+};
+
+const buildAdminAIInsightSnapshot = async (date) => {
+  const [kindergartens, expenseRows] = await Promise.all([
+    all(`
+      SELECT
+        k.id,
+        k.name,
+        k.type,
+        k.district,
+        k.capacity,
+        k.currentChildren,
+        k.budget,
+        k.status,
+        COALESCE(child_counts.children_count, 0) as childrenCount,
+        COALESCE(attendance_counts.present_count, 0) as presentCount,
+        COALESCE(attendance_counts.absent_count, 0) as absent,
+        COALESCE(attendance_counts.attended_before_9, 0) as attendedBefore9,
+        COALESCE(attendance_counts.attended_after_9, 0) as attendedAfter9
+      FROM kindergartens k
+      LEFT JOIN (
+        SELECT kindergarten_id, COUNT(*) as children_count
+        FROM children
+        WHERE COALESCE(status, 'ACTIVE') != 'ARCHIVED'
+        GROUP BY kindergarten_id
+      ) child_counts ON CAST(child_counts.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+      LEFT JOIN (
+        SELECT
+          a.kindergarten_id,
+          SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY', 'LATE') THEN 1 ELSE 0 END) as present_count,
+          SUM(CASE WHEN UPPER(a.status) IN ('ABSENT', 'KELMADI') THEN 1 ELSE 0 END) as absent_count,
+          SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY') AND (a.arrival_time IS NULL OR a.arrival_time <= '09:00') THEN 1 ELSE 0 END) as attended_before_9,
+          SUM(CASE WHEN UPPER(a.status) = 'LATE' OR (a.arrival_time IS NOT NULL AND a.arrival_time > '09:00') THEN 1 ELSE 0 END) as attended_after_9
+        FROM attendance a
+        WHERE a.date = ?
+        GROUP BY a.kindergarten_id
+      ) attendance_counts ON CAST(attendance_counts.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+      ORDER BY k.district, k.name
+    `, [date]),
+    all(`
+      SELECT district, cost_per_child
+      FROM daily_district_expenses
+      WHERE date = ?
+    `, [date]),
+  ]);
+
+  const expenseByDistrict = new Map();
+  expenseRows.forEach((row) => {
+    expenseByDistrict.set(normalizeDistrictKey(row.district), Number(row.cost_per_child || row.costPerChild || 0));
+  });
+
+  const districtMap = new Map();
+  const kindergartenRows = kindergartens.map((kg) => {
+    const children = Number(kg.childrenCount || kg.currentChildren || 0);
+    const before9 = Number(kg.attendedBefore9 || 0);
+    const late = Number(kg.attendedAfter9 || 0);
+    const present = before9 + late;
+    const absent = Number(kg.absent || Math.max(children - present, 0));
+    const attendance = percent(present, children);
+    const row = {
+      id: kg.id,
+      name: kg.name || "Noma'lum MTT",
+      type: kg.type || "Noma'lum",
+      district: kg.district || "Noma'lum tuman",
+      children,
+      present,
+      before9,
+      late,
+      absent,
+      attendance,
+      capacity: Number(kg.capacity || 0),
+      budget: Number(kg.budget || 0),
+      status: kg.status || 'Active',
+    };
+
+    const key = normalizeDistrictKey(row.district);
+    const district = districtMap.get(key) || {
+      name: row.district,
+      kindergartens: 0,
+      children: 0,
+      present: 0,
+      before9: 0,
+      late: 0,
+      absent: 0,
+      costPerChild: expenseByDistrict.get(key) || 0,
+      savedAmount: 0,
+      attendance: 0,
+    };
+    district.kindergartens += 1;
+    district.children += row.children;
+    district.present += row.present;
+    district.before9 += row.before9;
+    district.late += row.late;
+    district.absent += row.absent;
+    districtMap.set(key, district);
+    return row;
+  });
+
+  const districts = Array.from(districtMap.values()).map((district) => ({
+    ...district,
+    attendance: percent(district.present, district.children),
+    savedAmount: district.absent * district.costPerChild,
+  }));
+
+  const withAttendance = districts.filter((district) => district.children > 0 && (district.present > 0 || district.absent > 0));
+  const lowDistricts = [...withAttendance].sort((a, b) => a.attendance - b.attendance).slice(0, 8);
+  const goodDistricts = [...withAttendance].sort((a, b) => b.attendance - a.attendance).slice(0, 8);
+  const kindergartenRisks = kindergartenRows
+    .filter((kg) => kg.children > 0 && (kg.present > 0 || kg.absent > 0))
+    .sort((a, b) => a.attendance - b.attendance)
+    .slice(0, 12);
+
+  const totals = {
+    kindergartens: kindergartenRows.length,
+    children: districts.reduce((sum, district) => sum + district.children, 0),
+    present: districts.reduce((sum, district) => sum + district.present, 0),
+    before9: districts.reduce((sum, district) => sum + district.before9, 0),
+    late: districts.reduce((sum, district) => sum + district.late, 0),
+    absent: districts.reduce((sum, district) => sum + district.absent, 0),
+    savedAmount: districts.reduce((sum, district) => sum + district.savedAmount, 0),
+    missingExpenseDistricts: districts.filter((district) => district.absent > 0 && district.costPerChild <= 0).length,
+  };
+  totals.attendance = percent(totals.present, totals.children);
+
+  return {
+    date,
+    generatedAt: new Date().toISOString(),
+    totals,
+    districts,
+    lowDistricts,
+    goodDistricts,
+    kindergartenRisks,
+    systemSignals: {
+      noAttendanceKindergartens: kindergartenRows.filter((kg) => kg.children > 0 && kg.present === 0 && kg.absent === 0).length,
+      lowAttendanceKindergartens: kindergartenRows.filter((kg) => kg.children > 0 && kg.attendance > 0 && kg.attendance < 75).length,
+      inactiveKindergartens: kindergartenRows.filter((kg) => String(kg.status || '').toLowerCase() !== 'active' && String(kg.status || '').toLowerCase() !== 'aktiv').length,
+    },
+  };
+};
+
+const createLocalAIAnalysis = (snapshot) => {
+  const risk = snapshot.lowDistricts?.[0];
+  const leader = snapshot.goodDistricts?.[0];
+  return {
+    executiveSummary: `Bugun ${snapshot.totals.present} bola kelgan, ${snapshot.totals.absent} bola kelmagan. Umumiy davomat ${snapshot.totals.attendance}%.`,
+    systemStatus: `Tizim ${snapshot.totals.kindergartens} ta MTT bo'yicha davomat, tuman va xarajat ma'lumotlarini tahlil qildi.`,
+    currentWeaknesses: [
+      risk ? `${risk.name} hududida davomat ${risk.attendance}% bo'lib, alohida monitoring talab qiladi.` : 'Davomat maʼlumotlari yetarli emas.',
+      snapshot.systemSignals.noAttendanceKindergartens > 0 ? `${snapshot.systemSignals.noAttendanceKindergartens} ta MTTda bugungi davomat hali kiritilmagan.` : 'Davomat kiritish holati yaxshi.',
+      snapshot.totals.missingExpenseDistricts > 0 ? `${snapshot.totals.missingExpenseDistricts} tumanda kunlik bola xarajati kiritilmagan.` : 'Kunlik xarajat maʼlumotlari mavjud.',
+    ],
+    lowAttendanceDistricts: (snapshot.lowDistricts || []).slice(0, 5).map((item) => ({
+      name: item.name,
+      attendance: item.attendance,
+      reason: 'Kelmagan va kechikkan bolalar ulushi yuqori.',
+      action: 'Ota-onalar bilan kunlik aloqa, sabablar tasnifi va ertalabki qabul monitoringini kuchaytirish.',
+    })),
+    goodAttendanceDistricts: (snapshot.goodDistricts || []).slice(0, 5).map((item) => ({
+      name: item.name,
+      attendance: item.attendance,
+      incentive: 'Faxriy yorliq, reyting ballari va yaxshi tajribani boshqa tumanlarga tarqatish.',
+    })),
+    kindergartenFocus: (snapshot.kindergartenRisks || []).slice(0, 6).map((item) => ({
+      name: item.name,
+      district: item.district,
+      attendance: item.attendance,
+      issue: 'Past davomat yoki maʼlumot toʼliq emas.',
+      action: 'Guruh kesimida kelmagan bolalar sababini aniqlash.',
+    })),
+    childEngagementPlan: [
+      'Kelmagan bolalar ota-onasiga shu kunning oʼzida sabab soʼrovi yuborish.',
+      'Transport, sogʼliq va oilaviy sabablarni alohida roʼyxatga olib, haftalik chora rejasini yuritish.',
+      'Davomadi yaxshi MTTlarning qabul tartibini past hududlarga metodik tavsiya sifatida berish.',
+    ],
+    savingsAnalysis: `Kelmagan bolalar hisobidan taxminiy tejalgan mablagʼ: ${Math.round(snapshot.totals.savedAmount).toLocaleString('uz-UZ')} soʼm.`,
+    next24HourActions: [
+      risk ? `${risk.name} boʼyicha rahbarlarga davomat sabablari roʼyxatini topshirish.` : 'Davomat kiritilmagan MTTlarni aniqlash.',
+      leader ? `${leader.name} tajribasini ragʼbatlantirish va metodik almashish.` : 'Yetakchi hududni davomat kiritilgandan keyin aniqlash.',
+      'Kunlik xarajat kiritilmagan tumanlarni moliya modulida toʼldirish.',
+    ],
+  };
+};
+
+const parseAIAnalysisText = (text) => {
+  const cleaned = String(text || '')
+    .trim()
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/```$/i, '')
+    .trim();
+  return JSON.parse(cleaned);
+};
+
+const buildAIInsightPrompt = (snapshot) => `
+Siz Qashqadaryo viloyati maktabgacha ta'lim monitoring tizimi uchun professional AI auditor bo'lib ishlaysiz.
+Quyidagi real JSON snapshotni tahlil qiling. Soxta raqam qo'shmang, faqat berilgan datadan xulosa chiqaring.
+
+Vazifalar:
+1. Tizim ayni vaqtda nima qilayotganini tushuntiring.
+2. Bog'chalar va tumanlar kesimida kamchiliklarni toping.
+3. Davomati past tumanlar uchun aniq chora yozing.
+4. Davomati yaxshi tumanlar uchun rag'batlantirish yo'lini yozing.
+5. Bugun qancha bola kelgani/kelmagani va bolalarni jalb qilish bo'yicha rejani yozing.
+6. Kelmagan bolalar hisobidan tejalgan mablag'ni izohlang.
+7. Keyingi 24 soat uchun qisqa amaliy reja tuzing.
+
+Javobni faqat JSON shaklida qaytaring:
+{
+  "executiveSummary": "string",
+  "systemStatus": "string",
+  "currentWeaknesses": ["string"],
+  "lowAttendanceDistricts": [{"name":"string","attendance":0,"reason":"string","action":"string"}],
+  "goodAttendanceDistricts": [{"name":"string","attendance":0,"incentive":"string"}],
+  "kindergartenFocus": [{"name":"string","district":"string","attendance":0,"issue":"string","action":"string"}],
+  "childEngagementPlan": ["string"],
+  "savingsAnalysis": "string",
+  "next24HourActions": ["string"]
+}
+
+SNAPSHOT:
+${JSON.stringify(snapshot)}
+`;
+
+const extractOpenAIText = (data) => {
+  if (data?.output_text) return data.output_text;
+  const textParts = [];
+  for (const item of data?.output || []) {
+    for (const content of item?.content || []) {
+      if (content?.text) textParts.push(content.text);
+    }
+  }
+  return textParts.join('\n');
+};
+
+const callOpenAIInsights = async (snapshot) => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error('OPENAI_API_KEY is not configured');
+  const model = process.env.OPENAI_MODEL || 'gpt-5.5';
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      input: buildAIInsightPrompt(snapshot),
+      max_output_tokens: 4000,
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.error?.message || 'OpenAI analysis failed');
+  return { model, analysis: parseAIAnalysisText(extractOpenAIText(data)) };
+};
+
+const callGeminiInsights = async (snapshot) => {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
+  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: buildAIInsightPrompt(snapshot) }],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.2,
+        responseMimeType: 'application/json',
+      },
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.error?.message || 'Gemini analysis failed');
+  const text = data?.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('\n') || '';
+  return { model, analysis: parseAIAnalysisText(text) };
+};
+
+const resolveAIProvider = (requestedProvider) => {
+  const requested = String(requestedProvider || process.env.AI_PROVIDER || 'auto').toLowerCase();
+  if (requested === 'openai' || requested === 'gemini') return requested;
+  if (process.env.OPENAI_API_KEY) return 'openai';
+  if (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) return 'gemini';
+  return 'local';
+};
+
+const generateAIInsightAnalysis = async (provider, snapshot) => {
+  if (provider === 'openai') {
+    const result = await callOpenAIInsights(snapshot);
+    return { source: 'openai', model: result.model, analysis: result.analysis };
+  }
+  if (provider === 'gemini') {
+    const result = await callGeminiInsights(snapshot);
+    return { source: 'gemini', model: result.model, analysis: result.analysis };
+  }
+  return { source: 'local', model: 'deterministic-local', analysis: createLocalAIAnalysis(snapshot) };
 };
 
 const buildMedicalStockReport = async () => {
@@ -526,38 +809,104 @@ const KindergartenController = {
     }
   },
 
+  getAIInsights: async (req, res) => {
+    const date = normalizeDate(req.query.date);
+    const refresh = ['1', 'true', 'yes'].includes(String(req.query.refresh || '').toLowerCase());
+    try {
+      await ensureAdminAIInsightsTable();
+      const provider = resolveAIProvider(req.query.provider);
+      const cacheKey = `${date}:${provider}`;
+
+      if (!refresh) {
+        const cached = await get(
+          `SELECT cache_key, date, provider, model, analysis_json, snapshot_json, generated_at, expires_at
+           FROM admin_ai_insight_cache
+           WHERE cache_key = ? AND expires_at > CURRENT_TIMESTAMP`,
+          [cacheKey]
+        );
+        if (cached) {
+          return res.json({
+            date: cached.date,
+            source: cached.provider,
+            model: cached.model,
+            cached: true,
+            generatedAt: cached.generated_at,
+            expiresAt: cached.expires_at,
+            analysis: JSON.parse(cached.analysis_json),
+            snapshot: JSON.parse(cached.snapshot_json),
+          });
+        }
+      }
+
+      const snapshot = await buildAdminAIInsightSnapshot(date);
+      let generated;
+      try {
+        generated = await generateAIInsightAnalysis(provider, snapshot);
+      } catch (aiError) {
+        generated = {
+          source: 'local',
+          model: 'deterministic-local',
+          error: aiError.message,
+          analysis: createLocalAIAnalysis(snapshot),
+        };
+      }
+
+      const generatedAt = new Date().toISOString();
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      await run(
+        `INSERT INTO admin_ai_insight_cache (
+          cache_key, date, provider, model, analysis_json, snapshot_json, generated_at, expires_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT (cache_key)
+        DO UPDATE SET
+          model = EXCLUDED.model,
+          analysis_json = EXCLUDED.analysis_json,
+          snapshot_json = EXCLUDED.snapshot_json,
+          generated_at = EXCLUDED.generated_at,
+          expires_at = EXCLUDED.expires_at`,
+        [
+          cacheKey,
+          date,
+          generated.source,
+          generated.model,
+          JSON.stringify(generated.analysis),
+          JSON.stringify(snapshot),
+          generatedAt,
+          expiresAt,
+        ]
+      );
+
+      res.json({
+        date,
+        source: generated.source,
+        model: generated.model,
+        cached: false,
+        generatedAt,
+        expiresAt,
+        error: generated.error,
+        analysis: generated.analysis,
+        snapshot,
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
   getAlerts: async (req, res) => {
     try {
       await ensureAdminAlertEventsTable();
       const generatedAt = new Date().toISOString();
-      const { page, pageSize } = validatePaginationParams(req.query.page, req.query.pageSize);
-      const filter = validateAlertFilter(req.query.filter);
+      const pageSize = Math.min(Math.max(Number(req.query.pageSize || 50), 1), 50);
+      const page = Math.max(Number(req.query.page || 1), 1);
+      const filter = String(req.query.filter || 'all').toLowerCase();
       const search = String(req.query.search || '').trim().toLowerCase();
 
-      const [eventRows, kindergartenRows, menuRows, medicalReport] = await Promise.all([
+      const [eventRows, menuRows, medicalReport] = await Promise.all([
         all(`
           SELECT *
           FROM admin_alert_events
           ORDER BY created_at DESC
           LIMIT 5000
-        `),
-        all(`
-          SELECT
-            id,
-            system_id,
-            name,
-            type,
-            workHours,
-            district,
-            phone,
-            directorName as director_name,
-            capacity,
-            currentChildren,
-            username,
-            created_at
-          FROM kindergartens
-          ORDER BY created_at DESC
-          LIMIT 500
         `),
         all(`
           SELECT
@@ -590,33 +939,6 @@ const KindergartenController = {
         entityType: row.entity_type,
         entityId: row.entity_id,
         details: parseAlertDetails(row.details_json),
-      }));
-
-      const existingKindergartenCreateIds = new Set(
-        eventRows
-          .filter((row) => row.event_type === 'KINDERGARTEN_CREATED' && row.entity_type === 'kindergarten')
-          .map((row) => String(row.entity_id))
-      );
-
-      const kindergartenAlerts = kindergartenRows
-        .filter((row) => !existingKindergartenCreateIds.has(String(row.id)))
-        .map((row) => ({
-        id: `kindergarten-created-${row.id}`,
-        status: 'success',
-        category: 'kindergarten',
-        iconKey: 'kindergarten',
-        title: `Yangi bog'cha qo'shildi: ${row.name}`,
-        context: `${row.district || 'Tuman kiritilmagan'} | ${row.system_id || 'ID yoq'} | ${normalizeWorkHours(row.workHours)} soatlik MTT`,
-        actor: 'Admin',
-        createdAt: toIsoTimestamp(row.created_at, generatedAt),
-        actionUrl: '/admin/kindergartens',
-        details: [
-          { label: 'MTT ID', value: row.system_id || 'Kiritilmagan' },
-          { label: 'Direktor', value: row.director_name || 'Kiritilmagan' },
-          { label: 'Telefon', value: row.phone || 'Kiritilmagan' },
-          { label: "Sig'im", value: `${Number(row.capacity || 0)} o'rin` },
-          { label: 'Login', value: row.username || 'Kiritilmagan' },
-        ],
       }));
 
       const medicalStatusLabels = {
@@ -655,8 +977,6 @@ const KindergartenController = {
         };
       });
 
-      // Menu alerts aggregated by date with enhanced metrics
-      // This provides daily summary of menu creation activities across all kindergartens
       const menuAlerts = menuRows.map((row) => ({
         id: `menu-created-${row.date}`,
         status: 'update',
@@ -676,7 +996,7 @@ const KindergartenController = {
         ],
       }));
 
-      const alerts = [...eventAlerts, ...medicalAlerts, ...kindergartenAlerts, ...menuAlerts].sort(
+      const alerts = [...eventAlerts, ...medicalAlerts, ...menuAlerts].sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
@@ -735,12 +1055,7 @@ const KindergartenController = {
         alerts: pagedAlerts,
       });
     } catch (err) {
-      console.error('[Admin] Alert retrieval error:', err.message);
-      res.status(500).json({ 
-        error: 'Alert retrieval failed', 
-        message: err.message,
-        timestamp: new Date().toISOString()
-      });
+      res.status(500).json({ error: err.message });
     }
   },
 
@@ -1236,9 +1551,31 @@ const KindergartenController = {
       data.hasWarehouse ? 1 : 0, data.warehouseManager, data.avgConsumption, data.financeType, data.budget || 0,
       data.lat, data.lng, data.username, data.password, data.status, data.rating || 100, data.aiMonitoring ? 1 : 0, data.threshold || 75,
       req.params.id
-    ], function(err) {
+    ], async function(err) {
       if (err) {
         return res.status(500).json({ error: err.message });
+      }
+      try {
+        await recordAdminAlertEvent({
+          eventType: 'KINDERGARTEN_UPDATED',
+          category: 'kindergarten',
+          status: 'update',
+          title: `Bog'cha ma'lumotlari yangilandi: ${data.name || `#${req.params.id}`}`,
+          context: `${data.district || 'Tuman kiritilmagan'} | ${data.system_id || `#${req.params.id}`} | ${workHours} soatlik MTT`,
+          actor: 'Admin',
+          entityType: 'kindergarten',
+          entityId: req.params.id,
+          actionUrl: '/admin/kindergartens',
+          details: [
+            { label: 'MTT ID', value: data.system_id || 'Kiritilmagan' },
+            { label: 'Direktor', value: data.directorName || 'Kiritilmagan' },
+            { label: 'Telefon', value: data.phone || 'Kiritilmagan' },
+            { label: "Sig'im", value: `${Number(data.capacity || 0)} o'rin` },
+            { label: 'Login', value: data.username || 'Kiritilmagan' },
+          ],
+        });
+      } catch (eventError) {
+        console.error('Kindergarten update alert event error:', eventError.message);
       }
       res.json({ message: 'Updated successfully', id: req.params.id });
     });
