@@ -1,0 +1,23 @@
+import express from 'express';
+const router = express.Router();
+import KindergartenController from '../controllers/kindergartenController.js';
+
+router.get('/', KindergartenController.getAll);
+router.get('/menus/all', KindergartenController.getMenus);
+router.get('/dishes/all', KindergartenController.getDishes);
+router.get('/medical-stock-alerts', KindergartenController.getMedicalStockAlerts);
+router.post('/dish-items', KindergartenController.createDish);
+router.put('/dish-items/:id', KindergartenController.updateDish);
+router.delete('/dish-items/:id', KindergartenController.deleteDish);
+router.post('/dishes', KindergartenController.createDish);
+router.put('/dishes/:id', KindergartenController.updateDish);
+router.delete('/dishes/:id', KindergartenController.deleteDish);
+router.post('/menus/ten-day', KindergartenController.createTenDayMenus);
+router.get('/daily-district-expenses', KindergartenController.getDailyDistrictExpenses);
+router.post('/daily-district-expenses', KindergartenController.saveDailyDistrictExpenses);
+router.get('/:id', KindergartenController.getById);
+router.post('/', KindergartenController.create);
+router.put('/:id', KindergartenController.update);
+router.delete('/:id', KindergartenController.delete);
+
+export default router;

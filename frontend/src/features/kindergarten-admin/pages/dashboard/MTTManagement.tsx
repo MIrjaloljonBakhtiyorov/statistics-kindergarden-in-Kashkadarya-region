@@ -172,6 +172,13 @@ const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string; ic
   Home:    { label: 'Oilaviy', color: 'text-amber-600',  bg: 'bg-amber-50 border-amber-100',  iconBg: 'bg-amber-500' },
 };
 
+const TYPE_ORDER = ['Private', 'Public', 'Home'];
+
+const getTypeOrder = (type: string) => {
+  const index = TYPE_ORDER.indexOf(type);
+  return index === -1 ? TYPE_ORDER.length : index;
+};
+
 const WORK_HOUR_OPTIONS = [
   { value: 4, label: '4 soatlik', iconBg: 'bg-cyan-500' },
   { value: 9.5, label: '9-10.5 soatlik', iconBg: 'bg-emerald-500' },
@@ -236,7 +243,7 @@ export const MTTManagement = () => {
   const [districtFilter, setDistrictFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [workHoursFilter, setWorkHoursFilter] = useState('');
-  const [sortMode, setSortMode] = useState('name-asc');
+  const [sortMode, setSortMode] = useState('type-group');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [credItem, setCredItem] = useState<any>(null);
 
@@ -284,6 +291,11 @@ export const MTTManagement = () => {
     (!typeFilter || i.type === typeFilter) &&
     matchesWorkHoursFilter(i)
   ).sort((a, b) => {
+    if (sortMode === 'type-group') {
+      const typeDiff = getTypeOrder(a.type) - getTypeOrder(b.type);
+      if (typeDiff !== 0) return typeDiff;
+      return String(a.name || '').localeCompare(String(b.name || ''), 'uz');
+    }
     if (sortMode === 'children-desc') return getChildrenCount(b) - getChildrenCount(a);
     if (sortMode === 'children-asc') return getChildrenCount(a) - getChildrenCount(b);
     if (sortMode === 'hours-asc') return getWorkHours(a) - getWorkHours(b);
@@ -443,6 +455,7 @@ export const MTTManagement = () => {
               onChange={e => setSortMode(e.target.value)}
               className="pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-wider outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
             >
+              <option value="type-group">Turi bo'yicha</option>
               <option value="name-asc">Nomi A-Z</option>
               <option value="children-desc">Bolalar ko'pdan</option>
               <option value="children-asc">Bolalar ozdan</option>
@@ -517,7 +530,23 @@ export const MTTManagement = () => {
                 <tbody className="divide-y divide-slate-50">
                   {filtered.map((item, i) => {
                     const tc = TYPE_CONFIG[item.type] || TYPE_CONFIG.Public;
-                    return (
+                    const showTypeHeader = sortMode === 'type-group' && (i === 0 || filtered[i - 1]?.type !== item.type);
+                    return [
+                      showTypeHeader ? (
+                        <tr key={`${item.type}-header`} className="bg-slate-100/70">
+                          <td colSpan={8} className="px-6 py-3">
+                            <div className="flex items-center gap-3">
+                              <span className={clsx("w-2.5 h-2.5 rounded-full", tc.iconBg)} />
+                              <span className={clsx("text-[11px] font-black uppercase tracking-[0.22em]", tc.color)}>
+                                {tc.label} bog'chalar
+                              </span>
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                {filtered.filter((row) => row.type === item.type).length} ta
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : null,
                       <motion.tr
                         key={item.id}
                         initial={{ opacity: 0 }}
@@ -583,7 +612,7 @@ export const MTTManagement = () => {
                           </div>
                         </td>
                       </motion.tr>
-                    );
+                    ].filter(Boolean);
                   })}
                 </tbody>
               </table>
@@ -596,7 +625,19 @@ export const MTTManagement = () => {
             className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {filtered.map((item, i) => {
               const tc = TYPE_CONFIG[item.type] || TYPE_CONFIG.Public;
-              return (
+              const showTypeHeader = sortMode === 'type-group' && (i === 0 || filtered[i - 1]?.type !== item.type);
+              return [
+                showTypeHeader ? (
+                  <div key={`${item.type}-grid-header`} className="sm:col-span-2 xl:col-span-3 flex items-center gap-3 pt-2">
+                    <span className={clsx("w-3 h-3 rounded-full", tc.iconBg)} />
+                    <h2 className={clsx("text-sm font-black uppercase tracking-[0.22em]", tc.color)}>
+                      {tc.label} bog'chalar
+                    </h2>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      {filtered.filter((row) => row.type === item.type).length} ta
+                    </span>
+                  </div>
+                ) : null,
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, scale: 0.97 }}
@@ -677,7 +718,7 @@ export const MTTManagement = () => {
                     </div>
                   </div>
                 </motion.div>
-              );
+              ].filter(Boolean);
             })}
           </motion.div>
         )}

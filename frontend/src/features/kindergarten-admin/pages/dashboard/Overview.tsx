@@ -151,8 +151,8 @@ export const Overview = () => {
     return {
       kpiRow1: [
         { title: "Jami bolalar", val: totalChildren.toLocaleString(), icon: Users, color: "indigo" },
-        { title: "09:00 gacha", val: totalBefore9.toLocaleString(), icon: Clock, color: "emerald" },
-        { title: "09:00 dan keyin", val: totalAfter9.toLocaleString(), icon: AlertTriangle, color: "amber" },
+        { title: "09:30 gacha", val: totalBefore9.toLocaleString(), icon: Clock, color: "emerald" },
+        { title: "09:30 dan keyin", val: totalAfter9.toLocaleString(), icon: AlertTriangle, color: "amber" },
         { title: "Kelmaganlar", val: totalAbsent.toLocaleString(), icon: ShieldAlert, color: "rose" },
       ],
       kpiRow2: [

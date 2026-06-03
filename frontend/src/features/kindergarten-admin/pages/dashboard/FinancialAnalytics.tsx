@@ -418,11 +418,11 @@ export const FinancialAnalytics = () => {
             </p>
             <div className="mt-6 grid grid-cols-2 gap-3">
               <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">09:00 gacha</p>
+                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">09:30 gacha</p>
                 <p className="text-xl font-black text-emerald-400">{stats.before9.toLocaleString()}</p>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">09:00 dan keyin</p>
+                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">09:30 dan keyin</p>
                 <p className="text-xl font-black text-amber-400">{stats.after9.toLocaleString()}</p>
               </div>
             </div>

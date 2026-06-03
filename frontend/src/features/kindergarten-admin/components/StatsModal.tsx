@@ -93,7 +93,7 @@ export const StatsModal = ({ isOpen, onClose, type, data = [] }: { isOpen: boole
                     <th className="px-3 sm:px-4 py-3 sm:py-4">Tuman</th>
                     <th className="px-3 sm:px-4 py-3 sm:py-4">Direktor</th>
                     <th className="px-3 sm:px-4 py-3 sm:py-4 text-right">Jami</th>
-                    <th className="px-3 sm:px-4 py-3 sm:py-4 text-right">09:00 gacha</th>
+                    <th className="px-3 sm:px-4 py-3 sm:py-4 text-right">09:30 gacha</th>
                     <th className="px-3 sm:px-4 py-3 sm:py-4 text-right">Kelmagan</th>
                     <th 
                       className="px-4 sm:px-6 py-3 sm:py-4 text-right cursor-pointer hover:text-indigo-600"

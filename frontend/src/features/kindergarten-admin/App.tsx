@@ -8,6 +8,7 @@ import { NutritionMenu } from './pages/dashboard/NutritionMenu';
 import { AqlvoyChefMenu } from './pages/dashboard/AqlvoyChefMenu';
 import { RatingAudit } from './pages/dashboard/RatingAudit';
 import { WarehouseCommandCenter } from './pages/dashboard/WarehouseCommandCenter';
+import { MedicalStockReserve } from './pages/dashboard/MedicalStockReserve';
 import { MTTManagement } from './pages/dashboard/MTTManagement';
 import { AIInsights } from './pages/dashboard/AIInsights';
 import { FinancialAnalytics } from './pages/dashboard/FinancialAnalytics';
@@ -76,6 +77,7 @@ export default function App() {
           <Route path="kindergartens" element={<MTTManagement />} />
           <Route path="ai-insights" element={<AIInsights />} />
           <Route path="warehouse" element={<WarehouseCommandCenter />} />
+          <Route path="medical-stock" element={<MedicalStockReserve />} />
           <Route path="financial-stats" element={<FinancialAnalytics />} />
           <Route path="menu-stats" element={<MenuStatistics />} />
           <Route path="alerts" element={<Alerts />} />

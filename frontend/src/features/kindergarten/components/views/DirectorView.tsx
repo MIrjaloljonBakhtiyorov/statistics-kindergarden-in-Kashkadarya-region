@@ -86,8 +86,8 @@ const DirectorView: React.FC = () => {
     <div className="space-y-5 sm:space-y-7 animate-in fade-in slide-in-from-bottom-2 duration-700">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <KPICard title="Jami bolalar soni" value={stats?.total || 0} meta="Ro'yxatda" icon={Users} color="bg-brand-primary" />
-        <KPICard title="9:00 gacha kelganlar" value={beforeNineCount} meta="Vaqtida" icon={ClipboardCheck} color="bg-brand-emerald" />
-        <KPICard title="9:00 dan keyin kelganlar" value={stats?.late || 0} meta="Kechikkan" icon={Clock3} color="bg-brand-amber" />
+        <KPICard title="09:30 gacha kelganlar" value={beforeNineCount} meta="Vaqtida" icon={ClipboardCheck} color="bg-brand-emerald" />
+        <KPICard title="09:30 dan keyin kelganlar" value={stats?.late || 0} meta="Kechikkan" icon={Clock3} color="bg-brand-amber" />
         <KPICard title="Umumiy guruhlar" value={groups.length} meta="Faol guruhlar" icon={LayoutGrid} color="bg-brand-primary" />
       </div>
 

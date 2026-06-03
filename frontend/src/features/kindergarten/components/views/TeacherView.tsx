@@ -37,6 +37,17 @@ interface TeacherViewProps {
 
 type AttendanceStatus = 'early' | 'late' | 'absent';
 
+const ATTENDANCE_CUTOFF_LABEL = '09:30';
+const ATTENDANCE_CUTOFF_TIME = `${ATTENDANCE_CUTOFF_LABEL}:00`;
+const EARLY_ATTENDANCE_FALLBACK_TIME = '09:29:00';
+const LATE_ATTENDANCE_FALLBACK_TIME = '09:31:00';
+
+const isAfterAttendanceCutoff = (date = new Date()) => {
+  const cutoff = new Date(date);
+  cutoff.setHours(9, 30, 0, 0);
+  return date > cutoff;
+};
+
 const getChatAssetUrl = (url?: string | null) => {
   if (!url) return '';
   if (url.startsWith('http') || url.startsWith('data:')) return url;
@@ -140,7 +151,7 @@ const TeacherView: React.FC<TeacherViewProps> = ({ groups: initialGroups }) => {
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-100 text-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-2 sm:mb-4">
               <CheckCircle2 size={20} className="sm:w-6 sm:h-6" />
             </div>
-            <p className="text-[8px] sm:text-[9px] font-black text-emerald-600 uppercase tracking-wider sm:tracking-[0.2em] mb-1">9 gacha keladigan bolalar soni prognozi</p>
+            <p className="text-[8px] sm:text-[9px] font-black text-emerald-600 uppercase tracking-wider sm:tracking-[0.2em] mb-1">{ATTENDANCE_CUTOFF_LABEL} gacha keladigan bolalar soni prognozi</p>
             <p className="text-xl sm:text-3xl font-black text-emerald-600">{earlyArrivals}</p>
           </div>
 
@@ -148,7 +159,7 @@ const TeacherView: React.FC<TeacherViewProps> = ({ groups: initialGroups }) => {
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 text-amber-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-2 sm:mb-4">
               <AlertCircle size={20} className="sm:w-6 sm:h-6" />
             </div>
-            <p className="text-[8px] sm:text-[9px] font-black text-amber-600 uppercase tracking-wider sm:tracking-[0.2em] mb-1">9 dan keyin</p>
+            <p className="text-[8px] sm:text-[9px] font-black text-amber-600 uppercase tracking-wider sm:tracking-[0.2em] mb-1">{ATTENDANCE_CUTOFF_LABEL} dan keyin</p>
             <p className="text-xl sm:text-3xl font-black text-amber-600">{lateArrivals}</p>
           </div>
 
@@ -649,7 +660,7 @@ const AttendanceCountEntry = ({ groupData, onSaved }: { groupData: any, onSaved:
   const [isSaving, setIsSaving] = useState(false);
   const totalChildren = (groupData.children || []).length;
   const today = new Date().toISOString().split('T')[0];
-  const isTimeExpired = useMemo(() => new Date().getHours() >= 9, []);
+  const isTimeExpired = useMemo(() => isAfterAttendanceCutoff(), []);
 
   useEffect(() => {
     const loadExistingCounts = async () => {
@@ -658,11 +669,11 @@ const AttendanceCountEntry = ({ groupData, onSaved }: { groupData: any, onSaved:
         const rows = Array.isArray(res.data) ? res.data : Object.values(res.data || {});
         const early = rows.filter((row: any) => {
           const status = String(row.status || '').toUpperCase();
-          return status === 'EARLY' || (['PRESENT', 'KELDI'].includes(status) && String(row.arrival_time || '') <= '09:00');
+          return status === 'EARLY' || (['PRESENT', 'KELDI'].includes(status) && String(row.arrival_time || '') <= ATTENDANCE_CUTOFF_TIME);
         }).length;
         const late = rows.filter((row: any) => {
           const status = String(row.status || '').toUpperCase();
-          return status === 'LATE' || (['PRESENT', 'KELDI'].includes(status) && String(row.arrival_time || '') > '09:00');
+          return status === 'LATE' || (['PRESENT', 'KELDI'].includes(status) && String(row.arrival_time || '') > ATTENDANCE_CUTOFF_TIME);
         }).length;
         const absent = rows.filter((row: any) => ['ABSENT', 'KELMADI', 'SICK'].includes(String(row.status || '').toUpperCase())).length;
         setCounts({ total: totalChildren, early, late, absent });
@@ -681,7 +692,7 @@ const AttendanceCountEntry = ({ groupData, onSaved }: { groupData: any, onSaved:
 
   const updateCount = (key: 'early' | 'late' | 'absent', value: string) => {
     if (isTimeExpired) {
-      showNotification('Sondagi davomad faqat soat 09:00 gacha qabul qilinadi', 'error');
+      showNotification(`Sondagi davomad faqat soat ${ATTENDANCE_CUTOFF_LABEL} gacha qabul qilinadi`, 'error');
       return;
     }
     if (/^0\d+/.test(value.trim())) {
@@ -696,7 +707,7 @@ const AttendanceCountEntry = ({ groupData, onSaved }: { groupData: any, onSaved:
 
   const handleSaveCounts = async () => {
     if (isTimeExpired) {
-      showNotification('Sondagi davomad faqat soat 09:00 gacha qabul qilinadi', 'error');
+      showNotification(`Sondagi davomad faqat soat ${ATTENDANCE_CUTOFF_LABEL} gacha qabul qilinadi`, 'error');
       return;
     }
     if (totalChildren === 0) {
@@ -713,12 +724,12 @@ const AttendanceCountEntry = ({ groupData, onSaved }: { groupData: any, onSaved:
     let index = 0;
 
     children.slice(index, index + counts.early).forEach((child: any) => {
-      attendanceData[child.id] = { status: 'PRESENT', arrival_time: '08:59:00' };
+      attendanceData[child.id] = { status: 'PRESENT', arrival_time: EARLY_ATTENDANCE_FALLBACK_TIME };
     });
     index += counts.early;
 
     children.slice(index, index + counts.late).forEach((child: any) => {
-      attendanceData[child.id] = { status: 'PRESENT', arrival_time: '09:01:00' };
+      attendanceData[child.id] = { status: 'PRESENT', arrival_time: LATE_ATTENDANCE_FALLBACK_TIME };
     });
     index += counts.late;
 
@@ -774,7 +785,7 @@ const AttendanceCountEntry = ({ groupData, onSaved }: { groupData: any, onSaved:
       {isTimeExpired && (
         <div className="mx-5 sm:mx-6 mt-5 rounded-2xl border border-rose-100 bg-rose-50 p-4 flex items-center gap-3 text-rose-700">
           <AlertCircle size={20} className="shrink-0" />
-          <p className="text-xs font-black uppercase tracking-widest">Sondagi davomad vaqti tugadi. MaвЂ™lumotlar faqat soat 09:00 gacha qabul qilinadi.</p>
+          <p className="text-xs font-black uppercase tracking-widest">Sondagi davomad vaqti tugadi. Ma'lumotlar faqat soat {ATTENDANCE_CUTOFF_LABEL} gacha qabul qilinadi.</p>
         </div>
       )}
 
@@ -788,7 +799,7 @@ const AttendanceCountEntry = ({ groupData, onSaved }: { groupData: any, onSaved:
             readOnly
           />
           <CountInput
-            label="9 gacha keladigan bolalar soni prognozi"
+            label={`${ATTENDANCE_CUTOFF_LABEL} gacha keladigan bolalar soni prognozi`}
             value={counts.early}
             icon={CheckCircle2}
             tone="emerald"
@@ -796,7 +807,7 @@ const AttendanceCountEntry = ({ groupData, onSaved }: { groupData: any, onSaved:
             onChange={(value) => updateCount('early', value)}
           />
           <CountInput
-            label="9 dan keyin kelgan"
+            label={`${ATTENDANCE_CUTOFF_LABEL} dan keyin kelgan`}
             value={counts.late}
             icon={LucideClock}
             tone="amber"
@@ -886,9 +897,7 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
   const [attendance, setAttendance] = useState<Record<string, { status: AttendanceStatus | null, arrival_time?: string | null }>>({});
 
   const isTimeExpired = useMemo(() => {
-    const now = new Date();
-    const hours = now.getHours();
-    return hours >= 9;
+    return isAfterAttendanceCutoff();
   }, []);
 
   useEffect(() => {
@@ -903,7 +912,7 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
           let status: AttendanceStatus | null = null;
           
           if (existing?.status === 'present') {
-            status = existing.arrival_time && existing.arrival_time <= '09:00:00' ? 'early' : 'late';
+            status = existing.arrival_time && existing.arrival_time <= ATTENDANCE_CUTOFF_TIME ? 'early' : 'late';
           } else if (existing?.status === 'absent' || existing?.status === 'sick') {
             status = 'absent';
           }
@@ -948,9 +957,9 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
       const now = new Date().toLocaleTimeString('en-GB', { hour12: false });
       
       if (status === 'early') {
-        arrivalTime = now <= '09:00:00' ? now : '08:59:00';
+        arrivalTime = now <= ATTENDANCE_CUTOFF_TIME ? now : EARLY_ATTENDANCE_FALLBACK_TIME;
       } else if (status === 'late') {
-        arrivalTime = now > '09:00:00' ? now : '09:01:00';
+        arrivalTime = now > ATTENDANCE_CUTOFF_TIME ? now : LATE_ATTENDANCE_FALLBACK_TIME;
       }
 
       return { 
@@ -962,7 +971,7 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
 
   const handleSave = async () => {
     if (isTimeExpired) {
-      showNotification('Davomat qilish vaqti tugagan (soat 09:00 gacha)', 'error');
+      showNotification(`Davomat qilish vaqti tugagan (soat ${ATTENDANCE_CUTOFF_LABEL} gacha)`, 'error');
       return;
     }
     // Check if all children have a status selected
@@ -1013,7 +1022,7 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
               </div>
               <div>
                  <h5 className="text-rose-900 font-black uppercase text-sm tracking-tight">Davomat vaqti tugadi</h5>
-                 <p className="text-rose-700/70 text-[10px] font-bold uppercase tracking-widest mt-1">Davomat har kuni faqat soat 09:00 gacha qabul qilinadi.</p>
+                 <p className="text-rose-700/70 text-[10px] font-bold uppercase tracking-widest mt-1">Davomat har kuni faqat soat {ATTENDANCE_CUTOFF_LABEL} gacha qabul qilinadi.</p>
               </div>
            </div>
            <div className="px-6 py-2 bg-rose-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-500/20">
@@ -1045,7 +1054,7 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
           <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-4">
             <CheckCircle2 size={20} />
           </div>
-          <p className="text-[9px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-1">9 gacha keladigan bolalar soni prognozi</p>
+          <p className="text-[9px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-1">{ATTENDANCE_CUTOFF_LABEL} gacha keladigan bolalar soni prognozi</p>
           <p className="text-2xl font-black text-emerald-600">{stats.early}</p>
         </div>
 
@@ -1053,7 +1062,7 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
           <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mb-4">
             <LucideClock size={20} />
           </div>
-          <p className="text-[9px] font-black text-amber-600 uppercase tracking-[0.2em] mb-1">9 dan keyin keladi</p>
+          <p className="text-[9px] font-black text-amber-600 uppercase tracking-[0.2em] mb-1">{ATTENDANCE_CUTOFF_LABEL} dan keyin keladi</p>
           <p className="text-2xl font-black text-amber-600">{stats.late}</p>
         </div>
 
@@ -1091,8 +1100,8 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
                   <span className="font-bold text-brand-depth text-sm sm:text-base block truncate">{child.first_name || child.name} {child.last_name || ''}</span>
                   <p className="text-[9px] sm:text-[10px] text-brand-muted font-bold mt-1 uppercase tracking-tight truncate">
                     Status: {
-                      attendance[child.id]?.status === 'early' ? '9 gacha keldi' : 
-                      attendance[child.id]?.status === 'late' ? '9 dan keyin keladi' : 
+                      attendance[child.id]?.status === 'early' ? `${ATTENDANCE_CUTOFF_LABEL} gacha keldi` : 
+                      attendance[child.id]?.status === 'late' ? `${ATTENDANCE_CUTOFF_LABEL} dan keyin keladi` : 
                       attendance[child.id]?.status === 'absent' ? 'Umuman kelmaydi' : 
                       'Tanlanmagan'
                     }
@@ -1109,7 +1118,7 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
                         : isTimeExpired ? 'bg-slate-100 text-slate-300 border-transparent cursor-not-allowed' : 'bg-slate-50 text-brand-muted border-brand-border hover:bg-white'
                     }`}
                   >
-                    <CheckCircle2 size={14} className="shrink-0" /> <span className="truncate">9 gacha keldi</span>
+                    <CheckCircle2 size={14} className="shrink-0" /> <span className="truncate">{ATTENDANCE_CUTOFF_LABEL} gacha keldi</span>
                   </button>
                   <button 
                     onClick={() => handleStatusChange(child.id, 'late')}
@@ -1120,7 +1129,7 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
                         : isTimeExpired ? 'bg-slate-100 text-slate-300 border-transparent cursor-not-allowed' : 'bg-slate-50 text-brand-muted border-brand-border hover:bg-white'
                     }`}
                   >
-                    <LucideClock size={14} className="shrink-0" /> <span className="truncate">9 dan keyin</span>
+                    <LucideClock size={14} className="shrink-0" /> <span className="truncate">{ATTENDANCE_CUTOFF_LABEL} dan keyin</span>
                   </button>
                   <button 
                     onClick={() => handleStatusChange(child.id, 'absent')}
