@@ -198,11 +198,17 @@ export const Alerts = () => {
           search: appliedSearch || undefined,
         },
       });
-      setAlerts(Array.isArray(response.data?.alerts) ? response.data.alerts : []);
-      setSummary({ ...emptySummary, ...(response.data?.summary || {}) });
-      setPagination({ ...emptyPagination, ...(response.data?.pagination || {}) });
-    } catch {
-      setError("Alertlarni yuklab bo'lmadi");
+      
+      const alerts = Array.isArray(response.data?.alerts) ? response.data.alerts : [];
+      const summary = { ...emptySummary, ...(response.data?.summary || {}) };
+      const pagination = { ...emptyPagination, ...(response.data?.pagination || {}) };
+      
+      setAlerts(alerts);
+      setSummary(summary);
+      setPagination(pagination);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Alertlarni yuklab bo'lmadi";
+      setError(errorMessage);
       setAlerts([]);
       setSummary(emptySummary);
       setPagination(emptyPagination);
