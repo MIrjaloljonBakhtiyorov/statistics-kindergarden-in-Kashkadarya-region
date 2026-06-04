@@ -107,6 +107,21 @@ const ensureAdminAlertEventsTable = async () => {
   await run(`CREATE INDEX IF NOT EXISTS idx_admin_alert_events_entity ON admin_alert_events (entity_type, entity_id, event_type)`);
 };
 
+/**
+ * Records an admin alert event to the database
+ * @param {Object} params - Alert event parameters
+ * @param {string} params.eventType - Type of event (e.g., 'KINDERGARTEN_CREATED')
+ * @param {string} params.category - Category of alert
+ * @param {string} params.status - Alert status (error, warning, success, update)
+ * @param {string} params.title - Alert title
+ * @param {string} params.context - Alert context/description
+ * @param {string} params.actor - Who triggered the event (default: 'Admin')
+ * @param {string} params.entityType - Type of entity affected
+ * @param {number|string} params.entityId - ID of entity affected
+ * @param {string} params.actionUrl - URL to navigate to when alert is clicked
+ * @param {Array} params.details - Additional detail fields
+ * @returns {Promise<string>} - UUID of created alert event
+ */
 const recordAdminAlertEvent = async ({
   eventType,
   category,
