@@ -4,6 +4,8 @@ import {
   Building2,
   CalendarClock,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   CircleAlert,
   PackageX,
   Pill,
@@ -78,6 +80,8 @@ const emptySummary: MedicalStockResponse['summary'] = {
   not_entered: 0,
 };
 
+const PAGE_SIZE = 50;
+
 export const MedicalStockReserve = () => {
   const [data, setData] = useState<MedicalStockResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -85,6 +89,7 @@ export const MedicalStockReserve = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [districtFilter, setDistrictFilter] = useState('ALL');
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const fetchMedicalStock = async () => {
@@ -113,7 +118,7 @@ export const MedicalStockReserve = () => {
   const filteredIssues = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
     return issues.filter((item) => {
-      const haystack = `${item.kindergarten_name || ''} ${item.district || ''} ${item.name} ${item.form || ''}`.toLowerCase();
+      const haystack = `${item.kindergarten_name || ''} ${item.phone || ''} ${item.district || ''} ${item.name} ${item.form || ''}`.toLowerCase();
       const matchesSearch = !normalizedSearch || haystack.includes(normalizedSearch);
       const matchesStatus = statusFilter === 'ALL' || item.status === statusFilter;
       const matchesDistrict = districtFilter === 'ALL' || item.district === districtFilter;
@@ -121,6 +126,16 @@ export const MedicalStockReserve = () => {
     });
   }, [districtFilter, issues, search, statusFilter]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [districtFilter, search, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredIssues.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const startIndex = (safePage - 1) * PAGE_SIZE;
+  const paginatedIssues = filteredIssues.slice(startIndex, startIndex + PAGE_SIZE);
+  const visibleFrom = filteredIssues.length === 0 ? 0 : startIndex + 1;
+  const visibleTo = Math.min(startIndex + PAGE_SIZE, filteredIssues.length);
 
   return (
     <div className="min-h-screen bg-[#f4f6fb] pb-20 font-sans text-slate-900">
@@ -199,15 +214,19 @@ export const MedicalStockReserve = () => {
               <div>
                 <h2 className="text-base font-black text-slate-900">Muammoli dori-darmonlar</h2>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">
-                  {filteredIssues.length} ta yozuv ko'rsatilmoqda
+                  {filteredIssues.length} ta yozuvdan {visibleFrom}-{visibleTo} ko'rsatilmoqda
                 </p>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <span>Har sahifada {PAGE_SIZE} ta</span>
               </div>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left min-w-[1120px]">
+              <table className="w-full text-left min-w-[1240px]">
                 <thead>
                   <tr className="bg-slate-50/80 text-[10px] font-black uppercase text-slate-400 tracking-widest border-b border-slate-100">
+                    <th className="px-4 py-4 w-20 text-center">#</th>
                     <th className="px-6 py-4">Bogcha</th>
                     <th className="px-4 py-4">Dori</th>
                     <th className="px-4 py-4">Qoldiq</th>
@@ -219,26 +238,32 @@ export const MedicalStockReserve = () => {
                 <tbody className="divide-y divide-slate-50">
                   {loading && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400 font-black uppercase tracking-widest text-[10px]">
+                      <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-black uppercase tracking-widest text-[10px]">
                         Zaxira yuklanmoqda...
                       </td>
                     </tr>
                   )}
                   {!loading && filteredIssues.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400 font-black uppercase tracking-widest text-[10px]">
+                      <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-black uppercase tracking-widest text-[10px]">
                         Tanlangan filtrda muammo topilmadi
                       </td>
                     </tr>
                   )}
-                  {!loading && filteredIssues.map((item) => {
+                  {!loading && paginatedIssues.map((item, index) => {
                     const meta = statusMeta[item.status];
                     const StatusIcon = meta.icon;
                     return (
                       <tr key={`${item.kindergarten_id}-${item.id}`} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="px-4 py-5 text-center">
+                          <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-lg bg-slate-100 px-2 text-xs font-black text-slate-600">
+                            {startIndex + index + 1}
+                          </span>
+                        </td>
                         <td className="px-6 py-5">
                           <p className="text-sm font-black text-slate-900">{item.kindergarten_name}</p>
-                          <p className="text-[11px] font-semibold text-slate-500 mt-1">{item.district || 'Tuman kiritilmagan'}</p>
+                          <p className="text-[11px] font-semibold text-slate-500 mt-1">{item.phone || 'Telefon kiritilmagan'}</p>
+                          <p className="text-[11px] font-semibold text-slate-400 mt-1">{item.district || 'Tuman kiritilmagan'}</p>
                         </td>
                         <td className="px-4 py-5">
                           <p className="text-sm font-black text-slate-900">{item.name}</p>
@@ -272,6 +297,49 @@ export const MedicalStockReserve = () => {
                 </tbody>
               </table>
             </div>
+            {!loading && filteredIssues.length > PAGE_SIZE && (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  {safePage}-sahifa / {totalPages} sahifa
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPage((current) => Math.max(1, current - 1))}
+                    disabled={safePage === 1}
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition disabled:cursor-not-allowed disabled:opacity-40 hover:border-slate-300"
+                  >
+                    <ChevronLeft size={14} />
+                    Oldingi
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
+                      <button
+                        key={pageNumber}
+                        type="button"
+                        onClick={() => setPage(pageNumber)}
+                        className={`h-9 min-w-9 rounded-xl px-2 text-xs font-black transition ${
+                          safePage === pageNumber
+                            ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10'
+                            : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                    disabled={safePage === totalPages}
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition disabled:cursor-not-allowed disabled:opacity-40 hover:border-slate-300"
+                  >
+                    Keyingi
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
         </section>

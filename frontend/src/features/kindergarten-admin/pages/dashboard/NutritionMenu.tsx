@@ -32,29 +32,34 @@ const TABS = [
 
 const MEAL_LABELS: Record<string, string> = {
   BREAKFAST: 'Nonushta',
+  SECOND_BREAKFAST: 'Ikkinchi nonushta',
   LUNCH: 'Tushlik',
   TEA: 'Poldnik',
   DINNER: 'Kechki ovqat',
   Nonushta: 'Nonushta',
+  'Ikkinchi nonushta': 'Ikkinchi nonushta',
   Tushlik: 'Tushlik',
   Poldnik: 'Poldnik',
   'Kechki ovqat': 'Kechki ovqat',
 };
 
-const MEAL_ORDER = ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER'];
+const MEAL_ORDER = ['BREAKFAST', 'SECOND_BREAKFAST', 'LUNCH', 'TEA', 'DINNER'];
 const MEAL_TIME_META: Record<string, { time: string; accent: string; soft: string }> = {
   BREAKFAST: { time: '08:30', accent: 'bg-amber-500', soft: 'bg-amber-50 text-amber-700 border-amber-100' },
+  SECOND_BREAKFAST: { time: '10:30', accent: 'bg-lime-500', soft: 'bg-lime-50 text-lime-700 border-lime-100' },
   LUNCH: { time: '12:30', accent: 'bg-indigo-600', soft: 'bg-indigo-50 text-indigo-700 border-indigo-100' },
   TEA: { time: '16:00', accent: 'bg-rose-500', soft: 'bg-rose-50 text-rose-700 border-rose-100' },
   DINNER: { time: '18:30', accent: 'bg-slate-900', soft: 'bg-slate-100 text-slate-700 border-slate-200' },
 };
-const TARGET_TYPES = [
-  { id: 'ALL', label: 'Barcha MTT', description: 'Public, Private va Home' },
-  { id: 'PUBLIC', label: 'Public MTT', description: 'Davlat MTTlari' },
-  { id: 'PRIVATE', label: 'Private MTT', description: 'Xususiy MTTlar' },
-  { id: 'HOME', label: 'Home MTT', description: 'Oilaviy MTTlar' },
+const WORK_HOUR_GROUPS = [
+  { id: 'ALL', label: 'Barcha MTT', description: 'Ish soatiga qarab ajratiladi', hours: [] as number[], meals: MEAL_ORDER },
+  { id: 'SHORT_4', label: '4 soatlik', description: 'Qisqa guruhlar', hours: [4], meals: ['BREAKFAST'] },
+  { id: 'DAY_9_105', label: '9-10.5 soatlik', description: 'Kunduzgi guruhlar', hours: [9, 9.5, 10.5], meals: ['BREAKFAST', 'LUNCH', 'TEA'] },
+  { id: 'LONG_12', label: '12 soatlik', description: 'Uzaytirilgan kun', hours: [12], meals: ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
+  { id: 'FULL_24', label: '24 soatlik', description: 'Tun-u kun guruhlar', hours: [24], meals: ['BREAKFAST', 'SECOND_BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
 ];
 type MealDraft = {
+  dish_id?: string;
   meal_name: string;
   composition: string;
   products: string;
@@ -73,6 +78,19 @@ const toLocalIso = (date: Date) => {
 };
 const todayIso = () => toLocalIso(new Date());
 const toNumber = (value: unknown) => Number(value || 0);
+const normalizeWorkHour = (value: unknown) => {
+  const numberValue = Number(value || 0);
+  return Number.isFinite(numberValue) ? numberValue : 0;
+};
+const workHourGroupFor = (value: unknown) => {
+  const hours = normalizeWorkHour(value);
+  return WORK_HOUR_GROUPS.find((group) => group.id !== 'ALL' && group.hours.includes(hours)) || WORK_HOUR_GROUPS[2];
+};
+const mealTypesForWorkHours = (value: unknown) => workHourGroupFor(value).meals;
+const mealTypesForTarget = (target: string) => {
+  const group = WORK_HOUR_GROUPS.find((item) => item.id === target);
+  return group?.meals || MEAL_ORDER;
+};
 
 const formatDateLabel = (iso: string) => {
   const date = new Date(`${iso}T00:00:00`);
@@ -112,6 +130,48 @@ const displayAssetUrl = (url?: string | null) => {
   if (!url) return '';
   return url.startsWith('data:') ? url : encodeURI(toAbsoluteAssetUrl(url));
 };
+const parseDishIngredients = (value: unknown) => {
+  try {
+    const parsed = JSON.parse(String(value || '[]'));
+    if (!Array.isArray(parsed)) return '';
+    return parsed
+      .map((item) => {
+        const name = item?.name || '';
+        const weight = item?.age37Weight || item?.age13Weight || '';
+        const net = item?.age37Net || item?.age13Net || '';
+        return [name, weight || net].filter(Boolean).join(' | ');
+      })
+      .filter(Boolean)
+      .join('\n');
+  } catch {
+    return '';
+  }
+};
+const createEmptyMealDraft = (): MealDraft => ({
+  dish_id: '',
+  meal_name: '',
+  composition: '',
+  products: '',
+  image_url: '',
+  calories: '',
+  protein: '',
+  fat: '',
+  carbohydrates: '',
+  vitamins: '',
+});
+
+const dishToMealDraft = (dish: any): MealDraft => ({
+  dish_id: dish.id,
+  meal_name: dish.name || '',
+  composition: dish.technology || dish.quality_requirements || dish.name || '',
+  products: parseDishIngredients(dish.ingredients),
+  image_url: dish.image || dish.image_2 || '',
+  calories: String(dish.kcal_3_7 || dish.kcal || dish.kcal_1_3 || ''),
+  protein: '',
+  fat: '',
+  carbohydrates: String(dish.carbs || ''),
+  vitamins: dish.vitamins || '',
+});
 
 const CircularMetric = ({ label, value, total, tone }: { label: string; value: number; total: number; tone: 'emerald' | 'indigo' | 'rose' }) => {
   const pct = total > 0 ? Math.round((value / total) * 100) : 0;
@@ -166,18 +226,20 @@ const TenDayMenuPlannerModal = ({
   isOpen,
   onClose,
   kindergartens,
+  dishes,
   initialDate,
   onSaved,
 }: {
   isOpen: boolean;
   onClose: () => void;
   kindergartens: any[];
+  dishes: any[];
   initialDate: string;
   onSaved: (startDate: string) => void;
 }) => {
   const [startDate, setStartDate] = useState(initialDate);
   const [planMode, setPlanMode] = useState<'single' | 'ten'>('ten');
-  const [targetType, setTargetType] = useState('ALL');
+  const [targetGroup, setTargetGroup] = useState('ALL');
   const [selectedPlanDate, setSelectedPlanDate] = useState(initialDate);
   const [mealPlan, setMealPlan] = useState<Record<string, Record<string, MealDraft>>>({});
   const [saving, setSaving] = useState(false);
@@ -207,21 +269,41 @@ const TenDayMenuPlannerModal = ({
   }, [planMode, startDate]);
 
   const filledCount = days.reduce((sum, day) => {
-    return sum + MEAL_ORDER.filter((mealType) => Boolean(mealPlan[day.iso]?.[mealType]?.meal_name?.trim())).length;
+    return sum + mealTypesForTarget(targetGroup).filter((mealType) => Boolean(mealPlan[day.iso]?.[mealType]?.meal_name?.trim())).length;
   }, 0);
-  const totalCount = days.length * MEAL_ORDER.length;
+  const totalCount = days.length * mealTypesForTarget(targetGroup).length;
   const activeDay = days.find((day) => day.iso === selectedPlanDate) || days[0];
   const selectedTargetCount = useMemo(() => {
-    if (targetType === 'ALL') return kindergartens.length;
-    return kindergartens.filter((kg) => String(kg.type || '').toUpperCase() === targetType).length;
-  }, [kindergartens, targetType]);
+    if (targetGroup === 'ALL') return kindergartens.length;
+    const group = WORK_HOUR_GROUPS.find((item) => item.id === targetGroup);
+    return kindergartens.filter((kg) => group?.hours.includes(normalizeWorkHour(kg.workHours))).length;
+  }, [kindergartens, targetGroup]);
+  const selectedMealTypes = mealTypesForTarget(targetGroup);
 
   const updateMealField = (date: string, mealType: string, field: keyof MealDraft, value: string) => {
+    setMealPlan((prev) => {
+      const currentDraft = prev[date]?.[mealType] || createEmptyMealDraft();
+      return {
+        ...prev,
+        [date]: {
+          ...(prev[date] || {}),
+          [mealType]: {
+            ...currentDraft,
+            [field]: value,
+          },
+        },
+      };
+    });
+  };
+
+  const applyDishToMeal = (date: string, mealType: string, dishId: string) => {
+    const dish = dishes.find((item) => String(item.id) === String(dishId));
     setMealPlan((prev) => ({
       ...prev,
       [date]: {
         ...(prev[date] || {}),
-          [mealType]: {
+        [mealType]: dish ? dishToMealDraft(dish) : {
+          dish_id: '',
           meal_name: '',
           composition: '',
           products: '',
@@ -231,8 +313,6 @@ const TenDayMenuPlannerModal = ({
           fat: '',
           carbohydrates: '',
           vitamins: '',
-          ...(prev[date]?.[mealType] || {}),
-          [field]: value,
         },
       },
     }));
@@ -276,12 +356,13 @@ const TenDayMenuPlannerModal = ({
     setSaving(true);
     try {
       await apiClient.post('/kindergartens/menus/ten-day', {
-        targetType,
+        targetWorkHourGroup: targetGroup,
         days: days.map((day) => ({
           date: day.iso,
-          meals: MEAL_ORDER.reduce((acc, mealType) => {
+          meals: selectedMealTypes.reduce((acc, mealType) => {
             const draft = mealPlan[day.iso]?.[mealType];
             acc[mealType] = {
+              dish_id: draft?.dish_id || '',
               meal_name: draft?.meal_name || '',
               age_group: 'ALL',
               diet_type: 'REGULAR',
@@ -327,7 +408,7 @@ const TenDayMenuPlannerModal = ({
               <div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight">Taomnoma kiritish</h2>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">
-                  Kun va bog'cha turi tanlanadi, 4 mahal menyu kiritiladi
+                  Kun va ish soati tanlanadi, menyu Aqlvoy oshpaz bazasidan kiritiladi
                 </p>
               </div>
             </div>
@@ -357,11 +438,11 @@ const TenDayMenuPlannerModal = ({
             </div>
             <div className="relative">
               <select
-                value={targetType}
-                onChange={(event) => setTargetType(event.target.value)}
+                value={targetGroup}
+                onChange={(event) => setTargetGroup(event.target.value)}
                 className="w-full h-full min-h-[54px] px-4 pr-10 bg-white/10 border border-white/10 rounded-2xl text-xs font-black text-white outline-none appearance-none [color-scheme:dark]"
               >
-                {TARGET_TYPES.map((type) => (
+                {WORK_HOUR_GROUPS.map((type) => (
                   <option key={type.id} value={type.id} className="bg-white text-slate-900">
                     {type.label} | {type.description}
                   </option>
@@ -386,10 +467,10 @@ const TenDayMenuPlannerModal = ({
               <p className="text-[9px] font-black uppercase tracking-widest text-indigo-200">To'ldirilgan</p>
               <p className="text-xl font-black text-white mt-1">{filledCount}/{totalCount}</p>
             </div>
-            {TARGET_TYPES.slice(0, 3).map((type) => {
+            {WORK_HOUR_GROUPS.filter((type) => type.id !== 'ALL').map((type) => {
               const count = type.id === 'ALL'
                 ? kindergartens.length
-                : kindergartens.filter((kg) => String(kg.type || '').toUpperCase() === type.id).length;
+                : kindergartens.filter((kg) => type.hours.includes(normalizeWorkHour(kg.workHours))).length;
               return (
                 <div key={type.id} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
                   <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{type.label}</p>
@@ -406,7 +487,7 @@ const TenDayMenuPlannerModal = ({
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {days.map((day, index) => {
                   const active = activeDay?.iso === day.iso;
-                  const dayFilled = MEAL_ORDER.filter((mealType) => Boolean(mealPlan[day.iso]?.[mealType]?.meal_name?.trim())).length;
+                  const dayFilled = selectedMealTypes.filter((mealType) => Boolean(mealPlan[day.iso]?.[mealType]?.meal_name?.trim())).length;
                   return (
                     <button
                       key={day.iso}
@@ -418,7 +499,7 @@ const TenDayMenuPlannerModal = ({
                     >
                       <p className="text-[8px] font-black uppercase tracking-widest">{index + 1}-kun</p>
                       <p className="text-base font-black mt-1">{day.label}</p>
-                      <p className={clsx("text-[8px] font-black uppercase tracking-widest mt-1", active ? "text-slate-300" : "text-slate-400")}>{dayFilled}/4 mahal</p>
+                      <p className={clsx("text-[8px] font-black uppercase tracking-widest mt-1", active ? "text-slate-300" : "text-slate-400")}>{dayFilled}/{selectedMealTypes.length} mahal</p>
                     </button>
                   );
                 })}
@@ -432,12 +513,12 @@ const TenDayMenuPlannerModal = ({
                     {activeDay.label} uchun kunlik menyu
                   </h3>
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-2">
-                    Taom nomi, tarkibi, mahsulotlar va tabiiy qiymatlar shu yerda kiritiladi
+                    Ish soati segmentiga mos ovqatlanish vaqtlari chiqadi, taomlar Aqlvoy oshpaz bazasidan tanlanadi
                   </p>
                 </div>
 
-                <div className="grid grid-cols-4 gap-4">
-                  {MEAL_ORDER.map((mealType) => {
+                <div className={clsx("grid gap-4", selectedMealTypes.length >= 5 ? "grid-cols-5" : "grid-cols-4")}>
+                  {selectedMealTypes.map((mealType) => {
                     const draft = mealPlan[activeDay.iso]?.[mealType];
                     return (
                       <div key={`${activeDay.iso}-${mealType}`} className="bg-white border border-slate-100 rounded-[1px] shadow-sm overflow-hidden">
@@ -471,11 +552,23 @@ const TenDayMenuPlannerModal = ({
                           </label>
 
                           <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Asosiy taomlar</label>
+                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Aqlvoy oshpaz taomi</label>
+                            <select
+                              value={draft?.dish_id || ''}
+                              onChange={(event) => applyDishToMeal(activeDay.iso, mealType, event.target.value)}
+                              className="w-full border border-slate-200 rounded-[1px] px-3 py-2.5 text-xs font-black outline-none focus:border-indigo-400"
+                            >
+                              <option value="">Taom tanlang</option>
+                              {dishes.map((dish) => (
+                                <option key={dish.id} value={dish.id}>
+                                  {dish.name}{dish.category ? ` | ${dish.category}` : ''}
+                                </option>
+                              ))}
+                            </select>
                             <input
                               value={draft?.meal_name || ''}
                               onChange={(event) => updateMealField(activeDay.iso, mealType, 'meal_name', event.target.value)}
-                              placeholder="Masalan: Guruchli-sutli bo'tqa"
+                              placeholder="Tanlangan taom nomi"
                               className="w-full border border-slate-200 rounded-[1px] px-3 py-2.5 text-xs font-black outline-none focus:border-indigo-400"
                             />
                             <textarea
@@ -570,7 +663,7 @@ export const NutritionMenu = () => {
       : { date: selectedDate };
 
     apiClient.get('/kindergartens/menus/all', { params })
-      .then((res) => {
+      .then((res: any) => {
         if (mounted) setMenus(Array.isArray(res.data) ? res.data : []);
       })
       .catch(() => {
@@ -638,7 +731,7 @@ export const NutritionMenu = () => {
     const groups = new Map<string, { date: string; rows: any[] }>();
     filteredMenus.forEach((menu) => {
       const key = menu.date || selectedDate;
-      const current = groups.get(key) || {
+      const current: { date: string; rows: any[] } = groups.get(key) || {
         date: menu.date || selectedDate,
         rows: [],
       };
@@ -681,7 +774,8 @@ export const NutritionMenu = () => {
   const clockCirc = 2 * Math.PI * 42;
   const currentMeal = (() => {
     const minutes = now.getHours() * 60 + now.getMinutes();
-    if (minutes < 11 * 60) return 'BREAKFAST';
+    if (minutes < 10 * 60) return 'BREAKFAST';
+    if (minutes < 12 * 60) return 'SECOND_BREAKFAST';
     if (minutes < 15 * 60) return 'LUNCH';
     if (minutes < 18 * 60) return 'TEA';
     return 'DINNER';
@@ -901,7 +995,7 @@ export const NutritionMenu = () => {
                 <CircularMetric label="Xato" value={stats.violations} total={regionalMenuRows.length} tone="rose" />
               </div>
 
-              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
                 {[
                   { label: "Viloyat menyulari", value: regionalMenuRows.length, icon: LayoutGrid, color: "text-indigo-600 bg-indigo-50" },
                   { label: "Qamrov MTT", value: stats.kindergartens, icon: Users, color: "text-emerald-600 bg-emerald-50" },
@@ -958,15 +1052,15 @@ export const NutritionMenu = () => {
                           <h3 className="text-base sm:text-lg font-black text-slate-900">Qashqadaryo viloyati taomnomasi</h3>
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-1.5">
                             <MapPin size={11} className="text-slate-300" />
-                            {activeTab === 'archive' ? `${formatDateLabel(group.date)} | ` : ''}Barcha MTTlar uchun umumiy menyu
+                            {activeTab === 'archive' ? `${formatDateLabel(group.date)} | ` : ''}Ish soatiga mos umumiy menyu
                           </p>
                         </div>
                         <span className="w-fit px-3 py-1.5 rounded-xl bg-slate-950 text-white text-[9px] font-black uppercase tracking-widest">
-                          4 mahal menyu
+                          Ish soatiga mos menyu
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-0">
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-0">
                         {MEAL_ORDER.map((mealType) => {
                           const menu = group.rows.find((row) => row.meal_type === mealType);
                           return (
@@ -1108,6 +1202,7 @@ export const NutritionMenu = () => {
               isOpen={isPlannerOpen}
               onClose={() => setIsPlannerOpen(false)}
               kindergartens={kindergartens}
+              dishes={dishes}
               initialDate={selectedDate}
               onSaved={(startDate) => {
                 setSelectedDate(startDate);

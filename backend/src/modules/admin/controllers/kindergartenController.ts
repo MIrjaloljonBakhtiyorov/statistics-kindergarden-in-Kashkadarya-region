@@ -35,6 +35,19 @@ const normalizeWorkHours = (value) => {
   return [4, 9, 9.5, 10.5, 12, 24].includes(numberValue) ? numberValue : 9.5;
 };
 
+const WORK_HOUR_GROUPS = {
+  SHORT_4: { hours: [4], meals: ['BREAKFAST'] },
+  DAY_9_105: { hours: [9, 9.5, 10.5], meals: ['BREAKFAST', 'LUNCH', 'TEA'] },
+  LONG_12: { hours: [12], meals: ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
+  FULL_24: { hours: [24], meals: ['BREAKFAST', 'SECOND_BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
+};
+
+const mealTypesForWorkHours = (value) => {
+  const hours = normalizeWorkHours(value);
+  const group = Object.values(WORK_HOUR_GROUPS).find((item) => item.hours.includes(hours));
+  return group?.meals || WORK_HOUR_GROUPS.DAY_9_105.meals;
+};
+
 const deleteKindergartenCascade = async (kindergartenId) => {
   const tables = [
     'attendance',
@@ -600,17 +613,35 @@ const KindergartenController = {
   },
 
   createTenDayMenus: (req, res) => {
-    const { kindergartenId, targetType = 'ALL', days } = req.body;
+    const { kindergartenId, targetType = 'ALL', targetWorkHourGroup = 'ALL', days } = req.body;
 
     if (!Array.isArray(days) || days.length === 0) {
       return res.status(400).json({ error: 'days are required' });
     }
 
     const normalizedType = String(targetType || 'ALL').toUpperCase();
-    const typeWhere = kindergartenId ? 'WHERE id = ?' : normalizedType === 'ALL' ? '' : 'WHERE UPPER(type) = ?';
-    const typeParams = kindergartenId ? [kindergartenId] : normalizedType === 'ALL' ? [] : [normalizedType];
+    const normalizedWorkHourGroup = String(targetWorkHourGroup || 'ALL').toUpperCase();
+    const workHourGroup = WORK_HOUR_GROUPS[normalizedWorkHourGroup];
+    const typeWhere = kindergartenId
+      ? 'WHERE id = ?'
+      : normalizedType === 'ALL'
+        ? workHourGroup
+          ? `WHERE workHours IN (${workHourGroup.hours.map(() => '?').join(',')})`
+          : ''
+        : workHourGroup
+          ? `WHERE UPPER(type) = ? AND workHours IN (${workHourGroup.hours.map(() => '?').join(',')})`
+          : 'WHERE UPPER(type) = ?';
+    const typeParams = kindergartenId
+      ? [kindergartenId]
+      : normalizedType === 'ALL'
+        ? workHourGroup
+          ? workHourGroup.hours
+          : []
+        : workHourGroup
+          ? [normalizedType, ...workHourGroup.hours]
+          : [normalizedType];
 
-    db.all(`SELECT id FROM kindergartens ${typeWhere}`, typeParams, (kindergartenErr, kindergartenRows = []) => {
+    db.all(`SELECT id, workHours FROM kindergartens ${typeWhere}`, typeParams, (kindergartenErr, kindergartenRows = []) => {
       if (kindergartenErr) {
         return res.status(500).json({ error: kindergartenErr.message });
       }
@@ -620,14 +651,16 @@ const KindergartenController = {
 
       const targetIds = kindergartenRows.map((row) => row.id);
       const menuRows = [];
-      targetIds.forEach((kindergartenId) => {
+      kindergartenRows.forEach((kindergarten) => {
+        const allowedMealTypes = new Set(mealTypesForWorkHours(kindergarten.workHours));
         days.forEach((day) => {
           Object.entries(day.meals || {}).forEach(([mealType, meal]) => {
+            if (!allowedMealTypes.has(mealType)) return;
             const mealData = typeof meal === 'string' ? { meal_name: meal } : (meal || {});
             if (!mealData.meal_name || !String(mealData.meal_name).trim()) return;
             menuRows.push({
               id: crypto.randomUUID(),
-              kindergartenId,
+              kindergartenId: kindergarten.id,
               date: day.date,
               mealName: String(mealData.meal_name).trim(),
               mealType,
