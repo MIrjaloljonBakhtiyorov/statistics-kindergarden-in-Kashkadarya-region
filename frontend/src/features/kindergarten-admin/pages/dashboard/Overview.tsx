@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Clock, AlertTriangle, ShieldAlert,
@@ -21,21 +21,21 @@ const DISTRICTS = [
   { name: "Kitob", aliases: ["kitob tumani"] },
   { name: "Koson", aliases: ["koson tumani"] },
   { name: "Muborak", aliases: ["muborak tumani"] },
-  { name: "G'uzor", aliases: ["g'uzor tumani", "gвЂuzor tumani"] },
+  { name: "G'uzor", aliases: ["g'uzor tumani", "g'uzor tumani"] },
   { name: "Nishon", aliases: ["nishon tumani"] },
   { name: "Dehqonobod", aliases: ["dehqonobod tumani"] },
   { name: "Qamashi", aliases: ["qamashi tumani"] },
   { name: "Chiroqchi", aliases: ["chiroqchi tumani"] },
   { name: "Kasbi", aliases: ["kasbi tumani"] },
   { name: "Mirishkor", aliases: ["mirishkor tumani"] },
-  { name: "Yakkabog'", aliases: ["yakkabog' tumani", "yakkabogвЂ tumani"] },
+  { name: "Yakkabog'", aliases: ["yakkabog' tumani", "yakkabog' tumani"] },
   { name: "Beshkent", aliases: ["beshkent tumani"] },
 ];
 
 const normalizeText = (value: unknown) => String(value || '')
   .trim()
   .toLowerCase()
-  .replace(/[вЂвЂ™`]/g, "'")
+  .replace(/[''`]/g, "'")
   .replace(/gРІР‚Вuzor/g, "g'uzor")
   .replace(/gК»uzor/g, "g'uzor")
   .replace(/\s+/g, ' ');
@@ -284,7 +284,7 @@ export const Overview = () => {
 
           {/* Eng past davomat TOP */}
           <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Eng past davomat вЂ” TOP 5</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Eng past davomat - TOP 5</p>
             <div className="space-y-3">
               {stats.bottomDistricts.length === 0 && (
                 <div className="py-6 text-center text-xs font-black text-slate-400 uppercase tracking-widest">
@@ -348,7 +348,7 @@ export const Overview = () => {
         <div className="lg:col-span-4 bg-[#0f172a] rounded-2xl p-6 text-white flex flex-col gap-5 shadow-sm">
           <div className="flex items-center gap-2">
             <TrendingUp size={16} className="text-indigo-400" />
-            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">AI Command Center</p>
+            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">AI boshqaruv markazi</p>
           </div>
 
           <div className="space-y-3 flex-1">

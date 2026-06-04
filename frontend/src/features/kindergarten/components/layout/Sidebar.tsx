@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   LayoutDashboard, 
   Package, 
@@ -53,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
     setIsEditing(false);
     try {
       await apiClient.post('/settings', { kg_name: newName });
-      showNotification('BogвЂcha nomi yangilandi', 'success');
+      showNotification("Bog'cha nomi yangilandi", 'success');
     } catch (err) {
       showNotification('Xatolik yuz berdi', 'error');
     }
@@ -201,7 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
            <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest mb-1">Tizim holati</p>
            <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-              <span className="text-[10px] font-bold text-brand-depth">Online вЂў v2.4.0</span>
+              <span className="text-[10px] font-bold text-brand-depth">Onlayn - v2.4.0</span>
            </div>
         </div>
       </div>

@@ -159,7 +159,7 @@ export const MenuStatistics = () => {
             <div>
               <h1 className="text-lg sm:text-3xl font-black tracking-tight text-slate-900 leading-none">Menyu Statistikasi</h1>
               <p className="text-[9px] sm:text-[12px] font-bold text-slate-400 uppercase tracking-[0.1em] mt-1 sm:mt-2 flex items-center gap-1.5 sm:gap-2">
-                <Target size={12} className="text-indigo-500 sm:w-3.5 sm:h-3.5" /> Food Compliance Command Center
+                <Target size={12} className="text-indigo-500 sm:w-3.5 sm:h-3.5" /> Taomnoma muvofiqligi markazi
               </p>
             </div>
           </div>

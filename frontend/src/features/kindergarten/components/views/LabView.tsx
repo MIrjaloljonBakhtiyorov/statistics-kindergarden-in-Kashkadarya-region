@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Plus, 
   Database, 
@@ -54,8 +54,8 @@ const LabView: React.FC = () => {
 
   const LAB_CHECKLIST_ITEMS = [
     'Namuna 24 soat davomida saqlash uchun steril idishga olindi',
-    'Harorat +4В°C darajadan oвЂtmadi',
-    'Laboratoriya jurnali toвЂldirildi',
+    "Harorat +4C darajadan o'tmadi",
+    "Laboratoriya jurnali to'ldirildi",
     'Oshpaz va laboratoriya imzosi qayd etildi'
   ];
 
@@ -229,7 +229,7 @@ const LabView: React.FC = () => {
                         <th className="px-10 py-6">Sinama & Batch</th>
                         <th className="px-10 py-6">Kategoriya</th>
                         <th className="px-10 py-6">Xulosa</th>
-                        <th className="px-10 py-6">Status</th>
+                        <th className="px-10 py-6">Holat</th>
                         <th className="px-10 py-6 text-right">Amallar</th>
                       </tr>
                     </thead>

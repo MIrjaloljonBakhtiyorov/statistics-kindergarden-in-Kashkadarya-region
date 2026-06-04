@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Star, Award, MessageSquare, TrendingUp, Calendar, Zap, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -23,7 +23,7 @@ export const ProgressSection = ({ data }: any) => {
 
         <div className="relative z-10 flex items-center gap-4 bg-white/10 p-5 md:p-7 rounded-[1.5rem] md:rounded-[2rem] border border-white/20 backdrop-blur-xl shadow-inner group">
            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white text-amber-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-700">
-              <Award size={32} md:size={40} />
+              <Award size={32} />
            </div>
            <div className="text-center">
               <p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest opacity-60 mb-1">Umumiy Reyting</p>
@@ -51,7 +51,7 @@ export const ProgressSection = ({ data }: any) => {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6 md:mb-8">
                  <div className="flex items-center gap-4 md:gap-6">
                     <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1.2rem] md:rounded-[1.5rem] bg-amber-50 text-amber-500 flex items-center justify-center border-2 border-white shadow-md shrink-0 group-hover:rotate-12 transition-all">
-                       <Star size={24} md:size={32} fill="#fbbf24" />
+                       <Star size={24} fill="#fbbf24" />
                     </div>
                     <div className="text-left">
                        <h5 className="text-lg md:text-2xl font-black text-brand-depth tracking-tight uppercase leading-none">{r.subject}</h5>
@@ -117,3 +117,4 @@ export const ProgressSection = ({ data }: any) => {
   </motion.div>
 );
 };
+

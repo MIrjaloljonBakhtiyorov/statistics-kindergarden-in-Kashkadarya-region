@@ -10,7 +10,8 @@ export type UserRole =
   | 'TEACHER'
   | 'NURSE'
   | 'PARENT'
-  | 'INSPECTOR';
+  | 'INSPECTOR'
+  | 'ADMIN';
 
 export interface NavItem {
   id: string;

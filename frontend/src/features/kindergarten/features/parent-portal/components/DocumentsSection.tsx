@@ -71,7 +71,7 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
           <div className="p-5 md:p-7 border-b border-slate-50 flex flex-col md:flex-row items-center justify-between bg-slate-50/20 gap-4">
              <div className="flex items-center gap-3.5 text-center md:text-left">
                 <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-brand-primary text-white flex items-center justify-center shadow-md border-2 border-white/20 shrink-0">
-                   <FileText size={24} md:size={28} />
+                   <FileText size={24} />
                 </div>
                 <div>
                    <h5 className="text-lg md:text-2xl font-black text-brand-depth tracking-tight uppercase leading-none">Hujjatlar</h5>
@@ -92,7 +92,7 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
                 <div key={doc.id} className="p-4 md:p-6 flex flex-col md:flex-row items-center justify-between group hover:bg-slate-50/80 transition-all gap-4">
                    <div className="flex items-center gap-3.5 text-center md:text-left">
                       <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white flex items-center justify-center text-brand-primary border border-slate-100 shadow-sm shrink-0">
-                         <FileText size={20} md:size={24} />
+                         <FileText size={20} />
                       </div>
                       <div>
                          <p className="font-bold md:font-black text-sm md:text-lg text-brand-depth tracking-tight group-hover:text-brand-primary transition-colors leading-none">{doc.title}</p>
@@ -232,4 +232,5 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
     </motion.div>
   );
 };
+
 

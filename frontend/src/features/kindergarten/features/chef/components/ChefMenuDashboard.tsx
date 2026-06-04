@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   Calendar,
@@ -290,7 +290,7 @@ export const ChefMenuDashboard: React.FC = () => {
               <div className="h-full w-1/2 rounded-full bg-brand-emerald" />
             </div>
             <p className="text-xs text-white/60 font-semibold mt-4 leading-relaxed">
-              Pishirish bosqichini vaqtida belgilang. Harorat faqat tayyor boвЂlganda kiritiladi.
+              Pishirish bosqichini vaqtida belgilang. Harorat faqat tayyor bo'lganda kiritiladi.
             </p>
           </div>
 
@@ -481,7 +481,7 @@ const EmptyState = ({ meal }: { meal: string }) => (
     </div>
     <h3 className="text-xl font-black text-brand-depth">Menyu topilmadi</h3>
     <p className="text-sm font-semibold text-brand-muted mt-2 max-w-sm">
-      {meal} uchun hali oshpaz vazifasi belgilanmagan. Menyu tasdiqlangandan keyin shu yerda koвЂrinadi.
+      {meal} uchun hali oshpaz vazifasi belgilanmagan. Menyu tasdiqlangandan keyin shu yerda ko'rinadi.
     </p>
   </div>
 );

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Wallet, CreditCard, Receipt, Download, CheckCircle2, ClipboardList, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -18,7 +18,7 @@ export const FinanceSection = ({ data }: any) => {
                      <h4 className="text-2xl md:text-4xl font-black tracking-tighter">0.00 <span className="text-sm md:text-base opacity-40 uppercase ml-1.5">UZS</span></h4>
                   </div>
                   <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center backdrop-blur-xl border bg-emerald-500/20 border-emerald-500/30 text-emerald-400">
-                     <CheckCircle2 size={20} md:size={28} />
+                     <CheckCircle2 size={20} />
                   </div>
                </div>
                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 pt-4 md:pt-6 border-t border-white/5">
@@ -41,11 +41,11 @@ export const FinanceSection = ({ data }: any) => {
          {/* Action Buttons */}
          <div className="flex flex-row lg:flex-col gap-3 md:gap-4">
             <div className="flex-1 bg-brand-primary p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] text-white shadow-lg flex flex-col justify-center items-center text-center group cursor-pointer hover:bg-brand-primary-dark transition-all active:scale-95 border-b-2 md:border-b-4 border-black/10">
-               <CreditCard size={24} md:size={32} className="mb-1.5 md:mb-2.5" />
+               <CreditCard size={24} className="mb-1.5 md:mb-2.5" />
                <h5 className="text-xs md:text-sm font-black uppercase leading-tight">To'lov</h5>
             </div>
             <div className="flex-1 bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-brand-border shadow-sm flex flex-col justify-center items-center text-center group cursor-pointer hover:border-brand-primary transition-all active:scale-95">
-               <Receipt size={24} md:size={32} className="text-brand-primary mb-1.5 md:mb-2.5" />
+               <Receipt size={24} className="text-brand-primary mb-1.5 md:mb-2.5" />
                <h5 className="text-xs md:text-sm font-black text-brand-depth uppercase leading-tight">Invoys</h5>
             </div>
          </div>
@@ -80,7 +80,7 @@ export const FinanceSection = ({ data }: any) => {
                         </td>
                         <td className="px-5 md:px-8 py-4 md:py-5 text-right">
                            <button className="p-2 md:p-3 bg-white text-brand-depth hover:bg-brand-primary hover:text-white rounded-lg md:rounded-xl transition-all shadow-sm border border-brand-border group-hover:scale-110">
-                              <Download size={14} md:size={16} />
+                              <Download size={14} />
                            </button>
                         </td>
                      </tr>
@@ -92,3 +92,4 @@ export const FinanceSection = ({ data }: any) => {
     </motion.div>
   );
 };
+

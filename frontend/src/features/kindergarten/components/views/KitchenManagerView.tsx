@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Utensils, 
   Clock, 
@@ -150,7 +150,7 @@ const KitchenManagerView: React.FC = () => {
                       </span>
                       <h3 className="text-xl font-black text-brand-depth mt-3">{task.meal_name}</h3>
                       <p className="text-[10px] font-bold text-brand-muted uppercase tracking-widest mt-1">
-                        {task.age_group} yosh вЂў {task.diet_type === 'REGULAR' ? 'Oddiy' : 'Parhez'}
+                        {task.age_group} yosh - {task.diet_type === 'REGULAR' ? 'Oddiy' : 'Parhez'}
                       </p>
                     </div>
                     <div className={`p-3 rounded-2xl ${Config.color}`}>

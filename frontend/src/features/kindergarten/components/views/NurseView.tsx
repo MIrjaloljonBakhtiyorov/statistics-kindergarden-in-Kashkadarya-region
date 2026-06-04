@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNotification } from '../../context/NotificationContext';
 import { apiClient } from '@/shared/api';
 import { 
@@ -716,7 +716,7 @@ const NurseView: React.FC = () => {
                   <Stethoscope size={40} />
                 </div>
                 <h2 className="text-2xl font-black text-brand-depth">{selectedChild.first_name} {selectedChild.last_name}</h2>
-                <p className="text-brand-muted font-bold text-sm mt-1">{selectedChild.age_category || 'Yosh kiritilmagan'} вЂў {selectedGroup?.name}</p>
+                <p className="text-brand-muted font-bold text-sm mt-1">{selectedChild.age_category || 'Yosh kiritilmagan'} - {selectedGroup?.name}</p>
                 
                 <div className="w-full mt-8 space-y-4">
                   <div className="flex justify-between p-4 bg-slate-50 rounded-2xl border border-brand-border">

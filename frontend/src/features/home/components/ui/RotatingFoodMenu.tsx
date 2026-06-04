@@ -31,7 +31,7 @@ const RotatingFoodMenu: React.FC = () => {
       {/* Background Decorative Rings */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-[480px] h-[480px] rounded-full border border-slate-200/50 dashed-border animate-[spin_60s_linear_infinite]" 
-             style={{ borderStyle: 'dashed', borderWidth: '2px', borderDasharray: '10 10' }}></div>
+             style={{ borderStyle: 'dashed', borderWidth: '2px' }}></div>
         <div className="absolute w-[360px] h-[360px] rounded-full border border-slate-100/30"></div>
       </div>
 

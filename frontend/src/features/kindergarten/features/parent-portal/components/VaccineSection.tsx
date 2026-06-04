@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Syringe, Clock, CheckCircle, ShieldCheck, AlertCircle, Info, Calendar } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -12,7 +12,7 @@ export const VaccineSection = ({ data }: any) => (
            <div className="space-y-3 text-center lg:text-left">
               <div className="flex items-center justify-center lg:justify-start gap-3">
                  <div className="w-12 h-12 md:w-14 md:h-14 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex items-center justify-center">
-                    <ShieldCheck size={24} md:size={28} className="text-white" />
+                    <ShieldCheck size={24} className="text-white" />
                  </div>
                  <div className="px-3 py-1 bg-white/10 border border-white/20 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest backdrop-blur-md">Emlash Pasporti</div>
               </div>
@@ -38,7 +38,7 @@ export const VaccineSection = ({ data }: any) => (
         <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col md:flex-row items-center justify-between bg-slate-50/20 gap-4">
            <div className="flex items-center gap-4">
               <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-sky-600 text-white flex items-center justify-center shadow-lg group">
-                 <Syringe size={24} md:size={32} className="group-hover:rotate-[-45deg] transition-transform duration-500" />
+                 <Syringe size={24} className="group-hover:rotate-[-45deg] transition-transform duration-500" />
               </div>
               <div className="text-left">
                  <h5 className="text-xl md:text-2xl font-black text-brand-depth tracking-tight uppercase leading-none">Emlashlar Ro'yxati</h5>
@@ -60,7 +60,7 @@ export const VaccineSection = ({ data }: any) => (
               >
                  <div className="flex items-center gap-5 md:gap-8 w-full sm:w-auto">
                     <div className={`w-14 h-14 md:w-20 md:h-20 rounded-2xl flex items-center justify-center border-2 transition-all shadow-md group-hover:scale-105 ${v.status === 'TAKEN' ? 'bg-emerald-50 border-white text-emerald-500' : 'bg-slate-50 border-white text-slate-300'}`}>
-                       <Syringe size={24} md:size={32} />
+                       <Syringe size={24} />
                     </div>
                     <div className="space-y-0.5 text-left flex-1">
                        <h5 className="text-lg md:text-xl font-black text-brand-depth tracking-tight group-hover:text-sky-600 transition-colors">{v.vaccine_name}</h5>
@@ -114,3 +114,4 @@ export const VaccineSection = ({ data }: any) => (
      </div>
   </motion.div>
 );
+

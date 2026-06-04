@@ -13,6 +13,17 @@ const get = (sql, params = []) => new Promise((resolve, reject) => {
   db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
 });
 
+const all = (sql, params = []) => new Promise((resolve, reject) => {
+  db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows || []));
+});
+
+const run = (sql, params = []) => new Promise((resolve, reject) => {
+  db.run(sql, params, function (err) {
+    if (err) reject(err);
+    else resolve({ lastID: this.lastID, changes: this.changes || 0 });
+  });
+});
+
 const normalizeDate = (value) => {
   const date = String(value || '').slice(0, 10);
   return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : new Date().toISOString().slice(0, 10);
@@ -46,6 +57,203 @@ const mealTypesForWorkHours = (value) => {
   const hours = normalizeWorkHours(value);
   const group = Object.values(WORK_HOUR_GROUPS).find((item) => item.hours.includes(hours));
   return group?.meals || WORK_HOUR_GROUPS.DAY_9_105.meals;
+};
+
+const toIsoTimestamp = (value, fallback = new Date().toISOString()) => {
+  if (!value) return fallback;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? fallback : date.toISOString();
+};
+
+const ensureAdminAlertEventsTable = async () => {
+  await run(`CREATE TABLE IF NOT EXISTS admin_alert_events (
+    id TEXT PRIMARY KEY,
+    event_type TEXT NOT NULL,
+    category TEXT NOT NULL,
+    status TEXT NOT NULL,
+    title TEXT NOT NULL,
+    context TEXT,
+    actor TEXT,
+    entity_type TEXT,
+    entity_id TEXT,
+    action_url TEXT,
+    details_json TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+  await run(`CREATE INDEX IF NOT EXISTS idx_admin_alert_events_created ON admin_alert_events (created_at DESC)`);
+  await run(`CREATE INDEX IF NOT EXISTS idx_admin_alert_events_entity ON admin_alert_events (entity_type, entity_id, event_type)`);
+};
+
+const recordAdminAlertEvent = async ({
+  eventType,
+  category,
+  status,
+  title,
+  context,
+  actor = 'Admin',
+  entityType,
+  entityId,
+  actionUrl,
+  details = [],
+}) => {
+  await ensureAdminAlertEventsTable();
+  const id = crypto.randomUUID();
+  await run(
+    `INSERT INTO admin_alert_events (
+      id, event_type, category, status, title, context, actor,
+      entity_type, entity_id, action_url, details_json
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      id,
+      eventType,
+      category,
+      status,
+      title,
+      context || null,
+      actor,
+      entityType || null,
+      entityId == null ? null : String(entityId),
+      actionUrl || null,
+      JSON.stringify(details || []),
+    ]
+  );
+  return id;
+};
+
+const parseAlertDetails = (value) => {
+  try {
+    const parsed = JSON.parse(value || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const buildMedicalStockReport = async () => {
+  await ensureTables();
+
+  const kindergartens = await all(
+    `SELECT id, name, district, address, phone, currentChildren
+     FROM kindergartens
+     ORDER BY district, name`
+  );
+
+  await Promise.all(
+    kindergartens.map((kindergarten) => ensureMedicalInventoryDefaults(String(kindergarten.id)))
+  );
+
+  const today = new Date().toISOString().slice(0, 10);
+  const rows = await all(
+    `
+      SELECT
+        i.*,
+        k.name as kindergarten_name,
+        k.district,
+        k.address,
+        k.phone,
+        COALESCE(child_counts.children_count, k.currentChildren, 0) as child_count_basis,
+        COALESCE(SUM(CASE WHEN m.type = 'IN' THEN m.quantity WHEN m.type = 'OUT' THEN -m.quantity ELSE 0 END), 0) as current_quantity,
+        COUNT(m.id) as movement_count,
+        MIN(CASE WHEN m.type = 'IN' AND m.expiry_date IS NOT NULL AND m.expiry_date >= ? THEN m.expiry_date END) as nearest_expiry_date,
+        MIN(CASE WHEN m.type = 'IN' AND m.expiry_date IS NOT NULL THEN m.expiry_date END) as first_expiry_date,
+        MIN(CASE WHEN m.type = 'IN' AND m.expiry_date IS NOT NULL AND m.expiry_date < ? THEN m.expiry_date END) as oldest_expired_date,
+        SUM(CASE WHEN m.type = 'IN' AND m.expiry_date IS NOT NULL AND m.expiry_date < ? THEN 1 ELSE 0 END) as expired_batch_count
+      FROM medical_inventory_items i
+      INNER JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(i.kindergarten_id AS TEXT)
+      LEFT JOIN (
+        SELECT kindergarten_id, COUNT(*) as children_count
+        FROM children
+        WHERE COALESCE(status, 'ACTIVE') != 'ARCHIVED'
+        GROUP BY kindergarten_id
+      ) child_counts ON CAST(child_counts.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+      LEFT JOIN medical_inventory_movements m
+        ON m.item_id = i.id
+       AND CAST(m.kindergarten_id AS TEXT) = CAST(i.kindergarten_id AS TEXT)
+      GROUP BY
+        i.id, i.kindergarten_id, i.name, i.form, i.unit, i.required_per_100, i.required_label,
+        i.is_default, i.created_at, i.updated_at, k.name, k.district, k.address, k.phone,
+        k.currentChildren, child_counts.children_count
+      ORDER BY k.district, k.name, i.is_default DESC, i.name
+    `,
+    [today, today, today]
+  );
+
+  const warningDate = new Date();
+  warningDate.setDate(warningDate.getDate() + 30);
+  const warningIso = warningDate.toISOString().slice(0, 10);
+
+  const statusPriority = {
+    EXPIRED: 5,
+    EMPTY: 4,
+    LOW: 3,
+    EXPIRING: 2,
+    NOT_ENTERED: 1,
+    OK: 0,
+  };
+
+  const rawItems = rows.map((row) => {
+    const decorated = decorateMedicalItems([row], Number(row.child_count_basis || 0))[0];
+    const expiredBatchCount = Number(row.expired_batch_count || 0);
+    let status = decorated.status;
+
+    if (Number(decorated.movement_count || 0) === 0) status = 'NOT_ENTERED';
+    else if (expiredBatchCount > 0) status = 'EXPIRED';
+    else if (Number(decorated.current_quantity || 0) <= 0) status = 'EMPTY';
+    else if (decorated.nearest_expiry_date && decorated.nearest_expiry_date <= warningIso) status = 'EXPIRING';
+    else if (Number(decorated.required_quantity || 0) > 0 && Number(decorated.current_quantity || 0) < Number(decorated.required_quantity || 0)) status = 'LOW';
+
+    return {
+      ...decorated,
+      status,
+      kindergarten_id: row.kindergarten_id,
+      kindergarten_name: row.kindergarten_name,
+      district: row.district,
+      address: row.address,
+      phone: row.phone,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      oldest_expired_date: row.oldest_expired_date || null,
+      expired_batch_count: expiredBatchCount,
+    };
+  });
+
+  const dedupedItemsByKindergarten = new Map();
+  rawItems.forEach((item) => {
+    const key = `${item.kindergarten_id}:${normalizeMedicineName(item.name)}`;
+    const existing = dedupedItemsByKindergarten.get(key);
+    if (!existing) {
+      dedupedItemsByKindergarten.set(key, item);
+      return;
+    }
+
+    const currentPriority = statusPriority[item.status] ?? 0;
+    const existingPriority = statusPriority[existing.status] ?? 0;
+    const shouldReplace = currentPriority > existingPriority
+      || (currentPriority === existingPriority && Number(item.movement_count || 0) > Number(existing.movement_count || 0));
+
+    if (shouldReplace) dedupedItemsByKindergarten.set(key, item);
+  });
+
+  const items = Array.from(dedupedItemsByKindergarten.values());
+  const issueStatuses = new Set(['NOT_ENTERED', 'LOW', 'EMPTY', 'EXPIRED', 'EXPIRING']);
+  const issues = items.filter((item) => issueStatuses.has(item.status));
+  const summary = {
+    kindergartens: kindergartens.length,
+    total_items: items.length,
+    issues: issues.length,
+    expired: issues.filter((item) => item.status === 'EXPIRED').length,
+    empty: issues.filter((item) => item.status === 'EMPTY').length,
+    low: issues.filter((item) => item.status === 'LOW').length,
+    expiring: issues.filter((item) => item.status === 'EXPIRING').length,
+    not_entered: issues.filter((item) => item.status === 'NOT_ENTERED').length,
+  };
+
+  return {
+    generated_at: new Date().toISOString(),
+    summary,
+    items,
+    issues,
+  };
 };
 
 const deleteKindergartenCascade = async (kindergartenId) => {
@@ -274,135 +482,218 @@ const KindergartenController = {
 
   getMedicalStockAlerts: async (req, res) => {
     try {
-      await ensureTables();
+      res.json(await buildMedicalStockReport());
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
 
-      const kindergartens = await new Promise((resolve, reject) => {
-        db.all(
-          `SELECT id, name, district, address, phone, currentChildren
-           FROM kindergartens
-           ORDER BY district, name`,
-          [],
-          (err, rows) => err ? reject(err) : resolve(rows || [])
-        );
-      });
+  getAlerts: async (req, res) => {
+    try {
+      await ensureAdminAlertEventsTable();
+      const generatedAt = new Date().toISOString();
+      const pageSize = Math.min(Math.max(Number(req.query.pageSize || 50), 1), 50);
+      const page = Math.max(Number(req.query.page || 1), 1);
+      const filter = String(req.query.filter || 'all').toLowerCase();
+      const search = String(req.query.search || '').trim().toLowerCase();
 
-      await Promise.all(
-        kindergartens.map((kindergarten) => ensureMedicalInventoryDefaults(String(kindergarten.id)))
+      const [eventRows, kindergartenRows, menuRows, medicalReport] = await Promise.all([
+        all(`
+          SELECT *
+          FROM admin_alert_events
+          ORDER BY created_at DESC
+          LIMIT 5000
+        `),
+        all(`
+          SELECT
+            id,
+            system_id,
+            name,
+            type,
+            workHours,
+            district,
+            phone,
+            directorName as director_name,
+            capacity,
+            currentChildren,
+            username,
+            created_at
+          FROM kindergartens
+          ORDER BY created_at DESC
+          LIMIT 500
+        `),
+        all(`
+          SELECT
+            m.date,
+            MIN(COALESCE(m.created_at, CURRENT_TIMESTAMP)) as created_at,
+            COUNT(*) as menu_count,
+            COUNT(DISTINCT m.kindergarten_id) as kindergarten_count,
+            COUNT(DISTINCT m.meal_type) as meal_type_count,
+            STRING_AGG(DISTINCT NULLIF(k.district, ''), ', ') as districts
+          FROM menus m
+          LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(m.kindergarten_id AS TEXT)
+          GROUP BY m.date
+          ORDER BY MIN(COALESCE(m.created_at, CURRENT_TIMESTAMP)) DESC, m.date DESC
+          LIMIT 500
+        `),
+        buildMedicalStockReport(),
+      ]);
+
+      const eventAlerts = eventRows.map((row) => ({
+        id: `event-${row.id}`,
+        status: row.status,
+        category: row.category,
+        iconKey: row.category,
+        title: row.title,
+        context: row.context || '',
+        actor: row.actor || 'Admin',
+        createdAt: toIsoTimestamp(row.created_at, generatedAt),
+        actionUrl: row.action_url || undefined,
+        eventType: row.event_type,
+        entityType: row.entity_type,
+        entityId: row.entity_id,
+        details: parseAlertDetails(row.details_json),
+      }));
+
+      const existingKindergartenCreateIds = new Set(
+        eventRows
+          .filter((row) => row.event_type === 'KINDERGARTEN_CREATED' && row.entity_type === 'kindergarten')
+          .map((row) => String(row.entity_id))
       );
 
-      const today = new Date().toISOString().slice(0, 10);
-      const rows = await new Promise((resolve, reject) => {
-        db.all(
-          `
-            SELECT
-              i.*,
-              k.name as kindergarten_name,
-              k.district,
-              k.address,
-              k.phone,
-              COALESCE(child_counts.children_count, k.currentChildren, 0) as child_count_basis,
-              COALESCE(SUM(CASE WHEN m.type = 'IN' THEN m.quantity WHEN m.type = 'OUT' THEN -m.quantity ELSE 0 END), 0) as current_quantity,
-              COUNT(m.id) as movement_count,
-              MIN(CASE WHEN m.type = 'IN' AND m.expiry_date IS NOT NULL AND m.expiry_date >= ? THEN m.expiry_date END) as nearest_expiry_date,
-              MIN(CASE WHEN m.type = 'IN' AND m.expiry_date IS NOT NULL THEN m.expiry_date END) as first_expiry_date,
-              MIN(CASE WHEN m.type = 'IN' AND m.expiry_date IS NOT NULL AND m.expiry_date < ? THEN m.expiry_date END) as oldest_expired_date,
-              SUM(CASE WHEN m.type = 'IN' AND m.expiry_date IS NOT NULL AND m.expiry_date < ? THEN 1 ELSE 0 END) as expired_batch_count
-            FROM medical_inventory_items i
-            INNER JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(i.kindergarten_id AS TEXT)
-            LEFT JOIN (
-              SELECT kindergarten_id, COUNT(*) as children_count
-              FROM children
-              WHERE COALESCE(status, 'ACTIVE') != 'ARCHIVED'
-              GROUP BY kindergarten_id
-            ) child_counts ON CAST(child_counts.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
-            LEFT JOIN medical_inventory_movements m
-              ON m.item_id = i.id
-             AND CAST(m.kindergarten_id AS TEXT) = CAST(i.kindergarten_id AS TEXT)
-            GROUP BY
-              i.id, i.kindergarten_id, i.name, i.form, i.unit, i.required_per_100, i.required_label,
-              i.is_default, i.created_at, i.updated_at, k.name, k.district, k.address, k.phone,
-              k.currentChildren, child_counts.children_count
-            ORDER BY k.district, k.name, i.is_default DESC, i.name
-          `,
-          [today, today, today],
-          (err, resultRows) => err ? reject(err) : resolve(resultRows || [])
-        );
-      });
+      const kindergartenAlerts = kindergartenRows
+        .filter((row) => !existingKindergartenCreateIds.has(String(row.id)))
+        .map((row) => ({
+        id: `kindergarten-created-${row.id}`,
+        status: 'success',
+        category: 'kindergarten',
+        iconKey: 'kindergarten',
+        title: `Yangi bog'cha qo'shildi: ${row.name}`,
+        context: `${row.district || 'Tuman kiritilmagan'} | ${row.system_id || 'ID yoq'} | ${normalizeWorkHours(row.workHours)} soatlik MTT`,
+        actor: 'Admin',
+        createdAt: toIsoTimestamp(row.created_at, generatedAt),
+        actionUrl: '/admin/kindergartens',
+        details: [
+          { label: 'MTT ID', value: row.system_id || 'Kiritilmagan' },
+          { label: 'Direktor', value: row.director_name || 'Kiritilmagan' },
+          { label: 'Telefon', value: row.phone || 'Kiritilmagan' },
+          { label: "Sig'im", value: `${Number(row.capacity || 0)} o'rin` },
+          { label: 'Login', value: row.username || 'Kiritilmagan' },
+        ],
+      }));
 
-      const warningDate = new Date();
-      warningDate.setDate(warningDate.getDate() + 30);
-      const warningIso = warningDate.toISOString().slice(0, 10);
-
-      const statusPriority = {
-        EXPIRED: 5,
-        EMPTY: 4,
-        LOW: 3,
-        EXPIRING: 2,
-        NOT_ENTERED: 1,
-        OK: 0,
+      const medicalStatusLabels = {
+        EXPIRED: 'muddati tugagan',
+        EMPTY: 'tugagan',
+        LOW: 'yetishmayapti',
+        EXPIRING: 'muddati yaqin',
+        NOT_ENTERED: 'zaxirasi kiritilmagan',
       };
 
-      const rawItems = rows.map((row) => {
-        const decorated = decorateMedicalItems([row], Number(row.child_count_basis || 0))[0];
-        const expiredBatchCount = Number(row.expired_batch_count || 0);
-        let status = decorated.status;
-
-        if (Number(decorated.movement_count || 0) === 0) status = 'NOT_ENTERED';
-        else if (expiredBatchCount > 0) status = 'EXPIRED';
-        else if (Number(decorated.current_quantity || 0) <= 0) status = 'EMPTY';
-        else if (decorated.nearest_expiry_date && decorated.nearest_expiry_date <= warningIso) status = 'EXPIRING';
-        else if (Number(decorated.required_quantity || 0) > 0 && Number(decorated.current_quantity || 0) < Number(decorated.required_quantity || 0)) status = 'LOW';
-
+      const medicalAlerts = medicalReport.issues
+        .filter((item) => item.status !== 'NOT_ENTERED')
+        .map((item) => {
+        const isCritical = ['EXPIRED', 'EMPTY'].includes(item.status);
+        const requiredQuantity = Number(item.required_quantity || 0);
+        const currentQuantity = Number(item.current_quantity || 0);
         return {
-          ...decorated,
-          status,
-          kindergarten_id: row.kindergarten_id,
-          kindergarten_name: row.kindergarten_name,
-          district: row.district,
-          address: row.address,
-          phone: row.phone,
-          oldest_expired_date: row.oldest_expired_date || null,
-          expired_batch_count: expiredBatchCount,
+          id: `medical-${item.kindergarten_id}-${item.id}-${item.status}`,
+          status: isCritical ? 'error' : 'warning',
+          category: 'medical',
+          iconKey: 'medical',
+          title: `${item.kindergarten_name}: ${item.name} ${medicalStatusLabels[item.status] || 'tekshiruv talab qiladi'}`,
+          context: `${item.district || 'Tuman kiritilmagan'} | qoldiq ${currentQuantity}/${requiredQuantity} ${item.unit || ''}`.trim(),
+          actor: 'Hamshira / Ombor',
+          createdAt: toIsoTimestamp(item.updated_at || item.created_at, generatedAt),
+          actionUrl: '/admin/medical-stock',
+          details: [
+            { label: 'Bogcha', value: item.kindergarten_name || 'Kiritilmagan' },
+            { label: 'Dori', value: item.name || 'Kiritilmagan' },
+            { label: 'Shakli', value: item.form || 'Kiritilmagan' },
+            { label: 'Qoldiq', value: `${currentQuantity} ${item.unit || ''}`.trim() },
+            { label: 'Talab', value: requiredQuantity > 0 ? `${requiredQuantity} ${item.unit || ''}`.trim() : item.required_label || 'Kiritilmagan' },
+            { label: 'Muddat', value: item.oldest_expired_date || item.nearest_expiry_date || 'Kiritilmagan' },
+            { label: 'Telefon', value: item.phone || 'Kiritilmagan' },
+          ],
         };
       });
 
-      const dedupedItemsByKindergarten = new Map();
-      rawItems.forEach((item) => {
-        const key = `${item.kindergarten_id}:${normalizeMedicineName(item.name)}`;
-        const existing = dedupedItemsByKindergarten.get(key);
-        if (!existing) {
-          dedupedItemsByKindergarten.set(key, item);
-          return;
-        }
+      const menuAlerts = menuRows.map((row) => ({
+        id: `menu-created-${row.date}`,
+        status: 'update',
+        category: 'menu',
+        iconKey: 'menu',
+        title: `${row.date} kunlik taomnoma yaratildi`,
+        context: `${Number(row.kindergarten_count || 0)} ta MTT | ${Number(row.meal_type_count || 0)} mahal | ${Number(row.menu_count || 0)} ta menyu yozuvi`,
+        actor: 'Taomnoma moduli',
+        createdAt: toIsoTimestamp(row.created_at, generatedAt),
+        actionUrl: '/admin/menu',
+        details: [
+          { label: 'Sana', value: row.date },
+          { label: 'MTT soni', value: String(Number(row.kindergarten_count || 0)) },
+          { label: 'Menyu yozuvi', value: String(Number(row.menu_count || 0)) },
+          { label: 'Ovqatlanish turi', value: String(Number(row.meal_type_count || 0)) },
+          { label: 'Tumanlar', value: row.districts || 'Barcha tumanlar' },
+        ],
+      }));
 
-        const currentPriority = statusPriority[item.status] ?? 0;
-        const existingPriority = statusPriority[existing.status] ?? 0;
-        const shouldReplace = currentPriority > existingPriority
-          || (currentPriority === existingPriority && Number(item.movement_count || 0) > Number(existing.movement_count || 0));
+      const alerts = [...eventAlerts, ...medicalAlerts, ...kindergartenAlerts, ...menuAlerts].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
 
-        if (shouldReplace) dedupedItemsByKindergarten.set(key, item);
-      });
-
-      const items = Array.from(dedupedItemsByKindergarten.values());
-
-      const issueStatuses = new Set(['NOT_ENTERED', 'LOW', 'EMPTY', 'EXPIRED', 'EXPIRING']);
-      const issues = items.filter((item) => issueStatuses.has(item.status));
-      const summary = {
-        kindergartens: kindergartens.length,
-        total_items: items.length,
-        issues: issues.length,
-        expired: issues.filter((item) => item.status === 'EXPIRED').length,
-        empty: issues.filter((item) => item.status === 'EMPTY').length,
-        low: issues.filter((item) => item.status === 'LOW').length,
-        expiring: issues.filter((item) => item.status === 'EXPIRING').length,
-        not_entered: issues.filter((item) => item.status === 'NOT_ENTERED').length,
+      const matchesFilter = (alert) => {
+        if (filter === 'kindergarten') return alert.category === 'kindergarten';
+        if (filter === 'medical') return alert.category === 'medical';
+        if (filter === 'menu') return alert.category === 'menu';
+        if (filter === 'important') return ['error', 'warning'].includes(alert.status);
+        return true;
       };
 
+      const matchesSearch = (alert) => {
+        if (!search) return true;
+        const detailText = (alert.details || []).map((detail) => `${detail.label} ${detail.value}`).join(' ');
+        return [
+          alert.title,
+          alert.context,
+          alert.actor,
+          alert.category,
+          alert.status,
+          alert.eventType,
+          detailText,
+        ].join(' ').toLowerCase().includes(search);
+      };
+
+      const visibleAlerts = alerts.filter((alert) => matchesFilter(alert) && matchesSearch(alert));
+      const total = visibleAlerts.length;
+      const totalPages = Math.max(Math.ceil(total / pageSize), 1);
+      const safePage = Math.min(page, totalPages);
+      const offset = (safePage - 1) * pageSize;
+      const pagedAlerts = visibleAlerts.slice(offset, offset + pageSize).map((alert, index) => ({
+        ...alert,
+        orderNumber: offset + index + 1,
+      }));
+
       res.json({
-        generated_at: new Date().toISOString(),
-        summary,
-        items,
-        issues,
+        generated_at: generatedAt,
+        summary: {
+          total: alerts.length,
+          critical: alerts.filter((alert) => alert.status === 'error').length,
+          warning: alerts.filter((alert) => alert.status === 'warning').length,
+          kindergartens: alerts.filter((alert) => alert.category === 'kindergarten').length,
+          medical: alerts.filter((alert) => alert.category === 'medical').length,
+          menus: alerts.filter((alert) => alert.category === 'menu').length,
+        },
+        pagination: {
+          page: safePage,
+          pageSize,
+          total,
+          totalPages,
+          from: total ? offset + 1 : 0,
+          to: total ? offset + pagedAlerts.length : 0,
+          hasPrev: safePage > 1,
+          hasNext: safePage < totalPages,
+        },
+        alerts: pagedAlerts,
       });
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -830,10 +1121,32 @@ const KindergartenController = {
         
         const kindergartenId = this.lastID;
 
-        db.run("COMMIT", (err) => {
+        db.run("COMMIT", async (err) => {
           if (err) {
             db.run("ROLLBACK");
             return res.status(500).json({ error: err.message });
+          }
+          try {
+            await recordAdminAlertEvent({
+              eventType: 'KINDERGARTEN_CREATED',
+              category: 'kindergarten',
+              status: 'success',
+              title: `Yangi bog'cha qo'shildi: ${data.name}`,
+              context: `${data.district || 'Tuman kiritilmagan'} | ${data.system_id || `#${kindergartenId}`} | ${workHours} soatlik MTT`,
+              actor: 'Admin',
+              entityType: 'kindergarten',
+              entityId: kindergartenId,
+              actionUrl: '/admin/kindergartens',
+              details: [
+                { label: 'MTT ID', value: data.system_id || 'Kiritilmagan' },
+                { label: 'Direktor', value: data.directorName || 'Kiritilmagan' },
+                { label: 'Telefon', value: data.phone || 'Kiritilmagan' },
+                { label: "Sig'im", value: `${Number(data.capacity || 0)} o'rin` },
+                { label: 'Login', value: data.username || 'Kiritilmagan' },
+              ],
+            });
+          } catch (eventError) {
+            console.error('Kindergarten create alert event error:', eventError.message);
           }
           res.status(201).json({ id: kindergartenId, ...data });
         });
@@ -894,9 +1207,41 @@ const KindergartenController = {
     }
 
     try {
+      const existing = await get(
+        `SELECT id, system_id, name, district, directorName as director_name, phone, capacity, username, created_at
+         FROM kindergartens
+         WHERE id = ?`,
+        [kindergartenId]
+      );
+      if (!existing) {
+        return res.status(404).json({ error: 'Kindergarten not found' });
+      }
+
       const deleted = await deleteKindergartenCascade(kindergartenId);
       if (!deleted) {
         return res.status(404).json({ error: 'Kindergarten not found' });
+      }
+      try {
+        await recordAdminAlertEvent({
+          eventType: 'KINDERGARTEN_DELETED',
+          category: 'kindergarten',
+          status: 'error',
+          title: `Bog'cha o'chirildi: ${existing.name}`,
+          context: `${existing.district || 'Tuman kiritilmagan'} | ${existing.system_id || `#${kindergartenId}`} | ma'lumotlar arxivdan olib tashlandi`,
+          actor: 'Admin',
+          entityType: 'kindergarten',
+          entityId: kindergartenId,
+          actionUrl: '/admin/kindergartens',
+          details: [
+            { label: 'MTT ID', value: existing.system_id || 'Kiritilmagan' },
+            { label: 'Direktor', value: existing.director_name || 'Kiritilmagan' },
+            { label: 'Telefon', value: existing.phone || 'Kiritilmagan' },
+            { label: "Sig'im", value: `${Number(existing.capacity || 0)} o'rin` },
+            { label: 'Login', value: existing.username || 'Kiritilmagan' },
+          ],
+        });
+      } catch (eventError) {
+        console.error('Kindergarten delete alert event error:', eventError.message);
       }
       res.json({ message: 'Deleted successfully', id: req.params.id });
     } catch (err) {

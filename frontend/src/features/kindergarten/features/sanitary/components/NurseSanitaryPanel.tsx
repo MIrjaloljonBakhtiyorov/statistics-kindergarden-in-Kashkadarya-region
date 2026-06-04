@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   Apple,
@@ -87,7 +87,7 @@ const NurseSanitaryPanel: React.FC = () => {
         setMeals([]);
       }
     } catch (error) {
-      showNotification('Sanitariya maвЂ™lumotlarini yuklashda xatolik', 'error');
+      showNotification("Sanitariya ma'lumotlarini yuklashda xatolik", 'error');
     } finally {
       setLoading(false);
     }
@@ -122,7 +122,7 @@ const NurseSanitaryPanel: React.FC = () => {
     const taskId = meal.task_id || meal.taskId;
     const comment = String(qualityDrafts[taskId] || meal.nurse_quality_comment || '').trim();
     if (!comment) {
-      showNotification('Taom sifati boвЂyicha izoh yozing', 'warning');
+      showNotification("Taom sifati bo'yicha izoh yozing", 'warning');
       return;
     }
 
@@ -161,7 +161,7 @@ const NurseSanitaryPanel: React.FC = () => {
             <div>
               <h2 className="text-2xl font-black text-brand-depth">Sanitariya checkpointlari</h2>
               <p className="text-xs font-bold text-brand-slate mt-1">
-                Oshpaz checkpointlari 6 soatda bir marta hamshira tasdigвЂiga yuboriladi.
+                Oshpaz checkpointlari 6 soatda bir marta hamshira tasdig'iga yuboriladi.
               </p>
             </div>
           </div>
@@ -215,7 +215,7 @@ const NurseSanitaryPanel: React.FC = () => {
                       {checkpoint.period_label || checkpoint.period_start} В· {answersCount} ta band tasdiqlangan
                     </p>
                     <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest mt-2">
-                      {checkpoint.status === 'APPROVED' ? 'Hamshira tasdiqlagan' : 'Hamshira tasdigвЂi kutilmoqda'}
+                        {checkpoint.status === 'APPROVED' ? 'Hamshira tasdiqlagan' : "Hamshira tasdig'i kutilmoqda"}
                     </p>
                   </div>
                 </div>
@@ -393,7 +393,7 @@ const NurseSanitaryPanel: React.FC = () => {
                     <span>{meal.calories || 0} kkal</span>
                     <span>{meal.kitchen_status || 'BOSHLASH'}</span>
                     <span>Protein: {meal.protein || 0}</span>
-                    <span>YogвЂ: {meal.fat || 0}</span>
+                    <span>Yog': {meal.fat || 0}</span>
                   </div>
                 </div>
               </article>

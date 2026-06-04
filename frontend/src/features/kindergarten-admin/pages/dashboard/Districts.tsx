@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MapPin, ChevronRight, Search, Filter, Sparkles,
@@ -18,7 +18,7 @@ const attendancePercent = (attended: number, total: number) => total > 0 ? Math.
 const normalizeDistrictName = (value: unknown) => String(value || '')
   .trim()
   .toLowerCase()
-  .replace(/[вЂвЂ™`]/g, "'")
+  .replace(/[''`]/g, "'")
   .replace(/gРІР‚Вuzor/g, "g'uzor")
   .replace(/gК»uzor/g, "g'uzor")
   .replace(/\s+/g, ' ');
@@ -439,10 +439,10 @@ export const Districts = () => {
             <LayoutGrid size={20} />
           </div>
           <div>
-            <h2 className="text-lg font-black text-slate-900 tracking-tight">Hududiy Command Center</h2>
+            <h2 className="text-lg font-black text-slate-900 tracking-tight">Hududiy boshqaruv markazi</h2>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Live Region Intelligence</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Jonli hudud tahlili</p>
             </div>
           </div>
         </div>
@@ -455,14 +455,14 @@ export const Districts = () => {
               className={clsx("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all",
                 viewMode === 'grid' ? "bg-slate-900 text-white shadow" : "text-slate-500")}
             >
-              <LayoutGrid size={12} /> Grid
+              <LayoutGrid size={12} /> Jadval
             </button>
             <button
               onClick={() => setViewMode('map')}
               className={clsx("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all",
                 viewMode === 'map' ? "bg-slate-900 text-white shadow" : "text-slate-500")}
             >
-              <MapIcon size={12} /> Map
+              <MapIcon size={12} /> Xarita
             </button>
           </div>
 
@@ -534,7 +534,7 @@ export const Districts = () => {
                   <Sparkles size={16} className="text-indigo-300 animate-pulse" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black">AI Insights Node</h4>
+                  <h4 className="text-sm font-black">AI tahlil markazi</h4>
                   <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">District Pulse Analysis</p>
                 </div>
               </div>
@@ -548,7 +548,7 @@ export const Districts = () => {
             <div className="bg-white/5 border border-white/10 rounded-xl p-4 relative z-10">
               <div className="flex items-center gap-2 mb-2">
                 <ShieldAlert size={12} className="text-amber-400" />
-                <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">System Threat Check</span>
+                <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">Tizim xavf tekshiruvi</span>
               </div>
               <p className="text-xs font-mono text-slate-200 leading-relaxed min-h-[56px]">
                 {aiText}<span className="inline-block w-0.5 h-3 bg-indigo-400 ml-0.5 animate-pulse" />
@@ -570,10 +570,10 @@ export const Districts = () => {
 
             <div className="space-y-2 relative z-10">
               <button onClick={exportPDF} className="w-full py-3 bg-white text-indigo-900 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-indigo-50 transition-all shadow-xl">
-                Download Analytics PDF
+                Analitika PDF yuklash
               </button>
               <button className="w-full py-2.5 bg-indigo-800 text-indigo-200 font-bold text-[9px] uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all">
-                System Logs
+                Tizim loglari
               </button>
             </div>
           </div>
@@ -582,7 +582,7 @@ export const Districts = () => {
           <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-5">
               <Activity size={16} className="text-indigo-500" />
-              <h4 className="text-[10px] font-black text-slate-700 uppercase tracking-widest">District Performance</h4>
+              <h4 className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Hudud samaradorligi</h4>
             </div>
             <div className="space-y-4">
               {sorted.length === 0 && (
@@ -609,7 +609,7 @@ export const Districts = () => {
             </div>
 
             <div className="mt-5 bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-center">
-              <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1">Avg Response Time</p>
+              <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1">O'rtacha javob vaqti</p>
               <p className="text-xl font-black text-indigo-800">Real-time</p>
             </div>
           </div>

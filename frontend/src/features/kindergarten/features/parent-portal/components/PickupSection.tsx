@@ -64,7 +64,7 @@ export const PickupSection = ({ data, onUpdate }: any) => {
           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
           <div className="relative z-10 flex items-center gap-4">
              <div className="w-12 h-12 md:w-14 md:h-14 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 flex items-center justify-center shadow-lg shrink-0 group">
-                <ShieldCheck size={24} md:size={28} className="text-brand-primary group-hover:scale-110 transition-transform duration-500" />
+                <ShieldCheck size={24} className="text-brand-primary group-hover:scale-110 transition-transform duration-500" />
              </div>
              <div className="text-left">
                 <h4 className="text-xl md:text-2xl font-black tracking-tight uppercase leading-tight italic">Xavfsiz Olib <br/> Ketish Tizimi</h4>
@@ -99,7 +99,7 @@ export const PickupSection = ({ data, onUpdate }: any) => {
                       <img src={v.photo_url} alt={v.full_name} className="w-full h-full object-cover" />
                    ) : (
                       <div className="text-slate-200 flex flex-col items-center">
-                         <Contact size={40} md:size={56} className="opacity-20" />
+                         <Contact size={40} className="opacity-20" />
                          <p className="text-[7px] font-black mt-1 uppercase tracking-widest">Surat yo'q</p>
                       </div>
                    )}
@@ -250,6 +250,7 @@ export const PickupSection = ({ data, onUpdate }: any) => {
     </motion.div>
   );
 };
+
 
 
 

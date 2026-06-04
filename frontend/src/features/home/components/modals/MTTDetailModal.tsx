@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 interface MTTDetailModalProps {
   selectedMTTType: any;
   setSelectedMTTType: (type: any) => void;
-  modalRef: React.RefObject<HTMLDivElement>;
+  modalRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const MTTDetailModal: React.FC<MTTDetailModalProps> = ({ selectedMTTType, setSelectedMTTType, modalRef }) => {

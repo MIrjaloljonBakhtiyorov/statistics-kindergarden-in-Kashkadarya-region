@@ -10,7 +10,8 @@ export type UserRole =
   | 'TEACHER'
   | 'NURSE'
   | 'PARENT'
-  | 'INSPECTOR';
+  | 'INSPECTOR'
+  | 'ADMIN';
 
 export interface NavItem {
   id: string;
@@ -98,6 +99,13 @@ export interface LabSample {
   notes?: string;
   created_by: string;
   timestamp: string;
+  test_results?: {
+    ph_level?: number;
+    bacterial_check?: 'PASS' | 'FAIL' | 'WARNING';
+    organoleptic_check?: 'PASS' | 'FAIL';
+    moisture_content?: number;
+    visual_inspection?: string;
+  };
   nutrition: {
     vitamins: string;
     starch: string;

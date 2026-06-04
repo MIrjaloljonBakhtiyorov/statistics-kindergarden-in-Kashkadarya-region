@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Plus, Search, Filter, Building2, School, LayoutGrid, Home,
   Edit, Trash2, Loader2, MapPin, User, ChevronRight,
@@ -105,7 +105,7 @@ const CredentialsModal = ({ item, onClose, onOpen }: { item: any; onClose: () =>
           <div className="bg-slate-50 rounded-2xl px-4 py-3.5 border border-slate-100 flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Login (Username)</p>
-              <p className="text-sm font-black text-slate-800 font-mono">{item.username || 'вЂ”'}</p>
+              <p className="text-sm font-black text-slate-800 font-mono">{item.username || '-'}</p>
             </div>
             <button
               onClick={() => copy('username', item.username || '')}
@@ -124,7 +124,7 @@ const CredentialsModal = ({ item, onClose, onOpen }: { item: any; onClose: () =>
             <div className="min-w-0">
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Parol</p>
               <p className="text-sm font-black text-slate-800 font-mono tracking-widest truncate">
-                {showPass ? (item.password || 'USER1234') : 'вЂўвЂўвЂўвЂўвЂўвЂўвЂўвЂўвЂўвЂў'}
+                {showPass ? (item.password || 'USER1234') : '----------'}
               </p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
@@ -523,7 +523,7 @@ export const MTTManagement = () => {
                     <th className="px-4 py-4 text-left">Ish vaqti</th>
                     <th className="px-4 py-4 text-center">Bolalar</th>
                     <th className="px-4 py-4 text-center">Guruhlar</th>
-                    <th className="px-4 py-4 text-left">Status</th>
+                    <th className="px-4 py-4 text-left">Holat</th>
                     <th className="px-6 py-4 text-right">Amal</th>
                   </tr>
                 </thead>
@@ -562,7 +562,7 @@ export const MTTManagement = () => {
                             </div>
                             <div>
                               <p className="font-black text-slate-900 text-sm tracking-tight group-hover:text-indigo-600 transition-colors">{item.name}</p>
-                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">ID: {item.system_id || 'вЂ”'}</p>
+                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">ID: {item.system_id || '-'}</p>
                             </div>
                           </div>
                         </td>
@@ -699,7 +699,7 @@ export const MTTManagement = () => {
                         </div>
                         <div>
                           <p className="text-[8px] font-black text-slate-400 uppercase">Direktor</p>
-                          <p className="text-xs font-bold text-slate-700 leading-tight">{item.directorName || 'вЂ”'}</p>
+                          <p className="text-xs font-bold text-slate-700 leading-tight">{item.directorName || '-'}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2.5">
@@ -708,7 +708,7 @@ export const MTTManagement = () => {
                         </div>
                         <div>
                           <p className="text-[8px] font-black text-slate-400 uppercase">Telefon</p>
-                          <p className="text-xs font-bold text-slate-700">{item.phone || 'вЂ”'}</p>
+                          <p className="text-xs font-bold text-slate-700">{item.phone || '-'}</p>
                         </div>
                       </div>
                     </div>

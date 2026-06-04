@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
   Lock, 
@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { apiClient } from '@/shared/api';
+import { ThemeToggle } from '@/shared/theme/theme';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 
@@ -148,7 +149,7 @@ const ParentView = () => {
         login: credentials.login,
         password: credentials.newPassword
       });
-      showNotification('MaвЂ™lumotlar yangilandi!', 'success');
+      showNotification("Ma'lumotlar yangilandi!", 'success');
     } catch (err) {
       showNotification("Xatolik yuz berdi", "error");
     } finally {
@@ -268,7 +269,8 @@ const ParentView = () => {
              </div>
           </div>
 
-          <div className="absolute top-3 right-3 md:static">
+          <div className="absolute top-3 right-3 md:static flex items-center gap-2">
+             <ThemeToggle className="p-2 md:p-3.5 bg-white/5 rounded-xl hover:bg-white/10 transition-all border border-white/10 text-white" />
              <button onClick={logout} className="p-2 md:p-3.5 bg-white/5 rounded-xl hover:bg-rose-500 transition-all border border-white/10 group"><LogOut size={16} className="md:w-5 md:h-5" /></button>
           </div>
         </div>

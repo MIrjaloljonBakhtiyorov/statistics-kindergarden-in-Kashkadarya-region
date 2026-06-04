@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { 
   Search, 
   Bell, 
@@ -12,6 +12,7 @@ import { UserRole } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { apiClient } from '@/shared/api';
+import { ThemeToggle } from '@/shared/theme/theme';
 
 const ROLES_INFO: Record<UserRole, { label: string, description: string }> = {
   DIRECTOR: { label: 'Direktor', description: 'Tizim direktori' },
@@ -167,7 +168,7 @@ const TopBar: React.FC<TopBarProps> = ({ role, onMenuClick }) => {
                     disabled={unreadCount === 0}
                     className="text-[10px] font-black uppercase tracking-widest text-brand-primary disabled:text-brand-muted"
                   >
-                    OвЂqildi
+                    O'qildi
                   </button>
                 </div>
 
@@ -175,7 +176,7 @@ const TopBar: React.FC<TopBarProps> = ({ role, onMenuClick }) => {
                   {notifications.length === 0 ? (
                     <div className="p-8 text-center">
                       <Bell className="mx-auto text-brand-muted mb-3" size={26} />
-                      <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest">Bildirishnoma yoвЂq</p>
+                      <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest">Bildirishnoma yo'q</p>
                     </div>
                   ) : (
                     notifications.map((item) => (
@@ -197,7 +198,7 @@ const TopBar: React.FC<TopBarProps> = ({ role, onMenuClick }) => {
                             <span>{formatNotificationTime(item.created_at)}</span>
                             {item.is_read && (
                               <span className="flex items-center gap-1 text-emerald-600">
-                                <CheckCircle2 size={12} /> oвЂqildi
+                                <CheckCircle2 size={12} /> o'qildi
                               </span>
                             )}
                           </div>
@@ -212,12 +213,13 @@ const TopBar: React.FC<TopBarProps> = ({ role, onMenuClick }) => {
           <button className="p-1.5 sm:p-2 text-brand-slate hover:text-brand-primary hover:bg-brand-primary/5 rounded-lg transition-all" title="Sozlamalar">
             <Settings size={18} className="sm:w-5 sm:h-5" />
           </button>
+          <ThemeToggle className="p-1.5 sm:p-2 text-brand-slate hover:text-brand-primary hover:bg-brand-primary/5 rounded-lg transition-all" />
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4 border-l pl-2 sm:pl-6 border-slate-100">
           <div className="text-right hidden md:block max-w-[120px]">
              <p className="text-xs sm:text-sm font-bold text-brand-depth leading-none mb-1 truncate">{user?.full_name || 'Foydalanuvchi'}</p>
-             <p className="text-[9px] sm:text-[10px] text-brand-slate uppercase font-bold tracking-wider truncate">{user?.role === 'DIRECTOR' ? 'Admin / Direktor' : user?.role}</p>
+             <p className="text-[9px] sm:text-[10px] text-brand-slate uppercase font-bold tracking-wider truncate">{user?.role === 'DIRECTOR' ? 'Admin / direktor' : user?.role}</p>
           </div>
           <div className="group relative">
             <button className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center font-black text-[10px] sm:text-xs text-brand-primary overflow-hidden shadow-sm uppercase hover:border-brand-primary transition-colors">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { ShieldCheck, User, Key, Save, Lock, AlertCircle, Eye, EyeOff, ShieldAlert, CheckCircle2, Fingerprint } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -22,7 +22,7 @@ export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdat
         
         <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
           <div className="w-20 h-20 md:w-24 md:h-24 bg-white/10 backdrop-blur-xl rounded-[2rem] border border-white/20 flex items-center justify-center shadow-2xl shrink-0 group">
-            <ShieldCheck size={40} md:size={48} className="text-brand-primary group-hover:scale-110 transition-transform duration-500" />
+            <ShieldCheck size={40} className="text-brand-primary group-hover:scale-110 transition-transform duration-500" />
           </div>
           <div className="space-y-3">
             <h4 className="text-3xl md:text-4xl font-black tracking-tighter uppercase leading-none">Xavfsizlik Markazi</h4>
@@ -55,7 +55,7 @@ export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdat
               </div>
               <div className="relative group">
                 <div className="absolute left-6 md:left-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-brand-muted group-focus-within:text-brand-primary group-focus-within:bg-brand-primary/10 transition-all duration-300">
-                  <User size={20} md:size={24} />
+                  <User size={20} />
                 </div>
                 <input 
                   type="text" 
@@ -71,13 +71,13 @@ export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdat
                 <label className="text-[10px] font-black text-brand-depth uppercase tracking-[0.3em] px-2">Yangi Parol</label>
                 <div className="relative group">
                   <div className="absolute left-6 md:left-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-brand-muted group-focus-within:text-brand-primary group-focus-within:bg-brand-primary/10 transition-all duration-300">
-                    <Lock size={20} md:size={24} />
+                    <Lock size={20} />
                   </div>
                   <input 
                     type={showNewPass ? "text" : "password"} 
                     value={credentials.newPassword}
                     onChange={(e) => setCredentials({...credentials, newPassword: e.target.value})}
-                    placeholder="••••••••"
+                    placeholder="вЂўвЂўвЂўвЂўвЂўвЂўвЂўвЂў"
                     className="w-full pl-20 md:pl-24 pr-16 py-5 md:py-7 bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-[1.8rem] md:rounded-[2.5rem] font-black text-base md:text-xl text-brand-depth outline-none transition-all shadow-inner"
                   />
                   <button 
@@ -94,13 +94,13 @@ export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdat
                 <label className="text-[10px] font-black text-brand-depth uppercase tracking-[0.3em] px-2">Tasdiqlash</label>
                 <div className="relative group">
                   <div className="absolute left-6 md:left-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-brand-muted group-focus-within:text-brand-primary group-focus-within:bg-brand-primary/10 transition-all duration-300">
-                    <Key size={20} md:size={24} />
+                    <Key size={20} />
                   </div>
                   <input 
                     type={showConfirmPass ? "text" : "password"} 
                     value={credentials.confirmPassword}
                     onChange={(e) => setCredentials({...credentials, confirmPassword: e.target.value})}
-                    placeholder="••••••••"
+                    placeholder="вЂўвЂўвЂўвЂўвЂўвЂўвЂўвЂў"
                     className="w-full pl-20 md:pl-24 pr-16 py-5 md:py-7 bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-[1.8rem] md:rounded-[2.5rem] font-black text-base md:text-xl text-brand-depth outline-none transition-all shadow-inner"
                   />
                   <button 
@@ -170,4 +170,5 @@ export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdat
     </motion.div>
   );
 };
+
 

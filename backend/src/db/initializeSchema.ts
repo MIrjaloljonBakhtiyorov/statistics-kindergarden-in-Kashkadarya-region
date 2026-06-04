@@ -252,6 +252,7 @@ const initializeSchema = () => {
         calories REAL,
         image_url TEXT,
         is_approved BOOLEAN DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (kindergarten_id) REFERENCES kindergartens(id)
       )`);
 
@@ -552,6 +553,21 @@ const initializeSchema = () => {
         UNIQUE(kindergarten_id, role)
       )`);
 
+      db.run(`CREATE TABLE IF NOT EXISTS admin_alert_events (
+        id TEXT PRIMARY KEY,
+        event_type TEXT NOT NULL,
+        category TEXT NOT NULL,
+        status TEXT NOT NULL,
+        title TEXT NOT NULL,
+        context TEXT,
+        actor TEXT,
+        entity_type TEXT,
+        entity_id TEXT,
+        action_url TEXT,
+        details_json TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`);
+
       createIndex('idx_children_kindergarten_id', 'children', 'kindergarten_id');
       createIndex('idx_children_group_kindergarten', 'children', 'group_id, kindergarten_id');
       createIndex('idx_parents_kindergarten_id', 'parents', 'kindergarten_id');
@@ -575,6 +591,8 @@ const initializeSchema = () => {
       createIndex('idx_role_notifications_target', 'role_notifications', 'kindergarten_id, target_role, target_user_id, is_read, created_at');
       createIndex('idx_operations_kindergarten_archived', 'operations_log', 'kindergarten_id, is_archived, created_at');
       createIndex('idx_daily_district_expenses_date', 'daily_district_expenses', 'date');
+      createIndex('idx_admin_alert_events_created', 'admin_alert_events', 'created_at DESC');
+      createIndex('idx_admin_alert_events_entity', 'admin_alert_events', 'entity_type, entity_id, event_type');
 
       // Lightweight migrations for databases created with older schemas.
       addColumn('parents', 'workplace', 'TEXT');
@@ -660,6 +678,7 @@ const initializeSchema = () => {
       addColumn('menus', 'products', 'TEXT');
       addColumn('menus', 'protein', 'REAL');
       addColumn('menus', 'fat', 'REAL');
+      addColumn('menus', 'created_at', 'DATETIME DEFAULT CURRENT_TIMESTAMP');
       addColumn('messages', 'message_type', "TEXT DEFAULT 'text'");
       addColumn('messages', 'file_url', 'TEXT');
       addColumn('messages', 'file_name', 'TEXT');

@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle,
@@ -1036,7 +1036,7 @@ export const NutritionMenu = () => {
                       <Calendar className="text-slate-300" size={34} />
                     </div>
                     <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">
-                      {activeTab === 'archive' ? 'Arxivda taomnoma yoвЂq' : 'Bu sanaga real taomnoma kiritilmagan'}
+                        {activeTab === 'archive' ? "Arxivda taomnoma yo'q" : 'Bu sanaga real taomnoma kiritilmagan'}
                     </h3>
                     <p className="text-xs font-bold text-slate-400 mt-2">
                       {activeTab === 'archive' ? '10 kunlik reja kiritilganda qolgan sanalar shu yerda saqlanadi.' : "Bog'cha ichida menyu kiritilgandan keyin admin panelda ko'rinadi."}
@@ -1072,7 +1072,7 @@ export const NutritionMenu = () => {
                                   <h4 className="text-sm font-black text-slate-900">{MEAL_LABELS[mealType]}</h4>
                                 </div>
                                 <span className={clsx("px-2 py-1 rounded-lg border text-[8px] font-black uppercase tracking-widest", MEAL_TIME_META[mealType]?.soft || "bg-slate-50 text-slate-600 border-slate-100")}>
-                                  {menu ? 'Menu' : 'BoвЂsh'}
+                                  {menu ? 'Menyu' : "Bo'sh"}
                                 </span>
                               </div>
 

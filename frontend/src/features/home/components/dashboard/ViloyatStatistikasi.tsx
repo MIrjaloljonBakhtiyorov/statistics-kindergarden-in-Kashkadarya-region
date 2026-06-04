@@ -464,30 +464,31 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                         <Tooltip
                           cursor={{ fill: 'rgba(0,53,128,0.04)' }}
                           content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
+                            if (active && payload && payload.length >= 3) {
+                              const [earlyPayload, latePayload, absentPayload] = payload;
                               return (
                                 <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-lg space-y-2 min-w-[210px]">
-                                  <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest border-b border-slate-100 pb-2">{payload[0].payload.name}</p>
+                                  <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest border-b border-slate-100 pb-2">{earlyPayload.payload.name}</p>
                                   <div className="flex items-center justify-between gap-6">
                                     <div className="flex items-center gap-2">
                                       <div className="w-2.5 h-2.5 rounded-sm bg-[#1565C0]" />
                                       <span className="text-[11px] font-medium text-slate-500">{t('region.beforeNineShort')}</span>
                                     </div>
-                                    <span className="text-[14px] font-bold text-[#003580]">{payload[0].value.toLocaleString()}</span>
+                                    <span className="text-[14px] font-bold text-[#003580]">{earlyPayload.value?.toLocaleString()}</span>
                                   </div>
                                   <div className="flex items-center justify-between gap-6">
                                     <div className="flex items-center gap-2">
                                       <div className="w-2.5 h-2.5 rounded-sm bg-[#F59E0B]" />
                                       <span className="text-[11px] font-medium text-slate-500">{t('region.afterNineShort')}</span>
                                     </div>
-                                    <span className="text-[14px] font-bold text-[#D97706]">{payload[1].value.toLocaleString()}</span>
+                                    <span className="text-[14px] font-bold text-[#D97706]">{latePayload.value?.toLocaleString()}</span>
                                   </div>
                                   <div className="flex items-center justify-between gap-6">
                                     <div className="flex items-center gap-2">
                                       <div className="w-2.5 h-2.5 rounded-sm bg-[#B71C1C]" />
                                       <span className="text-[11px] font-medium text-slate-500">{t('region.absentShort')}</span>
                                     </div>
-                                    <span className="text-[14px] font-bold text-[#B71C1C]">{payload[2].value.toLocaleString()}</span>
+                                    <span className="text-[14px] font-bold text-[#B71C1C]">{absentPayload.value?.toLocaleString()}</span>
                                   </div>
                                 </div>
                               );

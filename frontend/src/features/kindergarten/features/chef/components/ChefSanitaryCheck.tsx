@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   AlertCircle,
   Check,
@@ -34,7 +34,7 @@ const SANITARY_ITEMS = [
   },
   {
     id: 3,
-    category: 'QoвЂl gigiyenasi',
+    category: "Qo'l gigiyenasi",
     text: "Qo'llar sovun bilan yuvilgan va antiseptik ishlatilgan",
     icon: Droplets,
     image: 'https://images.unsplash.com/photo-1584744982491-665216d95f8b?auto=format&fit=crop&w=900&q=80',
@@ -42,7 +42,7 @@ const SANITARY_ITEMS = [
   {
     id: 4,
     category: 'Tirnoqlar',
-    text: 'Tirnoqlar olingan, toza va lak/boвЂyoqsiz',
+    text: "Tirnoqlar olingan, toza va lak/bo'yoqsiz",
     icon: CheckCircle2,
     image: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=900&q=80',
   },
@@ -55,7 +55,7 @@ const SANITARY_ITEMS = [
   },
   {
     id: 6,
-    category: 'SogвЂliq',
+    category: "Sog'liq",
     text: "Qo'lda jarohat, yiringlash yoki ochiq yara yo'q",
     icon: ShieldCheck,
     image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=80',
@@ -84,7 +84,7 @@ const SANITARY_ITEMS = [
   {
     id: 10,
     category: 'Kesish taxtalari',
-    text: 'GoвЂsht, sabzavot va non uchun taxtalar alohida',
+    text: "Go'sht, sabzavot va non uchun taxtalar alohida",
     icon: ShieldCheck,
     image: 'https://images.unsplash.com/photo-1514986888952-8cd320577b68?auto=format&fit=crop&w=900&q=80',
   },
@@ -97,8 +97,8 @@ const SANITARY_ITEMS = [
   },
   {
     id: 12,
-    category: 'Sut va goвЂsht',
-    text: 'Sut va goвЂsht mahsulotlari alohida saqlanmoqda',
+    category: "Sut va go'sht",
+    text: "Sut va go'sht mahsulotlari alohida saqlanmoqda",
     icon: Thermometer,
     image: 'https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=900&q=80',
   },
@@ -111,7 +111,7 @@ const SANITARY_ITEMS = [
   },
   {
     id: 14,
-    category: 'QoвЂl yuvish joyi',
+    category: "Qo'l yuvish joyi",
     text: "Sovun, salfetka va antiseptik yetarli",
     icon: Droplets,
     image: 'https://images.unsplash.com/photo-1584744982491-665216d95f8b?auto=format&fit=crop&w=900&q=80',
@@ -119,7 +119,7 @@ const SANITARY_ITEMS = [
   {
     id: 15,
     category: 'Chiqindi',
-    text: 'Chiqindi idishlari yopiq va vaqtida boвЂshatilgan',
+    text: "Chiqindi idishlari yopiq va vaqtida bo'shatilgan",
     icon: Sparkles,
     image: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=900&q=80',
   },

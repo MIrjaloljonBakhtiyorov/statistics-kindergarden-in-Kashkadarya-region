@@ -20,12 +20,20 @@ import { apiClient } from '@/shared/api';
 import { parentsApi } from '../../parents/api/parentsApi';
 import { ChatMessage, ChatContact } from '../../parents/types/parentPortal.types';
 
+const QUICK_TEMPLATES_LEGACY = [
+  { id: 'absent', text: 'Bugun bormaymiz', icon: 'Uy' },
+  { id: 'late', text: 'Biroz kechikamiz', icon: 'РІРЏВ°' },
+  { id: 'pickup', text: 'Farzandimni amakisi olib ketadi', icon: 'Avtomobil' },
+  { id: 'medicine', text: 'Dorisi bor edi', icon: 'СЂСџвЂ™Р‰' },
+  { id: 'thanks', text: 'Rahmat, ustoz!', icon: 'СЂСџв„ўРЏ' }
+];
+
 const QUICK_TEMPLATES = [
-  { id: 'absent', text: 'Bugun bormaymiz', icon: 'рџЏ ' },
-  { id: 'late', text: 'Biroz kechikamiz', icon: 'вЏ°' },
-  { id: 'pickup', text: 'Farzandimni amakisi olib ketadi', icon: 'рџљ—' },
-  { id: 'medicine', text: 'Dorisi bor edi', icon: 'рџ’Љ' },
-  { id: 'thanks', text: 'Rahmat, ustoz!', icon: 'рџ™Џ' }
+  { id: 'absent', text: 'Bugun bormaymiz', icon: 'Uy' },
+  { id: 'late', text: 'Biroz kechikamiz', icon: 'Vaqt' },
+  { id: 'pickup', text: 'Farzandimni amakisi olib ketadi', icon: 'Avtomobil' },
+  { id: 'medicine', text: 'Dorisi bor edi', icon: 'Dori' },
+  { id: 'thanks', text: 'Rahmat, ustoz!', icon: 'OK' }
 ];
 
 const getAssetUrl = (url?: string | null) => {
@@ -226,7 +234,7 @@ export const MessagesSection = () => {
                     <div className="flex-1 overflow-hidden">
                       <p className="text-[9px] md:text-[10px] font-black leading-none uppercase tracking-wide truncate">{contact.name}</p>
                       <p className={`text-[7px] md:text-[8px] mt-0.5 font-bold uppercase tracking-widest ${contact.isOnline ? 'text-emerald-500' : 'text-slate-400'}`}>
-                        {contact.isOnline ? 'Online' : 'Offline'}
+                        {contact.isOnline ? 'Onlayn' : 'Oflayn'}
                       </p>
                     </div>
                 </button>
@@ -257,7 +265,7 @@ export const MessagesSection = () => {
                 <div className="flex items-center gap-2.5 md:gap-3.5">
                     <button onClick={() => setActiveChat(null)} className="md:hidden p-1.5 text-brand-muted hover:text-brand-primary"><ArrowLeft size={18} /></button>
                     <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary border border-brand-primary/10">
-                      <User size={18} md:size={24} />
+                      <User size={18} />
                     </div>
                     <div>
                       <h5 className="text-sm md:text-lg font-black text-brand-depth tracking-tight">{activeChat.name}</h5>
@@ -267,7 +275,7 @@ export const MessagesSection = () => {
                       </div>
                     </div>
                 </div>
-                <button className="p-1.5 text-brand-muted hover:text-brand-primary transition-colors"><MoreVertical size={18} md:size={20} /></button>
+                <button className="p-1.5 text-brand-muted hover:text-brand-primary transition-colors"><MoreVertical size={18} /></button>
               </div>
 
               {/* Messages Area */}
@@ -287,7 +295,7 @@ export const MessagesSection = () => {
                               <div className={`flex items-center justify-end gap-1 mt-1.5 ${msg.type === 'sent' ? 'text-white/60' : 'text-brand-muted'}`}>
                                 <span className="text-[7px] md:text-[8px] font-black">{msg.time}</span>
                                 {msg.type === 'sent' && (
-                                    msg.status === 'read' ? <CheckCheck size={8} md:size={10} /> : <Check size={8} md:size={10} />
+                                    msg.status === 'read' ? <CheckCheck size={8} /> : <Check size={8} />
                                 )}
                               </div>
                           </div>
@@ -342,7 +350,7 @@ export const MessagesSection = () => {
                         disabled={!chatMessage.trim()}
                         className="w-8 h-8 md:w-10 md:h-10 bg-brand-primary text-white rounded-lg md:rounded-xl flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all shrink-0 disabled:opacity-50 disabled:scale-100"
                       >
-                        <Send size={14} md:size={16} />
+                        <Send size={14} />
                       </button>
                   </form>
                 )}
@@ -354,4 +362,5 @@ export const MessagesSection = () => {
     </div>
   );
 };
+
 

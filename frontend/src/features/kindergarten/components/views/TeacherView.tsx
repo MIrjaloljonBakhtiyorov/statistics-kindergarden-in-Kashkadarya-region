@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { apiClient } from '@/shared/api';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -24,7 +24,6 @@ import {
   XCircle as XIcon,
   AlertCircle
 } from 'lucide-react';
-import { Group } from '../../types';
 import { useNotification } from '../../context/NotificationContext';
 import { useGroups } from '../../features/groups/hooks/useGroups';
 import { useAuth } from '../../context/AuthContext';
@@ -32,7 +31,7 @@ import { parentsApi } from '../../features/parents/api/parentsApi';
 import { ChatMessage } from '../../features/parents/types/parentPortal.types';
 
 interface TeacherViewProps {
-  groups: Group[];
+  groups: any[];
 }
 
 type AttendanceStatus = 'early' | 'late' | 'absent';
@@ -696,7 +695,7 @@ const AttendanceCountEntry = ({ groupData, onSaved }: { groupData: any, onSaved:
       return;
     }
     if (/^0\d+/.test(value.trim())) {
-      showNotification('Xato kiritdingiz. Sonlarni qaytadan toвЂldiring', 'error');
+      showNotification("Xato kiritdingiz. Sonlarni qaytadan to'ldiring", 'error');
       setCounts({ total: totalChildren, early: 0, late: 0, absent: 0 });
       return;
     }
@@ -715,7 +714,7 @@ const AttendanceCountEntry = ({ groupData, onSaved }: { groupData: any, onSaved:
       return;
     }
     if (!isBalanced) {
-      showNotification(`Kiritilgan sonlar jami ${totalChildren} taga teng boвЂlishi kerak`, 'error');
+      showNotification(`Kiritilgan sonlar jami ${totalChildren} taga teng bo'lishi kerak`, 'error');
       return;
     }
 
@@ -778,7 +777,7 @@ const AttendanceCountEntry = ({ groupData, onSaved }: { groupData: any, onSaved:
         <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${
           isBalanced ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
         }`}>
-          {isBalanced ? 'ToвЂliq kiritildi' : `${remaining} ta qoldi`}
+          {isBalanced ? "To'liq kiritildi" : `${remaining} ta qoldi`}
         </div>
       </div>
 
@@ -1105,7 +1104,7 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
                       attendance[child.id]?.status === 'absent' ? 'Umuman kelmaydi' : 
                       'Tanlanmagan'
                     }
-                    {attendance[child.id]?.arrival_time && ` вЂў ${attendance[child.id].arrival_time}`}
+                    {attendance[child.id]?.arrival_time && ` - ${attendance[child.id].arrival_time}`}
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full lg:w-auto">

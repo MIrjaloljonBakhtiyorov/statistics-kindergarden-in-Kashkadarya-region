@@ -3,16 +3,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Globe, LogIn, Menu, X } from 'lucide-react';
 import { languages } from '../../../../constants';
+import { ThemeToggle } from '@/shared/theme/theme';
 
 interface HeaderProps {
   isLangOpen: boolean;
   setIsLangOpen: (open: boolean) => void;
   isMobileMenuOpen: boolean;
   setIsMenuOpen: (open: boolean) => void;
-  langRef: React.RefObject<HTMLDivElement>;
-  langBtnRef: React.RefObject<HTMLButtonElement>;
-  mobileMenuBtnRef: React.RefObject<HTMLButtonElement>;
-  mobileMenuRef: React.RefObject<HTMLDivElement>;
+  langRef: React.RefObject<HTMLDivElement | null>;
+  langBtnRef: React.RefObject<HTMLButtonElement | null>;
+  mobileMenuBtnRef: React.RefObject<HTMLButtonElement | null>;
+  mobileMenuRef: React.RefObject<HTMLDivElement | null>;
   menuItems: any[];
   notify: () => void;
   currentLang: string;
@@ -84,6 +85,8 @@ const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="hidden lg:flex items-center gap-4">
+          <ThemeToggle className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-all hover:bg-slate-50 hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800" />
+
           <div className="relative" ref={langRef}>
             <button 
               ref={langBtnRef}
@@ -155,6 +158,12 @@ const Header: React.FC<HeaderProps> = ({
               </button>
             ))}
             <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2">
+              <ThemeToggle
+                showLabel
+                className="flex items-center justify-between px-5 py-4 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                labelClassName="ml-3 text-sm font-bold"
+              />
+
               <button 
                 onClick={() => {
                   setIsLangOpen(!isLangOpen);

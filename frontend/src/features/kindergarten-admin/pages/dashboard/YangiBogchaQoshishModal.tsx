@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +17,7 @@ import { apiClient, kindergartenApi } from '@/shared/api';
 // --- VALIDATION SCHEMA ---
 const formSchema = z.object({
     // Step 1: Asosiy
-    name: z.string().min(3, "BogвЂcha nomi majburiy"),
+    name: z.string().min(3, "Bog'cha nomi majburiy"),
     type: z.enum(['Public', 'Private', 'Home']),
     workHours: z.coerce.number().refine((value) => [4, 9, 9.5, 10.5, 12, 24].includes(value), "Ish vaqti turini tanlang"),
     district: z.string().min(1, "Tumanni tanlang"),
@@ -32,7 +32,7 @@ const formSchema = z.object({
     directorBirthYear: z.coerce.number().min(1940, "Tug'ilgan yil noto'g'ri").max(new Date().getFullYear() - 18, "Rahbar yoshi 18 dan katta bo'lishi kerak"),
     directorPhoto: z.string().optional(),
     phone: z.string().regex(/^\+998\d{9}$/, "Format: +998XXXXXXXXX"),
-    email: z.string().email("Email notoвЂgвЂri"),
+    email: z.string().email("Email noto'g'ri"),
     position: z.string().min(2, "Lavozim majburiy"),
     // Step 3: Sig'im
     capacity: z.coerce.number().min(1, "Sig'im 0 dan katta bo'lishi kerak"),
@@ -48,9 +48,9 @@ const formSchema = z.object({
     hasNurse: z.boolean().default(false),
     // Step 5: Taomnoma
     mealType: z.enum(['3 mahal', '4 mahal']),
-    sanitation: z.enum(['Yaxshi', 'OвЂrtacha', 'Past']),
+    sanitation: z.enum(['Yaxshi', "O'rtacha", 'Past']),
     water: z.enum(['Mavjud', 'Mavjud emas']),
-    kitchenEq: z.enum(['ToвЂliq', 'Qisman', 'YoвЂq']),
+    kitchenEq: z.enum(["To'liq", 'Qisman', "Yo'q"]),
     hasKitchen: z.boolean().default(true),
     hasAllergyMenu: z.boolean().default(false),
     hasDietMenu: z.boolean().default(false),
@@ -89,12 +89,12 @@ const STEPS = [
   { id: 5, title: "Sanitariya", icon: UtensilsCrossed },
   { id: 6, title: "Moliya", icon: Warehouse },
   { id: 7, title: "Hujjatlar", icon: FileText },
-  { id: 8, title: "Preview", icon: Settings },
+  { id: 8, title: "Ko'rib chiqish", icon: Settings },
 ];
 
 const DISTRICTS = [
     "Qarshi shahri", "Qarshi tumani", "Shahrisabz shahri", "Shahrisabz tumani",
-    "Kitob tumani", "Koson tumani", "Muborak tumani", "GвЂuzor tumani",
+    "Kitob tumani", "Koson tumani", "Muborak tumani", "G'uzor tumani",
     "Nishon tumani", "Dehqonobod tumani", "Qamashi tumani", "Chiroqchi tumani", 
     "Kasbi tumani", "Mirishkor tumani", "Yakkabog' tumani", "Beshkent tumani"
 ];
@@ -175,7 +175,7 @@ const SummaryCard = ({ icon: Icon, title, data }: any) => (
             {Object.entries(data).map(([key, val]: any) => (
                 <div key={key} className="flex justify-between items-center">
                     <span className="text-[11px] text-slate-400 font-bold uppercase">{key}:</span>
-                    <span className="text-xs font-black text-slate-800">{val || 'вЂ”'}</span>
+                    <span className="text-xs font-black text-slate-800">{val || '-'}</span>
                 </div>
             ))}
         </div>
@@ -327,12 +327,12 @@ const GeoLocationPicker = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Latitude *</label>
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Kenglik *</label>
           <input {...register('lat')} type="number" step="0.000001" className="w-full p-4 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 outline-none font-bold text-sm" />
           {errors.lat && <p className="text-[10px] font-bold text-rose-500 ml-1">{errors.lat.message as string}</p>}
         </div>
         <div className="space-y-1.5">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Longitude *</label>
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Uzunlik *</label>
           <input {...register('lng')} type="number" step="0.000001" className="w-full p-4 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 outline-none font-bold text-sm" />
           {errors.lng && <p className="text-[10px] font-bold text-rose-500 ml-1">{errors.lng.message as string}</p>}
         </div>
@@ -358,7 +358,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
         commissionValidUntil: initialData.commissionValidUntil || '',
     } : { 
         type: 'Public', mealType: '3 mahal', sanitation: 'Yaxshi', water: 'Mavjud', 
-        kitchenEq: 'ToвЂliq', financeType: 'Davlat', threshold: 75, status: 'Aktiv',
+        kitchenEq: "To'liq", financeType: 'Davlat', threshold: 75, status: 'Aktiv',
         age13: true, age37: true, aiMonitoring: true, budget: 0, nurseCount: 0, workHours: 9.5, lat: 38.8611, lng: 65.7847,
         brokerageDocumentFile: '', commissionOrder: '', commissionApprovedDate: '', commissionValidUntil: ''
     }
@@ -538,7 +538,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
     if (!file) return;
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      toast.error('Ruxsatnoma PDF yoki rasm formatida boвЂlishi kerak');
+      toast.error("Ruxsatnoma PDF yoki rasm formatida bo'lishi kerak");
       return;
     }
     if (file.size > 8 * 1024 * 1024) {
@@ -563,7 +563,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
     if (!file) return;
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      toast.error('Brokerlash hujjati PDF yoki rasm formatida boвЂlishi kerak');
+      toast.error("Brokerlash hujjati PDF yoki rasm formatida bo'lishi kerak");
       return;
     }
     if (file.size > 8 * 1024 * 1024) {
@@ -593,14 +593,14 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
                 <div>
                     <div className="flex items-center gap-2 sm:gap-3 mb-1">
-                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{isEdit ? 'BogвЂcha tahrirlash' : 'BogвЂcha qoвЂshish'}</h2>
-                        <span className="px-2.5 py-1 bg-indigo-600 text-white text-[8px] sm:text-[9px] font-black uppercase rounded-full tracking-widest">{isEdit ? 'Update' : 'Master'}</span>
+                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{isEdit ? "Bog'cha tahrirlash" : "Bog'cha qo'shish"}</h2>
+                        <span className="px-2.5 py-1 bg-indigo-600 text-white text-[8px] sm:text-[9px] font-black uppercase rounded-full tracking-widest">{isEdit ? 'Tahrirlash' : 'Yaratish'}</span>
                     </div>
                     <p className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-widest">Qashqadaryo viloyati monitoringi</p>
                 </div>
                 <div className="flex items-center gap-3 sm:text-right">
                     <div className="text-2xl sm:text-3xl font-black text-indigo-600 tracking-tighter">{completionPercentage}%</div>
-                    <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest sm:w-20">ToвЂldirish darajasi</p>
+                    <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest sm:w-20">To'ldirish darajasi</p>
                 </div>
             </div>
 
@@ -629,8 +629,8 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                 <AnimatePresence mode="wait">
                     <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 sm:gap-y-8">
                         {step === 1 && (<>
-                            <FormField name="name" label="BogвЂcha nomi *" placeholder="Masalan: 12-sonli MTT" />
-                            <FormField name="id_auto" label="BogвЂcha ID" placeholder={credentialPreview.systemId} disabled />
+                            <FormField name="name" label="Bog'cha nomi *" placeholder="Masalan: 12-sonli MTT" />
+                            <FormField name="id_auto" label="Bog'cha ID" placeholder={credentialPreview.systemId} disabled />
                             <FormField name="type" label="Turi *" options={[{label: 'Davlat', value: 'Public'}, {label: 'Xususiy', value: 'Private'}, {label: 'Oilaviy', value: 'Home'}]} />
                             <FormField name="workHours" label="Ish vaqti turi *" options={WORK_HOUR_OPTIONS} />
                             <FormField name="region" label="Viloyat" placeholder="Qashqadaryo" disabled />
@@ -638,7 +638,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                             <label className="md:col-span-2 cursor-pointer p-5 sm:p-6 bg-white rounded-2xl border-2 border-dashed border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                                 <input type="file" accept="application/pdf,image/*" className="hidden" onChange={(event) => handleLicenseUpload(event.target.files?.[0])} />
                                 <div>
-                                    <p className="text-xs font-black text-slate-900 uppercase tracking-widest">BogвЂcha ruxsatnomasi</p>
+                                    <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Bog'cha ruxsatnomasi</p>
                                     <p className="text-[10px] font-bold text-slate-400 mt-1">PDF yoki rasm yuklang. Fayl real bazaga URL sifatida yoziladi.</p>
                                 </div>
                                 <span className={clsx("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest", allValues.licenseFile ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-slate-100 text-slate-500")}>
@@ -671,14 +671,14 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                         </>)}
 
                         {step === 3 && (<>
-                            <FormField name="capacity" label="Maksimal sigвЂim *" type="number" />
+                            <FormField name="capacity" label="Maksimal sig'im *" type="number" />
                             <FormField name="currentChildren" label="Bolalar soni *" type="number" />
                             <FormField name="groups" label="Guruhlar soni *" type="number" />
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Yosh toifalari *</label>
                                 <div className="flex gap-2 sm:gap-4">
-                                    <label className="flex-1 p-3 sm:p-4 bg-white border-2 border-slate-100 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 cursor-pointer"><input type="checkbox" {...methods.register('age13')} /> <span className="text-[10px] sm:text-xs font-bold whitespace-nowrap">1вЂ“3 yosh</span></label>
-                                    <label className="flex-1 p-3 sm:p-4 bg-white border-2 border-slate-100 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 cursor-pointer"><input type="checkbox" {...methods.register('age37')} /> <span className="text-[10px] sm:text-xs font-bold whitespace-nowrap">3вЂ“7 yosh</span></label>
+                                    <label className="flex-1 p-3 sm:p-4 bg-white border-2 border-slate-100 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 cursor-pointer"><input type="checkbox" {...methods.register('age13')} /> <span className="text-[10px] sm:text-xs font-bold whitespace-nowrap">1-3 yosh</span></label>
+                                    <label className="flex-1 p-3 sm:p-4 bg-white border-2 border-slate-100 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 cursor-pointer"><input type="checkbox" {...methods.register('age37')} /> <span className="text-[10px] sm:text-xs font-bold whitespace-nowrap">3-7 yosh</span></label>
                                 </div>
                             </div>
                         </>)}
@@ -698,9 +698,9 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
 
                         {step === 5 && (<>
                             <FormField name="mealType" label="Ovqatlanish *" options={['3 mahal', '4 mahal']} />
-                            <FormField name="sanitation" label="Sanitariya *" options={['Yaxshi', 'OвЂrtacha', 'Past']} />
+                            <FormField name="sanitation" label="Sanitariya *" options={['Yaxshi', "O'rtacha", 'Past']} />
                             <FormField name="water" label="Suv *" options={['Mavjud', 'Mavjud emas']} />
-                            <FormField name="kitchenEq" label="Jihozlar *" options={['ToвЂliq', 'Qisman', 'YoвЂq']} />
+                            <FormField name="kitchenEq" label="Jihozlar *" options={["To'liq", 'Qisman', "Yo'q"]} />
                             <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <label className="p-3 sm:p-4 bg-white border border-slate-100 rounded-xl sm:rounded-2xl flex items-center gap-3"><input type="checkbox" {...methods.register('hasAllergyMenu')} /> <span className="text-[10px] sm:text-xs font-bold">Allergiya menyusi</span></label>
                                 <label className="p-3 sm:p-4 bg-white border border-slate-100 rounded-xl sm:rounded-2xl flex items-center gap-3"><input type="checkbox" {...methods.register('hasDietMenu')} /> <span className="text-[10px] sm:text-xs font-bold">Dieta menyusi</span></label>
@@ -709,7 +709,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
 
                         {step === 6 && (<>
                             <div className="md:col-span-2"><label className="w-full p-4 sm:p-5 bg-indigo-50 border border-indigo-100 rounded-xl sm:rounded-2xl flex items-center justify-between cursor-pointer"><div className="flex items-center gap-3"><Warehouse className="text-indigo-600 sm:w-5 sm:h-5" size={18} /> <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Omborxona</span></div><input type="checkbox" {...methods.register('hasWarehouse')} /></label></div>
-                            {allValues.hasWarehouse && <FormField name="warehouseManager" label="Ombor masвЂ™uli" />}
+                            {allValues.hasWarehouse && <FormField name="warehouseManager" label="Ombor mas'uli" />}
                             <FormField name="financeType" label="Moliyalashtirish *" options={['Davlat', 'Xususiy', 'Aralash']} />
                             <FormField name="budget" label="Byudjet *" type="number" />
                         </>)}
@@ -717,7 +717,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                         {step === 7 && (<>
                             <div className="md:col-span-2 p-5 sm:p-8 bg-indigo-50 border border-indigo-100 rounded-2xl sm:rounded-[32px] flex items-center gap-4 sm:gap-6">
                                 <div className="p-3 sm:p-4 bg-white rounded-xl sm:rounded-2xl shadow-sm text-indigo-600 shrink-0"><FileText size={24} className="sm:w-8 sm:h-8" /></div>
-                                <div><h4 className="font-black text-indigo-900 text-xs sm:text-sm">Hujjatlar</h4><p className="text-[10px] sm:text-xs text-indigo-800/60 font-medium">Brokerlash komissiyasi buyrugвЂi, tasdiqlangan kuni va amal qilish muddatini kiriting.</p></div>
+                                <div><h4 className="font-black text-indigo-900 text-xs sm:text-sm">Hujjatlar</h4><p className="text-[10px] sm:text-xs text-indigo-800/60 font-medium">Brokerlash komissiyasi buyrug'i, tasdiqlangan kuni va amal qilish muddatini kiriting.</p></div>
                             </div>
                             <label className="md:col-span-2 cursor-pointer p-5 sm:p-6 bg-white rounded-2xl border-2 border-dashed border-indigo-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                                 <input type="file" accept="application/pdf,image/*" className="hidden" onChange={(event) => handleBrokerageDocumentUpload(event.target.files?.[0])} />
@@ -734,7 +734,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                             <FormField name="commissionValidUntil" label="Amal qilish muddati" type="date" />
                             <div className="md:col-span-2 p-5 sm:p-8 bg-blue-50 border border-blue-100 rounded-2xl sm:rounded-[32px] flex items-center gap-4 sm:gap-6 mb-2">
                                 <div className="p-3 sm:p-4 bg-white rounded-xl sm:rounded-2xl shadow-sm text-blue-600 shrink-0"><MapIcon size={24} className="sm:w-8 sm:h-8" /></div>
-                                <div><h4 className="font-black text-blue-900 text-xs sm:text-sm">Location</h4><p className="text-[10px] sm:text-xs text-blue-800/60 font-medium">Joy nomini kiriting yoki xaritadan belgilang.</p></div>
+                                <div><h4 className="font-black text-blue-900 text-xs sm:text-sm">Joylashuv</h4><p className="text-[10px] sm:text-xs text-blue-800/60 font-medium">Joy nomini kiriting yoki xaritadan belgilang.</p></div>
                             </div>
                             <GeoLocationPicker />
                         </>)}
@@ -742,8 +742,8 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                         {step === 8 && (
                             <div className="md:col-span-2 space-y-6 sm:space-y-8 pb-6 sm:pb-10">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-                                    <SummaryCard icon={Building2} title="Asosiy" data={{'Nomi': allValues.name, 'Turi': allValues.type, 'Ruxsatnoma': allValues.licenseFile ? 'Yuklangan' : 'YoвЂq'}} />
-                                    <SummaryCard icon={FileText} title="Hujjatlar" data={{'Brokerlash': allValues.brokerageDocumentFile ? 'Yuklangan' : 'YoвЂq', 'Buyruq': allValues.commissionOrder || 'Kiritilmagan', 'Tasdiqlangan kuni': allValues.commissionApprovedDate || 'Kiritilmagan', 'Muddat': allValues.commissionValidUntil || 'Kiritilmagan'}} />
+                                    <SummaryCard icon={Building2} title="Asosiy" data={{'Nomi': allValues.name, 'Turi': allValues.type, 'Ruxsatnoma': allValues.licenseFile ? 'Yuklangan' : "Yo'q"}} />
+                                    <SummaryCard icon={FileText} title="Hujjatlar" data={{'Brokerlash': allValues.brokerageDocumentFile ? 'Yuklangan' : "Yo'q", 'Buyruq': allValues.commissionOrder || 'Kiritilmagan', 'Tasdiqlangan kuni': allValues.commissionApprovedDate || 'Kiritilmagan', 'Muddat': allValues.commissionValidUntil || 'Kiritilmagan'}} />
                                     <SummaryCard icon={UserRound} title="Rahbar" data={{'F.I.O': allValues.directorName, 'Yili': allValues.directorBirthYear, 'Login': credentialPreview.username}} />
                                     <SummaryCard icon={Baby} title="Sig'im" data={{'Soni': allValues.capacity, 'Bolalar': allValues.currentChildren}} />
                                     <SummaryCard icon={UsersRound} title="Xodimlar" data={{'Tarbiyachi': allValues.educators, 'Hamshira': allValues.nurseCount || 0}} />
@@ -754,7 +754,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                                 <div className="p-5 sm:p-8 bg-slate-900 rounded-2xl sm:rounded-[40px] text-white flex flex-col lg:flex-row items-center justify-between gap-4">
                                     <div><h3 className="text-xl sm:text-2xl font-black tracking-tight">Tayyor!</h3><p className="text-white/50 text-xs sm:text-sm">Ma'lumotlarni tasdiqlang.</p></div>
                                     <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                                        <FormField name="status" label="Status" options={['Aktiv', 'Noaktiv']} />
+                                        <FormField name="status" label="Holat" options={['Aktiv', 'Noaktiv']} />
                                         <FormField name="threshold" label="Alert %" type="number" />
                                     </div>
                                 </div>

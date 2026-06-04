@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertTriangle,
   CalendarDays,
@@ -93,7 +93,7 @@ const statusStyles: Record<PharmacyItem['status'], { label: string; className: s
   OK: { label: 'Yetarli', className: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
   LOW: { label: 'Kam', className: 'bg-amber-50 text-amber-700 border-amber-100' },
   EMPTY: { label: 'Tugagan', className: 'bg-rose-50 text-rose-700 border-rose-100' },
-  EXPIRED: { label: 'Muddati oвЂtgan', className: 'bg-red-50 text-red-700 border-red-100' },
+  EXPIRED: { label: "Muddati o'tgan", className: 'bg-red-50 text-red-700 border-red-100' },
   EXPIRING: { label: 'Muddati yaqin', className: 'bg-orange-50 text-orange-700 border-orange-100' },
 };
 
@@ -174,7 +174,7 @@ const PharmacySection: React.FC = () => {
       setGroups(Array.isArray(groupsRes.data) ? groupsRes.data : []);
       setChildren(Array.isArray(childrenRes.data) ? childrenRes.data : []);
     } catch (error) {
-      showNotification('Dorixona maвЂ™lumotlarini yuklashda xatolik', 'error');
+      showNotification("Dorixona ma'lumotlarini yuklashda xatolik", 'error');
     } finally {
       setLoading(false);
     }
@@ -280,7 +280,7 @@ const PharmacySection: React.FC = () => {
       } else {
         await apiClient.post('/medical-inventory/items', payload);
       }
-      showNotification('Dori maвЂ™lumoti saqlandi', 'success');
+      showNotification("Dori ma'lumoti saqlandi", 'success');
       setItemModalOpen(false);
       fetchPharmacy();
     } catch (error: any) {
@@ -381,13 +381,13 @@ const PharmacySection: React.FC = () => {
               <option value="LOW">Kam</option>
               <option value="EMPTY">Tugagan</option>
               <option value="EXPIRING">Muddati yaqin</option>
-              <option value="EXPIRED">Muddati oвЂtgan</option>
+              <option value="EXPIRED">Muddati o'tgan</option>
             </select>
             <button
               onClick={() => openItemModal()}
               className="px-5 py-3 bg-brand-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-brand-primary/20"
             >
-              <Plus size={16} /> Dori qoвЂshish
+              <Plus size={16} /> Dori qo'shish
             </button>
           </div>
         </div>
@@ -587,12 +587,12 @@ const PharmacySection: React.FC = () => {
       )}
 
       {itemModalOpen && (
-        <Modal title={editingItem ? 'Dorini tahrirlash' : 'Yangi dori qoвЂshish'} onClose={() => setItemModalOpen(false)}>
+        <Modal title={editingItem ? 'Dorini tahrirlash' : "Yangi dori qo'shish"} onClose={() => setItemModalOpen(false)}>
           <form onSubmit={saveItem} className="space-y-4">
             <Input label="Dori nomi" value={itemForm.name} onChange={(value) => setItemForm({ ...itemForm, name: value })} required />
             <Input label="Chiqarilish shakli" value={itemForm.form} onChange={(value) => setItemForm({ ...itemForm, form: value })} />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input label="OвЂlchov birligi" value={itemForm.unit} onChange={(value) => setItemForm({ ...itemForm, unit: value })} required />
+              <Input label="O'lchov birligi" value={itemForm.unit} onChange={(value) => setItemForm({ ...itemForm, unit: value })} required />
               <Input label="100 bolaga miqdor" type="number" value={itemForm.required_per_100} onChange={(value) => setItemForm({ ...itemForm, required_per_100: value })} />
             </div>
             <Input label="Normativ izohi" value={itemForm.required_label} onChange={(value) => setItemForm({ ...itemForm, required_label: value })} />

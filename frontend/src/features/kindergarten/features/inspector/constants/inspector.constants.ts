@@ -1,4 +1,4 @@
-﻿import { 
+import { 
   ChefHat, 
   Warehouse, 
   Sparkles, 
@@ -40,16 +40,16 @@ export const INSPECTION_CATEGORIES = [
     icon: Warehouse, 
     items: 10,
     questions: [
-      'Mahsulotlarning yaroqlilik muddati va qadoqlari butunligi tekshirildimi?',
-      'Omborxonada harorat va namlik koвЂrsatkichlari jurnalga kiritilyaptimi?',
-      'Xom-ashyolar turlari boвЂyicha alohida saqlanyaptimi?',
-      'Omborxona poli va devorlari toza, kemiruvchilarga qarshi chora koвЂrilganmi?',
-      'Keltirilgan mahsulotlarning sifat sertifikatlari mavjudmi?',
-      'Mahsulotlar poldan kamida 15 sm balandlikda (stellajda) saqlanyaptimi?',
-      'Tez buziluvchi mahsulotlar uchun muzlatkichlar yetarlimi?',
-      'Yuvish vositalari oziq-ovqatdan alohida saqlanyaptimi?',
-      'Omborxonada begona shaxslar yoвЂqligi nazorat qilinadimi?',
-      'Kirish va chiqish hujjatlari muntazam yuritilyaptimi?'
+      "Mahsulotlarning yaroqlilik muddati va qadoqlari butunligi tekshirildimi?",
+      "Omborxonada harorat va namlik ko'rsatkichlari jurnalga kiritilyaptimi?",
+      "Xom-ashyolar turlari bo'yicha alohida saqlanyaptimi?",
+      "Omborxona poli va devorlari toza, kemiruvchilarga qarshi chora ko'rilganmi?",
+      "Keltirilgan mahsulotlarning sifat sertifikatlari mavjudmi?",
+      "Mahsulotlar poldan kamida 15 sm balandlikda (stellajda) saqlanyaptimi?",
+      "Tez buziluvchi mahsulotlar uchun muzlatkichlar yetarlimi?",
+      "Yuvish vositalari oziq-ovqatdan alohida saqlanyaptimi?",
+      "Omborxonada begona shaxslar yo'qligi nazorat qilinadimi?",
+      "Kirish va chiqish hujjatlari muntazam yuritilyaptimi?"
     ]
   },
   { 
@@ -58,16 +58,16 @@ export const INSPECTION_CATEGORIES = [
     icon: Sparkles, 
     items: 10,
     questions: [
-      'Xodimlar ish boshlashdan oldin tibbiy koвЂrikdan oвЂtkazildimi?',
-      'Yuvinish xonalari sanitariya vositalari bilan taвЂ™minlanganmi?',
-      'Bolalar ovqatlanishdan oldin va keyin qoвЂl yuvganmi?',
-      'Chiqindilar yopiq idishda saqlanyaptimi?',
-      'Xonalar muntazam shamollatilib, tozalanadimi?',
-      'Dezinfeksiya eritmalari toвЂgвЂri tayyorlangan va saqlanyaptimi?',
-      'Tozalash anjomlari (paqir, latta) tamgвЂalanganmi?',
-      'Guruhlarda ichimlik suvi rejimi taвЂ™minlanganmi?',
-      'Bolalar tuvaklari yoki unitazlari sanitariya holatidami?',
-      'Umumiy hududda (koridor, zinapoya) tozalik saqlanyaptimi?'
+      "Xodimlar ish boshlashdan oldin tibbiy ko'rikdan o'tkazildimi?",
+      "Yuvinish xonalari sanitariya vositalari bilan ta'minlanganmi?",
+      "Bolalar ovqatlanishdan oldin va keyin qo'l yuvganmi?",
+      "Chiqindilar yopiq idishda saqlanyaptimi?",
+      "Xonalar muntazam shamollatilib, tozalanadimi?",
+      "Dezinfeksiya eritmalari to'g'ri tayyorlangan va saqlanyaptimi?",
+      "Tozalash anjomlari (paqir, latta) tamg'alanganmi?",
+      "Guruhlarda ichimlik suvi rejimi ta'minlanganmi?",
+      "Bolalar tuvaklari yoki unitazlari sanitariya holatidami?",
+      "Umumiy hududda (koridor, zinapoya) tozalik saqlanyaptimi?"
     ]
   },
   { 
@@ -76,30 +76,30 @@ export const INSPECTION_CATEGORIES = [
     icon: Bed, 
     items: 8,
     questions: [
-      'Yotoqxonalarda havo harorati meвЂ™yordami?',
-      'Krovatlar orasidagi masofa sanitariya qoidalariga mosmi?',
-      'Yotoq choyshablari toza va vaqtida almashtirilganmi?',
-      'Choyshablar markirovka qilinganmi?',
-      'Yotoqxonada begona buyumlar saqlanmayaptimi?',
-      'Uxlash vaqtida shamollatish tartibiga rioya qilinadimi?',
-      'Shaxsiy gigiyena buyumlari (sochiq va b.) alohida joylanganmi?',
-      'Yotoqxona javonlari changdan tozalanganmi?'
+      "Yotoqxonalarda havo harorati me'yordami?",
+      "Krovatlar orasidagi masofa sanitariya qoidalariga mosmi?",
+      "Yotoq choyshablari toza va vaqtida almashtirilganmi?",
+      "Choyshablar markirovka qilinganmi?",
+      "Yotoqxonada begona buyumlar saqlanmayaptimi?",
+      "Uxlash vaqtida shamollatish tartibiga rioya qilinadimi?",
+      "Shaxsiy gigiyena buyumlari (sochiq va b.) alohida joylanganmi?",
+      "Yotoqxona javonlari changdan tozalanganmi?"
     ]
   },
   { 
     id: 'PLAYGROUND', 
-    name: 'OвЂyin maydonchasi', 
+    name: "O'yin maydonchasi", 
     icon: Trees, 
     items: 8,
     questions: [
-      'OвЂyin jihozlari (argвЂimchoq, tepalik) mustahkam va xavfsizmi?',
-      'Maydoncha hududi begona chiqindilardan tozalanganmi?',
-      'Qumloqlar (pesochnitsa) yopiq holatda va qumi toza holatdami?',
-      'Maydonchada bolalar xavfsizligini taвЂ™minlovchi qoplama bormi?',
-      'Atrof-muhitdagi daraxtlar va butalar butalganmi?',
-      'Bolalar yoshi uchun moвЂljallangan oвЂyinchoqlar mavjudmi?',
-      'Ochiq suv havzalari yoki xavfli chuqurlar yoвЂqligi tekshirildimi?',
-      'Soyabonlar (naves) quyoshdan himoya qila oladimi?'
+      "O'yin jihozlari (arg'imchoq, tepalik) mustahkam va xavfsizmi?",
+      "Maydoncha hududi begona chiqindilardan tozalanganmi?",
+      "Qumloqlar (pesochnitsa) yopiq holatda va qumi toza holatdami?",
+      "Maydonchada bolalar xavfsizligini ta'minlovchi qoplama bormi?",
+      "Atrof-muhitdagi daraxtlar va butalar butalganmi?",
+      "Bolalar yoshi uchun mo'ljallangan o'yinchoqlar mavjudmi?",
+      "Ochiq suv havzalari yoki xavfli chuqurlar yo'qligi tekshirildimi?",
+      "Soyabonlar (naves) quyoshdan himoya qila oladimi?"
     ]
   },
   { 
@@ -108,30 +108,30 @@ export const INSPECTION_CATEGORIES = [
     icon: Stethoscope, 
     items: 8,
     questions: [
-      'Tibbiyot xonasi zaruriy asbob-uskunalar bilan taвЂ™minlanganmi?',
-      'Birinchi yordam dorichasi (aptechka) toвЂla va muddati oвЂtmaganmi?',
-      'Dori-darmonlar saqlash tartibiga rioya qilinyaptimi?',
-      'Izolyator xonasi tayyor holatdami?',
-      'Bolalarning antropometrik koвЂrsatkichlari qayd etilganmi?',
-      'Emlash jurnallari va kartalari muntazam yuritilyaptimi?',
-      'Tibbiy xodimning maxsus kiyimi va gigiyenasi joyidami?',
-      'Kvarts lampasi oвЂrnatilgan va rejali ishlatilyaptimi?'
+      "Tibbiyot xonasi zaruriy asbob-uskunalar bilan ta'minlanganmi?",
+      "Birinchi yordam dorichasi (aptechka) to'la va muddati o'tmaganmi?",
+      "Dori-darmonlar saqlash tartibiga rioya qilinyaptimi?",
+      "Izolyator xonasi tayyor holatdami?",
+      "Bolalarning antropometrik ko'rsatkichlari qayd etilganmi?",
+      "Emlash jurnallari va kartalari muntazam yuritilyaptimi?",
+      "Tibbiy xodimning maxsus kiyimi va gigiyenasi joyidami?",
+      "Kvarts lampasi o'rnatilgan va rejali ishlatilyaptimi?"
     ]
   },
   { 
     id: 'EDUCATION', 
-    name: 'TaвЂ™lim jarayoni', 
+    name: "Ta'lim jarayoni", 
     icon: BookOpen, 
     items: 8,
     questions: [
-      'MashgвЂulotlar rejaga muvofiq olib borilyaptimi?',
-      'OвЂquv qurollari va materiallari yosh guruhiga mosmi?',
-      'Bolalarning mashgвЂulotlardagi ishtiroki va qiziqishi yuqorimi?',
-      'Tarbiyachining bolalar bilan muloqoti etikasi saqlanyaptimi?',
-      'Guruhda rivojlantiruvchi markazlar (burchaklar) mavjudmi?',
-      'Bolalarning ijodiy ishlari namoyish etilganmi?',
-      'MashgвЂulotlar davomiyligi meвЂ™yorga mosmi?',
-      'Guruhda psixologik iqlim ijobiymi?'
+      "Mashg'ulotlar rejaga muvofiq olib borilyaptimi?",
+      "O'quv qurollari va materiallari yosh guruhiga mosmi?",
+      "Bolalarning mashg'ulotlardagi ishtiroki va qiziqishi yuqorimi?",
+      "Tarbiyachining bolalar bilan muloqoti etikasi saqlanyaptimi?",
+      "Guruhda rivojlantiruvchi markazlar (burchaklar) mavjudmi?",
+      "Bolalarning ijodiy ishlari namoyish etilganmi?",
+      "Mashg'ulotlar davomiyligi me'yorga mosmi?",
+      "Guruhda psixologik iqlim ijobiymi?"
     ]
   },
   { 
@@ -140,19 +140,19 @@ export const INSPECTION_CATEGORIES = [
     icon: Beaker, 
     items: 8,
     questions: [
-      'Kundalik tayyorlangan barcha taomlardan sinama olinganmi?',
-      'Sinamalar maxsus steril idishlarda saqlanyaptimi?',
-      'Sinama idishlarida taom nomi, tayyorlangan sana va vaqt yozilganmi?',
-      'Sinamalar muzlatkich haroratida saqlanyaptimi?',
-      'Sinamalar uchun masвЂ™ul shaxs imzosi mavjudmi?',
-      'Sinamalar 24 soat davomida saqlanishi taвЂ™minlanganmi?',
-      'Sinama olish idishlari har safar sterilizatsiya qilinadimi?',
-      'Sinamalar jurnali xatolarsiz toвЂldirilganmi?'
+      "Kundalik tayyorlangan barcha taomlardan sinama olinganmi?",
+      "Sinamalar maxsus steril idishlarda saqlanyaptimi?",
+      "Sinama idishlarida taom nomi, tayyorlangan sana va vaqt yozilganmi?",
+      "Sinamalar muzlatkich haroratida saqlanyaptimi?",
+      "Sinamalar uchun mas'ul shaxs imzosi mavjudmi?",
+      "Sinamalar 24 soat davomida saqlanishi ta'minlanganmi?",
+      "Sinama olish idishlari har safar sterilizatsiya qilinadimi?",
+      "Sinamalar jurnali xatolarsiz to'ldirilganmi?"
     ]
   },
   { 
     id: 'FOOD_CONSUMPTION', 
-    name: 'Ovqat isteвЂ™moli nazorati', 
+    name: "Ovqat iste'moli nazorati", 
     icon: Utensils, 
     items: 10,
     questions: []
@@ -160,7 +160,7 @@ export const INSPECTION_CATEGORIES = [
 ];
 
 export const CONSUMPTION_LEVELS = [
-  { value: 100, label: '100%', description: 'toвЂliq yedi', color: 'bg-emerald-500' },
+  { value: 100, label: '100%', description: "to'liq yedi", color: 'bg-emerald-500' },
   { value: 75, label: '75%', description: 'katta qismini yedi', color: 'bg-blue-500' },
   { value: 50, label: '50%', description: 'yarmini yedi', color: 'bg-yellow-500' },
   { value: 25, label: '25%', description: 'kam yedi', color: 'bg-orange-500' },

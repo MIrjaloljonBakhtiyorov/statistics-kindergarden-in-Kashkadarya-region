@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useRef } from 
 import { CheckCircle2, AlertCircle, Info, X, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-type NotificationType = 'success' | 'error' | 'info';
+type NotificationType = 'success' | 'error' | 'info' | 'warning';
 
 interface ConfirmState {
   message: string;
@@ -51,6 +51,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       case 'success': return <CheckCircle2 size={20} />;
       case 'error': return <AlertCircle size={20} />;
       case 'info': return <Info size={20} />;
+      case 'warning': return <HelpCircle size={20} />;
     }
   };
 
@@ -59,6 +60,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       case 'success': return 'bg-emerald-500';
       case 'error': return 'bg-rose-500';
       case 'info': return 'bg-blue-500';
+      case 'warning': return 'bg-amber-500';
     }
   };
 

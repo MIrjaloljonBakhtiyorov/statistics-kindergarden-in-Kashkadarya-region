@@ -64,13 +64,13 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
                      onClick={() => setTomorrowAttending(true)}
                      className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 md:px-10 md:py-4 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all duration-500 ${tomorrowAttending ? 'bg-emerald-500 text-white shadow-lg ring-4 ring-emerald-500/10' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                    >
-                      <CheckCircle2 size={16} md:size={18} /> Boradi
+                      <CheckCircle2 size={16} /> Boradi
                    </button>
                    <button 
                      onClick={() => setTomorrowAttending(false)}
                      className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 md:px-10 md:py-4 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all duration-500 ${!tomorrowAttending ? 'bg-rose-500 text-white shadow-lg ring-4 ring-rose-500/10' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                    >
-                      <XCircle size={16} md:size={18} /> Yo'q
+                      <XCircle size={16} /> Yo'q
                    </button>
                 </div>
 
@@ -112,7 +112,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
           <div key={i} className="bg-white p-6 md:p-8 rounded-[1.8rem] md:rounded-[2.5rem] border border-brand-border shadow-sm group hover:border-brand-primary transition-all relative overflow-hidden">
              <div className="flex items-center justify-between mb-6">
                 <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-${stat.color}-50 text-${stat.color}-500 flex items-center justify-center border border-${stat.color}-100 transition-transform group-hover:scale-110`}>
-                   <stat.icon size={24} md:size={32} />
+                   <stat.icon size={24} />
                 </div>
                 <div className="text-right">
                    <p className="text-[9px] font-black text-brand-muted uppercase tracking-widest mb-0.5">{stat.label}</p>
@@ -138,7 +138,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
          <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col md:flex-row items-center justify-between bg-slate-50/20 gap-4">
             <div className="flex items-center gap-4">
                <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-brand-depth text-white flex items-center justify-center shadow-lg group">
-                  <History size={24} md:size={32} className="group-hover:rotate-[-45deg] transition-transform duration-500" />
+                  <History size={24} className="group-hover:rotate-[-45deg] transition-transform duration-500" />
                </div>
                <div>
                   <h5 className="text-xl md:text-2xl font-black text-brand-depth tracking-tight uppercase leading-none">Arxiv Jurnali</h5>
@@ -205,5 +205,6 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
     </motion.div>
   );
 };
+
 
 

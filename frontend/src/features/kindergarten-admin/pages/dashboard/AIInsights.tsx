@@ -25,7 +25,7 @@ export const AIInsights = () => {
 
           <div className="mt-8 inline-flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-emerald-700">
             <ShieldCheck size={15} />
-            Fake data ko'rsatilmaydi
+            Soxta ma'lumot ko'rsatilmaydi
           </div>
         </div>
       </div>

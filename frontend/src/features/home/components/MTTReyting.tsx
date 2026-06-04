@@ -442,7 +442,7 @@ export default function MTTReyting() {
           <div className="h-px flex-1 bg-gradient-to-r from-amber-200 to-transparent" />
         </div>
 
-        {/* Joriy musobaqa вЂ” katta dark card */}
+        {/* Joriy musobaqa - katta dark card */}
         <div className="relative rounded-[2rem] overflow-hidden p-8 shadow-2xl" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)' }}>
           <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-25" style={{ background: 'radial-gradient(circle, #f59e0b 0%, transparent 65%)', transform: 'translate(35%, -35%)' }} />
           <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full opacity-15" style={{ background: 'radial-gradient(circle, #818cf8 0%, transparent 70%)', transform: 'translate(-30%, 30%)' }} />
@@ -499,7 +499,7 @@ export default function MTTReyting() {
           </div>
         </div>
 
-        {/* Oylik jarayon вЂ” timeline */}
+        {/* Oylik jarayon - timeline */}
         <div className="rounded-[2rem] border border-slate-100 shadow-sm p-8" style={{ background: 'linear-gradient(135deg, #fafafa 0%, #f8faff 100%)' }}>
           <div className="flex items-center gap-3 mb-7">
             <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-200">

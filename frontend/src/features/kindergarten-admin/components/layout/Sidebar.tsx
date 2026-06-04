@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -17,6 +17,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { apiClient } from '@/shared/api';
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Viloyat statistikasi", path: "" },
@@ -41,6 +42,24 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const [alertCount, setAlertCount] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+
+    apiClient.get('/kindergartens/alerts', { params: { limit: 1 } })
+      .then((response) => {
+        if (mounted) setAlertCount(Number(response.data?.summary?.total || 0));
+      })
+      .catch(() => {
+        if (mounted) setAlertCount(0);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const handleLogout = async () => {
     try {
       localStorage.removeItem('isDemoAuth');
@@ -102,8 +121,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 <>
                   <item.icon size={18} className={isActive ? "text-white" : "text-slate-500"} />
                   <span>{item.label}</span>
-                  {item.label === "Alertlar" && (
-                    <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white">12</span>
+                  {item.label === "Alertlar" && alertCount > 0 && (
+                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white">
+                      {alertCount > 99 ? '99+' : alertCount}
+                    </span>
                   )}
                 </>
               )}

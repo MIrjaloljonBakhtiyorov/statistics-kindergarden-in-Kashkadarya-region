@@ -38,7 +38,6 @@ import { apiClient } from '@/shared/api';
 
 interface OperatorViewProps {
   groups: any[];
-  setGroups: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 interface RoleAccount {
@@ -58,7 +57,7 @@ const MEAL_LABELS: Record<string, string> = {
   DINNER: 'Kechki ovqat',
 };
 
-const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups, setGroups }) => {
+const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) => {
   const [viewMode, setViewMode] = useState<'DASHBOARD' | 'ADD_CHILD' | 'ADD_STAFF' | 'MANAGE_CHILDREN' | 'MANAGE_STAFF' | 'MANAGE_GROUPS' | 'MANAGE_PARENTS' | 'MANAGE_ROLE_ACCOUNTS'>('DASHBOARD');
   const [editingChild, setEditingChild] = useState<any>(null);
   const [editingStaff, setEditingStaff] = useState<any>(null);

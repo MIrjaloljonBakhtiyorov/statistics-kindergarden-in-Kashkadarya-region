@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Activity, Heart, ShieldAlert, FileText, Clipboard, Thermometer, Ruler, Weight, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -12,7 +12,7 @@ export const MedicalSection = ({ parentData }: any) => (
            <div className="space-y-3">
               <div className="flex items-center justify-center md:justify-start gap-2.5">
                  <div className="w-10 h-10 md:w-12 md:h-12 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 flex items-center justify-center">
-                    <Clipboard size={20} md:size={24} className="text-white" />
+                    <Clipboard size={20} className="text-white" />
                  </div>
                  <div className="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest text-emerald-400">Tasdiqlangan</div>
               </div>
@@ -24,7 +24,7 @@ export const MedicalSection = ({ parentData }: any) => (
               <div className="flex items-center gap-3 mb-4">
                  <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30"><CheckCircle2 size={20} /></div>
                  <div>
-                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest leading-none mb-0.5">Status</p>
+                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest leading-none mb-0.5">Holat</p>
                     <p className="text-lg font-black uppercase tracking-tight">Sog'lom</p>
                  </div>
               </div>
@@ -41,12 +41,12 @@ export const MedicalSection = ({ parentData }: any) => (
         {[
            { label: 'Bo\'yi', val: parentData.height || '--', unit: 'cm', icon: Ruler, color: 'blue', desc: 'O\'sish' },
            { label: 'Vazni', val: parentData.weight || '--', unit: 'kg', icon: Weight, color: 'rose', desc: 'Vazn' },
-           { label: 'Harorat', val: '36.6', unit: '°C', icon: Thermometer, color: 'emerald', desc: 'Holat' }
+           { label: 'Harorat', val: '36.6', unit: 'В°C', icon: Thermometer, color: 'emerald', desc: 'Holat' }
         ].map((v, i) => (
            <div key={i} className="bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-brand-border shadow-sm group hover:border-brand-primary transition-all relative overflow-hidden">
               <div className="flex items-center justify-between mb-6">
                  <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-${v.color}-50 text-${v.color}-500 flex items-center justify-center border border-${v.color}-100 shadow-sm transition-transform group-hover:scale-110`}>
-                    <v.icon size={24} md:size={32} />
+                    <v.icon size={24} />
                  </div>
                  <div className="text-right">
                     <p className="text-[9px] font-black text-brand-muted uppercase tracking-widest mb-0.5">{v.label}</p>
@@ -66,7 +66,7 @@ export const MedicalSection = ({ parentData }: any) => (
         <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-[2rem] md:rounded-[3rem] blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
         <div className="relative bg-white p-6 md:p-10 rounded-[1.8rem] md:rounded-[2.5rem] border border-brand-border shadow-xl flex flex-col md:flex-row items-center gap-8 md:gap-12">
            <div className="w-16 h-16 md:w-24 md:h-24 bg-amber-50 text-amber-500 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center shadow-inner border-2 border-white shrink-0">
-              <ShieldAlert size={32} md:size={48} className="animate-pulse" />
+              <ShieldAlert size={32} className="animate-pulse" />
            </div>
            <div className="space-y-3 md:space-y-4 flex-1 text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start gap-2">
@@ -87,7 +87,7 @@ export const MedicalSection = ({ parentData }: any) => (
         <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col md:flex-row items-center justify-between bg-slate-50/20 gap-4">
            <div className="flex items-center gap-4">
               <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-brand-depth text-white flex items-center justify-center shadow-lg group">
-                 <FileText size={24} md:size={32} className="group-hover:rotate-[-10deg] transition-transform duration-500" />
+                 <FileText size={24} className="group-hover:rotate-[-10deg] transition-transform duration-500" />
               </div>
               <div className="text-left">
                  <h5 className="text-xl md:text-2xl font-black text-brand-depth tracking-tight uppercase leading-none">Shifokor Jurnali</h5>
@@ -107,3 +107,4 @@ export const MedicalSection = ({ parentData }: any) => (
      </div>
   </motion.div>
 );
+

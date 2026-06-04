@@ -7,6 +7,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line 
 } from 'recharts';
 import { clsx } from 'clsx';
+import { toast } from 'sonner';
 
 
 const TUMANLAR = [
@@ -112,7 +113,7 @@ export const HududiyCommandCenter = () => {
                         <p>Davomat: {hoveredDistrict.attendance}%</p>
                         <p>Bolalar: {hoveredDistrict.children}</p>
                         <p>Bog‘chalar: {hoveredDistrict.kindergartens}</p>
-                        <p className="mt-1 font-bold">Status: {getStatusLabel(hoveredDistrict.attendance)}</p>
+                        <p className="mt-1 font-bold">Holat: {getStatusLabel(hoveredDistrict.attendance)}</p>
                     </div>
                 )}
              </div>

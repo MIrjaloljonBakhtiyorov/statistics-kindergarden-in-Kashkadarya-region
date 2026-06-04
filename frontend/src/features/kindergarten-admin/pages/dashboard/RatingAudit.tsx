@@ -126,7 +126,7 @@ export const RatingAudit = () => {
               Barcha tumanlar <ChevronDown size={12} className="opacity-50" />
             </button>
             <button className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
-              Status <ChevronDown size={12} className="opacity-50" />
+              Holat <ChevronDown size={12} className="opacity-50" />
             </button>
             <div className="relative">
               <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -221,7 +221,7 @@ export const RatingAudit = () => {
                       <th className="px-4 py-3 text-center">Ball</th>
                       <th className="px-4 py-3 text-center">Jarimalar</th>
                       <th className="px-4 py-3 text-center">Xatolar</th>
-                      <th className="px-4 py-3 text-center">Status</th>
+                      <th className="px-4 py-3 text-center">Holat</th>
                       <th className="px-5 py-3 text-left">Tavsiya</th>
                     </tr>
                   </thead>
