@@ -46,6 +46,18 @@ const normalizeWorkHours = (value) => {
   return [4, 9, 9.5, 10.5, 12, 24].includes(numberValue) ? numberValue : 9.5;
 };
 
+/**
+ * Validates and normalizes pagination parameters
+ * @param {number} page - Current page number
+ * @param {number} pageSize - Items per page
+ * @returns {Object} - Validated {page, pageSize} object
+ */
+const validatePaginationParams = (page, pageSize) => {
+  const validatedPageSize = Math.min(Math.max(Number(pageSize || 50), 1), 50);
+  const validatedPage = Math.max(Number(page || 1), 1);
+  return { page: validatedPage, pageSize: validatedPageSize };
+};
+
 const WORK_HOUR_GROUPS = {
   SHORT_4: { hours: [4], meals: ['BREAKFAST'] },
   DAY_9_105: { hours: [9, 9.5, 10.5], meals: ['BREAKFAST', 'LUNCH', 'TEA'] },
@@ -492,8 +504,7 @@ const KindergartenController = {
     try {
       await ensureAdminAlertEventsTable();
       const generatedAt = new Date().toISOString();
-      const pageSize = Math.min(Math.max(Number(req.query.pageSize || 50), 1), 50);
-      const page = Math.max(Number(req.query.page || 1), 1);
+      const { page, pageSize } = validatePaginationParams(req.query.page, req.query.pageSize);
       const filter = String(req.query.filter || 'all').toLowerCase();
       const search = String(req.query.search || '').trim().toLowerCase();
 
