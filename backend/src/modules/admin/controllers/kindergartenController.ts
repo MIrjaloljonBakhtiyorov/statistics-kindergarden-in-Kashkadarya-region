@@ -720,7 +720,12 @@ const KindergartenController = {
         alerts: pagedAlerts,
       });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      console.error('[Admin] Alert retrieval error:', err.message);
+      res.status(500).json({ 
+        error: 'Alert retrieval failed', 
+        message: err.message,
+        timestamp: new Date().toISOString()
+      });
     }
   },
 
