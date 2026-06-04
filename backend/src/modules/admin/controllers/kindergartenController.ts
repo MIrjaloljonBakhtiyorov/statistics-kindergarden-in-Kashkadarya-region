@@ -47,6 +47,17 @@ const normalizeWorkHours = (value) => {
 };
 
 /**
+ * Validates filter parameter
+ * @param {string} filter - Filter type
+ * @returns {string} - Validated filter value
+ */
+const validateAlertFilter = (filter) => {
+  const validFilters = ['all', 'kindergarten', 'medical', 'menu', 'important'];
+  const normalizedFilter = String(filter || 'all').toLowerCase();
+  return validFilters.includes(normalizedFilter) ? normalizedFilter : 'all';
+};
+
+/**
  * Validates and normalizes pagination parameters
  * @param {number} page - Current page number
  * @param {number} pageSize - Items per page
@@ -505,7 +516,7 @@ const KindergartenController = {
       await ensureAdminAlertEventsTable();
       const generatedAt = new Date().toISOString();
       const { page, pageSize } = validatePaginationParams(req.query.page, req.query.pageSize);
-      const filter = String(req.query.filter || 'all').toLowerCase();
+      const filter = validateAlertFilter(req.query.filter);
       const search = String(req.query.search || '').trim().toLowerCase();
 
       const [eventRows, kindergartenRows, menuRows, medicalReport] = await Promise.all([
