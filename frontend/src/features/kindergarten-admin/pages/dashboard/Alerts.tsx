@@ -270,14 +270,14 @@ export const Alerts = () => {
                 <Bell size={24} />
               </div>
               <div>
-                <h1 className="text-2xl font-black tracking-tight text-slate-950 dark:text-white sm:text-3xl">
+                <h1 className="text-[14px] font-black tracking-tight text-slate-950 dark:text-white">
                   Alertlar markazi
                 </h1>
-                <p className="mt-1 text-sm font-bold text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-[14px] font-bold text-slate-500 dark:text-slate-400">
                   Bog'cha yaratilishi, dori zaxirasi va taomnoma hodisalari real bazadan shakllanadi.
                 </p>
               </div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-[12px] font-black uppercase tracking-widest text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
                 real-time
               </span>
@@ -286,8 +286,8 @@ export const Alerts = () => {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
               {summaryCards.map((card) => (
                 <div key={card.label} className={clsx('rounded-2xl border border-white/70 px-4 py-3 shadow-sm dark:border-slate-800', card.bg)}>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{card.label}</p>
-                  <p className={clsx('mt-2 text-3xl font-black tabular-nums', card.color)}>{card.value}</p>
+                  <p className="text-[12px] font-black uppercase tracking-widest text-slate-400">{card.label}</p>
+                  <p className={clsx('mt-1.5 text-[14px] font-black tabular-nums', card.color)}>{card.value}</p>
                 </div>
               ))}
             </div>
@@ -301,7 +301,7 @@ export const Alerts = () => {
                   <input
                     type="text"
                     placeholder="Yaratilgan alertlarni qidirish..."
-                    className="h-13 w-full rounded-2xl border border-transparent bg-white pl-12 pr-10 text-sm font-bold text-slate-800 outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10 dark:bg-slate-900 dark:text-white"
+                    className="h-13 w-full rounded-2xl border border-transparent bg-white pl-12 pr-10 text-[14px] font-bold text-slate-800 outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10 dark:bg-slate-900 dark:text-white"
                     value={draftSearch}
                     onChange={(event) => setDraftSearch(event.target.value)}
                     onKeyDown={(event) => {
@@ -322,7 +322,7 @@ export const Alerts = () => {
                 <button
                   type="button"
                   onClick={runSearch}
-                  className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 active:scale-95"
+                  className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 text-[14px] font-black text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 active:scale-95"
                 >
                   <Search size={17} />
                   Qidirish
@@ -331,7 +331,7 @@ export const Alerts = () => {
             </div>
 
             <div className="flex items-center justify-between gap-3">
-              <p className="text-xs font-bold text-slate-400">
+              <p className="text-[12px] font-bold text-slate-400">
                 {appliedSearch
                   ? `"${appliedSearch}" bo'yicha natija: ${pagination.total}`
                   : `${pagination.from}-${pagination.to} / ${pagination.total} ta alert`}
@@ -339,7 +339,7 @@ export const Alerts = () => {
               <button
                 type="button"
                 onClick={loadAlerts}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-[12px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                 disabled={loading}
               >
                 <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
@@ -360,7 +360,7 @@ export const Alerts = () => {
               setPage(1);
             }}
             className={clsx(
-              'relative flex min-w-[116px] items-center justify-center rounded-2xl px-5 py-3 text-sm font-black transition-all',
+              'relative flex min-w-[104px] items-center justify-center rounded-xl px-4 py-2.5 text-[12px] font-black transition-all',
               filter === item.key
                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                 : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800'
@@ -369,7 +369,7 @@ export const Alerts = () => {
             {item.label}
             <span
               className={clsx(
-                'absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full border px-1.5 text-[10px] font-black tabular-nums',
+                'absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border px-1.5 text-[12px] font-black tabular-nums',
                 filter === item.key
                   ? 'border-indigo-500 bg-white text-indigo-600'
                   : 'border-white bg-slate-950 text-white dark:border-slate-900 dark:bg-indigo-500'
@@ -408,17 +408,17 @@ export const Alerts = () => {
                 <div className={clsx('flex flex-row items-center gap-4 rounded-[1.5rem] border p-4 lg:flex-col lg:items-start', isDarkCard ? 'border-white/10 bg-white/5' : 'border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-950')}>
                   <div className="flex items-center gap-2">
                     <span className={clsx('h-2.5 w-2.5 rounded-full', config.dot)} />
-                    <span className={clsx('text-[11px] font-black uppercase tracking-widest', config.color)}>{config.label}</span>
+                    <span className={clsx('text-[12px] font-black uppercase tracking-widest', config.color)}>{config.label}</span>
                   </div>
                   <div>
-                    <p className="font-mono text-3xl font-black tabular-nums tracking-tight sm:text-4xl lg:text-3xl">
+                    <p className="font-mono text-[14px] font-black tabular-nums tracking-tight">
                       {clockTime}
                     </p>
-                    <p className={clsx('mt-1 text-[11px] font-black uppercase tracking-widest', isDarkCard ? 'text-slate-400' : 'text-slate-400')}>
+                    <p className={clsx('mt-1 text-[12px] font-black uppercase tracking-widest', isDarkCard ? 'text-slate-400' : 'text-slate-400')}>
                       #{alert.orderNumber || pagination.from + index}
                     </p>
                   </div>
-                  <div className={clsx('flex items-center gap-2 text-xs font-bold lg:mt-auto', isDarkCard ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400')}>
+                  <div className={clsx('flex items-center gap-2 text-[12px] font-bold lg:mt-auto', isDarkCard ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400')}>
                     <CalendarDays size={14} />
                     <span>{dateText}</span>
                   </div>
@@ -432,21 +432,21 @@ export const Alerts = () => {
                       </div>
                       <div className="min-w-0">
                         <div className="mb-2 flex flex-wrap items-center gap-2">
-                          <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-widest text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+                          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[12px] font-black uppercase tracking-widest text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
                             Alert #{alert.orderNumber || pagination.from + index}
                           </span>
-                          <span className={clsx('rounded-full border px-3 py-1 text-[11px] font-black uppercase tracking-widest', config.bg, config.border, config.color)}>
+                          <span className={clsx('rounded-full border px-2.5 py-1 text-[12px] font-black uppercase tracking-widest', config.bg, config.border, config.color)}>
                             {CATEGORY_LABELS[alert.category]}
                           </span>
-                          <span className={clsx('inline-flex items-center gap-1.5 text-xs font-bold', isDarkCard ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400')}>
+                          <span className={clsx('inline-flex items-center gap-1.5 text-[12px] font-bold', isDarkCard ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400')}>
                             <Clock3 size={14} />
                             {formatRelativeTime(alert.createdAt)}
                           </span>
                         </div>
-                        <h2 className="text-xl font-black leading-tight tracking-tight text-inherit sm:text-2xl">
+                        <h2 className="text-[14px] font-black leading-snug tracking-tight text-inherit">
                           {alert.title}
                         </h2>
-                        <p className={clsx('mt-2 text-base font-semibold leading-7', isDarkCard ? 'text-slate-300' : 'text-slate-600 dark:text-slate-300')}>
+                        <p className={clsx('mt-1.5 text-[12px] font-semibold leading-6', isDarkCard ? 'text-slate-300' : 'text-slate-600 dark:text-slate-300')}>
                           {alert.context}
                         </p>
                       </div>
@@ -455,7 +455,7 @@ export const Alerts = () => {
                     {alert.actionUrl && (
                       <a
                         href={alert.actionUrl}
-                        className={clsx('inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-xs font-black uppercase tracking-widest transition active:scale-95', isDarkCard ? 'border-white/10 text-white hover:bg-white/10' : 'border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800')}
+                        className={clsx('inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-[12px] font-black uppercase tracking-widest transition active:scale-95', isDarkCard ? 'border-white/10 text-white hover:bg-white/10' : 'border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800')}
                       >
                         Ochish
                         <ArrowUpRight size={15} />
@@ -470,8 +470,8 @@ export const Alerts = () => {
                           key={`${alert.id}-${detail.label}`}
                           className={clsx('rounded-2xl border px-4 py-3', isDarkCard ? 'border-white/10 bg-white/5' : 'border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-950')}
                         >
-                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{detail.label}</p>
-                          <p className={clsx('mt-1 text-sm font-black leading-5', isDarkCard ? 'text-white' : 'text-slate-800 dark:text-white')}>{detail.value}</p>
+                          <p className="text-[12px] font-black uppercase tracking-widest text-slate-400">{detail.label}</p>
+                          <p className={clsx('mt-1 text-[14px] font-black leading-5', isDarkCard ? 'text-white' : 'text-slate-800 dark:text-white')}>{detail.value}</p>
                         </div>
                       ))}
                     </div>
@@ -485,7 +485,7 @@ export const Alerts = () => {
         {loading && (
           <div className="rounded-[2rem] border border-white bg-white py-20 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <RefreshCw className="mx-auto animate-spin text-indigo-500" size={38} />
-            <h3 className="mt-4 text-sm font-black uppercase tracking-widest text-slate-400">Alertlar yuklanmoqda</h3>
+            <h3 className="mt-4 text-[14px] font-black uppercase tracking-widest text-slate-400">Alertlar yuklanmoqda</h3>
           </div>
         )}
 
@@ -494,10 +494,10 @@ export const Alerts = () => {
             <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
               <Bell className="text-slate-300" size={34} />
             </div>
-            <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">
+            <h3 className="text-[14px] font-black uppercase tracking-widest text-slate-400">
               {error || "Hozircha alertlar yo'q"}
             </h3>
-            <p className="mt-2 text-sm font-bold text-slate-400">
+            <p className="mt-2 text-[14px] font-bold text-slate-400">
               Filtr yoki qidiruvni o'zgartirib ko'ring.
             </p>
           </div>
@@ -506,7 +506,7 @@ export const Alerts = () => {
 
       {!loading && !error && pagination.totalPages > 1 && (
         <nav className="flex flex-col gap-3 rounded-[1.6rem] border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center sm:justify-between">
-          <div className="px-2 text-sm font-black text-slate-500 dark:text-slate-400">
+          <div className="px-2 text-[12px] font-black text-slate-500 dark:text-slate-400">
             {pagination.from}-{pagination.to} ko'rsatildi. Jami: {pagination.total}
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -514,7 +514,7 @@ export const Alerts = () => {
               type="button"
               disabled={!pagination.hasPrev}
               onClick={() => setPage((value) => Math.max(1, value - 1))}
-              className="rounded-2xl border border-slate-200 px-4 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="rounded-2xl border border-slate-200 px-4 py-2 text-[12px] font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               Oldingi
             </button>
@@ -526,7 +526,7 @@ export const Alerts = () => {
                   type="button"
                   onClick={() => setPage(item)}
                   className={clsx(
-                    'h-10 min-w-10 rounded-2xl px-3 text-xs font-black tabular-nums transition',
+                    'h-10 min-w-10 rounded-2xl px-3 text-[12px] font-black tabular-nums transition',
                     item === pagination.page
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                       : 'border border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800'
@@ -535,7 +535,7 @@ export const Alerts = () => {
                   {item}
                 </button>
               ) : (
-                <span key={item} className="px-1 text-sm font-black text-slate-400">...</span>
+                <span key={item} className="px-1 text-[12px] font-black text-slate-400">...</span>
               )
             ))}
 
@@ -543,7 +543,7 @@ export const Alerts = () => {
               type="button"
               disabled={!pagination.hasNext}
               onClick={() => setPage((value) => Math.min(pagination.totalPages, value + 1))}
-              className="rounded-2xl border border-slate-200 px-4 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="rounded-2xl border border-slate-200 px-4 py-2 text-[12px] font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               Keyingi
             </button>
