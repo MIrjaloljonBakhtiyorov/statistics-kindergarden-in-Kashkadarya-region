@@ -618,6 +618,8 @@ const KindergartenController = {
         };
       });
 
+      // Menu alerts aggregated by date with enhanced metrics
+      // This provides daily summary of menu creation activities across all kindergartens
       const menuAlerts = menuRows.map((row) => ({
         id: `menu-created-${row.date}`,
         status: 'update',
