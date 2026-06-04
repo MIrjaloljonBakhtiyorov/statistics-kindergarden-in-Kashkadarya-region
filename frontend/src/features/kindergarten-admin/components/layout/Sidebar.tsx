@@ -43,17 +43,30 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const [alertCount, setAlertCount] = useState(0);
+  const [isLoadingAlerts, setIsLoadingAlerts] = useState(true);
 
   useEffect(() => {
     let mounted = true;
 
-    apiClient.get('/kindergartens/alerts', { params: { limit: 1 } })
-      .then((response) => {
-        if (mounted) setAlertCount(Number(response.data?.summary?.total || 0));
-      })
-      .catch(() => {
-        if (mounted) setAlertCount(0);
-      });
+    const fetchAlerts = async () => {
+      try {
+        const response = await apiClient.get('/kindergartens/alerts', { params: { limit: 1 } });
+        if (mounted) {
+          setAlertCount(Number(response.data?.summary?.total || 0));
+        }
+      } catch (error) {
+        if (mounted) {
+          console.error('Failed to fetch alert count:', error);
+          setAlertCount(0);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoadingAlerts(false);
+        }
+      }
+    };
+
+    fetchAlerts();
 
     return () => {
       mounted = false;
