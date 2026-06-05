@@ -108,6 +108,70 @@ const normalizeDistrictKey = (value) => String(value || "Noma'lum tuman")
     .replace(/[\u2018\u2019\u02bb`]/g, "'")
     .replace(/g'uzor/g, 'guzor');
 const percent = (part, total) => Number(total || 0) > 0 ? Math.round((Number(part || 0) * 100) / Number(total || 0)) : 0;
+const toNumberValue = (value) => {
+    const numberValue = Number(value || 0);
+    return Number.isFinite(numberValue) ? numberValue : 0;
+};
+const addDaysToIsoDate = (value, days) => {
+    const date = new Date(`${normalizeDate(value)}T00:00:00.000Z`);
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().slice(0, 10);
+};
+const weekdayNames = ['Yakshanba', 'Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba'];
+const getWeekdayName = (value) => {
+    const date = new Date(`${normalizeDate(value)}T00:00:00.000Z`);
+    return weekdayNames[date.getUTCDay()] || "Noma'lum";
+};
+const getSeasonName = (value) => {
+    const month = Number(String(normalizeDate(value)).slice(5, 7));
+    if ([12, 1, 2].includes(month))
+        return 'Qish';
+    if ([3, 4, 5].includes(month))
+        return 'Bahor';
+    if ([6, 7, 8].includes(month))
+        return 'Yoz';
+    return 'Kuz';
+};
+const isPresentStatus = (status) => ['PRESENT', 'KELDI', 'EARLY', 'LATE'].includes(String(status || '').toUpperCase());
+const isAbsentStatus = (status) => ['ABSENT', 'KELMADI'].includes(String(status || '').toUpperCase());
+const getAgeFromBirthDate = (birthDate, date) => {
+    if (!birthDate)
+        return null;
+    const birth = new Date(`${String(birthDate).slice(0, 10)}T00:00:00.000Z`);
+    const current = new Date(`${normalizeDate(date)}T00:00:00.000Z`);
+    if (Number.isNaN(birth.getTime()))
+        return null;
+    let age = current.getUTCFullYear() - birth.getUTCFullYear();
+    const beforeBirthday = current.getUTCMonth() < birth.getUTCMonth()
+        || (current.getUTCMonth() === birth.getUTCMonth() && current.getUTCDate() < birth.getUTCDate());
+    if (beforeBirthday)
+        age -= 1;
+    return Math.max(age, 0);
+};
+const getChildAgeGroup = (child, date) => {
+    const explicit = String(child?.age_category || child?.group_age_category || child?.ageCategory || '').trim();
+    if (explicit)
+        return explicit;
+    const age = getAgeFromBirthDate(child?.birth_date || child?.birthDate, date);
+    if (age == null)
+        return "Noma'lum yosh";
+    if (age <= 2)
+        return '1-2 yosh';
+    if (age <= 3)
+        return '3 yosh';
+    if (age <= 4)
+        return '4 yosh';
+    if (age <= 5)
+        return '5 yosh';
+    if (age <= 6)
+        return '6 yosh';
+    return '7+ yosh';
+};
+const pushMetric = (map, key, defaults = {}) => {
+    if (!map.has(key))
+        map.set(key, { name: key, present: 0, absent: 0, late: 0, marked: 0, children: 0, ...defaults });
+    return map.get(key);
+};
 const ensureAdminAIInsightsTable = async () => {
     await run(`CREATE TABLE IF NOT EXISTS admin_ai_insight_cache (
     cache_key TEXT PRIMARY KEY,
@@ -122,175 +186,525 @@ const ensureAdminAIInsightsTable = async () => {
     await run(`CREATE INDEX IF NOT EXISTS idx_admin_ai_insight_cache_expires ON admin_ai_insight_cache (expires_at)`);
 };
 const buildAdminAIInsightSnapshot = async (date) => {
-    const [kindergartens, expenseRows] = await Promise.all([
+    const periodStart = addDaysToIsoDate(date, -119);
+    const currentWeekStart = addDaysToIsoDate(date, -6);
+    const previousWeekStart = addDaysToIsoDate(date, -13);
+    const previousWeekEnd = addDaysToIsoDate(date, -7);
+    const [kindergartens, childRows, attendanceRows, expenseRows, staffRows, menuRows, healthRows, staffHealthRows, parentRows, auditRows,] = await Promise.all([
+        all(`
+      SELECT id, system_id, name, type, district, address, capacity, currentChildren,
+             groups, educators, cooks, techStaff, nurseCount, budget, avgConsumption,
+             rating, threshold, status
+      FROM kindergartens
+      ORDER BY district, name
+    `),
         all(`
       SELECT
-        k.id,
-        k.name,
-        k.type,
-        k.district,
-        k.capacity,
-        k.currentChildren,
-        k.budget,
-        k.status,
-        COALESCE(child_counts.children_count, 0) as childrenCount,
-        COALESCE(attendance_counts.present_count, 0) as presentCount,
-        COALESCE(attendance_counts.absent_count, 0) as absent,
-        COALESCE(attendance_counts.attended_before_9, 0) as attendedBefore9,
-        COALESCE(attendance_counts.attended_after_9, 0) as attendedAfter9
-      FROM kindergartens k
-      LEFT JOIN (
-        SELECT kindergarten_id, COUNT(*) as children_count
-        FROM children
-        WHERE COALESCE(status, 'ACTIVE') != 'ARCHIVED'
-        GROUP BY kindergarten_id
-      ) child_counts ON CAST(child_counts.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
-      LEFT JOIN (
-        SELECT
-          a.kindergarten_id,
-          SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY', 'LATE') THEN 1 ELSE 0 END) as present_count,
-          SUM(CASE WHEN UPPER(a.status) IN ('ABSENT', 'KELMADI') THEN 1 ELSE 0 END) as absent_count,
-          SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY') AND (a.arrival_time IS NULL OR a.arrival_time <= '09:00') THEN 1 ELSE 0 END) as attended_before_9,
-          SUM(CASE WHEN UPPER(a.status) = 'LATE' OR (a.arrival_time IS NOT NULL AND a.arrival_time > '09:00') THEN 1 ELSE 0 END) as attended_after_9
-        FROM attendance a
-        WHERE a.date = ?
-        GROUP BY a.kindergarten_id
-      ) attendance_counts ON CAST(attendance_counts.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
-      ORDER BY k.district, k.name
-    `, [date]),
+        c.id,
+        c.kindergarten_id,
+        c.birth_date,
+        c.age_category,
+        c.address,
+        c.group_id,
+        g.name as group_name,
+        g.age_category as group_age_category,
+        g.age_limit,
+        k.name as kindergarten_name,
+        k.district
+      FROM children c
+      LEFT JOIN groups g ON CAST(g.id AS TEXT) = CAST(c.group_id AS TEXT)
+      LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(c.kindergarten_id AS TEXT)
+      WHERE COALESCE(c.status, 'ACTIVE') != 'ARCHIVED'
+    `),
+        all(`
+      SELECT
+        a.date,
+        a.status,
+        a.arrival_time,
+        a.reason,
+        a.kindergarten_id,
+        c.id as child_id,
+        c.birth_date,
+        c.age_category,
+        c.group_id,
+        g.name as group_name,
+        g.age_category as group_age_category,
+        k.name as kindergarten_name,
+        k.district
+      FROM attendance a
+      LEFT JOIN children c ON CAST(c.id AS TEXT) = CAST(a.child_id AS TEXT)
+      LEFT JOIN groups g ON CAST(g.id AS TEXT) = CAST(c.group_id AS TEXT)
+      LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(a.kindergarten_id AS TEXT)
+      WHERE a.date BETWEEN ? AND ?
+    `, [periodStart, date]),
         all(`
       SELECT district, cost_per_child
       FROM daily_district_expenses
       WHERE date = ?
     `, [date]),
+        all(`
+      SELECT
+        k.id as kindergarten_id,
+        k.name as kindergarten_name,
+        k.district,
+        COUNT(s.id) as staff_count,
+        COALESCE(SUM(CASE WHEN COALESCE(s.status, 'ACTIVE') = 'ACTIVE' THEN 1 ELSE 0 END), 0) as active_staff_count,
+        COALESCE(SUM(CASE WHEN LOWER(COALESCE(s.position, '')) LIKE '%tarbiy%' OR LOWER(COALESCE(s.position, '')) LIKE '%teacher%' THEN 1 ELSE 0 END), 0) as educator_actual_count,
+        COALESCE(SUM(CASE WHEN LOWER(COALESCE(s.position, '')) LIKE '%hamshir%' OR LOWER(COALESCE(s.position, '')) LIKE '%nurse%' THEN 1 ELSE 0 END), 0) as nurse_actual_count,
+        COALESCE(SUM(CASE WHEN LOWER(COALESCE(s.position, '')) LIKE '%oshpaz%' OR LOWER(COALESCE(s.position, '')) LIKE '%chef%' THEN 1 ELSE 0 END), 0) as cook_actual_count,
+        COALESCE(SUM(COALESCE(s.salary, 0)), 0) as salary_total
+      FROM kindergartens k
+      LEFT JOIN staff s ON CAST(s.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+      GROUP BY k.id, k.name, k.district
+    `),
+        all(`
+      SELECT
+        m.kindergarten_id,
+        k.name as kindergarten_name,
+        k.district,
+        m.date,
+        m.meal_type,
+        m.age_group,
+        m.diet_type,
+        m.calories,
+        m.protein,
+        m.fat,
+        m.carbohydrates,
+        m.is_approved,
+        kt.nurse_quality_status
+      FROM menus m
+      LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(m.kindergarten_id AS TEXT)
+      LEFT JOIN kitchen_tasks kt ON CAST(kt.menu_id AS TEXT) = CAST(m.id AS TEXT)
+      WHERE m.date BETWEEN ? AND ?
+    `, [currentWeekStart, date]),
+        all(`
+      SELECT
+        hc.kindergarten_id,
+        k.name as kindergarten_name,
+        k.district,
+        hc.date,
+        hc.is_sick,
+        hc.temperature_status,
+        hc.weight_status,
+        hc.height_status,
+        hc.notes,
+        c.group_id,
+        c.age_category,
+        g.name as group_name,
+        g.age_category as group_age_category
+      FROM health_checks hc
+      LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(hc.kindergarten_id AS TEXT)
+      LEFT JOIN children c ON CAST(c.id AS TEXT) = CAST(hc.child_id AS TEXT)
+      LEFT JOIN groups g ON CAST(g.id AS TEXT) = CAST(c.group_id AS TEXT)
+      WHERE hc.date BETWEEN ? AND ?
+    `, [periodStart, date]),
+        all(`
+      SELECT
+        shc.kindergarten_id,
+        k.name as kindergarten_name,
+        k.district,
+        shc.date,
+        shc.is_fit,
+        shc.conclusion
+      FROM staff_health_checks shc
+      LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(shc.kindergarten_id AS TEXT)
+      WHERE shc.date BETWEEN ? AND ?
+    `, [periodStart, date]),
+        all(`
+      SELECT
+        k.id as kindergarten_id,
+        k.name as kindergarten_name,
+        k.district,
+        COUNT(DISTINCT pa.id) as parent_account_count,
+        COUNT(DISTINCT m.id) as message_count,
+        COUNT(DISTINCT CASE WHEN COALESCE(rn.is_read, 0) = 0 THEN rn.id ELSE NULL END) as unread_notification_count
+      FROM kindergartens k
+      LEFT JOIN parent_accounts pa ON CAST(pa.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+      LEFT JOIN messages m ON CAST(m.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+      LEFT JOIN role_notifications rn ON CAST(rn.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+      GROUP BY k.id, k.name, k.district
+    `),
+        all(`
+      SELECT
+        a.kindergarten_id,
+        k.name as kindergarten_name,
+        k.district,
+        a.inspection_type,
+        a.overall_result,
+        a.severity,
+        a.status,
+        a.created_at
+      FROM audits a
+      LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(a.kindergarten_id AS TEXT)
+      WHERE a.created_at >= ?
+    `, [periodStart]),
     ]);
     const expenseByDistrict = new Map();
     expenseRows.forEach((row) => {
-        expenseByDistrict.set(normalizeDistrictKey(row.district), Number(row.cost_per_child || row.costPerChild || 0));
+        expenseByDistrict.set(normalizeDistrictKey(row.district), toNumberValue(row.cost_per_child || row.costPerChild));
     });
-    const districtMap = new Map();
+    const childrenByKindergarten = new Map();
+    const childrenByAge = new Map();
+    const childrenByDistrict = new Map();
+    const mahallaCoverageMap = new Map();
+    childRows.forEach((child) => {
+        const kindergartenId = String(child.kindergarten_id || child.kindergartenId || '');
+        const ageGroup = getChildAgeGroup(child, date);
+        const district = child.district || "Noma'lum tuman";
+        if (!childrenByKindergarten.has(kindergartenId))
+            childrenByKindergarten.set(kindergartenId, []);
+        childrenByKindergarten.get(kindergartenId).push(child);
+        pushMetric(childrenByAge, ageGroup).children += 1;
+        pushMetric(childrenByDistrict, district, { district }).children += 1;
+        const address = String(child.address || '').trim();
+        if (address) {
+            const key = `${district} / ${address}`;
+            const item = mahallaCoverageMap.get(key) || { name: address, district, enrolledChildren: 0 };
+            item.enrolledChildren += 1;
+            mahallaCoverageMap.set(key, item);
+        }
+    });
+    const byKindergartenToday = new Map();
+    const ageAttendance = new Map();
+    const districtAttendance = new Map();
+    const weekdayAttendance = new Map();
+    const seasonalAttendance = new Map();
+    const periodByKindergarten = new Map();
+    const markAttendanceMetric = (metric, row) => {
+        metric.marked += 1;
+        if (isPresentStatus(row.status))
+            metric.present += 1;
+        if (isAbsentStatus(row.status))
+            metric.absent += 1;
+        if (String(row.status || '').toUpperCase() === 'LATE' || (row.arrival_time && row.arrival_time > '09:00'))
+            metric.late += 1;
+    };
+    attendanceRows.forEach((row) => {
+        const kindergartenId = String(row.kindergarten_id || row.kindergartenId || '');
+        const district = row.district || "Noma'lum tuman";
+        const ageGroup = getChildAgeGroup(row, row.date || date);
+        const day = normalizeDate(row.date);
+        markAttendanceMetric(pushMetric(weekdayAttendance, getWeekdayName(day)), row);
+        markAttendanceMetric(pushMetric(seasonalAttendance, getSeasonName(day)), row);
+        if (day === date) {
+            markAttendanceMetric(pushMetric(byKindergartenToday, kindergartenId, {
+                kindergartenId,
+                name: row.kindergartenName || row.kindergarten_name || "Noma'lum MTT",
+                district,
+            }), row);
+            markAttendanceMetric(pushMetric(ageAttendance, ageGroup), row);
+            markAttendanceMetric(pushMetric(districtAttendance, district, { district }), row);
+        }
+        const period = day >= currentWeekStart
+            ? 'current'
+            : (day >= previousWeekStart && day <= previousWeekEnd ? 'previous' : null);
+        if (period) {
+            const item = periodByKindergarten.get(kindergartenId) || {
+                kindergartenId,
+                name: row.kindergartenName || row.kindergarten_name || "Noma'lum MTT",
+                district,
+                current: { present: 0, absent: 0, marked: 0 },
+                previous: { present: 0, absent: 0, marked: 0 },
+            };
+            item[period].marked += 1;
+            if (isPresentStatus(row.status))
+                item[period].present += 1;
+            if (isAbsentStatus(row.status))
+                item[period].absent += 1;
+            periodByKindergarten.set(kindergartenId, item);
+        }
+    });
+    const staffByKindergarten = new Map(staffRows.map((row) => [String(row.kindergarten_id || row.kindergartenId), row]));
+    const parentByKindergarten = new Map(parentRows.map((row) => [String(row.kindergarten_id || row.kindergartenId), row]));
     const kindergartenRows = kindergartens.map((kg) => {
-        const children = Number(kg.childrenCount || kg.currentChildren || 0);
-        const before9 = Number(kg.attendedBefore9 || 0);
-        const late = Number(kg.attendedAfter9 || 0);
-        const present = before9 + late;
-        const absent = Number(kg.absent || Math.max(children - present, 0));
-        const attendance = percent(present, children);
-        const row = {
+        const id = String(kg.id);
+        const children = (childrenByKindergarten.get(id) || []).length || toNumberValue(kg.currentChildren);
+        const todayMetric = byKindergartenToday.get(id) || { present: 0, absent: 0, late: 0, marked: 0 };
+        const inferredAbsent = todayMetric.marked > 0 ? Math.max(children - todayMetric.present, todayMetric.absent) : 0;
+        const staff = staffByKindergarten.get(id) || {};
+        const requiredEducators = Math.ceil(children / 25);
+        const actualEducators = Math.max(toNumberValue(staff.educator_actual_count || staff.educatorActualCount), toNumberValue(kg.educators));
+        const educatorShortage = Math.max(requiredEducators - actualEducators, 0);
+        const budget = toNumberValue(kg.budget);
+        const salaryTotal = toNumberValue(staff.salary_total || staff.salaryTotal);
+        return {
             id: kg.id,
+            systemId: kg.system_id || kg.systemId,
             name: kg.name || "Noma'lum MTT",
             type: kg.type || "Noma'lum",
             district: kg.district || "Noma'lum tuman",
+            address: kg.address || null,
+            capacity: toNumberValue(kg.capacity),
             children,
-            present,
-            before9,
-            late,
-            absent,
-            attendance,
-            capacity: Number(kg.capacity || 0),
-            budget: Number(kg.budget || 0),
+            present: todayMetric.present,
+            absent: inferredAbsent,
+            late: todayMetric.late,
+            marked: todayMetric.marked,
+            attendance: percent(todayMetric.present, children),
+            dataCompleteness: percent(todayMetric.marked, children),
+            freeSeats: Math.max(toNumberValue(kg.capacity) - children, 0),
+            budget,
+            budgetPerChild: children > 0 ? Math.round(budget / children) : 0,
+            salaryTotal,
+            salaryShare: budget > 0 ? percent(salaryTotal, budget) : 0,
+            rating: toNumberValue(kg.rating),
+            threshold: toNumberValue(kg.threshold || 75),
             status: kg.status || 'Active',
+            staff: {
+                count: toNumberValue(staff.staff_count || staff.staffCount),
+                active: toNumberValue(staff.active_staff_count || staff.activeStaffCount),
+                actualEducators,
+                registeredEducators: toNumberValue(kg.educators),
+                requiredEducators,
+                educatorShortage,
+                childrenPerEducator: actualEducators > 0 ? Math.round((children / actualEducators) * 10) / 10 : 0,
+            },
         };
-        const key = normalizeDistrictKey(row.district);
-        const district = districtMap.get(key) || {
-            name: row.district,
-            kindergartens: 0,
-            children: 0,
-            present: 0,
-            before9: 0,
-            late: 0,
-            absent: 0,
-            costPerChild: expenseByDistrict.get(key) || 0,
-            savedAmount: 0,
-            attendance: 0,
-        };
-        district.kindergartens += 1;
-        district.children += row.children;
-        district.present += row.present;
-        district.before9 += row.before9;
-        district.late += row.late;
-        district.absent += row.absent;
-        districtMap.set(key, district);
-        return row;
     });
-    const districts = Array.from(districtMap.values()).map((district) => ({
-        ...district,
-        attendance: percent(district.present, district.children),
-        savedAmount: district.absent * district.costPerChild,
-    }));
-    const withAttendance = districts.filter((district) => district.children > 0 && (district.present > 0 || district.absent > 0));
-    const lowDistricts = [...withAttendance].sort((a, b) => a.attendance - b.attendance).slice(0, 8);
-    const goodDistricts = [...withAttendance].sort((a, b) => b.attendance - a.attendance).slice(0, 8);
-    const kindergartenRisks = kindergartenRows
-        .filter((kg) => kg.children > 0 && (kg.present > 0 || kg.absent > 0))
+    const districts = Array.from(childrenByDistrict.values()).map((district) => {
+        const attendance = districtAttendance.get(district.name) || { present: 0, absent: 0, late: 0, marked: 0 };
+        const districtKindergartens = kindergartenRows.filter((kg) => normalizeDistrictKey(kg.district) === normalizeDistrictKey(district.name));
+        const capacity = districtKindergartens.reduce((sum, kg) => sum + kg.capacity, 0);
+        const children = district.children;
+        const costPerChild = expenseByDistrict.get(normalizeDistrictKey(district.name)) || 0;
+        const absent = attendance.marked > 0 ? Math.max(children - attendance.present, attendance.absent) : 0;
+        return {
+            name: district.name,
+            kindergartens: districtKindergartens.length,
+            children,
+            capacity,
+            freeSeats: Math.max(capacity - children, 0),
+            coverage: percent(children, capacity),
+            present: attendance.present,
+            late: attendance.late,
+            absent,
+            marked: attendance.marked,
+            attendance: percent(attendance.present, children),
+            dataCompleteness: percent(attendance.marked, children),
+            costPerChild,
+            savedAmount: absent * costPerChild,
+            averageRating: districtKindergartens.length
+                ? Math.round(districtKindergartens.reduce((sum, kg) => sum + kg.rating, 0) / districtKindergartens.length)
+                : 0,
+        };
+    });
+    const lowDistricts = [...districts]
+        .filter((district) => district.children > 0 && district.marked > 0)
+        .sort((a, b) => a.attendance - b.attendance)
+        .slice(0, 8);
+    const goodDistricts = [...districts]
+        .filter((district) => district.children > 0 && district.marked > 0)
+        .sort((a, b) => b.attendance - a.attendance)
+        .slice(0, 8);
+    const kindergartenRisks = [...kindergartenRows]
+        .filter((kg) => kg.children > 0 && kg.marked > 0)
         .sort((a, b) => a.attendance - b.attendance)
         .slice(0, 12);
+    const attendanceDeclines = Array.from(periodByKindergarten.values())
+        .map((item) => {
+        const currentAttendance = percent(item.current.present, item.current.marked);
+        const previousAttendance = percent(item.previous.present, item.previous.marked);
+        return {
+            kindergartenId: item.kindergartenId,
+            name: item.name,
+            district: item.district,
+            currentAttendance,
+            previousAttendance,
+            decline: previousAttendance - currentAttendance,
+            currentMarked: item.current.marked,
+            previousMarked: item.previous.marked,
+        };
+    })
+        .filter((item) => item.currentMarked > 0 && item.previousMarked > 0 && item.decline > 0)
+        .sort((a, b) => b.decline - a.decline)
+        .slice(0, 10);
+    const ageGroups = Array.from(childrenByAge.values()).map((age) => {
+        const attendance = ageAttendance.get(age.name) || { present: 0, absent: 0, late: 0, marked: 0 };
+        const absent = attendance.marked > 0 ? Math.max(age.children - attendance.present, attendance.absent) : 0;
+        return {
+            name: age.name,
+            children: age.children,
+            present: attendance.present,
+            absent,
+            late: attendance.late,
+            attendance: percent(attendance.present, age.children),
+            dataCompleteness: percent(attendance.marked, age.children),
+        };
+    }).sort((a, b) => a.attendance - b.attendance);
+    const weekdayPatterns = Array.from(weekdayAttendance.values())
+        .map((item) => ({ ...item, attendance: percent(item.present, item.marked) }))
+        .sort((a, b) => a.attendance - b.attendance);
+    const seasonalPatterns = Array.from(seasonalAttendance.values())
+        .map((item) => ({ ...item, attendance: percent(item.present, item.marked) }))
+        .sort((a, b) => a.attendance - b.attendance);
+    const financialOutliers = [...kindergartenRows]
+        .filter((kg) => kg.children > 0 && (kg.budgetPerChild > 0 || kg.salaryShare > 0))
+        .sort((a, b) => b.budgetPerChild - a.budgetPerChild)
+        .slice(0, 10)
+        .map((kg) => ({
+        name: kg.name,
+        district: kg.district,
+        budgetPerChild: kg.budgetPerChild,
+        salaryShare: kg.salaryShare,
+        children: kg.children,
+    }));
+    const staffShortages = [...kindergartenRows]
+        .filter((kg) => kg.staff.educatorShortage > 0 || kg.staff.childrenPerEducator > 25)
+        .sort((a, b) => b.staff.educatorShortage - a.staff.educatorShortage)
+        .slice(0, 10)
+        .map((kg) => ({
+        name: kg.name,
+        district: kg.district,
+        children: kg.children,
+        actualEducators: kg.staff.actualEducators,
+        requiredEducators: kg.staff.requiredEducators,
+        educatorShortage: kg.staff.educatorShortage,
+        childrenPerEducator: kg.staff.childrenPerEducator,
+    }));
+    const menuSummary = {
+        periodStart: currentWeekStart,
+        periodEnd: date,
+        menuItems: menuRows.length,
+        approvedItems: menuRows.filter((row) => Number(row.is_approved || row.isApproved || 0) === 1).length,
+        nursePending: menuRows.filter((row) => String(row.nurse_quality_status || '').toUpperCase() === 'PENDING').length,
+        averageCalories: menuRows.length ? Math.round(menuRows.reduce((sum, row) => sum + toNumberValue(row.calories), 0) / menuRows.length) : 0,
+        averageProtein: menuRows.length ? Math.round((menuRows.reduce((sum, row) => sum + toNumberValue(row.protein), 0) / menuRows.length) * 10) / 10 : 0,
+        ageGroups: [...new Set(menuRows.map((row) => row.age_group || row.ageGroup).filter(Boolean))],
+        dataLimitations: ['Sut mahsulotlari normasi va oziq-ovqat qoldiqlari uchun alohida norma/qoldiq jadvali hali ulanmagan.'],
+    };
+    const healthSummary = {
+        checks: healthRows.length,
+        sickChildren: healthRows.filter((row) => Number(row.is_sick || row.isSick || 0) === 1).length,
+        temperatureWarnings: healthRows.filter((row) => String(row.temperature_status || row.temperatureStatus || '').toUpperCase() !== 'NORMAL' && String(row.temperature_status || row.temperatureStatus || '').toUpperCase() !== 'NOT_CHECKED').length,
+        staffChecks: staffHealthRows.length,
+        unfitStaff: staffHealthRows.filter((row) => Number(row.is_fit || row.isFit || 0) === 0).length,
+        riskGroups: Object.values(healthRows.reduce((acc, row) => {
+            const key = row.group_name || row.groupName || getChildAgeGroup(row, date);
+            const item = acc[key] || { name: key, sickChildren: 0, checks: 0 };
+            item.checks += 1;
+            if (Number(row.is_sick || row.isSick || 0) === 1)
+                item.sickChildren += 1;
+            acc[key] = item;
+            return acc;
+        }, {})).sort((a, b) => b.sickChildren - a.sickChildren).slice(0, 8),
+    };
+    const parentActivity = parentRows.map((row) => ({
+        name: row.kindergartenName || row.kindergarten_name || "Noma'lum MTT",
+        district: row.district || "Noma'lum tuman",
+        parentAccounts: toNumberValue(row.parent_account_count || row.parentAccountCount),
+        messages: toNumberValue(row.message_count || row.messageCount),
+        unreadNotifications: toNumberValue(row.unread_notification_count || row.unreadNotificationCount),
+    })).sort((a, b) => b.unreadNotifications - a.unreadNotifications).slice(0, 10);
+    const topKindergartens = [...kindergartenRows]
+        .sort((a, b) => (b.rating + b.attendance) - (a.rating + a.attendance))
+        .slice(0, 10)
+        .map((kg) => ({ name: kg.name, district: kg.district, rating: kg.rating, attendance: kg.attendance, coverage: percent(kg.children, kg.capacity) }));
+    const problematicKindergartens = [...kindergartenRows]
+        .sort((a, b) => (a.rating + a.attendance + a.dataCompleteness) - (b.rating + b.attendance + b.dataCompleteness))
+        .slice(0, 10)
+        .map((kg) => ({
+        name: kg.name,
+        district: kg.district,
+        rating: kg.rating,
+        attendance: kg.attendance,
+        dataCompleteness: kg.dataCompleteness,
+        educatorShortage: kg.staff.educatorShortage,
+    }));
+    const currentMarked = attendanceRows.filter((row) => normalizeDate(row.date) >= currentWeekStart).length;
+    const previousMarked = attendanceRows.filter((row) => normalizeDate(row.date) >= previousWeekStart && normalizeDate(row.date) <= previousWeekEnd).length;
+    const currentPresent = attendanceRows.filter((row) => normalizeDate(row.date) >= currentWeekStart && isPresentStatus(row.status)).length;
+    const previousPresent = attendanceRows.filter((row) => normalizeDate(row.date) >= previousWeekStart && normalizeDate(row.date) <= previousWeekEnd && isPresentStatus(row.status)).length;
+    const currentWeekAttendance = percent(currentPresent, currentMarked);
+    const previousWeekAttendance = percent(previousPresent, previousMarked);
     const totals = {
         kindergartens: kindergartenRows.length,
-        children: districts.reduce((sum, district) => sum + district.children, 0),
+        children: kindergartenRows.reduce((sum, kg) => sum + kg.children, 0),
+        capacity: kindergartenRows.reduce((sum, kg) => sum + kg.capacity, 0),
         present: districts.reduce((sum, district) => sum + district.present, 0),
-        before9: districts.reduce((sum, district) => sum + district.before9, 0),
         late: districts.reduce((sum, district) => sum + district.late, 0),
         absent: districts.reduce((sum, district) => sum + district.absent, 0),
+        marked: districts.reduce((sum, district) => sum + district.marked, 0),
         savedAmount: districts.reduce((sum, district) => sum + district.savedAmount, 0),
+        freeSeats: districts.reduce((sum, district) => sum + district.freeSeats, 0),
         missingExpenseDistricts: districts.filter((district) => district.absent > 0 && district.costPerChild <= 0).length,
+        currentWeekAttendance,
+        previousWeekAttendance,
+        weeklyChange: currentWeekAttendance - previousWeekAttendance,
     };
     totals.attendance = percent(totals.present, totals.children);
+    totals.coverage = percent(totals.children, totals.capacity);
+    totals.dataCompleteness = percent(totals.marked, totals.children);
     return {
         date,
+        periodStart,
         generatedAt: new Date().toISOString(),
+        dataAvailability: {
+            attendance: attendanceRows.length > 0,
+            childRegistry: childRows.length > 0,
+            districtExpenses: expenseRows.length > 0,
+            staff: staffRows.length > 0,
+            menu: menuRows.length > 0,
+            health: healthRows.length > 0 || staffHealthRows.length > 0,
+            parentActivity: parentRows.length > 0,
+            audits: auditRows.length > 0,
+            populationByMahalla: false,
+            birthStatistics: false,
+            utilityCosts: false,
+            foodWaste: false,
+        },
+        stages: {
+            stage1Now: ['Davomat tahlili', 'Qamrov tahlili', 'Moliyaviy tahlil', 'Reyting'],
+            stage2Next: ['Prognozlash', 'Tavsiyalar berish', 'Mahalla kesimida qamrov xaritasi'],
+            stage3Later: ['AI situatsion markaz', 'Ovozli AI yordamchi', "Qaysi hududga bog'cha qurish kerak modeli", "Tug'ilish statistikasi asosida 3-5 yillik prognoz"],
+        },
         totals,
         districts,
         lowDistricts,
         goodDistricts,
         kindergartenRisks,
-        systemSignals: {
-            noAttendanceKindergartens: kindergartenRows.filter((kg) => kg.children > 0 && kg.present === 0 && kg.absent === 0).length,
-            lowAttendanceKindergartens: kindergartenRows.filter((kg) => kg.children > 0 && kg.attendance > 0 && kg.attendance < 75).length,
-            inactiveKindergartens: kindergartenRows.filter((kg) => String(kg.status || '').toLowerCase() !== 'active' && String(kg.status || '').toLowerCase() !== 'aktiv').length,
+        attendanceDeclines,
+        ageGroups,
+        weekdayPatterns,
+        seasonalPatterns,
+        coverage: {
+            byDistrict: [...districts].sort((a, b) => a.coverage - b.coverage).slice(0, 10),
+            mahallaSignals: Array.from(mahallaCoverageMap.values()).sort((a, b) => b.enrolledChildren - a.enrolledChildren).slice(0, 12),
+            note: "Haqiqiy qatnamayotgan bolalar va mahalla qamrovi uchun 3-6 yoshli aholi/tug'ilish statistikasi jadvali kerak.",
         },
-    };
-};
-const createLocalAIAnalysis = (snapshot) => {
-    const risk = snapshot.lowDistricts?.[0];
-    const leader = snapshot.goodDistricts?.[0];
-    return {
-        executiveSummary: `Bugun ${snapshot.totals.present} bola kelgan, ${snapshot.totals.absent} bola kelmagan. Umumiy davomat ${snapshot.totals.attendance}%.`,
-        systemStatus: `Tizim ${snapshot.totals.kindergartens} ta MTT bo'yicha davomat, tuman va xarajat ma'lumotlarini tahlil qildi.`,
-        currentWeaknesses: [
-            risk ? `${risk.name} hududida davomat ${risk.attendance}% bo'lib, alohida monitoring talab qiladi.` : 'Davomat maʼlumotlari yetarli emas.',
-            snapshot.systemSignals.noAttendanceKindergartens > 0 ? `${snapshot.systemSignals.noAttendanceKindergartens} ta MTTda bugungi davomat hali kiritilmagan.` : 'Davomat kiritish holati yaxshi.',
-            snapshot.totals.missingExpenseDistricts > 0 ? `${snapshot.totals.missingExpenseDistricts} tumanda kunlik bola xarajati kiritilmagan.` : 'Kunlik xarajat maʼlumotlari mavjud.',
-        ],
-        lowAttendanceDistricts: (snapshot.lowDistricts || []).slice(0, 5).map((item) => ({
-            name: item.name,
-            attendance: item.attendance,
-            reason: 'Kelmagan va kechikkan bolalar ulushi yuqori.',
-            action: 'Ota-onalar bilan kunlik aloqa, sabablar tasnifi va ertalabki qabul monitoringini kuchaytirish.',
-        })),
-        goodAttendanceDistricts: (snapshot.goodDistricts || []).slice(0, 5).map((item) => ({
-            name: item.name,
-            attendance: item.attendance,
-            incentive: 'Faxriy yorliq, reyting ballari va yaxshi tajribani boshqa tumanlarga tarqatish.',
-        })),
-        kindergartenFocus: (snapshot.kindergartenRisks || []).slice(0, 6).map((item) => ({
-            name: item.name,
-            district: item.district,
-            attendance: item.attendance,
-            issue: 'Past davomat yoki maʼlumot toʼliq emas.',
-            action: 'Guruh kesimida kelmagan bolalar sababini aniqlash.',
-        })),
-        childEngagementPlan: [
-            'Kelmagan bolalar ota-onasiga shu kunning oʼzida sabab soʼrovi yuborish.',
-            'Transport, sogʼliq va oilaviy sabablarni alohida roʼyxatga olib, haftalik chora rejasini yuritish.',
-            'Davomadi yaxshi MTTlarning qabul tartibini past hududlarga metodik tavsiya sifatida berish.',
-        ],
-        savingsAnalysis: `Kelmagan bolalar hisobidan taxminiy tejalgan mablagʼ: ${Math.round(snapshot.totals.savedAmount).toLocaleString('uz-UZ')} soʼm.`,
-        next24HourActions: [
-            risk ? `${risk.name} boʼyicha rahbarlarga davomat sabablari roʼyxatini topshirish.` : 'Davomat kiritilmagan MTTlarni aniqlash.',
-            leader ? `${leader.name} tajribasini ragʼbatlantirish va metodik almashish.` : 'Yetakchi hududni davomat kiritilgandan keyin aniqlash.',
-            'Kunlik xarajat kiritilmagan tumanlarni moliya modulida toʼldirish.',
-        ],
+        financial: {
+            byDistrict: [...districts].sort((a, b) => b.costPerChild - a.costPerChild).slice(0, 10),
+            outliers: financialOutliers,
+            savedAmount: totals.savedAmount,
+            dataLimitations: ['Oziq-ovqat, kommunal va ish haqi xarajatlarini alohida tahlil qilish uchun xarajat kategoriyalari bo‘yicha real jadval kerak.'],
+        },
+        staff: {
+            shortages: staffShortages,
+            totalEducatorShortage: staffShortages.reduce((sum, item) => sum + item.educatorShortage, 0),
+        },
+        nutrition: menuSummary,
+        health: healthSummary,
+        parentActivity,
+        rating: {
+            topKindergartens,
+            problematicKindergartens,
+        },
+        forecastSignals: {
+            currentWeekAttendance,
+            previousWeekAttendance,
+            weeklyChange: currentWeekAttendance - previousWeekAttendance,
+            confidence: attendanceRows.length >= 100 ? 'medium' : 'low',
+            note: 'Aniq 3-5 yillik prognoz uchun tug‘ilish, mahalla aholisi va navbat ma’lumotlari kerak.',
+        },
+        audit: {
+            recentAudits: auditRows.length,
+            severeAudits: auditRows.filter((row) => ['HIGH', 'CRITICAL', 'SEVERE'].includes(String(row.severity || '').toUpperCase())).length,
+        },
+        systemSignals: {
+            noAttendanceKindergartens: kindergartenRows.filter((kg) => kg.children > 0 && kg.marked === 0).length,
+            lowAttendanceKindergartens: kindergartenRows.filter((kg) => kg.children > 0 && kg.marked > 0 && kg.attendance < kg.threshold).length,
+            inactiveKindergartens: kindergartenRows.filter((kg) => String(kg.status || '').toLowerCase() !== 'active' && String(kg.status || '').toLowerCase() !== 'aktiv').length,
+            lowDataCompletenessKindergartens: kindergartenRows.filter((kg) => kg.children > 0 && kg.dataCompleteness > 0 && kg.dataCompleteness < 80).length,
+        },
     };
 };
 const parseAIAnalysisText = (text) => {
@@ -305,21 +719,74 @@ const parseAIAnalysisText = (text) => {
 const buildAIInsightPrompt = (snapshot) => `
 Siz Qashqadaryo viloyati maktabgacha ta'lim monitoring tizimi uchun professional AI auditor bo'lib ishlaysiz.
 Quyidagi real JSON snapshotni tahlil qiling. Soxta raqam qo'shmang, faqat berilgan datadan xulosa chiqaring.
+Ma'lumot yetarli bo'lmagan joylarda aniq "dataGap" yozing va qanday jadval/ma'lumot kerakligini ayting.
 
 Vazifalar:
-1. Tizim ayni vaqtda nima qilayotganini tushuntiring.
-2. Bog'chalar va tumanlar kesimida kamchiliklarni toping.
-3. Davomati past tumanlar uchun aniq chora yozing.
-4. Davomati yaxshi tumanlar uchun rag'batlantirish yo'lini yozing.
-5. Bugun qancha bola kelgani/kelmagani va bolalarni jalb qilish bo'yicha rejani yozing.
-6. Kelmagan bolalar hisobidan tejalgan mablag'ni izohlang.
-7. Keyingi 24 soat uchun qisqa amaliy reja tuzing.
+1. Davomat tahlili: pasaygan bog'chalar, eng yuqori tuman, past yosh guruhlari, haftalik kunlar, mavsumiy o'zgarishlar.
+2. Qamrov tahlili: ro'yxatdagi bolalar, sig'im, bo'sh o'rin, past hududlar; haqiqiy qatnamayotgan bolalar uchun population data kerak bo'lsa dataGap yozing.
+3. Ota-onalar faolligi: parent_accounts/messages/notifications signallarini tahlil qiling; mobil ilova telemetryasi bo'lmasa dataGap yozing.
+4. Moliyaviy tahlil: bir bola uchun xarajat, tejalgan mablag', budjet/staff signallari, ortiqcha xarajat ehtimoli.
+5. Kadrlar tahlili: tarbiyachi yetishmovchiligi, pedagog-yuklama, malaka ehtiyoji.
+6. Ovqatlanish tahlili: menyu, tasdiqlash, kaloriya/protein, norma/qoldiq datasi yetmasa dataGap.
+7. Sog'liq tahlili: kasallanish, risk guruhlar, epidemik xavf signallari.
+8. Reyting: TOP va muammoli bog'chalar.
+9. Prognozlash: mavjud trend asosida ehtiyotkor signal va ishonchlilik.
+10. Rahbar savollariga javob: qaysi tuman past, qaysi bog'cha xarajati yuqori, qayerga yangi bog'cha kerakligi uchun qanday data zarur.
 
 Javobni faqat JSON shaklida qaytaring:
 {
   "executiveSummary": "string",
   "systemStatus": "string",
   "currentWeaknesses": ["string"],
+  "attendanceAnalysis": {
+    "decliningKindergartens": [{"name":"string","district":"string","currentAttendance":0,"previousAttendance":0,"decline":0,"advice":"string"}],
+    "highestDistrict": {"name":"string","attendance":0,"advice":"string"},
+    "lowAgeGroups": [{"name":"string","attendance":0,"advice":"string"}],
+    "weakWeekdays": [{"day":"string","attendance":0,"advice":"string"}],
+    "seasonalPatterns": [{"season":"string","attendance":0}]
+  },
+  "coverageAnalysis": {
+    "summary": "string",
+    "lowCoverageDistricts": [{"name":"string","coverage":0,"freeSeats":0,"advice":"string"}],
+    "dataGap": "string"
+  },
+  "parentActivityAnalysis": {
+    "summary": "string",
+    "risks": [{"name":"string","district":"string","parentAccounts":0,"messages":0,"unreadNotifications":0}]
+  },
+  "financialAnalysis": {
+    "summary": "string",
+    "outliers": [{"name":"string","district":"string","budgetPerChild":0,"salaryShare":0,"advice":"string"}],
+    "dataGap": "string"
+  },
+  "staffAnalysis": {
+    "summary": "string",
+    "shortages": [{"name":"string","district":"string","children":0,"actualEducators":0,"requiredEducators":0,"educatorShortage":0,"childrenPerEducator":0}]
+  },
+  "nutritionAnalysis": {
+    "summary": "string",
+    "averageCalories": 0,
+    "averageProtein": 0,
+    "dataGap": "string"
+  },
+  "healthAnalysis": {
+    "summary": "string",
+    "riskGroups": [{"name":"string","sickChildren":0,"checks":0}]
+  },
+  "ratingAnalysis": {
+    "topKindergartens": [{"name":"string","district":"string","rating":0,"attendance":0,"coverage":0}],
+    "problematicKindergartens": [{"name":"string","district":"string","rating":0,"attendance":0,"dataCompleteness":0,"educatorShortage":0}]
+  },
+  "forecastAnalysis": {
+    "summary": "string",
+    "advice": "string"
+  },
+  "strategicQuestions": ["string"],
+  "roadmap": {
+    "stage1Now": ["string"],
+    "stage2Next": ["string"],
+    "stage3Later": ["string"]
+  },
   "lowAttendanceDistricts": [{"name":"string","attendance":0,"reason":"string","action":"string"}],
   "goodAttendanceDistricts": [{"name":"string","attendance":0,"incentive":"string"}],
   "kindergartenFocus": [{"name":"string","district":"string","attendance":0,"issue":"string","action":"string"}],
@@ -331,6 +798,155 @@ Javobni faqat JSON shaklida qaytaring:
 SNAPSHOT:
 ${JSON.stringify(snapshot)}
 `;
+const summarizeAIProviderError = (message) => {
+    const text = String(message || '').replace(/\s+/g, ' ').trim();
+    if (/quota|billing|rate.?limit|limit/i.test(text))
+        return 'Tashqi AI provider quota yoki billing limiti sabab javob bermadi.';
+    if (/api key|permission|unauthorized|forbidden|invalid/i.test(text))
+        return 'Tashqi AI provider kalit yoki ruxsat xatosi bilan javob berdi.';
+    return text ? text.slice(0, 220) : 'Tashqi AI provider javob bermadi.';
+};
+const buildLocalAIInsightAnalysis = (snapshot, providerError) => {
+    const totals = snapshot?.totals || {};
+    const dataAvailability = snapshot?.dataAvailability || {};
+    const lowDistricts = snapshot?.lowDistricts || [];
+    const goodDistricts = snapshot?.goodDistricts || [];
+    const kindergartenRisks = snapshot?.kindergartenRisks || [];
+    const attendanceDeclines = snapshot?.attendanceDeclines || [];
+    const coverageDistricts = snapshot?.coverage?.byDistrict || [];
+    const financial = snapshot?.financial || {};
+    const staff = snapshot?.staff || {};
+    const nutrition = snapshot?.nutrition || {};
+    const health = snapshot?.health || {};
+    const rating = snapshot?.rating || {};
+    const forecastSignals = snapshot?.forecastSignals || {};
+    const warning = summarizeAIProviderError(providerError);
+    const currentWeaknesses = [
+        totals.dataCompleteness < 95 ? `Davomat to'liqligi ${totals.dataCompleteness || 0}%, ayrim MTTlarda kunlik belgilash to'liq emas.` : null,
+        totals.missingExpenseDistricts > 0 ? `${totals.missingExpenseDistricts} ta tumanda bir bola uchun kunlik xarajat kiritilmagan.` : null,
+        !dataAvailability.menu ? 'Menyu va ovqatlanish maʼlumotlari yetarli emas.' : null,
+        !dataAvailability.audits ? 'Audit natijalari yetarli emas.' : null,
+        staff.totalEducatorShortage > 0 ? `Tarbiyachi yetishmovchiligi: ${staff.totalEducatorShortage} nafar.` : null,
+    ].filter(Boolean);
+    return {
+        executiveSummary: `${warning} Shu sababli xulosa mavjud bazadagi davomat, qamrov, kadr, sog'liq va reyting signallari asosida lokal shakllantirildi.`,
+        systemStatus: `MTT: ${totals.kindergartens || 0}, bolalar: ${totals.children || 0}, bugungi davomat: ${totals.attendance || 0}%, qamrov: ${totals.coverage || 0}%.`,
+        currentWeaknesses,
+        attendanceAnalysis: {
+            decliningKindergartens: attendanceDeclines.slice(0, 8).map((item) => ({
+                name: item.name,
+                district: item.district,
+                currentAttendance: item.currentAttendance,
+                previousAttendance: item.previousAttendance,
+                decline: item.decline,
+                advice: 'Soʼnggi haftadagi pasayish sababini guruh va ota-ona kesimida tekshiring.',
+            })),
+            highestDistrict: goodDistricts[0]
+                ? { name: goodDistricts[0].name, attendance: goodDistricts[0].attendance, advice: 'Ushbu tajribani past tumanlar bilan solishtiring.' }
+                : { name: "Ma'lumot yo'q", attendance: 0, advice: 'Davomat maʼlumotlarini kiriting.' },
+            lowAgeGroups: (snapshot?.ageGroups || []).slice(0, 5).map((item) => ({
+                name: item.name,
+                attendance: item.attendance,
+                advice: 'Past yosh guruhlarida kasallik, transport va ota-ona xabardorligi sabablarini tekshiring.',
+            })),
+            weakWeekdays: (snapshot?.weekdayPatterns || []).slice(0, 5).map((item) => ({
+                day: item.name,
+                attendance: item.attendance,
+                advice: 'Hafta kuni boʼyicha takroriy pasayish boʼlsa, kelish vaqtini va sabablarni ajrating.',
+            })),
+            seasonalPatterns: (snapshot?.seasonalPatterns || []).slice(0, 4).map((item) => ({
+                season: item.name,
+                attendance: item.attendance,
+            })),
+        },
+        coverageAnalysis: {
+            summary: `Ro'yxatdagi bolalar ${totals.children || 0}, sig'im ${totals.capacity || 0}, bo'sh o'rin ${totals.freeSeats || 0}.`,
+            lowCoverageDistricts: coverageDistricts.slice(0, 8).map((item) => ({
+                name: item.name,
+                coverage: item.coverage,
+                freeSeats: item.freeSeats,
+                advice: 'Mahalla va 3-6 yoshli aholi kesimidagi qamrov jadvali bilan qayta tekshiring.',
+            })),
+            dataGap: snapshot?.coverage?.note || "Haqiqiy qamrov uchun mahalla aholisi va tug'ilish statistikasi kerak.",
+        },
+        parentActivityAnalysis: {
+            summary: 'Ota-ona faolligi parent account, xabar va oʼqilmagan bildirishnomalar orqali baholandi.',
+            risks: snapshot?.parentActivity || [],
+        },
+        financialAnalysis: {
+            summary: `Tejalgan summa signali: ${totals.savedAmount || 0}. Xarajatlar tumanga kiritilsa tahlil aniqlashadi.`,
+            outliers: (financial.outliers || []).map((item) => ({
+                ...item,
+                advice: 'Budjet, bola soni va ish haqi ulushini hujjatlar bilan solishtiring.',
+            })),
+            dataGap: (financial.dataLimitations || []).join(' '),
+        },
+        staffAnalysis: {
+            summary: staff.totalEducatorShortage > 0
+                ? `Kadrlar boʼyicha asosiy signal: ${staff.totalEducatorShortage} nafar tarbiyachi yetishmovchiligi.`
+                : 'Kadrlar boʼyicha keskin yetishmovchilik signali topilmadi.',
+            shortages: staff.shortages || [],
+        },
+        nutritionAnalysis: {
+            summary: nutrition.menuItems > 0
+                ? `Oxirgi haftada ${nutrition.menuItems} ta menyu yozuvi bor, tasdiqlanganlari ${nutrition.approvedItems || 0}.`
+                : 'Menyu yozuvlari yetarli emas, ovqatlanish tahlili cheklangan.',
+            averageCalories: nutrition.averageCalories || 0,
+            averageProtein: nutrition.averageProtein || 0,
+            dataGap: (nutrition.dataLimitations || []).join(' '),
+        },
+        healthAnalysis: {
+            summary: `Sog'liq tekshiruvlari: ${health.checks || 0}, kasallik belgisi bor bolalar: ${health.sickChildren || 0}.`,
+            riskGroups: health.riskGroups || [],
+        },
+        ratingAnalysis: {
+            topKindergartens: rating.topKindergartens || [],
+            problematicKindergartens: rating.problematicKindergartens || [],
+        },
+        forecastAnalysis: {
+            summary: `Haftalik davomat o'zgarishi: ${forecastSignals.weeklyChange || 0} punkt. Ishonchlilik: ${forecastSignals.confidence || 'low'}.`,
+            advice: forecastSignals.note || "Aniq prognoz uchun tug'ilish, navbat va mahalla aholisi maʼlumotlari kerak.",
+        },
+        strategicQuestions: [
+            'Qaysi tumanlarda davomat va qamrov bir vaqtning oʼzida past?',
+            'Xarajat kiritilmagan tumanlarda real cost_per_child qachon toʼldiriladi?',
+            'Tarbiyachi yuklamasi 25 boladan oshgan MTTlar uchun shtat rejasi bormi?',
+        ],
+        roadmap: snapshot?.stages || { stage1Now: [], stage2Next: [], stage3Later: [] },
+        lowAttendanceDistricts: lowDistricts.map((item) => ({
+            name: item.name,
+            attendance: item.attendance,
+            reason: 'Davomat past yoki belgilash toʼliqligi past.',
+            action: 'MTT kesimida sabablarni ajrating va ota-onalar bilan aloqa qiling.',
+        })),
+        goodAttendanceDistricts: goodDistricts.map((item) => ({
+            name: item.name,
+            attendance: item.attendance,
+            incentive: 'Yaxshi amaliyotni past koʼrsatkichli tumanlarga tarqating.',
+        })),
+        kindergartenFocus: kindergartenRisks.slice(0, 10).map((item) => ({
+            name: item.name,
+            district: item.district,
+            attendance: item.attendance,
+            issue: 'Davomat past MTTlar roʼyxatida.',
+            action: 'Guruh, yosh toifasi va sabablar kesimida tekshiruv boshlang.',
+        })),
+        childEngagementPlan: [
+            'Har kuni kelmagan bolalar sababini bir xil formatda belgilang.',
+            'Past yosh guruhlarida ota-onalarga individual xabar yuboring.',
+            'Qamrovi past hududlar uchun mahalla kesimidagi roʼyxatni ulang.',
+        ],
+        savingsAnalysis: totals.savedAmount > 0
+            ? `Yoʼqlama va xarajat signali boʼyicha taxminiy tejalgan summa ${totals.savedAmount}.`
+            : 'Tejalgan mablagʼni hisoblash uchun barcha tumanlarda cost_per_child kiritilishi kerak.',
+        next24HourActions: [
+            'Quota/billing holatini OpenAI va Gemini kabinetida tekshiring.',
+            'Davomat toʼliqligi past MTTlarni bugun qayta tekshiring.',
+            'Xarajat kiritilmagan tumanlarga cost_per_child qiymatini kiriting.',
+            'Kadr yetishmovchiligi bor MTTlar roʼyxatini direktorlar bilan tasdiqlang.',
+        ],
+    };
+};
 const extractOpenAIText = (data) => {
     if (data?.output_text)
         return data.output_text;
@@ -347,7 +963,7 @@ const callOpenAIInsights = async (snapshot) => {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey)
         throw new Error('OPENAI_API_KEY is not configured');
-    const model = process.env.OPENAI_MODEL || 'gpt-5.5';
+    const model = process.env.OPENAI_MODEL || 'gpt-5.2';
     const response = await fetch('https://api.openai.com/v1/responses', {
         method: 'POST',
         headers: {
@@ -358,6 +974,9 @@ const callOpenAIInsights = async (snapshot) => {
             model,
             input: buildAIInsightPrompt(snapshot),
             max_output_tokens: 4000,
+            text: {
+                format: { type: 'json_object' },
+            },
         }),
     });
     const data = await response.json();
@@ -392,17 +1011,190 @@ const callGeminiInsights = async (snapshot) => {
     const text = data?.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('\n') || '';
     return { model, analysis: parseAIAnalysisText(text) };
 };
+const getAIProviderConfig = () => {
+    const hasOpenAI = Boolean(String(process.env.OPENAI_API_KEY || '').trim());
+    const hasGemini = Boolean(String(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim());
+    return { hasOpenAI, hasGemini };
+};
 const resolveAIProvider = (requestedProvider) => {
     const requested = String(requestedProvider || process.env.AI_PROVIDER || 'auto').toLowerCase();
-    if (requested === 'openai' || requested === 'gemini')
-        return requested;
-    if (process.env.OPENAI_API_KEY)
-        return 'openai';
-    if (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY)
-        return 'gemini';
-    return 'local';
+    const { hasOpenAI, hasGemini } = getAIProviderConfig();
+    if (requested === 'auto') {
+        if (hasOpenAI && hasGemini)
+            return 'ensemble';
+        if (hasOpenAI)
+            return 'openai';
+        if (hasGemini)
+            return 'gemini';
+        return 'unconfigured';
+    }
+    if (['both', 'dual', 'ensemble', 'openai+gemini', 'gemini+openai'].includes(requested)) {
+        return hasOpenAI && hasGemini ? 'ensemble' : 'unconfigured';
+    }
+    if (requested === 'openai')
+        return hasOpenAI ? 'openai' : 'unconfigured';
+    if (requested === 'gemini')
+        return hasGemini ? 'gemini' : 'unconfigured';
+    return 'unconfigured';
 };
-const generateAIInsightAnalysis = async (provider, snapshot) => {
+const getAIProviderSetupMessage = (requestedProvider) => {
+    const requested = String(requestedProvider || process.env.AI_PROVIDER || 'auto').toLowerCase();
+    const { hasOpenAI, hasGemini } = getAIProviderConfig();
+    if (requested === 'openai')
+        return 'AI_PROVIDER=openai uchun OPENAI_API_KEY sozlang.';
+    if (requested === 'gemini')
+        return 'AI_PROVIDER=gemini uchun GEMINI_API_KEY yoki GOOGLE_API_KEY sozlang.';
+    if (['both', 'dual', 'ensemble', 'openai+gemini', 'gemini+openai'].includes(requested)) {
+        const missing = [
+            !hasOpenAI ? 'OPENAI_API_KEY' : null,
+            !hasGemini ? 'GEMINI_API_KEY yoki GOOGLE_API_KEY' : null,
+        ].filter(Boolean).join(' va ');
+        return `${requested} rejimi uchun ${missing} sozlang.`;
+    }
+    return 'AI API kalitlari sozlanmagan. AI_PROVIDER=auto uchun kamida bittasi kerak: OPENAI_API_KEY yoki GEMINI_API_KEY.';
+};
+const uniqueStrings = (items) => [...new Set((items || []).filter(Boolean).map((item) => String(item).trim()).filter(Boolean))];
+const mergeArrayObjects = (arrays, limit = 8) => {
+    const seen = new Set();
+    const merged = [];
+    arrays.flat().filter(Boolean).forEach((item) => {
+        const key = JSON.stringify(item);
+        if (seen.has(key))
+            return;
+        seen.add(key);
+        merged.push(item);
+    });
+    return merged.slice(0, limit);
+};
+const mergeAIAnalyses = (snapshot, analyses) => {
+    if (!analyses.length)
+        throw new Error('AI analysis is empty');
+    if (analyses.length === 1)
+        return analyses[0];
+    const [primary, secondary] = analyses;
+    return {
+        ...primary,
+        executiveSummary: uniqueStrings([primary.executiveSummary, secondary.executiveSummary]).join(' '),
+        systemStatus: uniqueStrings([primary.systemStatus, secondary.systemStatus]).join(' '),
+        currentWeaknesses: uniqueStrings([
+            ...(primary.currentWeaknesses || []),
+            ...(secondary.currentWeaknesses || []),
+        ]).slice(0, 10),
+        attendanceAnalysis: {
+            ...(primary.attendanceAnalysis || {}),
+            decliningKindergartens: mergeArrayObjects([
+                primary.attendanceAnalysis?.decliningKindergartens || [],
+                secondary.attendanceAnalysis?.decliningKindergartens || [],
+            ], 8),
+            lowAgeGroups: mergeArrayObjects([
+                primary.attendanceAnalysis?.lowAgeGroups || [],
+                secondary.attendanceAnalysis?.lowAgeGroups || [],
+            ], 8),
+            weakWeekdays: mergeArrayObjects([
+                primary.attendanceAnalysis?.weakWeekdays || [],
+                secondary.attendanceAnalysis?.weakWeekdays || [],
+            ], 5),
+            seasonalPatterns: mergeArrayObjects([
+                primary.attendanceAnalysis?.seasonalPatterns || [],
+                secondary.attendanceAnalysis?.seasonalPatterns || [],
+            ], 4),
+        },
+        coverageAnalysis: {
+            ...(primary.coverageAnalysis || {}),
+            lowCoverageDistricts: mergeArrayObjects([
+                primary.coverageAnalysis?.lowCoverageDistricts || [],
+                secondary.coverageAnalysis?.lowCoverageDistricts || [],
+            ], 8),
+            dataGap: uniqueStrings([
+                primary.coverageAnalysis?.dataGap,
+                secondary.coverageAnalysis?.dataGap,
+            ]).join(' '),
+        },
+        parentActivityAnalysis: {
+            ...(primary.parentActivityAnalysis || {}),
+            risks: mergeArrayObjects([
+                primary.parentActivityAnalysis?.risks || [],
+                secondary.parentActivityAnalysis?.risks || [],
+            ], 8),
+        },
+        financialAnalysis: {
+            ...(primary.financialAnalysis || {}),
+            outliers: mergeArrayObjects([
+                primary.financialAnalysis?.outliers || [],
+                secondary.financialAnalysis?.outliers || [],
+            ], 8),
+            dataGap: uniqueStrings([
+                primary.financialAnalysis?.dataGap,
+                secondary.financialAnalysis?.dataGap,
+            ]).join(' '),
+        },
+        staffAnalysis: {
+            ...(primary.staffAnalysis || {}),
+            shortages: mergeArrayObjects([
+                primary.staffAnalysis?.shortages || [],
+                secondary.staffAnalysis?.shortages || [],
+            ], 8),
+        },
+        nutritionAnalysis: {
+            ...(primary.nutritionAnalysis || {}),
+            dataGap: uniqueStrings([
+                primary.nutritionAnalysis?.dataGap,
+                secondary.nutritionAnalysis?.dataGap,
+            ]).join(' '),
+        },
+        healthAnalysis: {
+            ...(primary.healthAnalysis || {}),
+            riskGroups: mergeArrayObjects([
+                primary.healthAnalysis?.riskGroups || [],
+                secondary.healthAnalysis?.riskGroups || [],
+            ], 8),
+        },
+        ratingAnalysis: {
+            topKindergartens: mergeArrayObjects([
+                primary.ratingAnalysis?.topKindergartens || [],
+                secondary.ratingAnalysis?.topKindergartens || [],
+            ], 10),
+            problematicKindergartens: mergeArrayObjects([
+                primary.ratingAnalysis?.problematicKindergartens || [],
+                secondary.ratingAnalysis?.problematicKindergartens || [],
+            ], 10),
+        },
+        strategicQuestions: uniqueStrings([
+            ...(primary.strategicQuestions || []),
+            ...(secondary.strategicQuestions || []),
+        ]).slice(0, 10),
+        next24HourActions: uniqueStrings([
+            ...(primary.next24HourActions || []),
+            ...(secondary.next24HourActions || []),
+        ]).slice(0, 10),
+    };
+};
+const generateAIInsightAnalysis = async (provider, snapshot, requestedProvider) => {
+    if (provider === 'unconfigured') {
+        throw new Error(getAIProviderSetupMessage(requestedProvider));
+    }
+    if (provider === 'ensemble') {
+        const results = await Promise.allSettled([
+            callOpenAIInsights(snapshot).then((result) => ({ source: 'openai', ...result })),
+            callGeminiInsights(snapshot).then((result) => ({ source: 'gemini', ...result })),
+        ]);
+        const fulfilled = results
+            .filter((result) => result.status === 'fulfilled')
+            .map((result) => result.value);
+        if (fulfilled.length !== 2) {
+            const errors = results.map((result) => result.reason?.message).filter(Boolean).join('; ');
+            throw new Error(errors || 'OpenAI va Gemini ikkalasidan ham to‘liq javob kelmadi');
+        }
+        return {
+            source: fulfilled.map((result) => result.source).join('+'),
+            model: fulfilled.map((result) => result.model).join(' + '),
+            providerResults: fulfilled.map((result) => ({
+                source: result.source,
+                model: result.model,
+            })),
+            analysis: mergeAIAnalyses(snapshot, fulfilled.map((result) => result.analysis)),
+        };
+    }
     if (provider === 'openai') {
         const result = await callOpenAIInsights(snapshot);
         return { source: 'openai', model: result.model, analysis: result.analysis };
@@ -411,7 +1203,7 @@ const generateAIInsightAnalysis = async (provider, snapshot) => {
         const result = await callGeminiInsights(snapshot);
         return { source: 'gemini', model: result.model, analysis: result.analysis };
     }
-    return { source: 'local', model: 'deterministic-local', analysis: createLocalAIAnalysis(snapshot) };
+    throw new Error('AI provider sozlanmagan');
 };
 const buildMedicalStockReport = async () => {
     await ensureTables();
@@ -529,29 +1321,35 @@ const deleteKindergartenCascade = async (kindergartenId) => {
     const tables = [
         'attendance',
         'health_checks',
+        'parent_documents',
+        'pickup_people',
+        'daily_meal_portions',
         'staff_health_checks',
         'medical_inventory_movements',
         'medical_inventory_items',
-        'parent_documents',
-        'pickup_people',
         'inventory_batches',
-        'kitchen_tasks',
         'inventory_transactions',
+        'kitchen_tasks',
+        'menus',
+        'products',
+        'dishes',
         'lab_samples',
         'chef_sanitary_checks',
+        'finance_transactions',
+        'role_notifications',
+        'role_accounts',
         'operations_log',
         'audits',
         'messages',
+        'kindergarten_settings',
+        'supply_required_products',
+        'supply_plans',
+        'suppliers',
+        'staff',
+        'children',
         'parent_accounts',
         'parents',
-        'staff',
         'groups',
-        'kindergarten_settings',
-        'dishes',
-        'menus',
-        'products',
-        'role_accounts',
-        'children',
     ];
     const client = await db.pool.connect();
     try {
@@ -616,7 +1414,7 @@ const generateKindergartenCredentials = async (name) => {
 };
 const KindergartenController = {
     getAll: (req, res) => {
-        const today = new Date().toISOString().slice(0, 10);
+        const today = normalizeDate(req.query.date);
         db.all(`
       SELECT
         k.*,
@@ -649,8 +1447,8 @@ const KindergartenController = {
           a.kindergarten_id,
           SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY', 'LATE') THEN 1 ELSE 0 END) as present_count,
           SUM(CASE WHEN UPPER(a.status) IN ('ABSENT', 'KELMADI') THEN 1 ELSE 0 END) as absent_count,
-          SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY') AND (a.arrival_time IS NULL OR a.arrival_time <= '09:00') THEN 1 ELSE 0 END) as attended_before_9,
-          SUM(CASE WHEN UPPER(a.status) = 'LATE' OR (a.arrival_time IS NOT NULL AND a.arrival_time > '09:00') THEN 1 ELSE 0 END) as attended_after_9
+          SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY', 'LATE') AND (a.arrival_time IS NULL OR a.arrival_time <= '09:30') THEN 1 ELSE 0 END) as attended_before_9,
+          SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY', 'LATE') AND a.arrival_time IS NOT NULL AND a.arrival_time > '09:30' THEN 1 ELSE 0 END) as attended_after_9
         FROM attendance a
         WHERE a.date = ?
         GROUP BY a.kindergarten_id
@@ -748,6 +1546,18 @@ const KindergartenController = {
             await ensureAdminAIInsightsTable();
             const provider = resolveAIProvider(req.query.provider);
             const cacheKey = `${date}:${provider}`;
+            const snapshot = await buildAdminAIInsightSnapshot(date);
+            if (Number(snapshot?.totals?.marked || 0) <= 0) {
+                return res.status(422).json({
+                    date,
+                    source: provider,
+                    model: null,
+                    cached: false,
+                    error: 'Bugungi davomat maʼlumotlari kiritilmagan. AI xulosa shakllantirilmaydi.',
+                    analysis: null,
+                    snapshot,
+                });
+            }
             if (!refresh) {
                 const cached = await get(`SELECT cache_key, date, provider, model, analysis_json, snapshot_json, generated_at, expires_at
            FROM admin_ai_insight_cache
@@ -765,51 +1575,77 @@ const KindergartenController = {
                     });
                 }
             }
-            const snapshot = await buildAdminAIInsightSnapshot(date);
-            let generated;
             try {
-                generated = await generateAIInsightAnalysis(provider, snapshot);
+                const generated = await generateAIInsightAnalysis(provider, snapshot, req.query.provider);
+                const generatedAt = new Date().toISOString();
+                const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+                await run(`INSERT INTO admin_ai_insight_cache (
+            cache_key, date, provider, model, analysis_json, snapshot_json, generated_at, expires_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT (cache_key)
+          DO UPDATE SET
+            model = EXCLUDED.model,
+            analysis_json = EXCLUDED.analysis_json,
+            snapshot_json = EXCLUDED.snapshot_json,
+            generated_at = EXCLUDED.generated_at,
+            expires_at = EXCLUDED.expires_at`, [
+                    cacheKey,
+                    date,
+                    generated.source,
+                    generated.model,
+                    JSON.stringify(generated.analysis),
+                    JSON.stringify(snapshot),
+                    generatedAt,
+                    expiresAt,
+                ]);
+                return res.json({
+                    date,
+                    source: generated.source,
+                    model: generated.model,
+                    providerResults: generated.providerResults || [],
+                    cached: false,
+                    generatedAt,
+                    expiresAt,
+                    analysis: generated.analysis,
+                    snapshot,
+                });
             }
             catch (aiError) {
-                generated = {
-                    source: 'local',
-                    model: 'deterministic-local',
-                    error: aiError.message,
-                    analysis: createLocalAIAnalysis(snapshot),
-                };
+                const fallbackAnalysis = buildLocalAIInsightAnalysis(snapshot, aiError.message);
+                const generatedAt = new Date().toISOString();
+                const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+                const fallbackSource = `${provider}:local-fallback`;
+                const fallbackModel = 'local-snapshot-analysis';
+                await run(`INSERT INTO admin_ai_insight_cache (
+            cache_key, date, provider, model, analysis_json, snapshot_json, generated_at, expires_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT (cache_key)
+          DO UPDATE SET
+            model = EXCLUDED.model,
+            analysis_json = EXCLUDED.analysis_json,
+            snapshot_json = EXCLUDED.snapshot_json,
+            generated_at = EXCLUDED.generated_at,
+            expires_at = EXCLUDED.expires_at`, [
+                    cacheKey,
+                    date,
+                    fallbackSource,
+                    fallbackModel,
+                    JSON.stringify(fallbackAnalysis),
+                    JSON.stringify(snapshot),
+                    generatedAt,
+                    expiresAt,
+                ]);
+                return res.json({
+                    date,
+                    source: fallbackSource,
+                    model: fallbackModel,
+                    cached: false,
+                    warning: summarizeAIProviderError(aiError.message),
+                    providerError: aiError.message,
+                    analysis: fallbackAnalysis,
+                    snapshot,
+                });
             }
-            const generatedAt = new Date().toISOString();
-            const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-            await run(`INSERT INTO admin_ai_insight_cache (
-          cache_key, date, provider, model, analysis_json, snapshot_json, generated_at, expires_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT (cache_key)
-        DO UPDATE SET
-          model = EXCLUDED.model,
-          analysis_json = EXCLUDED.analysis_json,
-          snapshot_json = EXCLUDED.snapshot_json,
-          generated_at = EXCLUDED.generated_at,
-          expires_at = EXCLUDED.expires_at`, [
-                cacheKey,
-                date,
-                generated.source,
-                generated.model,
-                JSON.stringify(generated.analysis),
-                JSON.stringify(snapshot),
-                generatedAt,
-                expiresAt,
-            ]);
-            res.json({
-                date,
-                source: generated.source,
-                model: generated.model,
-                cached: false,
-                generatedAt,
-                expiresAt,
-                error: generated.error,
-                analysis: generated.analysis,
-                snapshot,
-            });
         }
         catch (err) {
             res.status(500).json({ error: err.message });
@@ -976,7 +1812,7 @@ const KindergartenController = {
         }
     },
     getById: (req, res) => {
-        const today = new Date().toISOString().slice(0, 10);
+        const today = normalizeDate(req.query.date);
         db.get(`
       SELECT
         k.*,
@@ -1009,8 +1845,8 @@ const KindergartenController = {
           a.kindergarten_id,
           SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY', 'LATE') THEN 1 ELSE 0 END) as present_count,
           SUM(CASE WHEN UPPER(a.status) IN ('ABSENT', 'KELMADI') THEN 1 ELSE 0 END) as absent_count,
-          SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY') AND (a.arrival_time IS NULL OR a.arrival_time <= '09:00') THEN 1 ELSE 0 END) as attended_before_9,
-          SUM(CASE WHEN UPPER(a.status) = 'LATE' OR (a.arrival_time IS NOT NULL AND a.arrival_time > '09:00') THEN 1 ELSE 0 END) as attended_after_9
+          SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY', 'LATE') AND (a.arrival_time IS NULL OR a.arrival_time <= '09:30') THEN 1 ELSE 0 END) as attended_before_9,
+          SUM(CASE WHEN UPPER(a.status) IN ('PRESENT', 'KELDI', 'EARLY', 'LATE') AND a.arrival_time IS NOT NULL AND a.arrival_time > '09:30' THEN 1 ELSE 0 END) as attended_after_9
         FROM attendance a
         WHERE a.date = ?
         GROUP BY a.kindergarten_id

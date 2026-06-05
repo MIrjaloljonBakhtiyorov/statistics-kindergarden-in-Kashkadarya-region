@@ -112,21 +112,42 @@ export class ChildrenRepository {
         });
     }
     async delete(id, kindergartenId) {
-        return new Promise((resolve, reject) => {
-            db.get('SELECT first_name, last_name FROM children WHERE id = ? AND kindergarten_id = ?', [id, kindergartenId], async (err, child) => {
-                if (!child)
-                    return reject(new Error('Child not found'));
-                const name = `${child.first_name} ${child.last_name}`;
-                db.run('DELETE FROM children WHERE id = ? AND kindergarten_id = ?', [id, kindergartenId], async (err) => {
-                    if (err)
-                        reject(err);
-                    else {
-                        await OperationsRepository.log('DELETE', 'CHILD', name, 'Bolalar ruyxatidan o\'chirildi');
-                        resolve();
-                    }
-                });
-            });
+        const get = (sql, params = []) => new Promise((res, rej) => {
+            db.get(sql, params, (err, row) => err ? rej(err) : res(row));
         });
+        const run = (sql, params = []) => new Promise((res, rej) => {
+            db.run(sql, params, (err) => err ? rej(err) : res());
+        });
+        const child = await get('SELECT first_name, last_name, father_id, mother_id, parent_account_id FROM children WHERE id = ? AND kindergarten_id = ?', [id, kindergartenId]);
+        if (!child)
+            throw new Error('Child not found');
+        const name = `${child.first_name} ${child.last_name}`;
+        let transactionStarted = false;
+        try {
+            await run('BEGIN TRANSACTION');
+            transactionStarted = true;
+            await run('DELETE FROM attendance WHERE child_id = ? AND kindergarten_id = ?', [id, kindergartenId]);
+            await run('DELETE FROM health_checks WHERE child_id = ? AND kindergarten_id = ?', [id, kindergartenId]);
+            await run('DELETE FROM parent_documents WHERE child_id = ? AND kindergarten_id = ?', [id, kindergartenId]);
+            await run('DELETE FROM pickup_people WHERE child_id = ? AND kindergarten_id = ?', [id, kindergartenId]);
+            await run('DELETE FROM children WHERE id = ? AND kindergarten_id = ?', [id, kindergartenId]);
+            if (child.father_id) {
+                await run('DELETE FROM parents WHERE id = ? AND kindergarten_id = ?', [child.father_id, kindergartenId]);
+            }
+            if (child.mother_id) {
+                await run('DELETE FROM parents WHERE id = ? AND kindergarten_id = ?', [child.mother_id, kindergartenId]);
+            }
+            if (child.parent_account_id) {
+                await run('DELETE FROM parent_accounts WHERE id = ? AND kindergarten_id = ?', [child.parent_account_id, kindergartenId]);
+            }
+            await OperationsRepository.log('DELETE', 'CHILD', name, 'Bolalar ruyxatidan o\'chirildi', 'OTHER', kindergartenId);
+            await run('COMMIT');
+        }
+        catch (error) {
+            if (transactionStarted)
+                await run('ROLLBACK').catch(() => undefined);
+            throw error;
+        }
     }
     async findAll(kindergartenId) {
         return new Promise((resolve, reject) => {
