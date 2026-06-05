@@ -8,11 +8,19 @@ import {
   CalendarClock,
   CheckCircle2,
   Clock3,
+  ClipboardList,
+  GraduationCap,
+  HeartPulse,
+  LineChart,
+  MapPinned,
+  MessageCircle,
   RefreshCw,
   ShieldAlert,
   Sparkles,
+  Star,
   TrendingDown,
   TrendingUp,
+  Utensils,
   Users,
 } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -23,7 +31,6 @@ type DailyExpenseEntry = {
   district: string;
   costPerChild: number;
 };
-
 type DistrictInsight = {
   name: string;
   kindergartens: number;
@@ -40,13 +47,65 @@ type DistrictInsight = {
 type AIInsightReport = {
   source: string;
   model: string;
+  providerResults?: Array<{ source: string; model: string }>;
   cached?: boolean;
   generatedAt?: string;
   error?: string;
+  warning?: string;
+  providerError?: string;
   analysis?: {
     executiveSummary?: string;
     systemStatus?: string;
     currentWeaknesses?: string[];
+    attendanceAnalysis?: {
+      decliningKindergartens?: Array<{ name: string; district: string; currentAttendance: number; previousAttendance: number; decline: number; advice: string }>;
+      highestDistrict?: { name: string; attendance: number; advice: string } | null;
+      lowAgeGroups?: Array<{ name: string; attendance: number; advice: string }>;
+      weakWeekdays?: Array<{ day: string; attendance: number; advice: string }>;
+      seasonalPatterns?: Array<{ season: string; attendance: number }>;
+    };
+    coverageAnalysis?: {
+      summary?: string;
+      lowCoverageDistricts?: Array<{ name: string; coverage: number; freeSeats: number; advice: string }>;
+      dataGap?: string;
+    };
+    parentActivityAnalysis?: {
+      summary?: string;
+      risks?: Array<{ name: string; district: string; parentAccounts: number; messages: number; unreadNotifications: number }>;
+    };
+    financialAnalysis?: {
+      summary?: string;
+      outliers?: Array<{ name: string; district: string; budgetPerChild: number; salaryShare: number; advice: string }>;
+      dataGap?: string;
+    };
+    staffAnalysis?: {
+      summary?: string;
+      shortages?: Array<{ name: string; district: string; children: number; actualEducators: number; requiredEducators: number; educatorShortage: number; childrenPerEducator: number }>;
+    };
+    nutritionAnalysis?: {
+      summary?: string;
+      averageCalories?: number;
+      averageProtein?: number;
+      dataGap?: string;
+    };
+    healthAnalysis?: {
+      summary?: string;
+      riskGroups?: Array<{ name: string; sickChildren: number; checks: number }>;
+    };
+    ratingAnalysis?: {
+      topKindergartens?: Array<{ name: string; district: string; rating: number; attendance: number; coverage: number }>;
+      problematicKindergartens?: Array<{ name: string; district: string; rating: number; attendance: number; dataCompleteness: number; educatorShortage: number }>;
+    };
+    forecastAnalysis?: {
+      summary?: string;
+      advice?: string;
+    };
+    strategicQuestions?: string[];
+    roadmap?: {
+      stage1Now?: string[];
+      stage2Next?: string[];
+      stage3Later?: string[];
+    };
     lowAttendanceDistricts?: Array<{ name: string; attendance: number; reason: string; action: string }>;
     goodAttendanceDistricts?: Array<{ name: string; attendance: number; incentive: string }>;
     kindergartenFocus?: Array<{ name: string; district: string; attendance: number; issue: string; action: string }>;
@@ -76,24 +135,70 @@ const childCountOf = (kg: any) => toNumber(kg.actualChildrenCount ?? kg.children
 const attendancePercent = (present: number, total: number) => total > 0 ? Math.round((present / total) * 100) : 0;
 const money = (value: number) => `${Math.round(value).toLocaleString('uz-UZ')} so'm`;
 const numberText = (value: number) => Math.round(value).toLocaleString('uz-UZ');
+const uzMonths = [
+  'yanvar',
+  'fevral',
+  'mart',
+  'aprel',
+  'may',
+  'iyun',
+  'iyul',
+  'avgust',
+  'sentabr',
+  'oktabr',
+  'noyabr',
+  'dekabr',
+];
 
-const getStoredInsightTime = () => {
-  const key = 'admin_ai_insights_generated_at';
-  const now = Date.now();
-  const stored = Number(localStorage.getItem(key) || 0);
-  const dayMs = 24 * 60 * 60 * 1000;
-  if (stored && now - stored < dayMs) return new Date(stored);
-
-  localStorage.setItem(key, String(now));
-  return new Date(now);
+const parseInputDate = (value: string) => {
+  const [year, month, day] = String(value || toInputDate()).split('-').map(Number);
+  return {
+    year: Number.isFinite(year) ? year : new Date().getFullYear(),
+    month: Number.isFinite(month) ? month : new Date().getMonth() + 1,
+    day: Number.isFinite(day) ? day : new Date().getDate(),
+  };
 };
 
-const formatDateTime = (date: Date) => date.toLocaleString('uz-UZ', {
-  day: '2-digit',
-  month: 'long',
-  hour: '2-digit',
-  minute: '2-digit',
-});
+const addDaysToInputDate = (value: string, days: number) => {
+  const { year, month, day } = parseInputDate(value);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + days);
+  return toInputDate(date);
+};
+
+const formatReportDateTime = (value: string, time = '08:00') => {
+  const { year, month, day } = parseInputDate(value);
+  return `${year}-yil ${day}-${uzMonths[Math.max(0, month - 1)]}, ${time} holati bo'yicha`;
+};
+
+const formatSourceName = (source?: string) => {
+  const value = String(source || '').toLowerCase();
+  if (!value) return 'OpenAI + Gemini kutilmoqda';
+  if (value.includes('local-fallback')) return 'Lokal DB tahlil';
+  if (value === 'ensemble') return 'OpenAI + Gemini';
+  return value
+    .split('+')
+    .map((item) => item === 'openai' ? 'OpenAI' : item === 'gemini' ? 'Gemini' : item)
+    .join(' + ');
+};
+
+const formatModelName = (model?: string) => {
+  if (!model) return 'AI xulosa hali shakllanmagan';
+  if (model === 'local-snapshot-analysis') return 'Ichki snapshot tahlili';
+  return model;
+};
+
+const sanitizeAIMessage = (message?: string) => {
+  const text = String(message || '').replace(/\s+/g, ' ').trim();
+  if (!text) return '';
+  if (/quota|billing|rate.?limit|limit/i.test(text)) {
+    return 'Tashqi AI provider quota yoki billing limiti sabab javob bermadi. Hozir lokal DB tahlili koʼrsatilmoqda.';
+  }
+  if (/api key|permission|unauthorized|forbidden|invalid/i.test(text)) {
+    return 'AI provider kaliti yoki ruxsatida muammo bor. Sozlamani tekshiring.';
+  }
+  return text.length > 180 ? `${text.slice(0, 177)}...` : text;
+};
 
 const KpiCard = ({ icon: Icon, label, value, sub, tone }: any) => (
   <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
@@ -101,7 +206,7 @@ const KpiCard = ({ icon: Icon, label, value, sub, tone }: any) => (
       <div>
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</p>
         <p className="mt-2 text-2xl font-black tracking-tight text-slate-950">{value}</p>
-        <p className="mt-1 text-xs font-bold text-slate-400">{sub}</p>
+        <p className="mt-1 max-h-12 overflow-hidden break-words text-xs font-bold leading-4 text-slate-400">{sub}</p>
       </div>
       <div className={clsx(
         'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
@@ -142,32 +247,91 @@ const DistrictRow = ({ item, rank, mode }: { item: DistrictInsight; rank: number
   </div>
 );
 
+const StageCard = ({ title, items, tone }: { title: string; items?: string[]; tone: 'indigo' | 'emerald' | 'amber' }) => (
+  <div className={clsx(
+    'rounded-2xl border p-5 shadow-sm',
+    tone === 'indigo' && 'border-indigo-100 bg-indigo-50',
+    tone === 'emerald' && 'border-emerald-100 bg-emerald-50',
+    tone === 'amber' && 'border-amber-100 bg-amber-50',
+  )}>
+    <p className={clsx(
+      'mb-3 text-[10px] font-black uppercase tracking-widest',
+      tone === 'indigo' && 'text-indigo-700',
+      tone === 'emerald' && 'text-emerald-700',
+      tone === 'amber' && 'text-amber-700',
+    )}>
+      {title}
+    </p>
+    <div className="flex flex-wrap gap-2">
+      {(items?.length ? items : ['Maʼlumot shakllanmoqda']).map((item) => (
+        <span key={item} className="rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-black text-slate-700 shadow-sm">
+          {item}
+        </span>
+      ))}
+    </div>
+  </div>
+);
+
+const InsightPanel = ({ icon: Icon, title, summary, items, tone = 'slate' }: any) => (
+  <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+    <div className="mb-4 flex items-center gap-3">
+      <div className={clsx(
+        'flex h-10 w-10 items-center justify-center rounded-2xl',
+        tone === 'rose' && 'bg-rose-50 text-rose-600',
+        tone === 'emerald' && 'bg-emerald-50 text-emerald-600',
+        tone === 'amber' && 'bg-amber-50 text-amber-600',
+        tone === 'indigo' && 'bg-indigo-50 text-indigo-600',
+        tone === 'slate' && 'bg-slate-100 text-slate-600',
+      )}>
+        <Icon size={19} />
+      </div>
+      <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">{title}</h2>
+    </div>
+    {summary && <p className="mb-4 text-sm font-bold leading-6 text-slate-700">{summary}</p>}
+    <div className="space-y-2">
+      {(items?.length ? items : ['AI xulosa uchun maʼlumot yigʻilmoqda']).slice(0, 5).map((item: string, index: number) => (
+        <div key={`${title}-${index}`} className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-bold leading-6 text-slate-600">
+          {item}
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 export const AIInsights = () => {
   const [kindergartens, setKindergartens] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<DailyExpenseEntry[]>([]);
   const [aiReport, setAiReport] = useState<AIInsightReport | null>(null);
+  const [aiError, setAiError] = useState('');
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(toInputDate());
-  const [generatedAt, setGeneratedAt] = useState(() => getStoredInsightTime());
 
-  const loadData = (forceAI = false) => {
+  const loadData = async (forceAI = false) => {
     setLoading(true);
-    Promise.all([
-      kindergartenApi.getAll(),
-      apiClient.get('/kindergartens/daily-district-expenses', { params: { date } }),
-      apiClient.get('/kindergartens/ai-insights', { params: { date, refresh: forceAI ? '1' : undefined } }),
-    ])
-      .then(([kgResponse, expenseResponse, aiResponse]) => {
-        setKindergartens(Array.isArray(kgResponse) ? kgResponse : []);
-        setExpenses(Array.isArray(expenseResponse.data?.entries) ? expenseResponse.data.entries : []);
+    setAiError('');
+    try {
+      const [kgResponse, expenseResponse] = await Promise.all([
+        kindergartenApi.getAll(),
+        apiClient.get('/kindergartens/daily-district-expenses', { params: { date } }),
+      ]);
+      setKindergartens(Array.isArray(kgResponse) ? kgResponse : []);
+      setExpenses(Array.isArray(expenseResponse.data?.entries) ? expenseResponse.data.entries : []);
+
+      try {
+        const aiResponse = await apiClient.get('/kindergartens/ai-insights', { params: { date, refresh: forceAI ? '1' : undefined } });
         setAiReport(aiResponse.data || null);
-      })
-      .catch(() => {
-        setKindergartens([]);
-        setExpenses([]);
+      } catch (error: any) {
         setAiReport(null);
-      })
-      .finally(() => setLoading(false));
+        setAiError(sanitizeAIMessage(error?.response?.data?.error || error?.response?.data?.providerError) || 'OpenAI va Gemini API xulosasi olinmadi');
+      }
+    } catch {
+      setKindergartens([]);
+      setExpenses([]);
+      setAiReport(null);
+      setAiError('Real baza maʼlumotlarini yuklab boʼlmadi');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -236,11 +400,10 @@ export const AIInsights = () => {
       missingExpenseDistricts,
       attendance: attendancePercent(totalPresent, totalChildren),
       chart: districts
-        .filter((district) => district.children > 0)
-        .sort((a, b) => b.absent - a.absent)
-        .slice(0, 8)
+        .sort((a, b) => a.name.localeCompare(b.name, 'uz'))
         .map((district) => ({
           name: district.name.replace(' tumani', '').replace(' shahri', ''),
+          fullName: district.name,
           kelgan: district.present,
           kelmagan: district.absent,
           davomat: district.attendance,
@@ -248,15 +411,76 @@ export const AIInsights = () => {
     };
   }, [expenses, kindergartens]);
 
-  const nextRefresh = useMemo(() => new Date(generatedAt.getTime() + 24 * 60 * 60 * 1000), [generatedAt]);
   const primaryRisk = stats.lowDistricts[0];
   const primaryLeader = stats.goodDistricts[0];
   const aiAnalysis = aiReport?.analysis;
+  const hasAIAnalysis = Boolean(aiAnalysis);
+  const reportTimeText = formatReportDateTime(date);
+  const nextReportTimeText = formatReportDateTime(addDaysToInputDate(date, 1));
+  const chartHeight = Math.max(380, stats.chart.length * 42 + 90);
+  const sourceName = formatSourceName(aiReport?.source);
+  const modelName = formatModelName(aiReport?.model);
+  const cacheText = aiReport?.cached ? 'Bugungi xulosa keshdan olindi' : hasAIAnalysis ? 'Yangi xulosa shakllantirildi' : 'AI xulosa berilmadi';
+  const providerWarning = sanitizeAIMessage(aiReport?.warning || aiReport?.providerError);
+
+  const attendanceItems = [
+    ...(aiAnalysis?.attendanceAnalysis?.decliningKindergartens || []).map((item) =>
+      `${item.name} (${item.district}): davomat ${item.previousAttendance}% dan ${item.currentAttendance}% ga tushgan, pasayish ${item.decline}%. ${item.advice}`
+    ),
+    ...(aiAnalysis?.attendanceAnalysis?.lowAgeGroups || []).map((item) =>
+      `${item.name}: davomat ${item.attendance}%. ${item.advice}`
+    ),
+    ...(aiAnalysis?.attendanceAnalysis?.weakWeekdays || []).map((item) =>
+      `${item.day}: ${item.attendance}% davomat. ${item.advice}`
+    ),
+  ];
+
+  const coverageItems = [
+    ...(aiAnalysis?.coverageAnalysis?.lowCoverageDistricts || []).map((item) =>
+      `${item.name}: qamrov ${item.coverage}%, bo'sh o'rin ${numberText(item.freeSeats)}. ${item.advice}`
+    ),
+    aiAnalysis?.coverageAnalysis?.dataGap,
+  ].filter(Boolean) as string[];
+
+  const financeItems = [
+    ...(aiAnalysis?.financialAnalysis?.outliers || []).map((item) =>
+      `${item.name} (${item.district}): bola boshiga ${money(item.budgetPerChild)}, ish haqi ulushi ${item.salaryShare}%. ${item.advice}`
+    ),
+    aiAnalysis?.financialAnalysis?.dataGap,
+  ].filter(Boolean) as string[];
+
+  const staffItems = (aiAnalysis?.staffAnalysis?.shortages || []).map((item) =>
+    `${item.name} (${item.district}): kerak ${item.requiredEducators}, mavjud ${item.actualEducators}, yetishmovchilik ${item.educatorShortage}, yuklama ${item.childrenPerEducator} bola/tarbiyachi.`
+  );
+
+  const parentItems = [
+    aiAnalysis?.parentActivityAnalysis?.summary,
+    ...(aiAnalysis?.parentActivityAnalysis?.risks || []).map((item) =>
+      `${item.name}: parent akkaunt ${item.parentAccounts}, murojaat/xabar ${item.messages}, o'qilmagan bildirishnoma ${item.unreadNotifications}.`
+    ),
+  ].filter(Boolean) as string[];
+
+  const nutritionItems = [
+    `O'rtacha kaloriya: ${numberText(aiAnalysis?.nutritionAnalysis?.averageCalories || 0)}, protein: ${aiAnalysis?.nutritionAnalysis?.averageProtein || 0}.`,
+    aiAnalysis?.nutritionAnalysis?.dataGap,
+  ].filter(Boolean) as string[];
+
+  const healthItems = [
+    ...(aiAnalysis?.healthAnalysis?.riskGroups || []).map((item) =>
+      `${item.name}: ${item.sickChildren} kasallik signali, ${item.checks} tekshiruv.`
+    ),
+  ];
+
+  const ratingItems = [
+    ...(aiAnalysis?.ratingAnalysis?.topKindergartens || []).slice(0, 3).map((item) =>
+      `TOP: ${item.name} (${item.district}) reyting ${item.rating}, davomat ${item.attendance}%, qamrov ${item.coverage}%.`
+    ),
+    ...(aiAnalysis?.ratingAnalysis?.problematicKindergartens || []).slice(0, 3).map((item) =>
+      `Muammoli: ${item.name} (${item.district}) reyting ${item.rating}, davomat ${item.attendance}%, data ${item.dataCompleteness}%.`
+    ),
+  ];
 
   const refreshInsightWindow = () => {
-    const now = new Date();
-    localStorage.setItem('admin_ai_insights_generated_at', String(now.getTime()));
-    setGeneratedAt(now);
     loadData(true);
   };
 
@@ -278,13 +502,7 @@ export const AIInsights = () => {
             </div>
 
             <p className="max-w-2xl text-sm font-medium leading-6 text-slate-300">
-              {aiAnalysis?.executiveSummary || (
-                <>
-                  Bugungi real bazaga ko'ra {numberText(stats.totalPresent)} bola bog'chaga kelgan,
-                  {stats.totalAbsent > 0 ? ` ${numberText(stats.totalAbsent)} bola kelmagan.` : " kelmaganlar qayd etilmagan."}
-                  {primaryRisk ? ` Eng ko'p e'tibor talab qiladigan hudud: ${primaryRisk.name}.` : ' Davomat kiritilganda hududiy xulosa shakllanadi.'}
-                </>
-              )}
+              {aiAnalysis?.executiveSummary || sanitizeAIMessage(aiError) || 'AI xulosa faqat davomat maʼlumotlari va OpenAI + Gemini API javobi mavjud boʼlganda koʼrsatiladi.'}
             </p>
           </div>
 
@@ -294,17 +512,17 @@ export const AIInsights = () => {
                 <CalendarClock size={16} />
                 <p className="text-[10px] font-black uppercase tracking-widest">Xulosa vaqti</p>
               </div>
-              <p className="text-sm font-black">{formatDateTime(generatedAt)}</p>
-              <p className="mt-1 text-[11px] font-bold text-slate-400">Keyingi: {formatDateTime(nextRefresh)}</p>
+              <p className="text-sm font-black leading-5">{reportTimeText}</p>
+              <p className="mt-1 text-[11px] font-bold text-slate-400">Keyingi xulosa: {nextReportTimeText}</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-emerald-300">
                 <CheckCircle2 size={16} />
                 <p className="text-[10px] font-black uppercase tracking-widest">Manba</p>
               </div>
-              <p className="text-sm font-black">{aiReport ? `${aiReport.source} / ${aiReport.model}` : 'Real baza'}</p>
+              <p className="text-sm font-black leading-5">{sourceName}</p>
               <p className="mt-1 text-[11px] font-bold text-slate-400">
-                {aiReport?.cached ? '24 soatlik cached xulosa' : `${toInputDate(new Date(date))} sanasi`}
+                {cacheText} - {modelName}
               </p>
             </div>
           </div>
@@ -315,8 +533,28 @@ export const AIInsights = () => {
         <KpiCard icon={Users} label="Bugun kelgan" value={numberText(stats.totalPresent)} sub={`${numberText(stats.totalChildren)} boladan`} tone="emerald" />
         <KpiCard icon={ShieldAlert} label="Bugun kelmagan" value={numberText(stats.totalAbsent)} sub={`${stats.attendance}% umumiy davomat`} tone="rose" />
         <KpiCard icon={Banknote} label="Tejalgan mablag'" value={money(stats.totalSaved)} sub={stats.missingExpenseDistricts ? `${stats.missingExpenseDistricts} tumanda xarajat kiritilmagan` : 'Kunlik tuman xarajati asosida'} tone="amber" />
-        <KpiCard icon={Sparkles} label="AI signal" value={primaryRisk ? `${primaryRisk.attendance}%` : "Yo'q"} sub={primaryRisk ? `${primaryRisk.name} past zona` : 'Davomat kiritilmagan'} tone="indigo" />
+        <KpiCard icon={Sparkles} label="AI holati" value={hasAIAnalysis ? 'Tayyor' : 'Yoʼq'} sub={hasAIAnalysis ? (providerWarning || sourceName) : (sanitizeAIMessage(aiError) || 'AI xulosa berilmadi')} tone="indigo" />
       </div>
+
+      {hasAIAnalysis && providerWarning && (
+        <section className="rounded-2xl border border-indigo-100 bg-indigo-50 p-5 text-sm font-bold leading-6 text-indigo-950">
+          {providerWarning}
+        </section>
+      )}
+
+      {!hasAIAnalysis && (
+        <section className="rounded-2xl border border-amber-100 bg-amber-50 p-5 text-sm font-bold leading-6 text-amber-950">
+          {sanitizeAIMessage(aiError) || 'AI xulosa shakllantirilmadi. Davomat kiritilgandan va OpenAI + Gemini API sozlangandan keyin bu qism avtomatik chiqadi.'}
+        </section>
+      )}
+
+      {hasAIAnalysis && (
+        <section className="grid gap-4 xl:grid-cols-3">
+          <StageCard title="1-bosqich: hozir" items={aiAnalysis?.roadmap?.stage1Now} tone="indigo" />
+          <StageCard title="2-bosqich: keyingi" items={aiAnalysis?.roadmap?.stage2Next} tone="emerald" />
+          <StageCard title="3-bosqich: strategik" items={aiAnalysis?.roadmap?.stage3Later} tone="amber" />
+        </section>
+      )}
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
@@ -343,20 +581,36 @@ export const AIInsights = () => {
             </div>
           </div>
 
-          <div className="h-[340px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.chart} margin={{ top: 10, right: 6, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="name" fontSize={10} fontWeight={800} tick={{ fill: '#64748b' }} axisLine={false} tickLine={false} />
-                <YAxis fontSize={10} fontWeight={800} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ border: 'none', borderRadius: 14, boxShadow: '0 18px 45px rgba(15,23,42,.14)', fontSize: 12 }} />
-                <Bar dataKey="kelgan" name="Kelgan" fill="#10b981" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="kelmagan" name="Kelmagan" fill="#f43f5e" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="pb-2">
+            <div style={{ height: chartHeight }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.chart} layout="vertical" margin={{ top: 10, right: 18, left: 12, bottom: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                  <XAxis type="number" fontSize={10} fontWeight={800} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    interval={0}
+                    width={118}
+                    fontSize={10}
+                    fontWeight={800}
+                    tick={{ fill: '#64748b' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    labelFormatter={(_, payload) => payload?.[0]?.payload?.fullName || ''}
+                    contentStyle={{ border: 'none', borderRadius: 14, boxShadow: '0 18px 45px rgba(15,23,42,.14)', fontSize: 12 }}
+                  />
+                  <Bar dataKey="kelgan" name="Kelgan" fill="#10b981" radius={[0, 6, 6, 0]} />
+                  <Bar dataKey="kelmagan" name="Kelmagan" fill="#f43f5e" radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
+        {hasAIAnalysis && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-rose-100 bg-rose-50 p-5">
             <div className="mb-3 flex items-center gap-2 text-rose-700">
@@ -364,11 +618,7 @@ export const AIInsights = () => {
               <h2 className="text-sm font-black uppercase tracking-widest">Past davomat bo'yicha xulosa</h2>
             </div>
             <p className="text-sm font-bold leading-6 text-rose-950">
-              {aiAnalysis?.lowAttendanceDistricts?.[0]
-                ? `${aiAnalysis.lowAttendanceDistricts[0].name}: ${aiAnalysis.lowAttendanceDistricts[0].reason} ${aiAnalysis.lowAttendanceDistricts[0].action}`
-                : primaryRisk
-                ? `${primaryRisk.name} hududida davomat ${primaryRisk.attendance}%. Guruh rahbarlari kelmagan bolalar ota-onasi bilan kunlik aloqani kuchaytirishi, transport va sog'liq sabablarini alohida ro'yxatga olishi kerak.`
-                : "Davomat ma'lumoti kiritilgandan keyin riskli hududlar avtomatik ko'rsatiladi."}
+              {aiAnalysis?.lowAttendanceDistricts?.[0] ? `${aiAnalysis.lowAttendanceDistricts[0].name}: ${aiAnalysis.lowAttendanceDistricts[0].reason} ${aiAnalysis.lowAttendanceDistricts[0].action}` : ''}
             </p>
           </div>
 
@@ -378,11 +628,7 @@ export const AIInsights = () => {
               <h2 className="text-sm font-black uppercase tracking-widest">Yaxshi davomat bo'yicha xulosa</h2>
             </div>
             <p className="text-sm font-bold leading-6 text-emerald-950">
-              {aiAnalysis?.goodAttendanceDistricts?.[0]
-                ? `${aiAnalysis.goodAttendanceDistricts[0].name}: ${aiAnalysis.goodAttendanceDistricts[0].incentive}`
-                : primaryLeader
-                ? `${primaryLeader.name} hududi ${primaryLeader.attendance}% davomat bilan yetakchi. Eng faol MTTlarni faxriy yorliq, metodik grant yoki ustama reyting ballari bilan rag'batlantirish mumkin.`
-                : "Yaxshi hududlar davomat kiritilgandan keyin shakllanadi."}
+              {aiAnalysis?.goodAttendanceDistricts?.[0] ? `${aiAnalysis.goodAttendanceDistricts[0].name}: ${aiAnalysis.goodAttendanceDistricts[0].incentive}` : ''}
             </p>
           </div>
 
@@ -392,16 +638,91 @@ export const AIInsights = () => {
               <h2 className="text-sm font-black uppercase tracking-widest">Kelmaganlar hisobidan tejam</h2>
             </div>
             <p className="text-sm font-bold leading-6 text-amber-950">
-              {aiAnalysis?.savingsAnalysis || (
-                <>
-                  Bugun kelmagan bolalar bo'yicha taxminiy tejalgan mablag': {money(stats.totalSaved)}.
-                  Xarajat kiritilmagan tumanlarda tejam 0 deb olindi.
-                </>
-              )}
+              {aiAnalysis?.savingsAnalysis || ''}
             </p>
           </div>
         </div>
+        )}
       </section>
+
+      {hasAIAnalysis && (
+      <section className="grid gap-5 xl:grid-cols-2">
+        <InsightPanel
+          icon={LineChart}
+          title="Davomat tahlili"
+          summary={aiAnalysis?.attendanceAnalysis?.highestDistrict
+            ? `Eng yuqori davomat: ${aiAnalysis.attendanceAnalysis.highestDistrict.name} (${aiAnalysis.attendanceAnalysis.highestDistrict.attendance}%). ${aiAnalysis.attendanceAnalysis.highestDistrict.advice}`
+            : 'Davomat signallari bugungi va 120 kunlik bazadan shakllanadi.'}
+          items={attendanceItems}
+          tone="rose"
+        />
+        <InsightPanel
+          icon={MapPinned}
+          title="Qamrov tahlili"
+          summary={aiAnalysis?.coverageAnalysis?.summary || `Joriy qamrov ${stats.attendance}% davomat signallari bilan birga ko'rilmoqda.`}
+          items={coverageItems}
+          tone="indigo"
+        />
+        <InsightPanel
+          icon={MessageCircle}
+          title="Ota-onalar faolligi"
+          summary={aiAnalysis?.parentActivityAnalysis?.summary}
+          items={parentItems}
+          tone="emerald"
+        />
+        <InsightPanel
+          icon={Banknote}
+          title="Moliyaviy tahlil"
+          summary={aiAnalysis?.financialAnalysis?.summary || aiAnalysis?.savingsAnalysis}
+          items={financeItems}
+          tone="amber"
+        />
+        <InsightPanel
+          icon={GraduationCap}
+          title="Kadrlar tahlili"
+          summary={aiAnalysis?.staffAnalysis?.summary}
+          items={staffItems}
+          tone="indigo"
+        />
+        <InsightPanel
+          icon={Utensils}
+          title="Ovqatlanish tahlili"
+          summary={aiAnalysis?.nutritionAnalysis?.summary}
+          items={nutritionItems}
+          tone="emerald"
+        />
+        <InsightPanel
+          icon={HeartPulse}
+          title="Sog'liq tahlili"
+          summary={aiAnalysis?.healthAnalysis?.summary}
+          items={healthItems}
+          tone="rose"
+        />
+        <InsightPanel
+          icon={Star}
+          title="Reyting va prognoz"
+          summary={aiAnalysis?.forecastAnalysis?.summary || aiAnalysis?.forecastAnalysis?.advice}
+          items={[...ratingItems, aiAnalysis?.forecastAnalysis?.advice].filter(Boolean)}
+          tone="amber"
+        />
+      </section>
+      )}
+
+      {hasAIAnalysis && Boolean(aiAnalysis?.strategicQuestions?.length) && (
+      <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex items-center gap-2">
+          <ClipboardList className="text-indigo-600" size={18} />
+          <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Rahbar savollariga AI javob signallari</h2>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {(aiAnalysis?.strategicQuestions || []).slice(0, 6).map((text, index) => (
+            <div key={`${text}-${index}`} className="rounded-2xl bg-slate-50 p-4 text-sm font-bold leading-6 text-slate-700">
+              {text}
+            </div>
+          ))}
+        </div>
+      </section>
+      )}
 
       <section className="grid gap-6 xl:grid-cols-2">
         <div className="space-y-3">
@@ -431,17 +752,14 @@ export const AIInsights = () => {
         </div>
       </section>
 
+      {hasAIAnalysis && Boolean(aiAnalysis?.childEngagementPlan?.length) && (
       <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <Clock3 className="text-indigo-600" size={18} />
           <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Bolalarni kengroq jalb qilish bo'yicha AI tavsiyalar</h2>
         </div>
         <div className="grid gap-3 md:grid-cols-3">
-          {(aiAnalysis?.childEngagementPlan?.length ? aiAnalysis.childEngagementPlan : [
-            'Kelmagan bolalar bo\'yicha ota-onaga shu kunning o\'zida telefon yoki SMS orqali sabab so\'rovi yuborish.',
-            'Davomadi past tumanlarda transport, sog\'liq va ota-ona bandligi sabablarini alohida belgilab, haftalik reja qilish.',
-            'Yaxshi tumanlar tajribasini past tumanlarga ulash: ertalabki qabul tartibi, guruh motivatsiyasi va ota-ona bilan aloqa protokoli.',
-          ]).map((text, index) => (
+          {(aiAnalysis?.childEngagementPlan || []).map((text, index) => (
             <motion.div
               key={text}
               initial={{ opacity: 0, y: 12 }}
@@ -455,6 +773,7 @@ export const AIInsights = () => {
           ))}
         </div>
       </section>
+      )}
     </div>
   );
 };

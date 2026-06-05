@@ -22,6 +22,8 @@ services:
       context: ./backend
     container_name: raqamli-mtt-backend
     command: ["pnpm", "run", "dev"]
+    env_file:
+      - ./backend/.env
     environment:
       PORT: 4001
       DATABASE_URL: postgresql://raqamli_mtt:raqamli_mtt_password@postgres:5432/raqamli_mtt

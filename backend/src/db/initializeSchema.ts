@@ -118,6 +118,25 @@ const initializeSchema = () => {
         });
       };
 
+      const ensureCascadeForeignKey = (table, constraint, column, referenceTable, referenceColumn = 'id') => {
+        if (db.dialect !== 'postgres') return;
+
+        db.run(`ALTER TABLE ${table} DROP CONSTRAINT IF EXISTS ${constraint}`, (dropErr) => {
+          if (dropErr) {
+            console.error(`Migration error dropping constraint ${constraint}:`, dropErr.message);
+          }
+        });
+
+        db.run(
+          `ALTER TABLE ${table} ADD CONSTRAINT ${constraint} FOREIGN KEY (${column}) REFERENCES ${referenceTable}(${referenceColumn}) ON DELETE CASCADE`,
+          (addErr) => {
+            if (addErr && !addErr.message.includes('already exists')) {
+              console.error(`Migration error adding constraint ${constraint}:`, addErr.message);
+            }
+          },
+        );
+      };
+
       // 2. Groups
       db.run(`CREATE TABLE IF NOT EXISTS groups (
         id TEXT PRIMARY KEY,
@@ -593,6 +612,39 @@ const initializeSchema = () => {
       createIndex('idx_daily_district_expenses_date', 'daily_district_expenses', 'date');
       createIndex('idx_admin_alert_events_created', 'admin_alert_events', 'created_at DESC');
       createIndex('idx_admin_alert_events_entity', 'admin_alert_events', 'entity_type, entity_id, event_type');
+
+      ensureCascadeForeignKey('parents', 'parents_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('parent_accounts', 'parent_accounts_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('groups', 'groups_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('staff', 'staff_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('children', 'children_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('products', 'products_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('inventory_batches', 'inventory_batches_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('inventory_batches', 'inventory_batches_product_id_fkey', 'product_id', 'products');
+      ensureCascadeForeignKey('dishes', 'dishes_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('menus', 'menus_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('kitchen_tasks', 'kitchen_tasks_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('kitchen_tasks', 'kitchen_tasks_menu_id_fkey', 'menu_id', 'menus');
+      ensureCascadeForeignKey('attendance', 'attendance_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('attendance', 'attendance_child_id_fkey', 'child_id', 'children');
+      ensureCascadeForeignKey('daily_meal_portions', 'daily_meal_portions_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('daily_meal_portions', 'daily_meal_portions_group_id_fkey', 'group_id', 'groups');
+      ensureCascadeForeignKey('health_checks', 'health_checks_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('health_checks', 'health_checks_child_id_fkey', 'child_id', 'children');
+      ensureCascadeForeignKey('staff_health_checks', 'staff_health_checks_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('staff_health_checks', 'staff_health_checks_staff_id_fkey', 'staff_id', 'staff');
+      ensureCascadeForeignKey('medical_inventory_items', 'medical_inventory_items_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('medical_inventory_movements', 'medical_inventory_movements_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('medical_inventory_movements', 'medical_inventory_movements_item_id_fkey', 'item_id', 'medical_inventory_items');
+      ensureCascadeForeignKey('audits', 'audits_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('operations_log', 'operations_log_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('role_notifications', 'role_notifications_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('messages', 'messages_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('parent_documents', 'parent_documents_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('parent_documents', 'parent_documents_child_id_fkey', 'child_id', 'children');
+      ensureCascadeForeignKey('pickup_people', 'pickup_people_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('pickup_people', 'pickup_people_child_id_fkey', 'child_id', 'children');
+      ensureCascadeForeignKey('kindergarten_settings', 'kindergarten_settings_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
 
       // Lightweight migrations for databases created with older schemas.
       addColumn('parents', 'workplace', 'TEXT');

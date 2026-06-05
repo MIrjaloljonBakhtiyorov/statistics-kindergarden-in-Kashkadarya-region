@@ -86,18 +86,27 @@ export class GroupsRepository {
         if (err) return reject(err);
         if (!group) return resolve();
 
-        db.run("DELETE FROM groups WHERE id = ? AND kindergarten_id = ?", [id, kindergartenId], async (err) => {
-          if (err) {
-            if (err.message.includes('FOREIGN KEY constraint failed')) {
-              reject(new Error('Guruhda bolalar yoki xodimlar borligi sababli uni o\'chirib bo\'lmaydi'));
-            } else {
-              reject(err);
+        db.get(
+          `SELECT
+             (SELECT COUNT(*) FROM children WHERE group_id = ? AND kindergarten_id = ?) as children_count,
+             (SELECT COUNT(*) FROM staff WHERE group_id = ? AND kindergarten_id = ?) as staff_count`,
+          [id, kindergartenId, id, kindergartenId],
+          (countErr, counts: any) => {
+            if (countErr) return reject(countErr);
+            if (Number(counts?.children_count || 0) > 0 || Number(counts?.staff_count || 0) > 0) {
+              return reject(new Error('Guruhda bolalar yoki xodimlar borligi sababli uni o\'chirib bo\'lmaydi'));
             }
-          } else {
-            await OperationsRepository.log('DELETE', 'GROUP', group.name, 'Guruh o\'chirib tashlandi');
-            resolve();
+
+            db.run("DELETE FROM daily_meal_portions WHERE group_id = ? AND kindergarten_id = ?", [id, kindergartenId], (portionErr) => {
+              if (portionErr) return reject(portionErr);
+              db.run("DELETE FROM groups WHERE id = ? AND kindergarten_id = ?", [id, kindergartenId], async (deleteErr) => {
+                if (deleteErr) return reject(deleteErr);
+                await OperationsRepository.log('DELETE', 'GROUP', group.name, 'Guruh o\'chirib tashlandi');
+                resolve();
+              });
+            });
           }
-        });
+        );
       });
     });
   }
