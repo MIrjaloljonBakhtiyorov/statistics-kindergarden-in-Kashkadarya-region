@@ -35,6 +35,24 @@ const toCost = (value) => {
   return Number.isFinite(numberValue) && numberValue >= 0 ? numberValue : 0;
 };
 
+const ensureAdminWarehousePurchasesTable = async () => {
+  await run(`CREATE TABLE IF NOT EXISTS admin_warehouse_purchases (
+    id TEXT PRIMARY KEY,
+    date TEXT NOT NULL,
+    district TEXT NOT NULL,
+    product_name TEXT NOT NULL,
+    unit TEXT DEFAULT 'kg',
+    quantity REAL DEFAULT 0,
+    price_per_unit REAL DEFAULT 0,
+    note TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(date, district, product_name)
+  )`);
+  await run('CREATE INDEX IF NOT EXISTS idx_admin_warehouse_purchases_date ON admin_warehouse_purchases(date)');
+  await run('CREATE INDEX IF NOT EXISTS idx_admin_warehouse_purchases_district ON admin_warehouse_purchases(date, district)');
+};
+
 const toCount = (value) => {
   if (value === '' || value == null) return 0;
   const numberValue = Number(value);
@@ -1608,6 +1626,104 @@ const KindergartenController = {
           date: row.date,
           district: row.district,
           costPerChild: Number(row.cost_per_child || 0),
+          note: row.note || '',
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        })),
+      });
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => undefined);
+      res.status(500).json({ error: err.message });
+    } finally {
+      client.release();
+    }
+  },
+
+  getDistrictWarehousePurchases: async (req, res) => {
+    const date = normalizeDate(req.query.date);
+    const startDate = req.query.startDate ? normalizeDate(req.query.startDate) : null;
+    const endDate = req.query.endDate ? normalizeDate(req.query.endDate) : null;
+    try {
+      await ensureAdminWarehousePurchasesTable();
+      const whereSql = startDate && endDate
+        ? 'WHERE date BETWEEN $1 AND $2'
+        : 'WHERE date = $1';
+      const params = startDate && endDate ? [startDate, endDate] : [date];
+      const result = await db.pool.query(
+        `SELECT id, date, district, product_name, unit, quantity, price_per_unit, note, created_at, updated_at
+         FROM admin_warehouse_purchases
+         ${whereSql}
+         ORDER BY date, district, product_name`,
+        params
+      );
+      res.json({
+        date,
+        startDate: startDate || date,
+        endDate: endDate || date,
+        entries: result.rows.map((row) => ({
+          id: row.id,
+          date: row.date,
+          district: row.district,
+          productName: row.product_name,
+          unit: row.unit || 'kg',
+          quantity: Number(row.quantity || 0),
+          pricePerUnit: Number(row.price_per_unit || 0),
+          totalAmount: Number(row.quantity || 0) * Number(row.price_per_unit || 0),
+          note: row.note || '',
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        })),
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  saveDistrictWarehousePurchases: async (req, res) => {
+    const date = normalizeDate(req.body.date);
+    const entries = Array.isArray(req.body.entries) ? req.body.entries : [];
+
+    const client = await db.pool.connect();
+    try {
+      await ensureAdminWarehousePurchasesTable();
+      await client.query('BEGIN');
+      const saved = [];
+      for (const entry of entries) {
+        const district = String(entry?.district || '').trim();
+        const productName = String(entry?.productName ?? entry?.product_name ?? '').trim();
+        if (!district || !productName) continue;
+        const unit = String(entry?.unit || 'kg').trim() || 'kg';
+        const quantity = toCost(entry?.quantity);
+        const pricePerUnit = toCost(entry?.pricePerUnit ?? entry?.price_per_unit);
+        const note = String(entry?.note || '').trim() || null;
+        const id = entry?.id || crypto.randomUUID();
+        const result = await client.query(
+          `INSERT INTO admin_warehouse_purchases (id, date, district, product_name, unit, quantity, price_per_unit, note, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP)
+           ON CONFLICT (date, district, product_name)
+           DO UPDATE SET unit = EXCLUDED.unit,
+                         quantity = EXCLUDED.quantity,
+                         price_per_unit = EXCLUDED.price_per_unit,
+                         note = EXCLUDED.note,
+                         updated_at = CURRENT_TIMESTAMP
+           RETURNING id, date, district, product_name, unit, quantity, price_per_unit, note, created_at, updated_at`,
+          [id, date, district, productName, unit, quantity, pricePerUnit, note]
+        );
+        saved.push(result.rows[0]);
+      }
+      await client.query('COMMIT');
+      res.json({
+        success: true,
+        date,
+        entries: saved.map((row) => ({
+          id: row.id,
+          date: row.date,
+          district: row.district,
+          productName: row.product_name,
+          unit: row.unit || 'kg',
+          quantity: Number(row.quantity || 0),
+          pricePerUnit: Number(row.price_per_unit || 0),
+          totalAmount: Number(row.quantity || 0) * Number(row.price_per_unit || 0),
           note: row.note || '',
           createdAt: row.created_at,
           updatedAt: row.updated_at,

@@ -17,6 +17,8 @@ router.delete('/dishes/:id', KindergartenController.deleteDish);
 router.post('/menus/ten-day', KindergartenController.createTenDayMenus);
 router.get('/daily-district-expenses', KindergartenController.getDailyDistrictExpenses);
 router.post('/daily-district-expenses', KindergartenController.saveDailyDistrictExpenses);
+router.get('/district-warehouse-purchases', KindergartenController.getDistrictWarehousePurchases);
+router.post('/district-warehouse-purchases', KindergartenController.saveDistrictWarehousePurchases);
 router.get('/:id', KindergartenController.getById);
 router.post('/', KindergartenController.create);
 router.put('/:id', KindergartenController.update);

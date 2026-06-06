@@ -507,6 +507,19 @@ const initializeSchema = () => {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(date, district)
       )`);
+        db.run(`CREATE TABLE IF NOT EXISTS admin_warehouse_purchases (
+        id TEXT PRIMARY KEY,
+        date TEXT NOT NULL,
+        district TEXT NOT NULL,
+        product_name TEXT NOT NULL,
+        unit TEXT DEFAULT 'kg',
+        quantity REAL DEFAULT 0,
+        price_per_unit REAL DEFAULT 0,
+        note TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(date, district, product_name)
+      )`);
         db.run(`CREATE TABLE IF NOT EXISTS chef_sanitary_checks (
         id TEXT PRIMARY KEY,
         kindergarten_id INTEGER,
@@ -572,6 +585,8 @@ const initializeSchema = () => {
         createIndex('idx_role_notifications_target', 'role_notifications', 'kindergarten_id, target_role, target_user_id, is_read, created_at');
         createIndex('idx_operations_kindergarten_archived', 'operations_log', 'kindergarten_id, is_archived, created_at');
         createIndex('idx_daily_district_expenses_date', 'daily_district_expenses', 'date');
+        createIndex('idx_admin_warehouse_purchases_date', 'admin_warehouse_purchases', 'date');
+        createIndex('idx_admin_warehouse_purchases_district', 'admin_warehouse_purchases', 'date, district');
         createIndex('idx_admin_alert_events_created', 'admin_alert_events', 'created_at DESC');
         createIndex('idx_admin_alert_events_entity', 'admin_alert_events', 'entity_type, entity_id, event_type');
         ensureCascadeForeignKey('parents', 'parents_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
