@@ -65,7 +65,7 @@ const StorekeeperView: React.FC = () => {
   });
 
   const [stockOutData, setStockOutData] = useState({
-    product_id: '', quantity: '', date: new Date().toISOString().split('T')[0]
+    product_id: '', quantity: '', date: new Date().toISOString().split('T')[0], reason: ''
   });
 
   useEffect(() => {
@@ -87,14 +87,18 @@ const StorekeeperView: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const [prodRes, transRes] = await Promise.all([
-        apiClient.get(`/inventory/products`),
-        apiClient.get(`/inventory/transactions`)
-      ]);
-      setProducts(prodRes.data);
-      setTransactions(transRes.data);
+      const prodRes = await apiClient.get(`/inventory/products`);
+      setProducts(Array.isArray(prodRes.data) ? prodRes.data : []);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to fetch inventory products:', err);
+    }
+
+    try {
+      const transRes = await apiClient.get(`/inventory/transactions`);
+      setTransactions(Array.isArray(transRes.data) ? transRes.data : []);
+    } catch (err) {
+      console.error('Failed to fetch inventory transactions:', err);
+      setTransactions([]);
     }
   };
 
@@ -169,12 +173,15 @@ const StorekeeperView: React.FC = () => {
     e.preventDefault();
     try {
       await apiClient.post(`/inventory/stock-out`, {
-        product_id: stockOutData.product_id, quantity: parseFloat(stockOutData.quantity), date: stockOutData.date
+        product_id: stockOutData.product_id,
+        quantity: parseFloat(stockOutData.quantity),
+        date: stockOutData.date,
+        reason: stockOutData.reason,
       });
       showNotification("Chiqim bajarildi", 'success');
       fetchData();
       setIsOutModalOpen(false);
-      setStockOutData({ product_id: '', quantity: '', date: new Date().toISOString().split('T')[0] });
+      setStockOutData({ product_id: '', quantity: '', date: new Date().toISOString().split('T')[0], reason: '' });
     } catch (err: any) {
       showNotification(err.response?.data?.error || "Xatolik yuz berdi", "error");
     }
@@ -552,8 +559,9 @@ const StorekeeperView: React.FC = () => {
                   <label className="text-[10px] font-black text-brand-muted uppercase ml-1">Chiqim sababi</label>
                   <input 
                     placeholder="Masalan: Oshxonaga berildi, Yaroqsiz bo'lgan..."
+                    value={stockOutData.reason}
                     className="w-full bg-slate-50 border-none rounded-2xl p-5 font-bold outline-none"
-                    onChange={e => setStockOutData({...stockOutData, reason: e.target.value} as any)}
+                    onChange={e => setStockOutData({...stockOutData, reason: e.target.value})}
                   />
                 </div>
 

@@ -82,7 +82,7 @@ export const useGroups = () => {
     } catch (err: any) {
       const msg = err.response?.data?.error || err.message || 'O‘chirishda xatolik';
       if (msg.includes('FOREIGN KEY constraint failed')) {
-        showNotification('Ushbu guruhni o‘chirib bo‘lmaydi, chunki unda bolalar yoki xodimlar mavjud.', 'error');
+        showNotification('Ushbu guruhni o‘chirib bo‘lmaydi, chunki unda bolalar mavjud.', 'error');
       } else {
         showNotification('Xatolik: ' + msg, 'error');
       }

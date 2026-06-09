@@ -109,7 +109,7 @@ inventoryRoutes.get("/inventory/transactions", async (req, res) => {
       FROM inventory_transactions it
       LEFT JOIN products p ON p.id = it.product_id
       WHERE it.kindergarten_id = ?
-      ORDER BY COALESCE(it.date, it.created_at) DESC
+      ORDER BY it.date DESC NULLS LAST, it.created_at DESC
     `, [kindergartenId]);
     res.json(rows);
   } catch (error: any) {
@@ -127,6 +127,9 @@ inventoryRoutes.post("/inventory/stock-in", async (req, res) => {
     const batchId = crypto.randomUUID();
     const date = req.body.received_date || new Date().toISOString().slice(0, 10);
     const quantity = Number(req.body.quantity || 0);
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      return res.status(400).json({ error: 'Kirim miqdori musbat bo\'lishi kerak' });
+    }
     const pricePerUnit = Number(req.body.price_per_unit || 0);
     const totalPrice = Number(req.body.total_price || quantity * pricePerUnit);
     await run(`
@@ -178,6 +181,9 @@ inventoryRoutes.post("/inventory/stock-out", async (req, res) => {
         COALESCE((SELECT SUM(quantity) FROM inventory_transactions WHERE product_id = ? AND kindergarten_id = ? AND type = 'OUT'), 0) as total
     `, [req.body.product_id, kindergartenId, req.body.product_id, kindergartenId]);
     const quantity = Number(req.body.quantity || 0);
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      return res.status(400).json({ error: 'Chiqim miqdori musbat bo\'lishi kerak' });
+    }
     if (quantity > Number(stock?.total || 0)) return res.status(400).json({ error: 'Omborda bunday miqdor yoq' });
 
     const date = req.body.date || new Date().toISOString().slice(0, 10);
