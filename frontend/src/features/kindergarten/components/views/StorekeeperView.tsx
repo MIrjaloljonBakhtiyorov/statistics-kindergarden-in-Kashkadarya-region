@@ -33,6 +33,30 @@ import { motion, AnimatePresence } from 'motion/react';
 import { apiClient } from '@/shared/api';
 import { OperationsLog } from '../../features/operations/components/OperationsLog';
 
+type ExpiryFilter = 'ALL' | 'EXPIRING_SOON' | 'EXPIRED';
+type ExpiryStatus = 'NONE' | 'OK' | 'EXPIRING_SOON' | 'EXPIRED';
+
+const EXPIRY_SOON_DAYS = 7;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+const toDateOnly = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+const getExpiryDaysLeft = (expiryDate?: string | null) => {
+  if (!expiryDate) return null;
+  const value = String(expiryDate).slice(0, 10);
+  const parsed = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return Math.ceil((toDateOnly(parsed).getTime() - toDateOnly(new Date()).getTime()) / MS_PER_DAY);
+};
+
+const getExpiryStatus = (expiryDate?: string | null): ExpiryStatus => {
+  const daysLeft = getExpiryDaysLeft(expiryDate);
+  if (daysLeft == null) return 'NONE';
+  if (daysLeft < 0) return 'EXPIRED';
+  if (daysLeft <= EXPIRY_SOON_DAYS) return 'EXPIRING_SOON';
+  return 'OK';
+};
+
 const StorekeeperView: React.FC = () => {
   const { showNotification } = useNotification();
   const [products, setProducts] = useState<any[]>([]);
@@ -47,6 +71,7 @@ const StorekeeperView: React.FC = () => {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [expiryFilter, setExpiryFilter] = useState<ExpiryFilter>('ALL');
 
   // Form states
   const [productForm, setProductForm] = useState({
@@ -204,9 +229,33 @@ const StorekeeperView: React.FC = () => {
     return products.filter(p => {
       const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = categoryFilter === 'ALL' || p.category === categoryFilter;
-      return matchesSearch && matchesCategory;
+      const expiryStatus = getExpiryStatus(p.expiry_date);
+      const matchesExpiry = expiryFilter === 'ALL' || expiryStatus === expiryFilter;
+      return matchesSearch && matchesCategory && matchesExpiry;
     });
-  }, [products, searchQuery, categoryFilter]);
+  }, [products, searchQuery, categoryFilter, expiryFilter]);
+
+  const renderExpiryInfo = (product: any) => {
+    const status = getExpiryStatus(product.expiry_date);
+    const daysLeft = getExpiryDaysLeft(product.expiry_date);
+
+    const badge = status === 'EXPIRED'
+      ? { label: 'Muddati o‘tgan', className: 'bg-rose-50 text-rose-600 border-rose-100' }
+      : status === 'EXPIRING_SOON'
+        ? { label: `${daysLeft} kun qoldi`, className: 'bg-amber-50 text-amber-700 border-amber-100' }
+        : status === 'OK'
+          ? { label: 'Yaroqli', className: 'bg-emerald-50 text-emerald-600 border-emerald-100' }
+          : { label: 'Muddat yo‘q', className: 'bg-slate-50 text-brand-muted border-slate-100' };
+
+    return (
+      <div className="flex flex-col gap-1.5">
+        <span>{product.expiry_date ? new Date(product.expiry_date).toLocaleDateString('uz-UZ') : '-'}</span>
+        <span className={`w-fit rounded-lg border px-2 py-1 text-[9px] font-black uppercase tracking-wider ${badge.className}`}>
+          {badge.label}
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div className="p-8 space-y-10 animate-in fade-in duration-700 bg-slate-50/50 min-h-screen">
@@ -290,6 +339,11 @@ const StorekeeperView: React.FC = () => {
                 <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="bg-slate-50 border-none font-black text-[9px] uppercase tracking-widest px-8 py-4 rounded-2xl outline-none cursor-pointer">
                   {categories.map(c => <option key={c} value={c}>{c === 'ALL' ? 'Barcha katagoriyalar' : c}</option>)}
                 </select>
+                <select value={expiryFilter} onChange={(e) => setExpiryFilter(e.target.value as ExpiryFilter)} className="bg-slate-50 border-none font-black text-[9px] uppercase tracking-widest px-8 py-4 rounded-2xl outline-none cursor-pointer">
+                  <option value="ALL">Barcha muddatlar</option>
+                  <option value="EXPIRING_SOON">Muddati yaqin</option>
+                  <option value="EXPIRED">Muddati o‘tgan</option>
+                </select>
               </div>
 
               <div className="bg-white rounded-[3rem] border border-brand-border overflow-hidden shadow-sm">
@@ -322,7 +376,7 @@ const StorekeeperView: React.FC = () => {
                           </td>
                           <td className="px-8 py-6 text-center text-xs font-bold text-brand-muted">{product.min_stock} {product.unit}</td>
                           <td className="px-8 py-6 text-xs font-bold text-brand-slate">
-                            {product.expiry_date ? new Date(product.expiry_date).toLocaleDateString('uz-UZ') : '-'}
+                            {renderExpiryInfo(product)}
                           </td>
                           <td className="px-8 py-6 text-right">
                             <button onClick={() => handleOpenEditModal(product)} className="text-slate-400 hover:text-brand-primary transition-colors p-2 hover:bg-brand-primary/10 rounded-xl inline-flex">
