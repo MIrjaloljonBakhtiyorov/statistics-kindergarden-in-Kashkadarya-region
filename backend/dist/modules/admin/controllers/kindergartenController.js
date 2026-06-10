@@ -58,7 +58,7 @@ const WORK_HOUR_GROUPS = {
     SHORT_4: { hours: [4], meals: ['BREAKFAST'] },
     DAY_9_105: { hours: [9, 9.5, 10.5], meals: ['BREAKFAST', 'LUNCH', 'TEA'] },
     LONG_12: { hours: [12], meals: ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
-    FULL_24: { hours: [24], meals: ['BREAKFAST', 'SECOND_BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
+    FULL_24: { hours: [24], meals: ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
 };
 const mealTypesForWorkHours = (value) => {
     const hours = normalizeWorkHours(value);

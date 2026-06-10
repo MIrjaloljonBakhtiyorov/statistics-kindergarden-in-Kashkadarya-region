@@ -32,31 +32,27 @@ const TABS = [
 
 const MEAL_LABELS: Record<string, string> = {
   BREAKFAST: 'Nonushta',
-  SECOND_BREAKFAST: 'Ikkinchi nonushta',
   LUNCH: 'Tushlik',
   TEA: 'Poldnik',
   DINNER: 'Kechki ovqat',
   Nonushta: 'Nonushta',
-  'Ikkinchi nonushta': 'Ikkinchi nonushta',
   Tushlik: 'Tushlik',
   Poldnik: 'Poldnik',
   'Kechki ovqat': 'Kechki ovqat',
 };
 
-const MEAL_ORDER = ['BREAKFAST', 'SECOND_BREAKFAST', 'LUNCH', 'TEA', 'DINNER'];
+const MEAL_ORDER = ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER'];
 const MEAL_TIME_META: Record<string, { time: string; accent: string; soft: string }> = {
   BREAKFAST: { time: '08:30', accent: 'bg-amber-500', soft: 'bg-amber-50 text-amber-700 border-amber-100' },
-  SECOND_BREAKFAST: { time: '10:30', accent: 'bg-lime-500', soft: 'bg-lime-50 text-lime-700 border-lime-100' },
   LUNCH: { time: '12:30', accent: 'bg-indigo-600', soft: 'bg-indigo-50 text-indigo-700 border-indigo-100' },
   TEA: { time: '16:00', accent: 'bg-rose-500', soft: 'bg-rose-50 text-rose-700 border-rose-100' },
   DINNER: { time: '18:30', accent: 'bg-slate-900', soft: 'bg-slate-100 text-slate-700 border-slate-200' },
 };
 const WORK_HOUR_GROUPS = [
-  { id: 'ALL', label: 'Barcha MTT', description: 'Ish soatiga qarab ajratiladi', hours: [] as number[], meals: MEAL_ORDER },
   { id: 'SHORT_4', label: '4 soatlik', description: 'Qisqa guruhlar', hours: [4], meals: ['BREAKFAST'] },
   { id: 'DAY_9_105', label: '9-10.5 soatlik', description: 'Kunduzgi guruhlar', hours: [9, 9.5, 10.5], meals: ['BREAKFAST', 'LUNCH', 'TEA'] },
   { id: 'LONG_12', label: '12 soatlik', description: 'Uzaytirilgan kun', hours: [12], meals: ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
-  { id: 'FULL_24', label: '24 soatlik', description: 'Tun-u kun guruhlar', hours: [24], meals: ['BREAKFAST', 'SECOND_BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
+  { id: 'FULL_24', label: '24 soatlik', description: 'Tun-u kun guruhlar', hours: [24], meals: ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
 ];
 type MealDraft = {
   dish_id?: string;
@@ -239,7 +235,7 @@ const TenDayMenuPlannerModal = ({
 }) => {
   const [startDate, setStartDate] = useState(initialDate);
   const [planMode, setPlanMode] = useState<'single' | 'ten'>('ten');
-  const [targetGroup, setTargetGroup] = useState('ALL');
+  const [targetGroup, setTargetGroup] = useState('DAY_9_105');
   const [selectedPlanDate, setSelectedPlanDate] = useState(initialDate);
   const [mealPlan, setMealPlan] = useState<Record<string, Record<string, MealDraft>>>({});
   const [saving, setSaving] = useState(false);
@@ -775,7 +771,6 @@ export const NutritionMenu = () => {
   const currentMeal = (() => {
     const minutes = now.getHours() * 60 + now.getMinutes();
     if (minutes < 10 * 60) return 'BREAKFAST';
-    if (minutes < 12 * 60) return 'SECOND_BREAKFAST';
     if (minutes < 15 * 60) return 'LUNCH';
     if (minutes < 18 * 60) return 'TEA';
     return 'DINNER';
