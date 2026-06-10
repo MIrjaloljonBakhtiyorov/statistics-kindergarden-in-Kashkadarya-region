@@ -50,7 +50,7 @@ const MEAL_TIME_META: Record<string, { time: string; accent: string; soft: strin
 };
 const WORK_HOUR_GROUPS = [
   { id: 'SHORT_4', label: '4 soatlik', description: 'Qisqa guruhlar', hours: [4], meals: ['BREAKFAST'] },
-  { id: 'DAY_9_105', label: '9-10.5 soatlik', description: 'Kunduzgi guruhlar', hours: [9, 9.5, 10.5], meals: ['BREAKFAST', 'LUNCH', 'TEA'] },
+  { id: 'DAY_9_105', label: '9-10.5 soatlik', description: 'Kunduzgi guruhlar', hours: [9, 9.5, 10.5], meals: ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
   { id: 'LONG_12', label: '12 soatlik', description: 'Uzaytirilgan kun', hours: [12], meals: ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
   { id: 'FULL_24', label: '24 soatlik', description: 'Tun-u kun guruhlar', hours: [24], meals: ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER'] },
 ];
@@ -386,12 +386,12 @@ const TenDayMenuPlannerModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6 pointer-events-none">
+    <div className="fixed inset-0 z-[120] flex items-start justify-center p-2 sm:p-4 pointer-events-none overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 16 }}
-        className="relative bg-white w-full max-w-7xl max-h-[94vh] rounded-[1px] shadow-2xl overflow-hidden flex flex-col pointer-events-auto border border-slate-200"
+        className="relative bg-white w-full max-w-7xl h-[calc(100vh-1rem)] sm:h-[calc(100vh-2rem)] rounded-[1px] shadow-2xl overflow-hidden flex flex-col pointer-events-auto border border-slate-200"
       >
         <div className="p-5 sm:p-7 bg-slate-950 text-white relative overflow-hidden border-b border-white/10">
           <div className="absolute inset-0 opacity-40 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_0,transparent_34%,rgba(16,185,129,0.1)_100%)]" />
@@ -456,7 +456,7 @@ const TenDayMenuPlannerModal = ({
         </div>
 
         <div className="flex-1 overflow-auto p-4 sm:p-6 bg-[#F6F8FB]">
-          <div className="min-w-[1180px] space-y-5">
+          <div className="space-y-5">
             <div className="bg-white border border-slate-100 rounded-[1px] p-4 shadow-sm">
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {days.map((day, index) => {
@@ -491,7 +491,7 @@ const TenDayMenuPlannerModal = ({
                   </p>
                 </div>
 
-                <div className={clsx("grid gap-4", selectedMealTypes.length >= 5 ? "grid-cols-5" : "grid-cols-4")}>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                   {selectedMealTypes.map((mealType) => {
                     const draft = mealPlan[activeDay.iso]?.[mealType];
                     return (
