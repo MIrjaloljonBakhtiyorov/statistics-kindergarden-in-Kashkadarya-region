@@ -1143,7 +1143,7 @@ const splitDataUrl = (imageDataUrl) => {
 const callOpenAIDishPageVision = async (imageDataUrl) => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error('OPENAI_API_KEY is not configured');
-  const model = process.env.OPENAI_VISION_MODEL || process.env.OPENAI_MODEL || 'gpt-5.2';
+  const model = process.env.OPENAI_VISION_MODEL || 'gpt-4o-mini';
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {

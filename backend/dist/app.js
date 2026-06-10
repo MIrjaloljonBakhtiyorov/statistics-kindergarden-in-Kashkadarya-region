@@ -23,7 +23,7 @@ const upload = multer({ storage });
 export const createApp = () => {
     const app = express();
     app.use(cors());
-    app.use(express.json({ limit: '20mb' }));
+    app.use(express.json({ limit: '50mb' }));
     app.use((err, _req, res, next) => {
         if (err instanceof SyntaxError && 'body' in err) {
             return res.status(400).json({ error: "JSON formati noto'g'ri" });
