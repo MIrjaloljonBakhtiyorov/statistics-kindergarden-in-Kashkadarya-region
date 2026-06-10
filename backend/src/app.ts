@@ -30,7 +30,7 @@ export const createApp = () => {
   const app = express();
 
   app.use(cors());
-  app.use(express.json());
+  app.use(express.json({ limit: '20mb' }));
   app.use((err: any, _req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (err instanceof SyntaxError && 'body' in err) {
       return res.status(400).json({ error: "JSON formati noto'g'ri" });

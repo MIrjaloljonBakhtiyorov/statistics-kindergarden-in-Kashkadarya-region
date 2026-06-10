@@ -1028,6 +1028,134 @@ const callGeminiInsights = async (snapshot) => {
     const text = data?.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('\n') || '';
     return { model, analysis: parseAIAnalysisText(text) };
 };
+const buildAqlvoyDishPagePrompt = () => `
+Siz Aqlvoy oshpaz retsept kartalari uchun OCR va ma'lumot ajratish yordamchisisiz.
+Yuklangan kitob sahifasidagi taom retseptini o'qing va formaga mos JSON qaytaring.
+Matnda yo'q qiymatlarni bo'sh string qiling. Taxminiy yoki soxta qiymat qo'shmang.
+Masalliqlarni oddiy matn sifatida, har bir masalliqni yangi qatorda qaytaring.
+
+Faqat JSON qaytaring:
+{
+  "name": "taom nomi",
+  "category": "bo'lim yoki kategoriya",
+  "cook_time": "tayyorlash vaqti",
+  "cook_temperature": "harorat",
+  "output_1_3": "1-3 yosh chiqishi",
+  "output_3_7": "3-7 yosh chiqishi",
+  "kcal_1_3": "1-3 yosh kkal",
+  "kcal_3_7": "3-7 yosh kkal",
+  "kcal": "umumiy kkal",
+  "iron": "temir",
+  "carbs": "uglevod",
+  "vitamins": "vitaminlar yoki izoh",
+  "ingredients": "oddiy matn, har qatorga bitta masalliq",
+  "technology": "tayyorlash texnologiyasi",
+  "quality_requirements": "sifatiga qo'yiladigan talablar"
+}
+`;
+const normalizeDishAnalysis = (analysis = {}) => ({
+    name: String(analysis.name || '').trim(),
+    category: String(analysis.category || '').trim(),
+    cook_time: String(analysis.cook_time || '').trim(),
+    cook_temperature: String(analysis.cook_temperature || '').trim(),
+    output_1_3: String(analysis.output_1_3 || '').trim(),
+    output_3_7: String(analysis.output_3_7 || '').trim(),
+    kcal_1_3: String(analysis.kcal_1_3 || '').trim(),
+    kcal_3_7: String(analysis.kcal_3_7 || '').trim(),
+    kcal: String(analysis.kcal || '').trim(),
+    iron: String(analysis.iron || '').trim(),
+    carbs: String(analysis.carbs || '').trim(),
+    vitamins: String(analysis.vitamins || '').trim(),
+    ingredients: String(analysis.ingredients || '').trim(),
+    technology: String(analysis.technology || '').trim(),
+    quality_requirements: String(analysis.quality_requirements || '').trim(),
+});
+const splitDataUrl = (imageDataUrl) => {
+    const match = String(imageDataUrl || '').match(/^data:([^;]+);base64,(.+)$/);
+    if (!match)
+        throw new Error('Rasm data URL formati noto\'g\'ri');
+    return { mimeType: match[1], data: match[2] };
+};
+const callOpenAIDishPageVision = async (imageDataUrl) => {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey)
+        throw new Error('OPENAI_API_KEY is not configured');
+    const model = process.env.OPENAI_VISION_MODEL || process.env.OPENAI_MODEL || 'gpt-5.2';
+    const response = await fetch('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            model,
+            input: [
+                {
+                    role: 'user',
+                    content: [
+                        { type: 'input_text', text: buildAqlvoyDishPagePrompt() },
+                        { type: 'input_image', image_url: imageDataUrl },
+                    ],
+                },
+            ],
+            max_output_tokens: 2000,
+            text: {
+                format: { type: 'json_object' },
+            },
+        }),
+    });
+    const data = await response.json();
+    if (!response.ok)
+        throw new Error(data?.error?.message || 'OpenAI retsept tahlili bajarilmadi');
+    return { provider: 'openai', model, analysis: normalizeDishAnalysis(parseAIAnalysisText(extractOpenAIText(data))) };
+};
+const callGeminiDishPageVision = async (imageDataUrl) => {
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    if (!apiKey)
+        throw new Error('GEMINI_API_KEY is not configured');
+    const model = process.env.GEMINI_VISION_MODEL || process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    const image = splitDataUrl(imageDataUrl);
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [
+                {
+                    role: 'user',
+                    parts: [
+                        { text: buildAqlvoyDishPagePrompt() },
+                        { inline_data: { mime_type: image.mimeType, data: image.data } },
+                    ],
+                },
+            ],
+            generationConfig: {
+                temperature: 0.1,
+                responseMimeType: 'application/json',
+            },
+        }),
+    });
+    const data = await response.json();
+    if (!response.ok)
+        throw new Error(data?.error?.message || 'Gemini retsept tahlili bajarilmadi');
+    const text = data?.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('\n') || '';
+    return { provider: 'gemini', model, analysis: normalizeDishAnalysis(parseAIAnalysisText(text)) };
+};
+const analyzeDishPageWithAI = async (imageDataUrl, requestedProvider) => {
+    const provider = resolveAIProvider(requestedProvider);
+    if (provider === 'openai')
+        return callOpenAIDishPageVision(imageDataUrl);
+    if (provider === 'gemini')
+        return callGeminiDishPageVision(imageDataUrl);
+    if (provider === 'ensemble') {
+        try {
+            return await callOpenAIDishPageVision(imageDataUrl);
+        }
+        catch {
+            return callGeminiDishPageVision(imageDataUrl);
+        }
+    }
+    throw new Error(getAIProviderSetupMessage(requestedProvider));
+};
 const getAIProviderConfig = () => {
     const hasOpenAI = Boolean(String(process.env.OPENAI_API_KEY || '').trim());
     const hasGemini = Boolean(String(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim());
@@ -2007,6 +2135,21 @@ const KindergartenController = {
             }
             res.json(rows);
         });
+    },
+    analyzeDishPage: async (req, res) => {
+        try {
+            const imageDataUrl = String(req.body.imageDataUrl || '');
+            if (!imageDataUrl.startsWith('data:image/')) {
+                return res.status(400).json({ error: 'Kitob sahifasi rasmi yuborilmadi' });
+            }
+            const result = await analyzeDishPageWithAI(imageDataUrl, req.body.provider || req.query.provider);
+            res.json(result);
+        }
+        catch (error) {
+            res.status(503).json({
+                error: summarizeAIProviderError(error.message) || 'Kitob sahifasini AI tahlil qila olmadi',
+            });
+        }
     },
     createDish: (req, res) => {
         const id = crypto.randomUUID();

@@ -7,6 +7,7 @@ router.get('/dishes/all', KindergartenController.getDishes);
 router.get('/medical-stock-alerts', KindergartenController.getMedicalStockAlerts);
 router.get('/alerts', KindergartenController.getAlerts);
 router.get('/ai-insights', KindergartenController.getAIInsights);
+router.post('/dish-items/analyze-page', KindergartenController.analyzeDishPage);
 router.post('/dish-items', KindergartenController.createDish);
 router.put('/dish-items/:id', KindergartenController.updateDish);
 router.delete('/dish-items/:id', KindergartenController.deleteDish);

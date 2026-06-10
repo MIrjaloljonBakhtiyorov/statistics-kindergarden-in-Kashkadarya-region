@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Database, Edit3, Flame, Plus, Search, Sparkles, Thermometer, Timer, Utensils, X } from 'lucide-react';
+import { BookOpenCheck, Database, Edit3, Flame, Plus, Search, Sparkles, Thermometer, Timer, Utensils, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiClient } from '@/shared/api';
 
@@ -96,6 +96,7 @@ export const AqlvoyChefMenu: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingField, setUploadingField] = useState<'image' | 'image_2' | null>(null);
+  const [analyzingPage, setAnalyzingPage] = useState(false);
 
   const loadDishes = async () => {
     setLoading(true);
@@ -214,6 +215,48 @@ export const AqlvoyChefMenu: React.FC = () => {
     }
   };
 
+  const readFileAsDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('Rasmni o\'qib bo\'lmadi'));
+    reader.readAsDataURL(file);
+  });
+
+  const analyzeBookPage = async (file?: File) => {
+    if (!file) return;
+
+    try {
+      setAnalyzingPage(true);
+      const imageDataUrl = await readFileAsDataUrl(file);
+      const response = await apiClient.post('/kindergartens/dish-items/analyze-page', { imageDataUrl });
+      const analysis = response.data?.analysis || {};
+
+      setForm((state) => ({
+        ...state,
+        name: analysis.name || state.name,
+        category: analysis.category || state.category,
+        cook_time: analysis.cook_time || state.cook_time,
+        cook_temperature: analysis.cook_temperature || state.cook_temperature,
+        output_1_3: analysis.output_1_3 || state.output_1_3,
+        output_3_7: analysis.output_3_7 || state.output_3_7,
+        kcal_1_3: analysis.kcal_1_3 || state.kcal_1_3,
+        kcal_3_7: analysis.kcal_3_7 || state.kcal_3_7,
+        kcal: analysis.kcal || state.kcal,
+        iron: analysis.iron || state.iron,
+        carbs: analysis.carbs || state.carbs,
+        vitamins: analysis.vitamins || state.vitamins,
+        ingredients: analysis.ingredients || state.ingredients,
+        technology: analysis.technology || state.technology,
+        quality_requirements: analysis.quality_requirements || state.quality_requirements,
+      }));
+      toast.success('Kitob sahifasi tahlil qilindi');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || 'Kitob sahifasini tahlil qilib bo\'lmadi');
+    } finally {
+      setAnalyzingPage(false);
+    }
+  };
+
   return (
     <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto">
       <section className="bg-[#0b1120] text-white rounded-[2rem] border border-slate-800 p-6 sm:p-8 shadow-xl">
@@ -278,6 +321,36 @@ export const AqlvoyChefMenu: React.FC = () => {
               <button type="button" onClick={() => setIsFormOpen(false)} className="w-11 h-11 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center">
                 <X size={18} />
               </button>
+            </div>
+
+            <div className="px-6 pt-5">
+              <label className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-dashed border-emerald-300 bg-emerald-50/70 p-4 cursor-pointer hover:bg-emerald-50 transition-colors">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={analyzingPage}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = '';
+                    analyzeBookPage(file);
+                  }}
+                />
+                <span className="flex items-center gap-3">
+                  <span className="w-11 h-11 rounded-xl bg-white text-emerald-600 flex items-center justify-center shadow-sm">
+                    <BookOpenCheck size={20} />
+                  </span>
+                  <span>
+                    <span className="block text-sm font-black text-slate-900">Kitob sahifasini yuklab tahlil qilish</span>
+                    <span className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mt-1">
+                      Rasm yuklang, AI tegishli maydonlarni avtomatik to'ldiradi
+                    </span>
+                  </span>
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700">
+                  {analyzingPage ? 'Tahlil qilinmoqda...' : 'Rasm tanlash'}
+                </span>
+              </label>
             </div>
 
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 overflow-y-auto">
