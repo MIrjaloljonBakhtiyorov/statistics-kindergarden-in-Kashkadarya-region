@@ -101,6 +101,7 @@ const TeacherView: React.FC<TeacherViewProps> = ({ groups: initialGroups }) => {
   });
 
   const displayGroups = groups.length > 0 ? groups : initialGroups;
+  const toCount = (value: unknown) => Number.isFinite(Number(value)) ? Number(value) : 0;
 
   const fetchTodayStats = useCallback(async () => {
     try {
@@ -110,7 +111,13 @@ const TeacherView: React.FC<TeacherViewProps> = ({ groups: initialGroups }) => {
         : `/attendance/today-stats`;
       const res = await apiClient.get(url);
 
-      setTodayStats(res.data);
+      setTodayStats({
+        total: toCount(res.data?.total),
+        present: toCount(res.data?.present),
+        absent: toCount(res.data?.absent),
+        sick: toCount(res.data?.sick),
+        late: toCount(res.data?.late),
+      });
     } catch (err) {
       console.error('Failed to fetch stats:', err);
     }
@@ -125,11 +132,12 @@ const TeacherView: React.FC<TeacherViewProps> = ({ groups: initialGroups }) => {
   }, []); // Only refetch on mount if needed, or rely on useGroups initial fetch
 
   if (!selectedGroup) {
-    const totalKids = todayStats.total;
-    const earlyArrivals = todayStats.present - todayStats.late;
-    const lateArrivals = todayStats.late;
-    const notArrived = todayStats.absent + todayStats.sick;
-    const mealPortions = todayStats.present; 
+    const totalKids = toCount(todayStats.total);
+    const present = toCount(todayStats.present);
+    const lateArrivals = toCount(todayStats.late);
+    const earlyArrivals = Math.max(present - lateArrivals, 0);
+    const notArrived = toCount(todayStats.absent) + toCount(todayStats.sick);
+    const mealPortions = present; 
 
     return (
       <div className="p-4 sm:p-8 animate-in fade-in max-w-7xl mx-auto space-y-6 sm:space-y-10">

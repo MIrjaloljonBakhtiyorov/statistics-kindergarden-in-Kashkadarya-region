@@ -56,6 +56,21 @@ const App: React.FC = () => {
     }
   }, [currentKindergartenId, currentRole, isAuthenticated, logout, user]);
 
+  useEffect(() => {
+    if (!isAuthenticated || !user || !currentKindergartenId) return;
+
+    if (user.role === 'PARENT' && currentRole !== 'PARENT') {
+      setCurrentRole('PARENT');
+      window.history.replaceState(null, '', `/kindergarten/${currentKindergartenId}/parent`);
+      return;
+    }
+
+    if (user.role !== 'PARENT' && currentRole === 'PARENT') {
+      setCurrentRole(user.role);
+      window.history.replaceState(null, '', `/kindergarten/${currentKindergartenId}/${String(user.role).toLowerCase()}`);
+    }
+  }, [currentKindergartenId, currentRole, isAuthenticated, user]);
+
   // Rol o'zgarganda URL ni yangilash
   const handleRoleChange = (role: UserRole) => {
     setCurrentRole(role);
