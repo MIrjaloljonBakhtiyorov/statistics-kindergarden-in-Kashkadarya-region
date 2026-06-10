@@ -61,13 +61,9 @@ foodRoutes.post("/dishes", async (req, res) => {
 });
 
 foodRoutes.delete("/dishes/:id", async (req, res) => {
-  try {
-    const kindergartenId = await resolveKindergartenId(req);
-    await run('DELETE FROM dishes WHERE id = ? AND kindergarten_id = ?', [req.params.id, kindergartenId]);
-    res.json({ success: true });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
+  res.status(409).json({
+    error: "Aqlvoy oshpaz taomlar bazasi doimiy saqlanadi. Taomlarni o'chirish mumkin emas.",
+  });
 });
 
 foodRoutes.get("/menu/:date", async (req, res) => {

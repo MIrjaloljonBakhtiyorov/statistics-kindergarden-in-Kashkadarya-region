@@ -1349,7 +1349,6 @@ const deleteKindergartenCascade = async (kindergartenId) => {
         'kitchen_tasks',
         'menus',
         'products',
-        'dishes',
         'lab_samples',
         'chef_sanitary_checks',
         'finance_transactions',
@@ -2106,14 +2105,8 @@ const KindergartenController = {
         });
     },
     deleteDish: (req, res) => {
-        db.run('DELETE FROM dishes WHERE id = ?', [req.params.id], function (err) {
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-            if (!this.changes) {
-                return res.status(404).json({ error: 'Taom topilmadi' });
-            }
-            res.json({ success: true });
+        res.status(409).json({
+            error: 'Aqlvoy oshpaz taomlar bazasi doimiy saqlanadi. Taomlarni o\'chirish mumkin emas.',
         });
     },
     createTenDayMenus: (req, res) => {
