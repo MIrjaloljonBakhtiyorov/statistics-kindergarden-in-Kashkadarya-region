@@ -17,7 +17,16 @@ const ensureMessageColumns = (() => {
     };
 })();
 const isDeletedMessage = (row) => row.is_deleted === true || row.is_deleted === 1 || row.is_deleted === '1';
-const mapMessage = (row, userId) => {
+const chatAliases = (kindergartenId, userId, role) => {
+    const aliases = new Set([String(userId)]);
+    const normalizedRole = String(role || '').toUpperCase();
+    if (normalizedRole === 'TEACHER' || String(userId).startsWith('staff_')) {
+        aliases.add(String(kindergartenId));
+    }
+    return Array.from(aliases);
+};
+const mapMessage = (row, userIds = []) => {
+    const viewerIds = Array.isArray(userIds) ? userIds : [userIds];
     const deleted = isDeletedMessage(row);
     return {
         id: row.id,
@@ -33,7 +42,7 @@ const mapMessage = (row, userId) => {
         deletedAt: row.deleted_at || null,
         isDeleted: deleted,
         status: row.status || 'sent',
-        type: userId ? (row.sender_id === userId ? 'sent' : 'received') : 'sent',
+        type: viewerIds.length > 0 && viewerIds.includes(String(row.sender_id)) ? 'sent' : 'received',
         senderRole: row.sender_role || 'parent',
     };
 };
@@ -43,15 +52,24 @@ messagesRoutes.get("/messages", async (req, res) => {
         const kindergartenId = await resolveKindergartenId(req);
         const rawUserId = String(req.query.userId || '');
         const rawContactId = String(req.query.contactId || '');
-        const userId = await resolveChatUserId(kindergartenId, rawUserId, String(req.query.userRole || ''));
-        const contactId = await resolveChatUserId(kindergartenId, rawContactId, String(req.query.contactRole || ''));
+        const userRole = String(req.query.userRole || '');
+        const contactRole = String(req.query.contactRole || '');
+        const userId = await resolveChatUserId(kindergartenId, rawUserId, userRole);
+        const contactId = await resolveChatUserId(kindergartenId, rawContactId, contactRole);
+        const userIds = chatAliases(kindergartenId, userId, userRole);
+        const contactIds = chatAliases(kindergartenId, contactId, contactRole || (String(contactId).startsWith('staff_') ? 'TEACHER' : ''));
+        const userPlaceholders = userIds.map(() => '?').join(', ');
+        const contactPlaceholders = contactIds.map(() => '?').join(', ');
         const rows = await all(`
       SELECT * FROM messages
       WHERE kindergarten_id = ?
-        AND ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?))
+        AND (
+          (sender_id IN (${userPlaceholders}) AND receiver_id IN (${contactPlaceholders}))
+          OR (sender_id IN (${contactPlaceholders}) AND receiver_id IN (${userPlaceholders}))
+        )
       ORDER BY created_at ASC
-    `, [kindergartenId, userId, contactId, contactId, userId]);
-        res.json(rows.map((row) => mapMessage(row, userId)));
+    `, [kindergartenId, ...userIds, ...contactIds, ...contactIds, ...userIds]);
+        res.json(rows.map((row) => mapMessage(row, userIds)));
     }
     catch (error) {
         res.status(500).json({ error: error.message });

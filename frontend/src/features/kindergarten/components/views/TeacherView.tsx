@@ -280,6 +280,7 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const chatSenderId = String(groupData.teacher_id || groupData.teacherId || user?.id || '');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -290,15 +291,15 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
   }, [messages]);
 
   const loadUnreadCounts = useCallback(async () => {
-    if (!user?.id) return;
+    if (!chatSenderId) return;
     try {
-      const params = new URLSearchParams({ userId: user.id, userRole: 'teacher' });
+      const params = new URLSearchParams({ userId: chatSenderId, userRole: 'teacher' });
       const res = await apiClient.get(`/messages/unread-counts?${params.toString()}`);
       setUnreadCounts(res.data);
     } catch (error) {
       console.error('Failed to load unread counts:', error);
     }
-  }, [user?.id]);
+  }, [chatSenderId]);
 
   useEffect(() => {
     loadUnreadCounts();
@@ -307,17 +308,17 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
   }, [loadUnreadCounts]);
 
   const loadMessages = useCallback(async () => {
-    if (!activeParent || !user?.id || !activeParent.hasAccount) {
+    if (!activeParent || !chatSenderId || !activeParent.hasAccount) {
       setMessages([]);
       return;
     }
     setIsLoading(true);
     try {
-      const data = await parentsApi.getMessages(user.id, activeParent.id, { userRole: 'teacher' });
+      const data = await parentsApi.getMessages(chatSenderId, activeParent.id, { userRole: 'teacher' });
       setMessages(data);
       
       if (unreadCounts[activeParent.id] > 0) {
-        await parentsApi.markAsRead(user.id, activeParent.id, { userRole: 'teacher' });
+        await parentsApi.markAsRead(chatSenderId, activeParent.id, { userRole: 'teacher' });
         loadUnreadCounts();
       }
     } catch (error) {
@@ -325,7 +326,7 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [activeParent, user?.id, unreadCounts, loadUnreadCounts]);
+  }, [activeParent, chatSenderId, unreadCounts, loadUnreadCounts]);
 
   useEffect(() => {
     if (activeParent) loadMessages();
@@ -347,7 +348,7 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
 
   const handleSendMessage = async (e?: React.FormEvent, file?: File) => {
     if (e) e.preventDefault();
-    if ((!chatMessage.trim() && !file) || !activeParent || !user?.id) return;
+    if ((!chatMessage.trim() && !file) || !activeParent || !chatSenderId) return;
 
     const messageText = chatMessage;
     setChatMessage('');
@@ -355,7 +356,7 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
     try {
       if (editingMessage && !file) {
         const updatedMessage = await parentsApi.editMessage(editingMessage.id, {
-          userId: user.id,
+          userId: chatSenderId,
           userRole: 'teacher',
           text: messageText,
         });
@@ -367,7 +368,7 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
 
       const fileUrl = file ? await uploadChatFile(file) : null;
       await parentsApi.sendMessage({
-        senderId: user.id,
+        senderId: chatSenderId,
         receiverId: activeParent.id,
         text: messageText,
         senderRole: 'teacher',
@@ -398,9 +399,9 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
   };
 
   const handleDeleteMessage = async (msg: ChatMessage) => {
-    if (!user?.id) return;
+    if (!chatSenderId) return;
     try {
-      const deletedMessage = await parentsApi.deleteMessage(msg.id, { userId: user.id, userRole: 'teacher' });
+      const deletedMessage = await parentsApi.deleteMessage(msg.id, { userId: chatSenderId, userRole: 'teacher' });
       setMessages((prev) => prev.map((item) => String(item.id) === String(msg.id) ? { ...deletedMessage, type: 'sent' } : item));
       if (editingMessage && String(editingMessage.id) === String(msg.id)) {
         setEditingMessage(null);
@@ -413,7 +414,7 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
   };
 
   const startRecording = async () => {
-    if (!activeParent || !user?.id) return;
+    if (!activeParent || !chatSenderId) return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunksRef.current = [];
@@ -443,7 +444,7 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
   };
 
   const handleBroadcast = async () => {
-    if (!broadcastText.trim() || !user?.id) return;
+    if (!broadcastText.trim() || !chatSenderId) return;
     
     const parentIds = (groupData.children || [])
       .map((child: any) => child.parent_account_id)
@@ -456,7 +457,7 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
 
     try {
       await parentsApi.sendBroadcast({
-        senderId: user.id,
+        senderId: chatSenderId,
         receiverIds: parentIds,
         text: broadcastText,
         senderRole: 'teacher'
