@@ -3,14 +3,6 @@ import { Database, Edit3, Flame, Plus, Search, Sparkles, Thermometer, Timer, Ute
 import { toast } from 'sonner';
 import { apiClient } from '@/shared/api';
 
-type IngredientRow = {
-  name: string;
-  age13Weight: string;
-  age13Net: string;
-  age37Weight: string;
-  age37Net: string;
-};
-
 type DishForm = {
   id?: string;
   name: string;
@@ -47,7 +39,7 @@ const emptyForm: DishForm = {
   iron: '0',
   carbs: '0',
   vitamins: '',
-  ingredients: '[]',
+  ingredients: '',
   technology: '',
   quality_requirements: '',
 };
@@ -65,13 +57,28 @@ const toNumber = (value: unknown) => {
   return Number.isFinite(numberValue) ? numberValue : 0;
 };
 
-const parseIngredients = (value: unknown): IngredientRow[] => {
-  if (Array.isArray(value)) return value as IngredientRow[];
+const ingredientsText = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        const name = item?.name || '';
+        const weight = item?.age37Weight || item?.age13Weight || '';
+        const net = item?.age37Net || item?.age13Net || '';
+        return [name, weight || net].filter(Boolean).join(' - ');
+      })
+      .filter(Boolean)
+      .join('\n');
+  }
+
+  const text = String(value || '').trim();
+  if (!text) return '';
+
   try {
-    const parsed = JSON.parse(String(value || '[]'));
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? ingredientsText(parsed) : text;
   } catch {
-    return [];
+    return text;
   }
 };
 
@@ -146,7 +153,7 @@ export const AqlvoyChefMenu: React.FC = () => {
       iron: String(toNumber(dish.iron)),
       carbs: String(toNumber(dish.carbs)),
       vitamins: dish.vitamins || '',
-      ingredients: dish.ingredients || '[]',
+      ingredients: ingredientsText(dish.ingredients),
       technology: dish.technology || '',
       quality_requirements: dish.quality_requirements || '',
     });
@@ -157,13 +164,6 @@ export const AqlvoyChefMenu: React.FC = () => {
     event.preventDefault();
     if (!form.name.trim()) {
       toast.error('Taom nomini kiriting');
-      return;
-    }
-
-    try {
-      JSON.parse(form.ingredients || '[]');
-    } catch {
-      toast.error("Masalliqlar JSON formati noto'g'ri");
       return;
     }
 
@@ -306,7 +306,7 @@ export const AqlvoyChefMenu: React.FC = () => {
                 onUpload={(file) => uploadImage('image_2', file)}
                 onClear={() => setForm((state) => ({ ...state, image_2: '' }))}
               />
-              <TextArea label="Masalliqlar JSON" value={form.ingredients} onChange={(value) => setForm((state) => ({ ...state, ingredients: value }))} rows={8} />
+              <TextArea label="Masalliqlar" value={form.ingredients} onChange={(value) => setForm((state) => ({ ...state, ingredients: value }))} rows={8} />
               <TextArea label="Tayyorlash texnologiyasi" value={form.technology} onChange={(value) => setForm((state) => ({ ...state, technology: value }))} rows={8} />
               <TextArea label="Sifatiga qo'yiladigan talablar" value={form.quality_requirements} onChange={(value) => setForm((state) => ({ ...state, quality_requirements: value }))} rows={8} />
               <TextArea label="Vitaminlar / izoh" value={form.vitamins} onChange={(value) => setForm((state) => ({ ...state, vitamins: value }))} rows={8} />
@@ -355,7 +355,7 @@ const RecipeCard = ({ dish, onOpen, onEdit }: { dish: any; onOpen: () => void; o
 );
 
 const RecipeModal = ({ dish, onClose }: { dish: any; onClose: () => void }) => {
-  const ingredients = parseIngredients(dish.ingredients);
+  const ingredients = splitParagraphs(ingredientsText(dish.ingredients));
   return (
     <div className="fixed inset-0 z-[210] flex items-center justify-center p-3 sm:p-5">
       <div className="w-full max-w-7xl max-h-[94vh] overflow-y-auto bg-[#fffdf6] shadow-2xl border border-stone-300">
@@ -379,29 +379,8 @@ const RecipeModal = ({ dish, onClose }: { dish: any; onClose: () => void }) => {
                 <h3 className="text-2xl sm:text-3xl uppercase tracking-[0.18em] font-light text-stone-900">Masalliqlar</h3>
                 <div className="h-px bg-stone-300 flex-1" />
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left font-serif text-base text-stone-700">
-                  <thead className="border-b border-stone-300 text-sm text-stone-600">
-                    <tr>
-                      <th className="py-3 pr-4 font-normal">Mahsulotlar va yarim tayyor mahsulotlar nomi</th>
-                      <th className="py-3 px-3 font-normal text-center">1-3 yoshga og'irligi</th>
-                      <th className="py-3 px-3 font-normal text-center">sof og'irligi</th>
-                      <th className="py-3 px-3 font-normal text-center">3-7 yoshga og'irligi</th>
-                      <th className="py-3 pl-3 font-normal text-center">sof og'irligi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ingredients.map((item, index) => (
-                      <tr key={`${item.name}-${index}`} className={index === ingredients.length - 1 ? 'border-t border-stone-300 font-bold' : ''}>
-                        <td className="py-2 pr-4">{item.name}</td>
-                        <td className="py-2 px-3 text-center">{item.age13Weight}</td>
-                        <td className="py-2 px-3 text-center">{item.age13Net}</td>
-                        <td className="py-2 px-3 text-center">{item.age37Weight}</td>
-                        <td className="py-2 pl-3 text-center">{item.age37Net}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="rounded-[8px] border border-stone-200 bg-white/60 p-5 font-serif text-base leading-8 text-stone-700 whitespace-pre-wrap">
+                {ingredients.length ? ingredients.join('\n') : 'Masalliqlar kiritilmagan'}
               </div>
               <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <BookFoodImage src={dish.image} alt={`${dish.name} rasmi 1`} label="Taom rasmi 1" />

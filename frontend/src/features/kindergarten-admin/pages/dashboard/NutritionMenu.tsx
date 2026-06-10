@@ -127,11 +127,15 @@ const displayAssetUrl = (url?: string | null) => {
   return url.startsWith('data:') ? url : encodeURI(toAbsoluteAssetUrl(url));
 };
 const parseDishIngredients = (value: unknown) => {
+  const text = String(value || '').trim();
+  if (!text) return '';
+
   try {
-    const parsed = JSON.parse(String(value || '[]'));
+    const parsed = JSON.parse(text);
     if (!Array.isArray(parsed)) return '';
     return parsed
       .map((item) => {
+        if (typeof item === 'string') return item;
         const name = item?.name || '';
         const weight = item?.age37Weight || item?.age13Weight || '';
         const net = item?.age37Net || item?.age13Net || '';
@@ -140,7 +144,7 @@ const parseDishIngredients = (value: unknown) => {
       .filter(Boolean)
       .join('\n');
   } catch {
-    return '';
+    return text;
   }
 };
 const createEmptyMealDraft = (): MealDraft => ({
