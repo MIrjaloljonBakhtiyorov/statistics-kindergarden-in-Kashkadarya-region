@@ -267,7 +267,6 @@ const TenDayMenuPlannerModal = ({
   const filledCount = days.reduce((sum, day) => {
     return sum + mealTypesForTarget(targetGroup).filter((mealType) => Boolean(mealPlan[day.iso]?.[mealType]?.meal_name?.trim())).length;
   }, 0);
-  const totalCount = days.length * mealTypesForTarget(targetGroup).length;
   const activeDay = days.find((day) => day.iso === selectedPlanDate) || days[0];
   const selectedTargetCount = useMemo(() => {
     if (targetGroup === 'ALL') return kindergartens.length;
@@ -454,27 +453,6 @@ const TenDayMenuPlannerModal = ({
             />
           </div>
 
-          <div className="relative mt-3 grid grid-cols-2 lg:grid-cols-5 gap-2">
-            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
-              <p className="text-[9px] font-black uppercase tracking-widest text-emerald-200">Qamrov</p>
-              <p className="text-xl font-black text-white mt-1">{selectedTargetCount} MTT</p>
-            </div>
-            <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 px-4 py-3">
-              <p className="text-[9px] font-black uppercase tracking-widest text-indigo-200">To'ldirilgan</p>
-              <p className="text-xl font-black text-white mt-1">{filledCount}/{totalCount}</p>
-            </div>
-            {WORK_HOUR_GROUPS.filter((type) => type.id !== 'ALL').map((type) => {
-              const count = type.id === 'ALL'
-                ? kindergartens.length
-                : kindergartens.filter((kg) => type.hours.includes(normalizeWorkHour(kg.workHours))).length;
-              return (
-                <div key={type.id} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{type.label}</p>
-                  <p className="text-xl font-black text-white mt-1">{count}</p>
-                </div>
-              );
-            })}
-          </div>
         </div>
 
         <div className="flex-1 overflow-auto p-4 sm:p-6 bg-[#F6F8FB]">
