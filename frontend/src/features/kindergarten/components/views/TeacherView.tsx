@@ -22,7 +22,9 @@ import {
   Check,
   User,
   XCircle as XIcon,
-  AlertCircle
+  AlertCircle,
+  Edit3,
+  Trash2
 } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
 import { useGroups } from '../../features/groups/hooks/useGroups';
@@ -64,6 +66,10 @@ const getChatFileType = (file?: File) => {
 
 const ChatMessageBody = ({ msg }: { msg: ChatMessage }) => {
   const url = getChatAssetUrl(msg.fileUrl);
+  if (msg.isDeleted) {
+    return <p className="text-sm font-bold italic opacity-70">Xabar o'chirildi</p>;
+  }
+
   return (
     <div className="space-y-2">
       {msg.messageType === 'image' && url && <img src={url} alt={msg.fileName || 'Rasm'} className="max-h-64 rounded-2xl object-cover" />}
@@ -265,6 +271,7 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
   const [activeParent, setActiveParent] = useState<any>(null);
   const [chatMessage, setChatMessage] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
+  const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(null);
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -324,6 +331,11 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
     if (activeParent) loadMessages();
   }, [activeParent, loadMessages]);
 
+  useEffect(() => {
+    setEditingMessage(null);
+    setChatMessage('');
+  }, [activeParent?.id]);
+
   const uploadChatFile = async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);
@@ -341,6 +353,18 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
     setChatMessage('');
 
     try {
+      if (editingMessage && !file) {
+        const updatedMessage = await parentsApi.editMessage(editingMessage.id, {
+          userId: user.id,
+          userRole: 'teacher',
+          text: messageText,
+        });
+        setMessages((prev) => prev.map((msg) => String(msg.id) === String(updatedMessage.id) ? { ...updatedMessage, type: 'sent' } : msg));
+        setEditingMessage(null);
+        showNotification('Xabar tahrirlandi', 'success');
+        return;
+      }
+
       const fileUrl = file ? await uploadChatFile(file) : null;
       await parentsApi.sendMessage({
         senderId: user.id,
@@ -352,6 +376,7 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
         fileName: file?.name || null,
         mimeType: file?.type || null,
       });
+      setEditingMessage(null);
       loadMessages();
       showNotification('Xabar yuborildi', 'success');
     } catch (error) {
@@ -364,6 +389,27 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
     event.target.value = '';
     if (!file) return;
     await handleSendMessage(undefined, file);
+  };
+
+  const handleEditMessage = (msg: ChatMessage) => {
+    if (msg.isDeleted) return;
+    setEditingMessage(msg);
+    setChatMessage(msg.text || '');
+  };
+
+  const handleDeleteMessage = async (msg: ChatMessage) => {
+    if (!user?.id) return;
+    try {
+      const deletedMessage = await parentsApi.deleteMessage(msg.id, { userId: user.id, userRole: 'teacher' });
+      setMessages((prev) => prev.map((item) => String(item.id) === String(msg.id) ? { ...deletedMessage, type: 'sent' } : item));
+      if (editingMessage && String(editingMessage.id) === String(msg.id)) {
+        setEditingMessage(null);
+        setChatMessage('');
+      }
+      showNotification("Xabar o'chirildi", 'success');
+    } catch {
+      showNotification("Xabarni o'chirishda xatolik", 'error');
+    }
   };
 
   const startRecording = async () => {
@@ -558,11 +604,32 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
                 <>
                   {messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.type === 'sent' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[80%] p-4 rounded-[2rem] shadow-lg relative ${
+                      <div className={`max-w-[80%] p-4 rounded-[2rem] shadow-lg relative group ${
                         msg.type === 'sent' ? 'bg-brand-primary text-white rounded-tr-none' : 'bg-slate-50 text-brand-depth rounded-tl-none border border-slate-100'
                       }`}>
+                        {msg.type === 'sent' && !msg.isDeleted && (
+                          <div className="absolute -left-20 top-3 hidden group-hover:flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleEditMessage(msg)}
+                              className="w-8 h-8 rounded-full bg-white text-brand-primary border border-slate-100 shadow-sm flex items-center justify-center hover:bg-brand-primary hover:text-white"
+                              title="Tahrirlash"
+                            >
+                              <Edit3 size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteMessage(msg)}
+                              className="w-8 h-8 rounded-full bg-white text-rose-500 border border-slate-100 shadow-sm flex items-center justify-center hover:bg-rose-500 hover:text-white"
+                              title="O'chirish"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        )}
                         <ChatMessageBody msg={msg} />
                         <div className={`flex items-center justify-end gap-1.5 mt-2 ${msg.type === 'sent' ? 'text-white/60' : 'text-brand-muted'}`}>
+                          {msg.editedAt && !msg.isDeleted && <span className="text-[9px] font-black">tahrirlangan</span>}
                           <span className="text-[9px] font-black">{msg.time}</span>
                           {msg.type === 'sent' && (msg.status === 'read' ? <CheckCheck size={12} /> : <Check size={12} />)}
                         </div>
@@ -576,6 +643,25 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
 
             {/* Input */}
             <div className="p-6 border-t border-slate-50">
+              {editingMessage && (
+                <div className="mb-3 flex items-center justify-between rounded-2xl border border-brand-primary/20 bg-brand-primary/5 px-5 py-3">
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-brand-primary">Xabar tahrirlanmoqda</p>
+                    <p className="truncate text-xs font-bold text-brand-depth">{editingMessage.text}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingMessage(null);
+                      setChatMessage('');
+                    }}
+                    className="text-brand-muted hover:text-rose-500"
+                    title="Bekor qilish"
+                  >
+                    <XIcon size={18} />
+                  </button>
+                </div>
+              )}
               <form onSubmit={handleSendMessage} className="flex items-center gap-4 bg-slate-50 border-2 border-transparent focus-within:border-brand-primary focus-within:bg-white rounded-[2.5rem] px-6 py-3 transition-all shadow-inner">
                 <label className="cursor-pointer text-brand-muted hover:text-brand-primary transition-colors">
                   <Paperclip size={20} />

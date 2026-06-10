@@ -462,6 +462,9 @@ const initializeSchema = () => {
         mime_type TEXT,
         sender_role TEXT,
         status TEXT DEFAULT 'sent',
+        edited_at TEXT,
+        deleted_at TEXT,
+        is_deleted INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (kindergarten_id) REFERENCES kindergartens(id)
       )`);
@@ -751,6 +754,9 @@ const initializeSchema = () => {
       addColumn('messages', 'file_url', 'TEXT');
       addColumn('messages', 'file_name', 'TEXT');
       addColumn('messages', 'mime_type', 'TEXT');
+      addColumn('messages', 'edited_at', 'TEXT');
+      addColumn('messages', 'deleted_at', 'TEXT');
+      addColumn('messages', 'is_deleted', 'INTEGER DEFAULT 0');
     });
 };
 

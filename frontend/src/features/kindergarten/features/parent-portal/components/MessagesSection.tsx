@@ -11,7 +11,9 @@ import {
   ArrowLeft,
   Mic,
   X,
-  Clock
+  Clock,
+  Edit3,
+  Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNotification } from '../../../context/NotificationContext';
@@ -53,6 +55,10 @@ const getMessageType = (file?: File) => {
 
 const MessageBody = ({ msg }: { msg: ChatMessage }) => {
   const url = getAssetUrl(msg.fileUrl);
+  if (msg.isDeleted) {
+    return <p className="text-[11px] md:text-sm font-bold italic opacity-70">Xabar o'chirildi</p>;
+  }
+
   return (
     <div className="space-y-2">
       {msg.messageType === 'image' && url && <img src={url} alt={msg.fileName || 'Rasm'} className="max-h-64 rounded-2xl object-cover" />}
@@ -75,6 +81,7 @@ export const MessagesSection = () => {
   const [chatMessage, setChatMessage] = useState('');
   const [contacts, setContacts] = useState<ChatContact[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -106,13 +113,13 @@ export const MessagesSection = () => {
   const loadContacts = useCallback(async () => {
     if (!user?.id) return;
     try {
-      const data = await parentsApi.getContacts(user.id);
+      const data = await parentsApi.getContacts(user.id, (user as any)?.childId);
       setContacts(data);
     } catch (error) {
       console.error('Failed to load chat contacts:', error);
       setContacts([]);
     }
-  }, [user?.id]);
+  }, [user]);
 
   const loadMessages = useCallback(async () => {
     if (!user?.id || !activeChat) return;
@@ -134,6 +141,10 @@ export const MessagesSection = () => {
 
   useEffect(() => { loadContacts(); }, [loadContacts]);
   useEffect(() => { if (activeChat) loadMessages(); }, [activeChat, loadMessages]);
+  useEffect(() => {
+    setEditingMessage(null);
+    setChatMessage('');
+  }, [activeChat?.id]);
 
   const uploadChatFile = async (file: File) => {
     const formData = new FormData();
@@ -147,6 +158,19 @@ export const MessagesSection = () => {
   const handleSendMessage = async (text: string, file?: File) => {
     if ((!text.trim() && !file) || !activeChat || !user?.id) return;
     try {
+      if (editingMessage && !file) {
+        const updatedMessage = await parentsApi.editMessage(editingMessage.id, {
+          userId: user.id,
+          userRole: 'parent',
+          text,
+        });
+        setMessages((prev) => prev.map((msg) => String(msg.id) === String(updatedMessage.id) ? { ...updatedMessage, type: 'sent' } : msg));
+        setEditingMessage(null);
+        setChatMessage('');
+        showNotification('Xabar tahrirlandi', 'success');
+        return;
+      }
+
       const fileUrl = file ? await uploadChatFile(file) : null;
       const newMessage = await parentsApi.sendMessage({
         senderId: user.id,
@@ -159,11 +183,33 @@ export const MessagesSection = () => {
         mimeType: file?.type || null,
       });
       setMessages((prev) => [...prev, { ...newMessage, type: 'sent' }]);
+      setEditingMessage(null);
       showNotification('Xabar yuborildi', 'success');
     } catch (error) {
       showNotification('Xabar yuborishda xatolik', 'error');
     }
     setChatMessage('');
+  };
+
+  const handleEditMessage = (msg: ChatMessage) => {
+    if (msg.isDeleted) return;
+    setEditingMessage(msg);
+    setChatMessage(msg.text || '');
+  };
+
+  const handleDeleteMessage = async (msg: ChatMessage) => {
+    if (!user?.id) return;
+    try {
+      const deletedMessage = await parentsApi.deleteMessage(msg.id, { userId: user.id, userRole: 'parent' });
+      setMessages((prev) => prev.map((item) => String(item.id) === String(msg.id) ? { ...deletedMessage, type: 'sent' } : item));
+      if (editingMessage && String(editingMessage.id) === String(msg.id)) {
+        setEditingMessage(null);
+        setChatMessage('');
+      }
+      showNotification("Xabar o'chirildi", 'success');
+    } catch {
+      showNotification("Xabarni o'chirishda xatolik", 'error');
+    }
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -291,8 +337,29 @@ export const MessagesSection = () => {
                           <div className={`max-w-[85%] md:max-w-[80%] p-3 md:p-4 rounded-xl md:rounded-[1.5rem] shadow-sm relative group ${
                               msg.type === 'sent' ? 'bg-brand-primary text-white rounded-tr-none' : 'bg-slate-50 text-brand-depth rounded-tl-none border border-slate-100'
                           }`}>
+                              {msg.type === 'sent' && !msg.isDeleted && (
+                                <div className="absolute -left-16 top-2 hidden group-hover:flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleEditMessage(msg)}
+                                    className="w-7 h-7 rounded-full bg-white text-brand-primary border border-slate-100 shadow-sm flex items-center justify-center hover:bg-brand-primary hover:text-white"
+                                    title="Tahrirlash"
+                                  >
+                                    <Edit3 size={12} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteMessage(msg)}
+                                    className="w-7 h-7 rounded-full bg-white text-rose-500 border border-slate-100 shadow-sm flex items-center justify-center hover:bg-rose-500 hover:text-white"
+                                    title="O'chirish"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              )}
                               <MessageBody msg={msg} />
                               <div className={`flex items-center justify-end gap-1 mt-1.5 ${msg.type === 'sent' ? 'text-white/60' : 'text-brand-muted'}`}>
+                                {msg.editedAt && !msg.isDeleted && <span className="text-[7px] md:text-[8px] font-black">tahrirlangan</span>}
                                 <span className="text-[7px] md:text-[8px] font-black">{msg.time}</span>
                                 {msg.type === 'sent' && (
                                     msg.status === 'read' ? <CheckCheck size={8} /> : <Check size={8} />
@@ -321,6 +388,25 @@ export const MessagesSection = () => {
 
               {/* Input Area */}
               <div className="p-3 md:p-5 lg:p-6 border-t border-slate-50 bg-white/80 backdrop-blur-md relative z-10">
+                {editingMessage && (
+                  <div className="mb-2 flex items-center justify-between rounded-2xl border border-brand-primary/20 bg-brand-primary/5 px-4 py-2">
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-brand-primary">Xabar tahrirlanmoqda</p>
+                      <p className="truncate text-[11px] font-bold text-brand-depth">{editingMessage.text}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingMessage(null);
+                        setChatMessage('');
+                      }}
+                      className="text-brand-muted hover:text-rose-500"
+                      title="Bekor qilish"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
                 {isRecording ? (
                   <div className="flex items-center gap-3 bg-red-50 border border-red-100 rounded-xl md:rounded-[1.8rem] px-4 py-1.5 md:py-3 transition-all">
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />

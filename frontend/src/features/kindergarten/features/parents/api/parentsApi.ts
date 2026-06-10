@@ -42,9 +42,27 @@ export const parentsApi = {
     const res = await apiClient.post('/messages', data);
     return res.data;
   },
+
+  editMessage: async (
+    id: string | number,
+    data: { userId: string; userRole: string; text: string }
+  ): Promise<ChatMessage> => {
+    const res = await apiClient.put(`/messages/${id}`, data);
+    return res.data;
+  },
+
+  deleteMessage: async (
+    id: string | number,
+    data: { userId: string; userRole: string }
+  ): Promise<ChatMessage> => {
+    const res = await apiClient.delete(`/messages/${id}`, { data });
+    return res.data;
+  },
   
-  getContacts: async (parentId: string): Promise<ChatContact[]> => {
-    const res = await apiClient.get(`/messages/contacts?parentId=${parentId}`);
+  getContacts: async (parentId: string, childId?: string): Promise<ChatContact[]> => {
+    const params = new URLSearchParams({ parentId });
+    if (childId) params.set('childId', childId);
+    const res = await apiClient.get(`/messages/contacts?${params.toString()}`);
     return res.data;
   },
   

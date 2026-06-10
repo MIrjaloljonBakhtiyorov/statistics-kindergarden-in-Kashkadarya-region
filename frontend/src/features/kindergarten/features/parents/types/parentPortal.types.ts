@@ -24,6 +24,9 @@ export interface ChatMessage {
   fileName?: string | null;
   mimeType?: string | null;
   time: string;
+  editedAt?: string | null;
+  deletedAt?: string | null;
+  isDeleted?: boolean;
   status: 'sent' | 'delivered' | 'read';
   type: 'sent' | 'received';
   senderRole: 'parent' | 'teacher' | 'admin';
