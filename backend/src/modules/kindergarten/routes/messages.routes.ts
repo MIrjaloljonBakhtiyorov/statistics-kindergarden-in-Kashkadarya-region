@@ -152,7 +152,7 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
     `, [kindergartenId, parentId, childId, childId]);
     const teacherId = child?.teacher_id || '';
     const teacherName = child?.teacher_name || '';
-    const staff = await all(`
+    const roleContacts = await all(`
       SELECT
         ra.id,
         COALESCE(NULLIF(ra.full_name, ''), ra.login) as full_name,
@@ -184,8 +184,93 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
       WHERE ra.kindergarten_id = ? AND ra.role IN ('TEACHER', 'OPERATOR', 'DIRECTOR')
       ORDER BY sort_priority, full_name
     `, [teacherId, teacherId, teacherName, teacherName, kindergartenId, parentId, parentId, parentId, kindergartenId]);
-    res.json(staff.map((row: any) => ({
-      id: row.id,
+
+    const staffContacts = await all(`
+      SELECT
+        s.id,
+        s.full_name,
+        'TEACHER' as role,
+        COALESCE(unread.unread_count, 0) as unread_count,
+        latest.text as last_message,
+        CASE
+          WHEN (? != '' AND s.id = ?) THEN 0
+          WHEN (? != '' AND LOWER(COALESCE(s.full_name, '')) = LOWER(?)) THEN 0
+          ELSE 1
+        END as sort_priority
+      FROM staff s
+      LEFT JOIN (
+        SELECT sender_id, COUNT(*) as unread_count
+        FROM messages
+        WHERE kindergarten_id = ? AND receiver_id = ? AND status != 'read' AND COALESCE(is_deleted, 0) = 0
+        GROUP BY sender_id
+      ) unread ON unread.sender_id = s.id
+      LEFT JOIN LATERAL (
+        SELECT text
+        FROM messages m
+        WHERE m.kindergarten_id = s.kindergarten_id
+          AND ((m.sender_id = s.id AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = s.id))
+          AND COALESCE(m.is_deleted, 0) = 0
+        ORDER BY m.created_at DESC
+        LIMIT 1
+      ) latest ON true
+      WHERE s.kindergarten_id = ?
+        AND (
+          (? != '' AND s.id = ?)
+          OR (? != '' AND s.group_id = ?)
+          OR (? != '' AND LOWER(COALESCE(s.full_name, '')) = LOWER(?))
+          OR (? = '' AND ? = '' AND (
+            LOWER(COALESCE(s.position, '')) LIKE '%educator%'
+            OR LOWER(COALESCE(s.position, '')) LIKE '%tarbiyachi%'
+          ))
+        )
+      ORDER BY sort_priority, full_name
+    `, [
+      teacherId, teacherId,
+      teacherName, teacherName,
+      kindergartenId, parentId,
+      parentId, parentId,
+      kindergartenId,
+      teacherId, teacherId,
+      child?.group_id || '', child?.group_id || '',
+      teacherName, teacherName,
+      teacherId, child?.group_id || '',
+    ]);
+
+    const director = await get<any>(`
+      SELECT
+        CAST(k.id AS TEXT) as id,
+        COALESCE(NULLIF(k.directorname, ''), k.username, k.name) as full_name,
+        'DIRECTOR' as role,
+        COALESCE(unread.unread_count, 0) as unread_count,
+        latest.text as last_message
+      FROM kindergartens k
+      LEFT JOIN (
+        SELECT sender_id, COUNT(*) as unread_count
+        FROM messages
+        WHERE kindergarten_id = ? AND receiver_id = ? AND status != 'read' AND COALESCE(is_deleted, 0) = 0
+        GROUP BY sender_id
+      ) unread ON unread.sender_id = CAST(k.id AS TEXT)
+      LEFT JOIN LATERAL (
+        SELECT text
+        FROM messages m
+        WHERE m.kindergarten_id = CAST(k.id AS TEXT)
+          AND ((m.sender_id = CAST(k.id AS TEXT) AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = CAST(k.id AS TEXT)))
+          AND COALESCE(m.is_deleted, 0) = 0
+        ORDER BY m.created_at DESC
+        LIMIT 1
+      ) latest ON true
+      WHERE CAST(k.id AS TEXT) = ?
+      LIMIT 1
+    `, [kindergartenId, parentId, parentId, parentId, kindergartenId]).catch(() => undefined);
+
+    const contactsById = new Map<string, any>();
+    [...roleContacts, ...staffContacts, ...(director ? [director] : [])].forEach((row: any) => {
+      if (!row?.id || contactsById.has(String(row.id))) return;
+      contactsById.set(String(row.id), row);
+    });
+
+    res.json(Array.from(contactsById.values()).map((row: any) => ({
+      id: String(row.id),
       name: row.full_name,
       role: row.role === 'TEACHER' ? 'teacher' : 'admin',
       unreadCount: Number(row.unread_count || 0),
