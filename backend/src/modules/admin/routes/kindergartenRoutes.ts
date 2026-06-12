@@ -4,6 +4,7 @@ import KindergartenController from '../controllers/kindergartenController.js';
 
 router.get('/', KindergartenController.getAll);
 router.get('/menus/all', KindergartenController.getMenus);
+router.get('/menus/compliance-statistics', KindergartenController.getMenuComplianceStatistics);
 router.get('/dishes/all', KindergartenController.getDishes);
 router.get('/medical-stock-alerts', KindergartenController.getMedicalStockAlerts);
 router.get('/alerts', KindergartenController.getAlerts);

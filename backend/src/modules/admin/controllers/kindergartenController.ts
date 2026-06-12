@@ -2706,6 +2706,203 @@ const KindergartenController = {
     });
   },
 
+  getMenuComplianceStatistics: async (req, res) => {
+    try {
+      const month = String(req.query.month || new Date().toISOString().slice(0, 7)).slice(0, 7);
+      if (!/^\d{4}-\d{2}$/.test(month)) {
+        return res.status(400).json({ error: 'Oy formati YYYY-MM bo‘lishi kerak' });
+      }
+
+      const startDate = `${month}-01`;
+      const endDate = new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0).toISOString().slice(0, 10);
+      const daysInMonth = Number(endDate.slice(8, 10));
+
+      const kindergartens = await all(`
+        SELECT id, name, district, type
+        FROM kindergartens
+        ORDER BY district, name
+      `);
+
+      const menuRows = await all(`
+        SELECT
+          m.id,
+          m.kindergarten_id,
+          m.date,
+          m.meal_name,
+          m.meal_type,
+          m.products,
+          m.composition,
+          m.is_approved,
+          k.name as kindergarten_name,
+          k.district as district,
+          kt.status as kitchen_status,
+          kt.nurse_quality_status,
+          kt.nurse_quality_comment
+        FROM menus m
+        LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(m.kindergarten_id AS TEXT)
+        LEFT JOIN kitchen_tasks kt ON CAST(kt.menu_id AS TEXT) = CAST(m.id AS TEXT)
+        WHERE m.date BETWEEN ? AND ?
+        ORDER BY m.date, k.district, k.name, m.meal_type
+      `, [startDate, endDate]);
+
+      const normalizeStatus = (row) => {
+        const comment = String(row.nurse_quality_comment || '').toLowerCase();
+        const quality = String(row.nurse_quality_status || row.kitchen_status || '').toLowerCase();
+        const text = `${quality} ${comment}`;
+
+        if (/(qoidabuz|xato|rad|reject|failed|bad|nosoz|talabga javob bermaydi)/i.test(text)) return 'violation';
+        if (/(taom|ovqat|o'rin|orin|boshqa|almashtirildi|meal)/i.test(comment)) return 'meal_replaced';
+        if (/(mahsulot|ingredient|product|zaxira|yetib kelmagan|go'sht|gosht|baliq|sut|yog')/i.test(comment)) return 'product_changed';
+        return 'full';
+      };
+
+      const statusPriority = { violation: 4, meal_replaced: 3, product_changed: 2, full: 1 };
+      const statusLabels = {
+        full: "To'liq moslik",
+        product_changed: 'Mahsulot almashtirilgan',
+        meal_replaced: "O'rin almashgan",
+        violation: 'Qoidabuzarlik',
+      };
+
+      const byKindergarten = new Map();
+      kindergartens.forEach((kg) => {
+        byKindergarten.set(String(kg.id), {
+          id: String(kg.id),
+          name: kg.name || `MTT ${kg.id}`,
+          district: kg.district || "Noma'lum tuman",
+          type: kg.type || '',
+          totalMenus: 0,
+          counts: { full: 0, product_changed: 0, meal_replaced: 0, violation: 0 },
+          days: Array.from({ length: daysInMonth }, (_, index) => ({
+            day: index + 1,
+            date: `${month}-${String(index + 1).padStart(2, '0')}`,
+            status: 'empty',
+            label: "Ma'lumot yo'q",
+            planned: '-',
+            actual: '-',
+            comment: '',
+            menus: 0,
+          })),
+        });
+      });
+
+      const dayBuckets = new Map();
+      menuRows.forEach((row) => {
+        const kgId = String(row.kindergarten_id || '');
+        const kg = byKindergarten.get(kgId);
+        if (!kg) return;
+        const day = Number(String(row.date || '').slice(8, 10));
+        if (!day || day > daysInMonth) return;
+        const key = `${kgId}:${row.date}`;
+        const status = normalizeStatus(row);
+        const current = dayBuckets.get(key) || {
+          status: 'full',
+          planned: [],
+          actual: [],
+          comments: [],
+          menus: 0,
+        };
+
+        if (statusPriority[status] > statusPriority[current.status]) current.status = status;
+        if (row.meal_name) current.planned.push(row.meal_name);
+        if (row.composition || row.products) current.actual.push(row.composition || row.products);
+        if (row.nurse_quality_comment) current.comments.push(row.nurse_quality_comment);
+        current.menus += 1;
+        dayBuckets.set(key, current);
+      });
+
+      dayBuckets.forEach((bucket, key) => {
+        const [kgId, date] = key.split(':');
+        const kg = byKindergarten.get(kgId);
+        if (!kg) return;
+        const dayIndex = Number(date.slice(8, 10)) - 1;
+        kg.totalMenus += bucket.menus;
+        kg.counts[bucket.status] += 1;
+        kg.days[dayIndex] = {
+          day: dayIndex + 1,
+          date,
+          status: bucket.status,
+          label: statusLabels[bucket.status],
+          planned: bucket.planned.slice(0, 3).join(', ') || '-',
+          actual: bucket.actual.slice(0, 3).join(', ') || bucket.planned.slice(0, 3).join(', ') || '-',
+          comment: bucket.comments[0] || '',
+          menus: bucket.menus,
+        };
+      });
+
+      const kindergartenStats = [...byKindergarten.values()].map((kg) => {
+        const activeDays = kg.counts.full + kg.counts.product_changed + kg.counts.meal_replaced + kg.counts.violation;
+        const compliancePercent = activeDays ? Math.round((kg.counts.full / activeDays) * 1000) / 10 : 0;
+        const riskScore = kg.counts.violation * 3 + kg.counts.meal_replaced * 2 + kg.counts.product_changed;
+        return { ...kg, activeDays, compliancePercent, riskScore };
+      });
+
+      const districtsMap = new Map();
+      kindergartenStats.forEach((kg) => {
+        const district = kg.district || "Noma'lum tuman";
+        const current = districtsMap.get(district) || {
+          name: district,
+          kindergartens: 0,
+          totalMenus: 0,
+          counts: { full: 0, product_changed: 0, meal_replaced: 0, violation: 0 },
+          compliancePercent: 0,
+        };
+        current.kindergartens += 1;
+        current.totalMenus += kg.totalMenus;
+        current.counts.full += kg.counts.full;
+        current.counts.product_changed += kg.counts.product_changed;
+        current.counts.meal_replaced += kg.counts.meal_replaced;
+        current.counts.violation += kg.counts.violation;
+        districtsMap.set(district, current);
+      });
+
+      const districts = [...districtsMap.values()].map((district) => {
+        const activeDays = district.counts.full + district.counts.product_changed + district.counts.meal_replaced + district.counts.violation;
+        return {
+          ...district,
+          activeDays,
+          compliancePercent: activeDays ? Math.round((district.counts.full / activeDays) * 1000) / 10 : 0,
+        };
+      }).sort((a, b) => a.name.localeCompare(b.name));
+
+      const rank = (sorter) => kindergartenStats
+        .filter((kg) => kg.activeDays > 0)
+        .sort(sorter)
+        .slice(0, 10)
+        .map((kg, index) => ({ rank: index + 1, id: kg.id, name: kg.name, district: kg.district, counts: kg.counts, compliancePercent: kg.compliancePercent, totalMenus: kg.totalMenus }));
+
+      res.json({
+        month,
+        startDate,
+        endDate,
+        daysInMonth,
+        summary: {
+          districts: districts.length,
+          kindergartens: kindergartenStats.length,
+          withMenuData: kindergartenStats.filter((kg) => kg.activeDays > 0).length,
+          totalMenus: menuRows.length,
+          counts: kindergartenStats.reduce((acc, kg) => {
+            acc.full += kg.counts.full;
+            acc.product_changed += kg.counts.product_changed;
+            acc.meal_replaced += kg.counts.meal_replaced;
+            acc.violation += kg.counts.violation;
+            return acc;
+          }, { full: 0, product_changed: 0, meal_replaced: 0, violation: 0 }),
+        },
+        districts,
+        kindergartens: kindergartenStats,
+        top: {
+          violations: rank((a, b) => b.counts.violation - a.counts.violation || b.riskScore - a.riskScore),
+          productChanges: rank((a, b) => b.counts.product_changed - a.counts.product_changed || b.riskScore - a.riskScore),
+          mealReplacements: rank((a, b) => b.counts.meal_replaced - a.counts.meal_replaced || b.riskScore - a.riskScore),
+          fullCompliance: rank((a, b) => b.compliancePercent - a.compliancePercent || b.counts.full - a.counts.full),
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message || 'Taomnoma statistikasi olinmadi' });
+    }
+  },
+
   getDishes: (req, res) => {
     db.all(`
       SELECT
