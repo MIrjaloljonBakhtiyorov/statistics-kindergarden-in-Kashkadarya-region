@@ -42,11 +42,15 @@ const DISTRICTS = [
 
 const COMPLIANCE_KPI = [
   { title: 'Oylik moslik', value: '88.4%', trend: '+2.1%', icon: ShieldCheck, color: 'text-indigo-600', bg: 'bg-indigo-50', shadow: 'shadow-indigo-100' },
-  { title: 'Yashil kunlar', value: '18', trend: 'A' , icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50', shadow: 'shadow-emerald-100' },
+  { title: 'Yashil kunlar', value: '19', trend: 'A' , icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50', shadow: 'shadow-emerald-100' },
   { title: 'Ko‘k (Almashgan)', value: '5', trend: 'B', icon: RefreshCcw, color: 'text-blue-600', bg: 'bg-blue-50', shadow: 'shadow-blue-100' },
   { title: 'Sariq (Ingredient)', value: '4', trend: 'C', icon: ArrowRightLeft, color: 'text-amber-600', bg: 'bg-amber-50', shadow: 'shadow-amber-100' },
   { title: 'Qizil (Xato)', value: '3', trend: 'D', icon: AlertOctagon, color: 'text-rose-600', bg: 'bg-rose-50', shadow: 'shadow-rose-100' },
 ];
+
+COMPLIANCE_KPI[2].value = '4';
+
+const SHARP_GREEN_DAYS = [5, 9, 21];
 
 const CALENDAR_DATA: DayData[] = Array.from({ length: 30 }, (_, i) => {
   const day = i + 1;
@@ -54,6 +58,7 @@ const CALENDAR_DATA: DayData[] = Array.from({ length: 30 }, (_, i) => {
   if ([5, 12, 19, 25, 28].includes(day)) status = 'blue';
   if ([8, 15, 22, 29].includes(day)) status = 'yellow';
   if ([10, 18, 27].includes(day)) status = 'red';
+  if (SHARP_GREEN_DAYS.includes(day)) status = 'green';
 
   const details = {
     green: { label: 'To‘liq moslik', icon: CheckCircle2, color: 'bg-emerald-500', text: 'text-emerald-600', border: 'border-emerald-100', bgLight: 'bg-emerald-50' },
@@ -66,6 +71,12 @@ const CALENDAR_DATA: DayData[] = Array.from({ length: 30 }, (_, i) => {
     day,
     status,
     ...details[status],
+    ...(SHARP_GREEN_DAYS.includes(day) ? {
+      color: 'bg-green-600',
+      text: 'text-green-700',
+      border: 'border-green-300',
+      bgLight: 'bg-green-100',
+    } : {}),
     reja: 'Mol go‘shtli palov, vitaminli salat, mevali choy',
     amalda: status === 'red' ? 'Moshxo‘rda, Non, Shakarli choy' : (status === 'yellow' ? 'Baliq (Go‘sht o‘rniga), Salat' : 'Mol go‘shtli palov, vitaminli salat, mevali choy'),
     sabab: status === 'red' ? 'Go‘sht mahsuloti yetib kelmagan' : (status === 'yellow' ? 'Tovuq go‘shti zaxirasi tugagan' : '-'),
@@ -244,7 +255,7 @@ export const MenuStatistics = () => {
                       <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">{timeRange} kunlik muvofiqlik kalendari</h2>
                       <div className="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-1.5">
                          <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-[8px] sm:text-[9px] font-black uppercase">
-                           Aprel 2026
+                           May 2026
                          </span>
                          <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest truncate">{selectedDistrict}</span>
                       </div>

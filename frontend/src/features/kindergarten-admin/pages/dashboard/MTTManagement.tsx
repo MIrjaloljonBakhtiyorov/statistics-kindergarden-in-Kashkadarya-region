@@ -166,6 +166,97 @@ const CredentialsModal = ({ item, onClose, onOpen }: { item: any; onClose: () =>
   );
 };
 
+const DeleteConfirmModal = ({
+  item,
+  isDeleting,
+  onClose,
+  onConfirm,
+}: {
+  item: any;
+  isDeleting: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) => {
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isDeleting) onClose();
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [isDeleting, onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex min-h-dvh items-center justify-center bg-slate-950/45 backdrop-blur-md p-4 sm:p-6"
+      onClick={() => !isDeleting && onClose()}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 18, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 12, scale: 0.98 }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
+        className="w-full max-w-[440px] overflow-hidden rounded-[24px] border border-white/80 bg-white shadow-2xl shadow-slate-950/25"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 pb-5 pt-6 sm:px-7">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 ring-1 ring-rose-100">
+              <Trash2 size={18} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">O'chirish</p>
+              <p className="truncate text-base font-black leading-tight text-slate-900">{item.name}</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            disabled={isDeleting}
+            className="shrink-0 rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="space-y-4 px-6 py-5 sm:px-7">
+          <p className="text-sm font-bold leading-6 text-slate-600">
+            Ushbu bog'chani o'chirishni tasdiqlaysizmi?
+          </p>
+          <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3">
+            <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">Tanlangan bog'cha</p>
+            <p className="mt-1 text-sm font-black text-slate-900">{item.name}</p>
+            <p className="mt-0.5 text-xs font-bold text-slate-500">{item.district || 'Tuman kiritilmagan'}</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 px-6 py-5 sm:flex-row sm:justify-end sm:px-7">
+          <button
+            onClick={onClose}
+            disabled={isDeleting}
+            className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-slate-100 disabled:opacity-50"
+          >
+            Bekor qilish
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isDeleting}
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-rose-600 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-600/20 transition-all hover:bg-rose-700 disabled:opacity-70"
+          >
+            {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+            O'chirish
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string; iconBg: string }> = {
   Public:  { label: 'Davlat',  color: 'text-blue-600',   bg: 'bg-blue-50 border-blue-100',   iconBg: 'bg-blue-600' },
   Private: { label: 'Xususiy', color: 'text-purple-600', bg: 'bg-purple-50 border-purple-100', iconBg: 'bg-purple-500' },
@@ -227,7 +318,7 @@ const DISTRICTS = [
   "Qarshi shahri", "Qarshi tumani", "Shahrisabz shahri", "Shahrisabz tumani",
   "Kitob tumani", "Koson tumani", "Muborak tumani", "G'uzor tumani",
   "Nishon tumani", "Dehqonobod tumani", "Qamashi tumani", "Chiroqchi tumani",
-  "Kasbi tumani", "Mirishkor tumani", "Yakkabog' tumani", "Beshkent tumani",
+  "Kasbi tumani", "Mirishkor tumani", "Yakkabog' tumani", "Ko'kdala tumani",
 ];
 
 const getChildrenCount = (item: any) => {
@@ -246,6 +337,8 @@ export const MTTManagement = () => {
   const [sortMode, setSortMode] = useState('type-group');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [credItem, setCredItem] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -269,14 +362,24 @@ export const MTTManagement = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
+  const handleDelete = (e: React.MouseEvent, item: any) => {
     e.stopPropagation();
-    if (!confirm("Ushbu bog'chani o'chirishni tasdiqlaysizmi?")) return;
+    setDeleteTarget(item);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget?.id) return;
     try {
-      await kindergartenApi.delete(id);
-      setData(d => (Array.isArray(d) ? d : []).filter(i => i.id !== id));
+      setIsDeleting(true);
+      await kindergartenApi.delete(deleteTarget.id);
+      setData(d => (Array.isArray(d) ? d : []).filter(i => i.id !== deleteTarget.id));
+      setDeleteTarget(null);
       toast.success("Bog'cha muvaffaqiyatli o'chirildi");
-    } catch { toast.error("O'chirishda xatolik yuz berdi"); }
+    } catch {
+      toast.error("O'chirishda xatolik yuz berdi");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const matchesWorkHoursFilter = (item: any) => {
@@ -331,6 +434,16 @@ export const MTTManagement = () => {
         />
       )}
       <AnimatePresence>
+        {deleteTarget && (
+          <DeleteConfirmModal
+            item={deleteTarget}
+            isDeleting={isDeleting}
+            onClose={() => !isDeleting && setDeleteTarget(null)}
+            onConfirm={confirmDelete}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
         {isModalOpen && (
           <YangiBogchaQoshishModal
             initialData={editData}
@@ -351,7 +464,10 @@ export const MTTManagement = () => {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              setEditData(null);
+              setIsModalOpen(true);
+            }}
             className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/25"
           >
             <Plus size={15} strokeWidth={2.5} /> Bog'cha qo'shish
@@ -604,7 +720,7 @@ export const MTTManagement = () => {
                               <Edit size={15} />
                             </button>
                             <button
-                              onClick={e => handleDelete(e, item.id)}
+                              onClick={e => handleDelete(e, item)}
                               className="p-2 bg-slate-50 border border-slate-100 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all"
                             >
                               <Trash2 size={15} />
@@ -661,6 +777,9 @@ export const MTTManagement = () => {
                         </button>
                         <button onClick={e => handleEdit(e, item)} className="p-1.5 rounded-lg text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 transition-all">
                           <Edit size={14} />
+                        </button>
+                        <button onClick={e => handleDelete(e, item)} className="p-1.5 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all">
+                          <Trash2 size={14} />
                         </button>
                         <StatusBadge status={item.status || 'Active'} />
                       </div>

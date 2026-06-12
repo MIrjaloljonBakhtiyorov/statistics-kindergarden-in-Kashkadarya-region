@@ -61,6 +61,31 @@ const LabView: React.FC = () => {
 
   const allLabChecksDone = LAB_CHECKLIST_ITEMS.every((_, i) => labChecklist[i]);
 
+  const updateTestResult = (key: keyof NonNullable<LabSample['test_results']>, value: string | number) => {
+    setNewSample((prev) => ({
+      ...prev,
+      test_results: {
+        ...(prev.test_results || {}),
+        [key]: value,
+      },
+    }));
+  };
+
+  const testStatusLabel = (value?: string | number | null) => {
+    if (value === 'PASS') return "Me'yorda";
+    if (value === 'WARNING') return 'Ogohlantirish';
+    if (value === 'FAIL') return "Og'ish bor";
+    if (value === undefined || value === null || value === '') return 'Kiritilmagan';
+    return String(value);
+  };
+
+  const testStatusTone = (value?: string | number | null) => {
+    if (value === 'PASS') return 'text-emerald-600 bg-emerald-50 border-emerald-100';
+    if (value === 'WARNING') return 'text-amber-600 bg-amber-50 border-amber-100';
+    if (value === 'FAIL') return 'text-rose-600 bg-rose-50 border-rose-100';
+    return 'text-slate-500 bg-slate-50 border-slate-100';
+  };
+
   useEffect(() => {
     fetchSamples();
     fetchKitchenTasks();
@@ -480,15 +505,17 @@ const LabView: React.FC = () => {
                         </h5>
                         <div className="space-y-4">
                           {[
-                            { label: 'pH Darajasi', value: selectedSample.test_results?.ph_level || '6.5', unit: 'pH' },
-                            { label: 'Bakterial Test', value: selectedSample.test_results?.bacterial_check || 'TOZA', status: 'PASS' },
-                            { label: 'Organoleptika', value: selectedSample.test_results?.organoleptic_check || 'ME\'YOR', status: 'PASS' }
+                            { label: 'pH Darajasi', value: selectedSample.test_results?.ph_level, unit: 'pH' },
+                            { label: 'Bakterial Test', value: selectedSample.test_results?.bacterial_check },
+                            { label: 'Organoleptika', value: selectedSample.test_results?.organoleptic_check }
                           ].map((item, i) => (
                             <div key={i} className="flex justify-between items-center">
                               <span className="text-[10px] font-bold text-brand-muted uppercase">{item.label}</span>
                               <div className="flex items-center gap-2">
-                                <span className="text-xs font-black text-brand-depth">{item.value} {item.unit}</span>
-                                {item.status === 'PASS' && <CheckCircle2 size={14} className="text-emerald-500" />}
+                                <span className={`px-2.5 py-1 rounded-lg border text-[10px] font-black uppercase ${testStatusTone(item.value)}`}>
+                                  {item.unit && item.value !== undefined && item.value !== null ? `${item.value} ${item.unit}` : testStatusLabel(item.value)}
+                                </span>
+                                {item.value === 'PASS' && <CheckCircle2 size={14} className="text-emerald-500" />}
                               </div>
                             </div>
                           ))}
@@ -502,10 +529,10 @@ const LabView: React.FC = () => {
                         </h5>
                         <div className="grid grid-cols-2 gap-4">
                           {[
-                            { label: 'Kkal', value: selectedSample.nutrition?.calories || '250' },
-                            { label: 'Oqsil', value: selectedSample.nutrition?.proteins || '12g' },
-                            { label: 'Yog\'', value: selectedSample.nutrition?.fats || '8g' },
-                            { label: 'Uglevod', value: selectedSample.nutrition?.carbs || '32g' }
+                            { label: 'Kkal', value: selectedSample.nutrition?.calories || 'Kiritilmagan' },
+                            { label: 'Oqsil', value: selectedSample.nutrition?.proteins || 'Kiritilmagan' },
+                            { label: 'Yog\'', value: selectedSample.nutrition?.fats || 'Kiritilmagan' },
+                            { label: 'Uglevod', value: selectedSample.nutrition?.carbs || 'Kiritilmagan' }
                           ].map((item, i) => (
                             <div key={i} className="text-center bg-white p-3 rounded-2xl shadow-sm border border-brand-primary/5">
                               <p className="text-[8px] font-black text-brand-muted uppercase mb-1">{item.label}</p>
@@ -629,6 +656,67 @@ const LabView: React.FC = () => {
                           <span className={`text-sm font-black uppercase tracking-tight ${labChecklist[i] ? 'text-emerald-700' : 'text-brand-depth'}`}>{text}</span>
                        </button>
                      ))}
+                  </div>
+
+                  <div className="rounded-[2rem] border border-slate-100 bg-slate-50/70 p-6 space-y-5">
+                    <div>
+                      <p className="text-[10px] font-black text-brand-primary uppercase tracking-widest flex items-center gap-2">
+                        <FlaskConical size={14} />
+                        Laborator va organoleptik natijalar
+                      </p>
+                      <p className="text-xs font-bold text-brand-muted mt-1">
+                        Bu qiymatlar saqlangandan keyin sinama kartasida real ko'rsatkich sifatida chiqadi.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <label className="space-y-2">
+                        <span className="text-[10px] font-black text-brand-muted uppercase tracking-widest">pH darajasi</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={newSample.test_results?.ph_level ?? ''}
+                          onChange={(event) => updateTestResult('ph_level', Number(event.target.value))}
+                          className="w-full bg-white border-2 border-transparent focus:border-brand-primary rounded-2xl p-4 text-sm font-black outline-none transition-all shadow-sm"
+                        />
+                      </label>
+
+                      <label className="space-y-2">
+                        <span className="text-[10px] font-black text-brand-muted uppercase tracking-widest">Bakterial test</span>
+                        <select
+                          value={newSample.test_results?.bacterial_check || 'PASS'}
+                          onChange={(event) => updateTestResult('bacterial_check', event.target.value)}
+                          className="w-full bg-white border-2 border-transparent focus:border-brand-primary rounded-2xl p-4 text-sm font-black outline-none transition-all shadow-sm"
+                        >
+                          <option value="PASS">Me'yorda</option>
+                          <option value="WARNING">Ogohlantirish</option>
+                          <option value="FAIL">Og'ish bor</option>
+                        </select>
+                      </label>
+
+                      <label className="space-y-2">
+                        <span className="text-[10px] font-black text-brand-muted uppercase tracking-widest">Organoleptika</span>
+                        <select
+                          value={newSample.test_results?.organoleptic_check || 'PASS'}
+                          onChange={(event) => updateTestResult('organoleptic_check', event.target.value)}
+                          className="w-full bg-white border-2 border-transparent focus:border-brand-primary rounded-2xl p-4 text-sm font-black outline-none transition-all shadow-sm"
+                        >
+                          <option value="PASS">Hidi, ta'mi, rangi me'yorda</option>
+                          <option value="FAIL">Ko'rsatkichlarda og'ish bor</option>
+                        </select>
+                      </label>
+                    </div>
+
+                    <label className="space-y-2 block">
+                      <span className="text-[10px] font-black text-brand-muted uppercase tracking-widest">Vizual ko'rik izohi</span>
+                      <textarea
+                        value={newSample.test_results?.visual_inspection || ''}
+                        onChange={(event) => updateTestResult('visual_inspection', event.target.value)}
+                        rows={3}
+                        className="w-full bg-white border-2 border-transparent focus:border-brand-primary rounded-2xl p-4 text-sm font-bold outline-none transition-all shadow-sm"
+                        placeholder="Masalan: tashqi ko'rinishi, konsistensiyasi va hidi me'yorda..."
+                      />
+                    </label>
                   </div>
 
                   <button 

@@ -298,27 +298,27 @@ export const MedicalStockReserve = () => {
               </table>
             </div>
             {!loading && filteredIssues.length > PAGE_SIZE && (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <div className="flex min-w-0 flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
+                <p className="shrink-0 text-[10px] font-black uppercase tracking-widest text-slate-400">
                   {safePage}-sahifa / {totalPages} sahifa
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex w-full min-w-0 items-center gap-2 sm:flex-1 sm:justify-end">
                   <button
                     type="button"
                     onClick={() => setPage((current) => Math.max(1, current - 1))}
                     disabled={safePage === 1}
-                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition disabled:cursor-not-allowed disabled:opacity-40 hover:border-slate-300"
+                    className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition disabled:cursor-not-allowed disabled:opacity-40 hover:border-slate-300"
                   >
                     <ChevronLeft size={14} />
                     Oldingi
                   </button>
-                  <div className="flex items-center gap-1">
+                  <div className="custom-scrollbar flex min-w-0 max-w-full flex-1 items-center gap-1 overflow-x-auto pb-2 whitespace-nowrap">
                     {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
                       <button
                         key={pageNumber}
                         type="button"
                         onClick={() => setPage(pageNumber)}
-                        className={`h-9 min-w-9 rounded-xl px-2 text-xs font-black transition ${
+                        className={`h-9 min-w-9 shrink-0 rounded-xl px-2 text-xs font-black transition ${
                           safePage === pageNumber
                             ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/10'
                             : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
@@ -332,7 +332,7 @@ export const MedicalStockReserve = () => {
                     type="button"
                     onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                     disabled={safePage === totalPages}
-                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition disabled:cursor-not-allowed disabled:opacity-40 hover:border-slate-300"
+                    className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition disabled:cursor-not-allowed disabled:opacity-40 hover:border-slate-300"
                   >
                     Keyingi
                     <ChevronRight size={14} />

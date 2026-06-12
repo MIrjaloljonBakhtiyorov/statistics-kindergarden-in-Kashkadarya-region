@@ -46,10 +46,17 @@ const emptyForm: DishForm = {
 
 const apiRoot = String(apiClient.defaults.baseURL || '').replace(/\/api\/?$/, '');
 
+const normalizeImageUrl = (value?: unknown) => {
+  const text = String(value || '').trim();
+  if (!text || ['null', 'undefined'].includes(text.toLowerCase())) return '';
+  return text;
+};
+
 const displayAssetUrl = (value?: string | null) => {
-  if (!value) return '';
-  if (value.startsWith('http') || value.startsWith('data:')) return value;
-  return `${apiRoot}${value}`;
+  const src = normalizeImageUrl(value);
+  if (!src) return '';
+  if (src.startsWith('http') || src.startsWith('data:') || src.startsWith('blob:')) return src;
+  return `${apiRoot}${src.startsWith('/') ? '' : '/'}${src}`;
 };
 
 const toNumber = (value: unknown) => {
@@ -57,7 +64,7 @@ const toNumber = (value: unknown) => {
   return Number.isFinite(numberValue) ? numberValue : 0;
 };
 
-const ingredientsText = (value: unknown) => {
+const ingredientsText = (value: unknown): string => {
   if (Array.isArray(value)) {
     return value
       .map((item) => {
@@ -86,6 +93,11 @@ const splitParagraphs = (value?: string) => String(value || '')
   .split(/\n+/)
   .map((item) => item.trim())
   .filter(Boolean);
+
+const getDishImages = (dish: any) => [
+  { src: normalizeImageUrl(dish?.image), label: 'Taom rasmi 1' },
+  { src: normalizeImageUrl(dish?.image_2), label: 'Taom rasmi 2' },
+].filter((image) => image.src);
 
 export const AqlvoyChefMenu: React.FC = () => {
   const [dishes, setDishes] = useState<any[]>([]);
@@ -419,39 +431,47 @@ export const AqlvoyChefMenu: React.FC = () => {
   );
 };
 
-const RecipeCard = ({ dish, onOpen, onEdit }: { dish: any; onOpen: () => void; onEdit: () => void }) => (
-  <article className="min-w-0 rounded-[8px] border border-stone-200 bg-[#fffdf6] p-3 shadow-sm hover:shadow-lg transition-shadow">
-    <button onClick={onOpen} className="w-full min-w-0 text-left">
-      <div className="flex items-center justify-between gap-2 text-stone-400 font-mono text-[10px]">
-        <span>RETSEPT KARTA</span>
-        <span className="truncate">{dish.category || 'NON'}</span>
-      </div>
-      <div className="mt-3 border-y border-stone-300 py-3 text-center">
-        <p className="text-[8px] font-black uppercase tracking-[0.25em] text-stone-500 truncate">-{dish.category || 'Taom'}-</p>
-        <h3 className="mt-2 text-base font-black uppercase tracking-[0.12em] text-stone-900 line-clamp-2 min-h-[2.5rem]">{dish.name}</h3>
-      </div>
-      <div className="grid grid-cols-4 gap-1.5 mt-4">
-        <BookMetric icon={Timer} label="Vaqti" value={dish.cook_time || '-'} />
-        <BookMetric icon={Thermometer} label="Harorati" value={dish.cook_temperature || '-'} />
-        <BookMetric icon={Utensils} label="Chiqishi" value={`${dish.output_1_3 || '-'}/${dish.output_3_7 || '-'}`} />
-        <BookMetric icon={Flame} label="Kkal" value={`${dish.kcal_1_3 || toNumber(dish.kcal)}/${dish.kcal_3_7 || '-'}`} />
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <FoodImageSlot src={dish.image} label="Taom rasmi 1" />
-        <FoodImageSlot src={dish.image_2} label="Taom rasmi 2" />
-      </div>
-      <p className="mt-4 text-xs font-serif leading-5 text-stone-600 line-clamp-3">{dish.technology || dish.vitamins || 'Tayyorlash texnologiyasi kiritilmagan'}</p>
-    </button>
-    <div className="mt-3">
-      <button onClick={onEdit} className="w-full h-10 rounded-xl bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-100">
-        <Edit3 size={15} /> Edit
+const RecipeCard = ({ dish, onOpen, onEdit }: { dish: any; onOpen: () => void; onEdit: () => void }) => {
+  const images = getDishImages(dish);
+
+  return (
+    <article className="min-w-0 rounded-[8px] border border-stone-200 bg-[#fffdf6] p-3 shadow-sm hover:shadow-lg transition-shadow">
+      <button onClick={onOpen} className="w-full min-w-0 text-left">
+        <div className="flex items-center justify-between gap-2 text-stone-400 font-mono text-[10px]">
+          <span>RETSEPT KARTA</span>
+          <span className="truncate">{dish.category || 'NON'}</span>
+        </div>
+        <div className="mt-3 border-y border-stone-300 py-3 text-center">
+          <p className="text-[8px] font-black uppercase tracking-[0.25em] text-stone-500 truncate">-{dish.category || 'Taom'}-</p>
+          <h3 className="mt-2 text-base font-black uppercase tracking-[0.12em] text-stone-900 line-clamp-2 min-h-[2.5rem]">{dish.name}</h3>
+        </div>
+        <div className="grid grid-cols-4 gap-1.5 mt-4">
+          <BookMetric icon={Timer} label="Vaqti" value={dish.cook_time || '-'} />
+          <BookMetric icon={Thermometer} label="Harorati" value={dish.cook_temperature || '-'} />
+          <BookMetric icon={Utensils} label="Chiqishi" value={`${dish.output_1_3 || '-'}/${dish.output_3_7 || '-'}`} />
+          <BookMetric icon={Flame} label="Kkal" value={`${dish.kcal_1_3 || toNumber(dish.kcal)}/${dish.kcal_3_7 || '-'}`} />
+        </div>
+        {images.length > 0 && (
+          <div className={`mt-4 grid gap-3 ${images.length === 1 ? 'max-w-[16rem] grid-cols-1 mx-auto' : 'grid-cols-2'}`}>
+            {images.map((image) => (
+              <FoodImageSlot key={image.label} src={image.src} label={image.label} />
+            ))}
+          </div>
+        )}
+        <p className="mt-4 text-xs font-serif leading-5 text-stone-600 line-clamp-3">{dish.technology || dish.vitamins || 'Tayyorlash texnologiyasi kiritilmagan'}</p>
       </button>
-    </div>
-  </article>
-);
+      <div className="mt-3">
+        <button onClick={onEdit} className="w-full h-10 rounded-xl bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-100">
+          <Edit3 size={15} /> Edit
+        </button>
+      </div>
+    </article>
+  );
+};
 
 const RecipeModal = ({ dish, onClose }: { dish: any; onClose: () => void }) => {
   const ingredients = splitParagraphs(ingredientsText(dish.ingredients));
+  const images = getDishImages(dish);
   return (
     <div className="fixed inset-0 z-[210] flex items-center justify-center p-3 sm:p-5">
       <div className="w-full max-w-7xl max-h-[94vh] overflow-y-auto bg-[#fffdf6] shadow-2xl border border-stone-300">
@@ -478,10 +498,13 @@ const RecipeModal = ({ dish, onClose }: { dish: any; onClose: () => void }) => {
               <div className="rounded-[8px] border border-stone-200 bg-white/60 p-5 font-serif text-base leading-8 text-stone-700 whitespace-pre-wrap">
                 {ingredients.length ? ingredients.join('\n') : 'Masalliqlar kiritilmagan'}
               </div>
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <BookFoodImage src={dish.image} alt={`${dish.name} rasmi 1`} label="Taom rasmi 1" />
-                <BookFoodImage src={dish.image_2} alt={`${dish.name} rasmi 2`} label="Taom rasmi 2" />
-              </div>
+              {images.length > 0 && (
+                <div className={`mt-8 grid gap-6 ${images.length === 1 ? 'max-w-xl grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
+                  {images.map((image) => (
+                    <BookFoodImage key={image.label} src={image.src} alt={`${dish.name} ${image.label}`} label={image.label} />
+                  ))}
+                </div>
+              )}
             </section>
 
             <section className="space-y-8">
@@ -521,31 +544,27 @@ const BookMetric = ({ label, value, icon: Icon }: { label: string; value: string
   </div>
 );
 
-const FoodImageSlot = ({ src, label }: { src?: string | null; label: string }) => (
-  <div className="h-24 border border-stone-200 bg-white flex items-center justify-center overflow-hidden">
-    {src ? (
-      <img src={displayAssetUrl(src)} alt={label} className="w-full h-full object-cover" />
-    ) : (
-      <div className="text-center px-3">
-        <Utensils className="mx-auto text-stone-300" size={24} />
-        <p className="mt-2 text-[9px] font-black uppercase tracking-widest text-stone-300">{label}</p>
-      </div>
-    )}
-  </div>
-);
+const FoodImageSlot = ({ src, label }: { src?: string | null; label: string }) => {
+  const imageSrc = normalizeImageUrl(src);
+  if (!imageSrc) return null;
 
-const BookFoodImage = ({ src, alt, label }: { src?: string | null; alt: string; label: string }) => (
-  <figure className="border border-stone-200 bg-white min-h-[260px] flex items-center justify-center overflow-hidden">
-    {src ? (
-      <img src={displayAssetUrl(src)} alt={alt} className="w-full h-full object-cover" />
-    ) : (
-      <figcaption className="text-center px-6">
-        <Utensils className="mx-auto text-stone-300" size={34} />
-        <p className="mt-3 text-[10px] font-black uppercase tracking-[0.25em] text-stone-300">{label}</p>
-      </figcaption>
-    )}
-  </figure>
-);
+  return (
+    <div className="h-28 sm:h-32 flex items-center justify-center overflow-hidden">
+      <img src={displayAssetUrl(imageSrc)} alt={label} className="w-full h-full object-contain" />
+    </div>
+  );
+};
+
+const BookFoodImage = ({ src, alt, label }: { src?: string | null; alt: string; label: string }) => {
+  const imageSrc = normalizeImageUrl(src);
+  if (!imageSrc) return null;
+
+  return (
+    <figure className="h-72 sm:h-80 flex items-center justify-center overflow-hidden">
+      <img src={displayAssetUrl(imageSrc)} alt={alt || label} className="w-full h-full object-contain" />
+    </figure>
+  );
+};
 
 const BookTextBlock = ({ title, text }: { title: string; text?: string }) => {
   const paragraphs = splitParagraphs(text);
@@ -588,9 +607,9 @@ const ImageField = ({
   <div>
     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</span>
     <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-      <div className="h-28 rounded-xl border border-dashed border-slate-200 bg-white overflow-hidden flex items-center justify-center">
+      <div className="h-32 rounded-xl border border-dashed border-slate-200 bg-transparent overflow-hidden flex items-center justify-center">
         {value ? (
-          <img src={displayAssetUrl(value)} alt={label} className="w-full h-full object-cover" />
+          <img src={displayAssetUrl(value)} alt={label} className="w-full h-full object-contain" />
         ) : (
           <div className="text-center">
             <Utensils className="mx-auto text-slate-300" size={24} />
@@ -599,16 +618,16 @@ const ImageField = ({
         )}
       </div>
       <div className="mt-3 flex gap-2">
-      <label className="h-12 px-4 rounded-2xl bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest flex items-center justify-center cursor-pointer border border-indigo-100">
-        {uploading ? 'Yuklanmoqda...' : value ? 'Rasmni almashtirish' : 'Rasm yuklash'}
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(event) => onUpload(event.target.files?.[0])}
-          disabled={uploading}
-        />
-      </label>
+        <label className="h-12 px-4 rounded-2xl bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest flex items-center justify-center cursor-pointer border border-indigo-100">
+          {uploading ? 'Yuklanmoqda...' : value ? 'Rasmni almashtirish' : 'Rasm yuklash'}
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(event) => onUpload(event.target.files?.[0])}
+            disabled={uploading}
+          />
+        </label>
         {value && (
           <button
             type="button"

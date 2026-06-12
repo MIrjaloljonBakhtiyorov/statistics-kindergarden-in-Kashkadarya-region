@@ -29,13 +29,13 @@ const DISTRICTS = [
   { name: "Kasbi", aliases: ["kasbi tumani"] },
   { name: "Mirishkor", aliases: ["mirishkor tumani"] },
   { name: "Yakkabog'", aliases: ["yakkabog' tumani", "yakkabog' tumani"] },
-  { name: "Beshkent", aliases: ["beshkent tumani"] },
+  { name: "Ko'kdala", aliases: ["ko'kdala tumani", "ko'kdala t."] },
 ];
 
 const normalizeText = (value: unknown) => String(value || '')
   .trim()
   .toLowerCase()
-  .replace(/[''`]/g, "'")
+  .replace(/[\u2018\u2019`]/g, "'")
   .replace(/gРІР‚Вuzor/g, "g'uzor")
   .replace(/gК»uzor/g, "g'uzor")
   .replace(/\s+/g, ' ');
@@ -44,6 +44,29 @@ const childCountOf = (kg: any) => {
   return toNumber(kg.actualChildrenCount ?? kg.childrenCount);
 };
 const attendancePercent = (attended: number, total: number) => total > 0 ? Math.round((attended / total) * 100) : 0;
+const formatCount = (value: unknown) => Number(value || 0).toLocaleString('uz-UZ');
+const matchesDistrict = (kgDistrict: unknown, district: { name: string; aliases: string[] }) => {
+  const normalized = normalizeText(kgDistrict);
+  if (!normalized) return false;
+  return [district.name, ...district.aliases].map(normalizeText).includes(normalized);
+};
+const formatDistrictTodayTitle = (label: unknown) => {
+  const name = String(label || '').trim();
+  if (!name) return "Bugungi ma'lumot";
+  if (name.endsWith('sh.')) return `${name.replace(/\s*sh\.$/, '')} shahridagi bugungi ma'lumot`;
+  if (name.endsWith('t.')) return `${name.replace(/\s*t\.$/, '')} tumanidagi bugungi ma'lumot`;
+  return `${name} tumanidagi bugungi ma'lumot`;
+};
+const attendanceBreakdownOf = (kg: any) => {
+  const children = childCountOf(kg);
+  const before930 = toNumber(kg.attendedBefore9);
+  const after930 = toNumber(kg.attendedAfter9);
+  const present = before930 + after930;
+  const explicitAbsent = toNumber(kg.absent);
+  const absent = Math.max(explicitAbsent, children - present, 0);
+
+  return { children, before930, after930, present, absent };
+};
 
 const KpiCard = ({ kpi }: { kpi: any }) => (
   <div className="bg-white border border-slate-100 rounded-2xl p-5 flex flex-col gap-3 shadow-sm relative overflow-hidden">
@@ -99,10 +122,10 @@ export const Overview = () => {
   }, []);
 
   const stats = useMemo(() => {
-    const totalChildren = kindergartens.reduce((sum, kg) => sum + childCountOf(kg), 0);
-    const totalBefore9 = kindergartens.reduce((sum, kg) => sum + toNumber(kg.attendedBefore9), 0);
-    const totalAfter9 = kindergartens.reduce((sum, kg) => sum + toNumber(kg.attendedAfter9), 0);
-    const totalAbsent = kindergartens.reduce((sum, kg) => sum + toNumber(kg.absent), 0);
+    const totalChildren = kindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).children, 0);
+    const totalBefore9 = kindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).before930, 0);
+    const totalAfter9 = kindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).after930, 0);
+    const totalAbsent = kindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).absent, 0);
     const typeCounts = {
       Public: kindergartens.filter(kg => kg.type === 'Public').length,
       Private: kindergartens.filter(kg => kg.type === 'Private').length,
@@ -110,28 +133,36 @@ export const Overview = () => {
     };
 
     const districtData = DISTRICTS.map((district) => {
-      const districtKindergartens = kindergartens.filter(kg => district.aliases.includes(normalizeText(kg.district)));
-      const districtChildren = districtKindergartens.reduce((sum, kg) => sum + childCountOf(kg), 0);
-      const districtBefore9 = districtKindergartens.reduce((sum, kg) => sum + toNumber(kg.attendedBefore9), 0);
+      const districtKindergartens = kindergartens.filter(kg => matchesDistrict(kg.district, district));
+      const districtStats = districtKindergartens.reduce((acc, kg) => {
+        const breakdown = attendanceBreakdownOf(kg);
+        acc.children += breakdown.children;
+        acc.before930 += breakdown.before930;
+        acc.after930 += breakdown.after930;
+        acc.present += breakdown.present;
+        acc.absent += breakdown.absent;
+        return acc;
+      }, { children: 0, before930: 0, after930: 0, present: 0, absent: 0 });
       return {
         name: district.name,
-        jami: districtChildren,
-        qabul: districtBefore9,
-        davomat: attendancePercent(districtBefore9, districtChildren),
+        jami: districtStats.children,
+        before930: districtStats.before930,
+        after930: districtStats.after930,
+        absent: districtStats.absent,
+        davomat: attendancePercent(districtStats.present, districtStats.children),
       };
     });
-    const districtsWithData = districtData.filter(d => d.jami > 0 || d.qabul > 0);
+    const districtsWithData = districtData.filter(d => d.jami > 0 || d.before930 > 0 || d.after930 > 0 || d.absent > 0);
 
     const bottomDistricts = kindergartens
       .map((kg) => {
-        const children = childCountOf(kg);
-        const attended = toNumber(kg.attendedBefore9);
+        const breakdown = attendanceBreakdownOf(kg);
         return {
           name: kg.name || "Noma'lum bog'cha",
           hudud: kg.district || "Noma'lum hudud",
-          kechikkan: toNumber(kg.attendedAfter9),
-          davomat: attendancePercent(attended, children),
-          hasAttendanceData: children > 0 && (attended > 0 || toNumber(kg.absent) > 0 || toNumber(kg.attendedAfter9) > 0),
+          kechikkan: breakdown.after930,
+          davomat: attendancePercent(breakdown.present, breakdown.children),
+          hasAttendanceData: breakdown.children > 0 && (breakdown.present > 0 || breakdown.absent > 0),
         };
       })
       .filter(item => item.hasAttendanceData)
@@ -139,9 +170,9 @@ export const Overview = () => {
       .slice(0, 5);
 
     const reportCounts = kindergartens.reduce((acc, kg) => {
-      const children = childCountOf(kg);
-      const pct = attendancePercent(toNumber(kg.attendedBefore9), children);
-      if (!children) return acc;
+      const breakdown = attendanceBreakdownOf(kg);
+      const pct = attendancePercent(breakdown.present, breakdown.children);
+      if (!breakdown.children) return acc;
       if (pct >= 90) acc.excellent += 1;
       else if (pct >= 75) acc.average += 1;
       else acc.low += 1;
@@ -209,10 +240,22 @@ export const Overview = () => {
 
         {/* Bar Chart */}
         <div className="lg:col-span-8 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">Tuman kesimida davomat</p>
-          <div className="w-full min-w-0">
-            <ResponsiveContainer width="100%" height={320} minWidth={0} minHeight={0}>
-              <BarChart data={stats.districtData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tuman kesimida kunlik bolalar davomati</p>
+              <p className="mt-1 text-[11px] font-bold text-slate-400">Jami bolalar va bugungi 09:30 chegarasi bo'yicha kelish holati</p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+              <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-slate-300" /> Jami</span>
+              <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" /> 09:30 gacha</span>
+              <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-amber-400" /> Keyin</span>
+              <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-rose-500" /> Kelmagan</span>
+            </div>
+          </div>
+          <div className="w-full min-w-0 overflow-x-auto">
+            <div className="min-w-[1120px]">
+              <ResponsiveContainer width="100%" height={340} minWidth={0} minHeight={0}>
+                <BarChart data={stats.districtData} margin={{ top: 8, right: 8, left: -10, bottom: 6 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis
                   dataKey="name"
@@ -222,14 +265,32 @@ export const Overview = () => {
                   tickLine={false}
                   tick={{ fill: '#94a3b8' }}
                 />
-                <YAxis fontSize={9} axisLine={false} tickLine={false} tick={{ fill: '#94a3b8' }} />
+                <YAxis
+                  fontSize={9}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#94a3b8' }}
+                  tickFormatter={(value) => Number(value || 0).toLocaleString('uz-UZ')}
+                />
                 <Tooltip
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontSize: '11px' }}
+                  formatter={(value, name) => [formatCount(value), name]}
+                  labelFormatter={formatDistrictTodayTitle}
                 />
-                <Bar dataKey="jami" name="Jami" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={14} />
-                <Bar dataKey="qabul" name="Qabul" fill="#10b981" radius={[4, 4, 0, 0]} barSize={14} />
-              </BarChart>
-            </ResponsiveContainer>
+                <Legend
+                  verticalAlign="top"
+                  height={28}
+                  iconType="circle"
+                  iconSize={8}
+                  formatter={(value) => <span style={{ color: '#64748b', fontSize: 11, fontWeight: 800 }}>{value}</span>}
+                />
+                <Bar dataKey="jami" name="Jami bolalar" fill="#cbd5e1" radius={[5, 5, 0, 0]} barSize={16} />
+                <Bar dataKey="before930" name="09:30 gacha kelgan" stackId="daily" fill="#10b981" radius={[0, 0, 5, 5]} barSize={18} />
+                <Bar dataKey="after930" name="09:30 dan keyin kelgan" stackId="daily" fill="#f59e0b" barSize={18} />
+                <Bar dataKey="absent" name="Kelmaganlar" stackId="daily" fill="#f43f5e" radius={[5, 5, 0, 0]} barSize={18} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
