@@ -10,6 +10,7 @@ import { RatingAudit } from './pages/dashboard/RatingAudit';
 import { WarehouseCommandCenter } from './pages/dashboard/WarehouseCommandCenter';
 import { MedicalStockReserve } from './pages/dashboard/MedicalStockReserve';
 import { MTTManagement } from './pages/dashboard/MTTManagement';
+import { KindergartenInspection } from './pages/dashboard/KindergartenInspection';
 import { AIInsights } from './pages/dashboard/AIInsights';
 import { FinancialAnalytics } from './pages/dashboard/FinancialAnalytics';
 import { MenuStatistics } from './pages/dashboard/MenuStatistics';
@@ -75,6 +76,7 @@ export default function App() {
           <Route path="aqlvoy-chef-menu" element={<AqlvoyChefMenu />} />
           <Route path="rating" element={<RatingAudit />} />
           <Route path="kindergartens" element={<MTTManagement />} />
+          <Route path="kindergarten-inspection" element={<KindergartenInspection />} />
           <Route path="ai-insights" element={<AIInsights />} />
           <Route path="warehouse" element={<WarehouseCommandCenter />} />
           <Route path="medical-stock" element={<MedicalStockReserve />} />
