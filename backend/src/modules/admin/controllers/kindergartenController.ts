@@ -53,6 +53,234 @@ const ensureAdminWarehousePurchasesTable = async () => {
   await run('CREATE INDEX IF NOT EXISTS idx_admin_warehouse_purchases_district ON admin_warehouse_purchases(date, district)');
 };
 
+const ensureKindergartenInspectionsTable = async () => {
+  await run(`CREATE TABLE IF NOT EXISTS admin_kindergarten_inspections (
+    id TEXT PRIMARY KEY,
+    kindergarten_id TEXT NOT NULL,
+    kindergarten_name TEXT,
+    region TEXT DEFAULT 'Qashqadaryo',
+    district TEXT,
+    inspection_date TEXT NOT NULL,
+    act_number TEXT,
+    act_file_url TEXT,
+    act_file_name TEXT,
+    act_file_type TEXT,
+    inspector_full_name TEXT NOT NULL,
+    inspector_organization TEXT,
+    inspector_specialty TEXT,
+    inspector_position TEXT,
+    inspector_birth_year TEXT,
+    inspector_passport TEXT,
+    inspector_phone TEXT,
+    checks_json TEXT NOT NULL,
+    summary TEXT,
+    overall_status TEXT DEFAULT 'needs_attention',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+  await run('CREATE INDEX IF NOT EXISTS idx_admin_kindergarten_inspections_kindergarten ON admin_kindergarten_inspections(kindergarten_id)');
+  await run('CREATE INDEX IF NOT EXISTS idx_admin_kindergarten_inspections_district ON admin_kindergarten_inspections(district)');
+  await run('CREATE INDEX IF NOT EXISTS idx_admin_kindergarten_inspections_date ON admin_kindergarten_inspections(inspection_date DESC)');
+};
+
+const parseInspectionChecks = (value) => {
+  try {
+    const parsed = JSON.parse(value || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const escapeHtml = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+const inspectionStatusLabel = (value) => ({
+  excellent: 'Yaxshi',
+  needs_attention: 'Nazoratda',
+  critical: 'Kritik',
+}[String(value || '')] || 'Nazoratda');
+
+const checkStatusLabel = (value) => ({
+  passed: 'Talabga javob beradi',
+  attention: "E'tibor kerak",
+  failed: 'Kamchilik bor',
+}[String(value || '')] || "E'tibor kerak");
+
+const inspectionValue = (value) => {
+  const text = String(value ?? '').trim();
+  return text || "Kiritilmagan";
+};
+
+const formatInspectionTimestamp = (value) => {
+  if (!value) return "Kiritilmagan";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    const plain = String(value).trim();
+    return plain || "Kiritilmagan";
+  }
+  return date.toLocaleString('uz-UZ', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+const buildInspectionDocName = (row) => {
+  const district = String(row?.district || 'tuman').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const date = normalizeDate(row?.inspection_date).replace(/-/g, '');
+  const actNumber = String(row?.act_number || row?.id || 'dalolatnoma').replace(/[^a-zA-Z0-9_-]+/g, '-');
+  return `dalolatnoma-${district || 'tuman'}-${date}-${actNumber}.doc`;
+};
+
+const buildInspectionWordHtml = (row) => {
+  const checks = parseInspectionChecks(row?.checks_json);
+  const createdAt = formatInspectionTimestamp(row?.created_at);
+  const checksRows = checks.map((check, index) => `
+    <tr>
+      <td style="border:1px solid #111;padding:8px;text-align:center;">${index + 1}</td>
+      <td style="border:1px solid #111;padding:8px;">${escapeHtml(check.title || check.key || '-')}</td>
+      <td style="border:1px solid #111;padding:8px;">${escapeHtml(checkStatusLabel(check.status))}</td>
+      <td style="border:1px solid #111;padding:8px;">${escapeHtml(check.note || '-')}</td>
+    </tr>
+  `).join('');
+
+  return `<!DOCTYPE html>
+  <html xmlns:o="urn:schemas-microsoft-com:office:office"
+        xmlns:w="urn:schemas-microsoft-com:office:word"
+        xmlns="http://www.w3.org/TR/REC-html40">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dalolatnoma</title>
+    <style>
+      @page { margin: 20mm 18mm 18mm 18mm; }
+      body { font-family: "Times New Roman", serif; color: #111; font-size: 12pt; line-height: 1.35; }
+      h1, h2, h3, p { margin: 0 0 10px; }
+      table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+      th { background: #f1f5f9; font-weight: bold; }
+      .header-table td { border: 0; padding: 0; vertical-align: top; }
+      .meta-table td { border: 1px solid #111; padding: 8px; vertical-align: top; }
+      .section-title { margin-top: 20px; font-size: 14pt; font-weight: bold; text-transform: uppercase; }
+      .muted { color: #475569; font-size: 10pt; }
+      .stamp { border: 2px solid #111; padding: 10px; text-align: center; font-weight: bold; }
+      .signature td { border: 0; padding: 18px 8px 0; vertical-align: top; }
+    </style>
+  </head>
+  <body>
+    <table class="header-table">
+      <tr>
+        <td style="width:68%;">
+          <p style="font-weight:bold;text-transform:uppercase;">Qashqadaryo viloyati maktabgacha ta'lim tashkilotlari monitoringi</p>
+          <p class="muted">Bog'cha inspeksiyasi bo'yicha elektron shakllantirilgan dalolatnoma</p>
+        </td>
+        <td style="width:32%;">
+          <div class="stamp">DALOLATNOMA<br/>${escapeHtml(inspectionValue(row?.act_number))}</div>
+        </td>
+      </tr>
+    </table>
+
+    <h1 style="text-align:center;margin-top:22px;">BOG'CHA INSPEKSIYASI DALOLATNOMASI</h1>
+    <p style="text-align:center;"><strong>Viloyat:</strong> ${escapeHtml(row?.region || 'Qashqadaryo')} | <strong>Tuman/shahar:</strong> ${escapeHtml(inspectionValue(row?.district))}</p>
+    <p style="text-align:center;"><strong>Tekshirilgan MTT:</strong> ${escapeHtml(inspectionValue(row?.kindergarten_name))}</p>
+
+    <table class="meta-table">
+      <tr>
+        <td><strong>Dalolatnoma raqami</strong><br/>${escapeHtml(inspectionValue(row?.act_number))}</td>
+        <td><strong>Inspeksiya sanasi</strong><br/>${escapeHtml(inspectionValue(normalizeDate(row?.inspection_date)))}</td>
+      </tr>
+      <tr>
+        <td><strong>Umumiy holat</strong><br/>${escapeHtml(inspectionStatusLabel(row?.overall_status))}</td>
+        <td><strong>Yaratilgan vaqti</strong><br/>${escapeHtml(createdAt)}</td>
+      </tr>
+    </table>
+
+    <h2 class="section-title">Tekshiruvchi ma'lumotlari</h2>
+    <table class="meta-table">
+      <tr>
+        <td style="width:50%;"><strong>F.I.Sh</strong><br/>${escapeHtml(inspectionValue(row?.inspector_full_name))}</td>
+        <td style="width:50%;"><strong>Tashkilot vakilligi</strong><br/>${escapeHtml(inspectionValue(row?.inspector_organization))}</td>
+      </tr>
+      <tr>
+        <td><strong>Mutaxassisligi</strong><br/>${escapeHtml(inspectionValue(row?.inspector_specialty))}</td>
+        <td><strong>Lavozimi</strong><br/>${escapeHtml(inspectionValue(row?.inspector_position))}</td>
+      </tr>
+      <tr>
+        <td><strong>Tug'ilgan yili</strong><br/>${escapeHtml(inspectionValue(row?.inspector_birth_year))}</td>
+        <td><strong>Telefon</strong><br/>${escapeHtml(inspectionValue(row?.inspector_phone))}</td>
+      </tr>
+      <tr>
+        <td colspan="2"><strong>Pasport ma'lumotlari</strong><br/>${escapeHtml(inspectionValue(row?.inspector_passport))}</td>
+      </tr>
+    </table>
+
+    <h2 class="section-title">Nazorat natijalari</h2>
+    <table>
+      <tr>
+        <th style="border:1px solid #111;padding:8px;width:48px;">T/r</th>
+        <th style="border:1px solid #111;padding:8px;">Bo'lim</th>
+        <th style="border:1px solid #111;padding:8px;width:190px;">Holat</th>
+        <th style="border:1px solid #111;padding:8px;">Izoh</th>
+      </tr>
+      ${checksRows || `<tr><td colspan="4" style="border:1px solid #111;padding:8px;">Nazorat ma'lumotlari kiritilmagan</td></tr>`}
+    </table>
+
+    <h2 class="section-title">Umumiy xulosa</h2>
+    <p>${escapeHtml(inspectionValue(row?.summary || "Umumiy xulosa kiritilmagan."))}</p>
+
+    <table class="signature" style="margin-top:28px;">
+      <tr>
+        <td style="width:50%;">
+          <strong>Tekshiruvchi:</strong><br/>
+          ${escapeHtml(inspectionValue(row?.inspector_full_name))}<br/>
+          ${escapeHtml(inspectionValue(row?.inspector_position))}<br/><br/>
+          Imzo: ______________________
+        </td>
+        <td style="width:50%;">
+          <strong>MTT vakili:</strong><br/>
+          ${escapeHtml(inspectionValue(row?.kindergarten_name))}<br/><br/><br/>
+          Imzo: ______________________
+        </td>
+      </tr>
+    </table>
+
+    <p class="muted" style="margin-top:20px;">Ushbu hujjat admin paneldagi inspeksiya arxividan avtomatik shakllantirildi.</p>
+  </body>
+  </html>`;
+};
+
+const serializeInspectionRow = (row) => ({
+  id: row.id,
+  kindergartenId: row.kindergarten_id,
+  kindergartenName: row.kindergarten_name,
+  region: row.region,
+  district: row.district,
+  inspectionDate: row.inspection_date,
+  actNumber: row.act_number,
+  actFileUrl: row.act_file_url,
+  actFileName: row.act_file_name,
+  actFileType: row.act_file_type,
+  inspector: {
+    fullName: row.inspector_full_name,
+    organization: row.inspector_organization,
+    specialty: row.inspector_specialty,
+    position: row.inspector_position,
+    birthYear: row.inspector_birth_year,
+    passport: row.inspector_passport,
+    phone: row.inspector_phone,
+  },
+  checks: parseInspectionChecks(row.checks_json),
+  summary: row.summary,
+  overallStatus: row.overall_status,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+});
+
 const toCount = (value) => {
   if (value === '' || value == null) return 0;
   const numberValue = Number(value);
@@ -1689,6 +1917,206 @@ const KindergartenController = {
     });
   },
 
+  getInspections: async (req, res) => {
+    try {
+      await ensureKindergartenInspectionsTable();
+      const filters = [];
+      const params = [];
+      const requestedMonth = String(req.query.month || '').trim();
+      const selectedMonth = /^\d{4}-\d{2}$/.test(requestedMonth)
+        ? requestedMonth
+        : new Date().toISOString().slice(0, 7);
+
+      if (req.query.district) {
+        filters.push('LOWER(TRIM(district)) = LOWER(TRIM(?))');
+        params.push(String(req.query.district));
+      }
+
+      if (req.query.kindergartenId) {
+        filters.push('CAST(kindergarten_id AS TEXT) = CAST(? AS TEXT)');
+        params.push(String(req.query.kindergartenId));
+      }
+
+      if (req.query.search) {
+        const term = `%${String(req.query.search).trim().toLowerCase()}%`;
+        filters.push(`(
+          LOWER(COALESCE(kindergarten_name, '')) LIKE ?
+          OR LOWER(COALESCE(district, '')) LIKE ?
+          OR LOWER(COALESCE(inspector_full_name, '')) LIKE ?
+          OR LOWER(COALESCE(act_number, '')) LIKE ?
+        )`);
+        params.push(term, term, term, term);
+      }
+
+      if (/^\d{4}-\d{2}$/.test(requestedMonth)) {
+        filters.push(`SUBSTR(COALESCE(inspection_date, ''), 1, 7) = ?`);
+        params.push(requestedMonth);
+      }
+
+      const where = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+      const rows = await all(
+        `SELECT * FROM admin_kindergarten_inspections
+         ${where}
+         ORDER BY inspection_date DESC, created_at DESC
+         LIMIT 400`,
+        params
+      );
+
+      const monthlySummary = await all(
+        `SELECT
+           COALESCE(district, 'Tuman kiritilmagan') as district,
+           COUNT(*) as entries,
+           COUNT(DISTINCT kindergarten_id) as kindergarten_count,
+           SUM(CASE WHEN overall_status = 'critical' THEN 1 ELSE 0 END) as critical_count,
+           SUM(CASE WHEN overall_status = 'needs_attention' THEN 1 ELSE 0 END) as attention_count,
+           SUM(CASE WHEN overall_status = 'excellent' THEN 1 ELSE 0 END) as excellent_count
+         FROM admin_kindergarten_inspections
+         WHERE SUBSTR(COALESCE(inspection_date, ''), 1, 7) = ?
+         GROUP BY COALESCE(district, 'Tuman kiritilmagan')
+         ORDER BY entries DESC, district ASC`,
+        [selectedMonth]
+      );
+
+      const availableMonths = await all(
+        `SELECT SUBSTR(COALESCE(inspection_date, ''), 1, 7) as month, COUNT(*) as entries
+         FROM admin_kindergarten_inspections
+         WHERE COALESCE(inspection_date, '') != ''
+         GROUP BY SUBSTR(COALESCE(inspection_date, ''), 1, 7)
+         ORDER BY month DESC
+         LIMIT 24`
+      );
+
+      res.json({
+        entries: rows.map(serializeInspectionRow),
+        selectedMonth,
+        monthlySummary: monthlySummary.map((row) => ({
+          district: row.district,
+          entries: Number(row.entries || 0),
+          kindergartenCount: Number(row.kindergarten_count || 0),
+          criticalCount: Number(row.critical_count || 0),
+          attentionCount: Number(row.attention_count || 0),
+          excellentCount: Number(row.excellent_count || 0),
+        })),
+        availableMonths: availableMonths.map((row) => ({
+          month: row.month,
+          entries: Number(row.entries || 0),
+        })),
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  downloadInspectionWord: async (req, res) => {
+    try {
+      await ensureKindergartenInspectionsTable();
+      const row = await get('SELECT * FROM admin_kindergarten_inspections WHERE id = ?', [String(req.params.id)]);
+      if (!row) return res.status(404).json({ error: 'Dalolatnoma topilmadi' });
+
+      const fileName = buildInspectionDocName(row);
+      const documentHtml = buildInspectionWordHtml(row);
+
+      res.setHeader('Content-Type', 'application/msword; charset=utf-8');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${fileName.replace(/"/g, '')}"; filename*=UTF-8''${encodeURIComponent(fileName)}`
+      );
+
+      res.status(200).send(documentHtml);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  createInspection: async (req, res) => {
+    try {
+      await ensureKindergartenInspectionsTable();
+      const kindergartenId = String(req.body.kindergartenId || req.body.kindergarten_id || '').trim();
+      const inspector = req.body.inspector || {};
+      const inspectorFullName = String(inspector.fullName || inspector.full_name || '').trim();
+      const inspectorOrganization = String(inspector.organization || '').trim();
+      const inspectorSpecialty = String(inspector.specialty || '').trim();
+      const inspectorPosition = String(inspector.position || '').trim();
+      const inspectorBirthYear = String(inspector.birthYear || inspector.birth_year || '').trim();
+      const inspectorPassport = String(inspector.passport || '').trim();
+      const inspectorPhone = String(inspector.phone || '').trim();
+
+      if (!kindergartenId) return res.status(400).json({ error: 'Bogcha tanlanishi shart' });
+      if (!inspectorFullName) return res.status(400).json({ error: 'Inspektor F.I.Sh kiritilishi shart' });
+      if (!inspectorOrganization || !inspectorSpecialty || !inspectorPosition || !inspectorBirthYear || !inspectorPassport || !inspectorPhone) {
+        return res.status(400).json({ error: "Tekshiruvchi haqidagi barcha ma'lumotlar to'liq kiritilishi shart" });
+      }
+
+      const kindergarten = await get(
+        `SELECT id, name, region, district FROM kindergartens WHERE CAST(id AS TEXT) = CAST(? AS TEXT)`,
+        [kindergartenId]
+      );
+      if (!kindergarten) return res.status(404).json({ error: 'Bogcha topilmadi' });
+
+      const id = crypto.randomUUID();
+      const checks = Array.isArray(req.body.checks) ? req.body.checks : [];
+      const inspectionDate = normalizeDate(req.body.inspectionDate || req.body.inspection_date);
+
+      await run(
+        `INSERT INTO admin_kindergarten_inspections (
+          id, kindergarten_id, kindergarten_name, region, district, inspection_date,
+          act_number, act_file_url, act_file_name, act_file_type,
+          inspector_full_name, inspector_organization, inspector_specialty,
+          inspector_position, inspector_birth_year, inspector_passport, inspector_phone,
+          checks_json, summary, overall_status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id,
+          kindergartenId,
+          kindergarten.name || req.body.kindergartenName || null,
+          req.body.region || kindergarten.region || 'Qashqadaryo',
+          req.body.district || kindergarten.district || null,
+          inspectionDate,
+          req.body.actNumber || req.body.act_number || null,
+          req.body.actFileUrl || req.body.act_file_url || null,
+          req.body.actFileName || req.body.act_file_name || null,
+          req.body.actFileType || req.body.act_file_type || null,
+          inspectorFullName,
+          inspectorOrganization,
+          inspectorSpecialty,
+          inspectorPosition,
+          inspectorBirthYear,
+          inspectorPassport,
+          inspectorPhone,
+          JSON.stringify(checks),
+          req.body.summary || null,
+          req.body.overallStatus || req.body.overall_status || 'needs_attention',
+        ]
+      );
+
+      const row = await get('SELECT * FROM admin_kindergarten_inspections WHERE id = ?', [id]);
+      try {
+        await recordAdminAlertEvent({
+          eventType: 'KINDERGARTEN_INSPECTION_CREATED',
+          category: 'inspection',
+          status: row.overall_status === 'critical' ? 'error' : 'update',
+          title: `Bog'cha inspeksiyasi: ${row.kindergarten_name}`,
+          context: `${row.district || 'Tuman kiritilmagan'} | ${row.inspection_date} | ${row.inspector_full_name}`,
+          actor: row.inspector_full_name,
+          entityType: 'inspection',
+          entityId: row.id,
+          actionUrl: '/admin/kindergarten-inspection',
+          details: [
+            { label: 'Dalolatnoma', value: row.act_number || 'Kiritilmagan' },
+            { label: 'Tashkilot', value: row.inspector_organization || 'Kiritilmagan' },
+            { label: 'Holat', value: row.overall_status || 'needs_attention' },
+          ],
+        });
+      } catch (eventError) {
+        console.error('Inspection alert event error:', eventError.message);
+      }
+
+      res.status(201).json(serializeInspectionRow(row));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
   getDailyDistrictExpenses: async (req, res) => {
     const date = normalizeDate(req.query.date);
     try {
@@ -2005,7 +2433,7 @@ const KindergartenController = {
       const filter = String(req.query.filter || 'all').toLowerCase();
       const search = String(req.query.search || '').trim().toLowerCase();
 
-      const [eventRows, menuRows, medicalReport] = await Promise.all([
+      const [eventRows, menuRows, medicalOperationRows, medicalReport] = await Promise.all([
         all(`
           SELECT *
           FROM admin_alert_events
@@ -2025,6 +2453,19 @@ const KindergartenController = {
           GROUP BY m.date
           ORDER BY MIN(COALESCE(m.created_at, CURRENT_TIMESTAMP)) DESC, m.date DESC
           LIMIT 500
+        `),
+        all(`
+          SELECT
+            o.*,
+            k.name as kindergarten_name,
+            k.district,
+            k.phone
+          FROM operations_log o
+          LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(o.kindergarten_id AS TEXT)
+          WHERE o.entity_type = 'medical_inventory'
+            AND COALESCE(o.is_archived, 0) = 0
+          ORDER BY o.created_at DESC
+          LIMIT 1000
         `),
         buildMedicalStockReport(),
       ]);
@@ -2052,6 +2493,34 @@ const KindergartenController = {
         EXPIRING: 'muddati yaqin',
         NOT_ENTERED: 'zaxirasi kiritilmagan',
       };
+
+      const medicalOperationAlerts = medicalOperationRows.map((row) => {
+        const operationType = String(row.operation_type || '').toUpperCase();
+        const isCreate = operationType === 'CREATE';
+        return {
+          id: `medical-operation-${row.id}`,
+          status: isCreate ? 'success' : 'update',
+          category: 'medical',
+          iconKey: 'medical',
+          title: isCreate
+            ? `Dori-darmon yozuvi qo'shildi: ${row.entity_name || 'Noma\'lum dori'}`
+            : `Dori-darmon ma'lumoti yangilandi: ${row.entity_name || 'Noma\'lum dori'}`,
+          context: `${row.kindergarten_name || 'Bogcha topilmadi'} | ${row.district || 'Tuman kiritilmagan'}`,
+          actor: 'Hamshira / Dorixona',
+          createdAt: toIsoTimestamp(row.created_at, generatedAt),
+          actionUrl: '/admin/medical-stock',
+          eventType: `MEDICAL_${operationType || 'UPDATE'}`,
+          entityType: row.entity_type,
+          entityId: row.id,
+          details: [
+            { label: 'Bogcha', value: row.kindergarten_name || 'Kiritilmagan' },
+            { label: 'Dori', value: row.entity_name || 'Kiritilmagan' },
+            { label: 'Amal', value: operationType || 'UPDATE' },
+            { label: 'Izoh', value: row.description || 'Kiritilmagan' },
+            { label: 'Telefon', value: row.phone || 'Kiritilmagan' },
+          ],
+        };
+      });
 
       const medicalAlerts = medicalReport.issues
         .filter((item) => item.status !== 'NOT_ENTERED')
@@ -2100,7 +2569,7 @@ const KindergartenController = {
         ],
       }));
 
-      const alerts = [...eventAlerts, ...medicalAlerts, ...menuAlerts].sort(
+      const alerts = [...eventAlerts, ...medicalOperationAlerts, ...medicalAlerts, ...menuAlerts].sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
@@ -2747,3 +3216,6 @@ const KindergartenController = {
 };
 
 export default KindergartenController;
+export const generateTenDayMenus = async (req, res) => {
+  return KindergartenController.createTenDayMenus(req, res);
+};
