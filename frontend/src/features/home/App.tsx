@@ -115,15 +115,15 @@ export default function App() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white/95 backdrop-blur-sm p-6 rounded-[2rem] shadow-2xl border border-slate-100 min-w-[200px] relative z-[100]">
-          <p className="font-black text-slate-900 text-lg mb-3 border-b border-slate-100 pb-3">{label}</p>
+        <div className="bg-white/95 backdrop-blur-sm p-6 rounded-[2rem] shadow-2xl border border-slate-100 min-w-[200px] relative z-[100] dark:bg-slate-900/95 dark:border-slate-700">
+          <p className="font-black text-slate-900 text-lg mb-3 border-b border-slate-100 pb-3 dark:text-white dark:border-slate-700">{label}</p>
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center justify-between gap-6 py-2">
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color || entry.fill }}></div>
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{entry.name}</span>
               </div>
-              <span className="text-base font-black text-slate-900">{entry.value}{entry.name.toLowerCase().includes('davomat') ? '%' : ''}</span>
+              <span className="text-base font-black text-slate-900 dark:text-white">{entry.value}{entry.name.toLowerCase().includes('davomat') ? '%' : ''}</span>
             </div>
           ))}
         </div>
@@ -135,7 +135,7 @@ export default function App() {
   const isLoginPage = location.pathname === '/login';
 
   return (
-    <div className="min-h-screen bg-white transition-colors duration-700">
+    <div className="min-h-screen bg-white text-slate-950 transition-colors duration-700 dark:bg-slate-950 dark:text-slate-100">
       {!isLoginPage && (
         <Header 
           isLangOpen={isLangOpen}
@@ -175,8 +175,8 @@ export default function App() {
             <Route path="/portal-login" element={<Navigate to="/login" replace />} />
             <Route path="/" element={<Navigate to="/viloyat-statistikasi" replace />} />
             <Route path="*" element={
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center">
-                <p className="text-slate-600">{t('notFound')}</p>
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center dark:bg-slate-900 dark:border-slate-800">
+                <p className="text-slate-600 dark:text-slate-300">{t('notFound')}</p>
               </div>
             } />
           </Routes>

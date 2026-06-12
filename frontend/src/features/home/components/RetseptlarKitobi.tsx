@@ -1,236 +1,134 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, ChefHat, Clock, Users, Flame, Heart } from 'lucide-react';
+import { Search, ChefHat, Clock, Users, Flame, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
+import { apiClient } from '@/shared/api';
 import FaslSelector from './ui/FaslSelector';
 
-const recipes = [
-  {
-    id: 1,
-    title: "Yangi sog'ilgan sutda tayyorlangan mevali suli bo'tqasi",
-    category: "1-3",
-    time: "20 min",
-    servings: "10 kishi",
-    calories: "180 kcal",
-    ingredients: ["Oliy navli suli yormasi", "Tabiiy sigir suti", "Toza sariyog'", "Yangi rezavorlar", "Tabiiy asal"],
-    image: "https://images.unsplash.com/photo-1495214783159-3503fd1b572d?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Bolalar uchun kunning mukammal boshlanishi. Suli yormasi oshqozon uchun yengil va energiya bilan ta'minlaydi."
-  },
-  {
-    id: 2,
-    title: "Yumshoq mol go'shtli an'anaviy Moshxo'rda",
-    category: "3-7",
-    time: "45 min",
-    servings: "10 kishi",
-    calories: "320 kcal",
-    ingredients: ["Saralangan mosh", "Lazer guruchi", "Yumshoq lahm go'sht", "Yangi sabzavotlar", "Zaytun yog'i"],
-    image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Oqsillarga boy va to'yimli. Moshxo'rda bolaning o'sishi va suyaklari mustahkamlanishiga yordam beradi."
-  },
-  {
-    id: 3,
-    title: "Bedana tuxumi bilan bezatilgan shohona Palov",
-    category: "3-7",
-    time: "60 min",
-    servings: "10 kishi",
-    calories: "410 kcal",
-    ingredients: ["Alanga guruchi", "Yosh buzoq go'shti", "Sariq sabzi", "Bedana tuxumi", "Zig'ir yog'i"],
-    image: "https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=800&q=80",
-    chefNote: "An'anaviy taomimizning bolalar uchun maxsus yog'sizlantirilgan va vitaminlarga boyitilgan varianti."
-  },
-  {
-    id: 4,
-    title: "Bug'da pishirilgan qaymoqli sabzavot pyuresi",
-    category: "parhez",
-    time: "20 min",
-    servings: "5 kishi",
-    calories: "120 kcal",
-    ingredients: ["Brokkoli", "Shirin kartoshka", "Yangi qaymoq", "Muskat yong'og'i"],
-    image: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Oshqozon-ichak tizimi nozik bolalar uchun maxsus parhezli, vitaminlarga o'ta boy sabzavotli aralashma."
-  },
-  {
-    id: 5,
-    title: "100% Tabiiy Apelsin va Olma sharbati",
-    category: "ichimlik",
-    time: "10 min",
-    servings: "10 kishi",
-    calories: "90 kcal",
-    ingredients: ["Yangi uzilgan apelsin", "Shirin olma", "Yalpiz yaprog'i"],
-    image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Immun tizimini ko'taruvchi, C vitaminiga boy, shakarsiz tabiiy meva sharbati."
-  },
-  {
-    id: 6,
-    title: "Dimlangan tovuq filesi va ismaloq",
-    category: "parhez",
-    time: "35 min",
-    servings: "8 kishi",
-    calories: "210 kcal",
-    ingredients: ["Yumshoq tovuq filesi", "Yangi ismaloq", "Limon sharbati", "Zaytun yog'i"],
-    image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Oqsil va temir moddasining ajoyib manbai. Yengil hazm bo'ladi va mushaklar o'sishiga yordam beradi."
-  },
-  {
-    id: 7,
-    title: "Qulupnayli shirin manna bo'tqasi",
-    category: "1-3",
-    time: "15 min",
-    servings: "10 kishi",
-    calories: "200 kcal",
-    ingredients: ["Oliy nav manna krupasi", "Toza sut", "Yangi qulupnay", "Tabiiy vanil"],
-    image: "https://images.unsplash.com/photo-1517093157656-b9eccef91cb1?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Kichkintoylar sevib iste'mol qiluvchi, shirin va mayin teksturali klassik nonushta."
-  },
-  {
-    id: 8,
-    title: "O'rmon mevalaridan tayyorlangan issiq kompot",
-    category: "ichimlik",
-    time: "30 min",
-    servings: "20 kishi",
-    calories: "85 kcal",
-    ingredients: ["Qorag'at", "Malina", "Olma", "Asal", "Darchin"],
-    image: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Qish kunlarida bolalarni sovuqdan asrovchi, vitaminlarga to'la shifobaxsh qaynatma."
-  },
-  {
-    id: 9,
-    title: "Tvorogli va bananli mazali quymoqlar",
-    category: "1-3",
-    time: "25 min",
-    servings: "6 kishi",
-    calories: "230 kcal",
-    ingredients: ["Yumshoq tvorog", "Pishgan banan", "Tuxum", "Un", "Ozroq shakar"],
-    image: "https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Kalsiyga boy va juda mazali. Nonushta uchun ajoyib tanlov."
-  },
-  {
-    id: 10,
-    title: "Sabzavotli va go'shtli bug'li manti",
-    category: "3-7",
-    time: "50 min",
-    servings: "12 kishi",
-    calories: "280 kcal",
-    ingredients: ["Mol go'shti", "Qovoq", "Piyoz", "Un", "Sariyog'"],
-    image: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Bug'da pishirilgani sababli barcha vitaminlar saqlanib qoladi. Bolalar uchun juda foydali."
-  },
-  {
-    id: 11,
-    title: "Tovuq sho'rva",
-    category: "3-7",
-    time: "40 min",
-    servings: "10 kishi",
-    calories: "150 kcal",
-    ingredients: ["Tovuq", "Sabzi", "Kartoshka", "Piyoz", "Ko'k"],
-    image: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Yumshoq va shifobaxsh. Bolalar uchun kundalik sho'rva."
-  },
-  {
-    id: 12,
-    title: "Qovoqli shirko'cha",
-    category: "1-3",
-    time: "30 min",
-    servings: "8 kishi",
-    calories: "170 kcal",
-    ingredients: ["Qovoq", "Sut", "Un", "Sariyog'", "Tuz"],
-    image: "https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Beta-karotinga boy, mayda bolalar uchun eng foydali taomlardan biri."
-  },
-  {
-    id: 13,
-    title: "Yashil no'xatli guruch",
-    category: "parhez",
-    time: "35 min",
-    servings: "10 kishi",
-    calories: "240 kcal",
-    ingredients: ["Guruch", "Yashil no'xat", "Zaytun yog'i", "Ko'k piyoz"],
-    image: "https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Yengil va foydali. Oqsil va uglevod muvozanati mukammal."
-  },
-  {
-    id: 14,
-    title: "Olcha va o'rik kompoti",
-    category: "ichimlik",
-    time: "15 min",
-    servings: "15 kishi",
-    calories: "110 kcal",
-    ingredients: ["Olcha", "O'rik", "Shakar", "Suv", "Limon"],
-    image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Tabiiy mevalar asosida tayyorlangan mazali va vitaminga boy ichimlik."
-  },
-  {
-    id: 15,
-    title: "Sabzavotli omlet",
-    category: "1-3",
-    time: "15 min",
-    servings: "5 kishi",
-    calories: "190 kcal",
-    ingredients: ["Tuxum", "Pomidor", "Qalampir", "Piyoz", "Yog'"],
-    image: "https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Protein va vitaminlarga boy tez tayyorlanadigan nonushta."
-  },
-  {
-    id: 16,
-    title: "Bug'da pishirilgan baliq",
-    category: "parhez",
-    time: "40 min",
-    servings: "8 kishi",
-    calories: "220 kcal",
-    ingredients: ["Oq baliq", "Kartoshka", "Limon", "Ko'k", "Zaytun yog'i"],
-    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Omega-3 yog'lariga boy. Miya rivojlanishi uchun juda foydali."
-  },
-  {
-    id: 17,
-    title: "Lavlagi salatasi",
-    category: "parhez",
-    time: "20 min",
-    servings: "8 kishi",
-    calories: "95 kcal",
-    ingredients: ["Lavlagi", "Smetana", "Chesnok", "Ko'k"],
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Qon yaratishga yordam beruvchi temir moddasiga boy taom."
-  },
-  {
-    id: 18,
-    title: "Mastava",
-    category: "3-7",
-    time: "55 min",
-    servings: "12 kishi",
-    calories: "290 kcal",
-    ingredients: ["Mol go'sht", "Guruch", "Pomidor", "Sabzi", "Kartoshka"],
-    image: "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?auto=format&fit=crop&w=800&q=80",
-    chefNote: "O'zbekona an'anaviy taom. To'yimli va vitaminlarga boy."
-  },
-  {
-    id: 19,
-    title: "Qatiq va meva",
-    category: "1-3",
-    time: "5 min",
-    servings: "6 kishi",
-    calories: "140 kcal",
-    ingredients: ["Tabiiy qatiq", "Banan", "Qulupnay", "Asal"],
-    image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Probiotiklarga boy. Ichak florasi uchun juda foydali."
-  },
-  {
-    id: 20,
-    title: "Bug'doy uni non",
-    category: "3-7",
-    time: "60 min",
-    servings: "20 kishi",
-    calories: "160 kcal",
-    ingredients: ["Bug'doy uni", "Xamirturush", "Suv", "Tuz", "Yog'"],
-    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80",
-    chefNote: "Toza bug'doy unidan tayyorlangan, tolaga boy va to'yimli kundalik non."
-  },
-];
+type DishRecord = {
+  id: string;
+  name?: string | null;
+  image?: string | null;
+  image_2?: string | null;
+  category?: string | null;
+  cook_time?: string | null;
+  output_1_3?: string | null;
+  output_3_7?: string | null;
+  kcal?: number | string | null;
+  kcal_1_3?: string | null;
+  kcal_3_7?: string | null;
+  ingredients?: unknown;
+  technology?: string | null;
+  vitamins?: string | null;
+  quality_requirements?: string | null;
+};
+
+type RecipeCardData = {
+  id: string;
+  title: string;
+  category: string;
+  time: string;
+  servings: string;
+  calories: string;
+  ingredients: string[];
+  images: string[];
+  chefNote: string;
+  searchText: string;
+};
+
+const apiRoot = String(apiClient.defaults.baseURL || '').replace(/\/api\/?$/, '');
+
+const normalizeAssetPath = (value?: unknown) => {
+  const text = String(value || '').trim();
+  if (!text || ['null', 'undefined'].includes(text.toLowerCase())) return '';
+  return text;
+};
+
+const displayAssetUrl = (value?: string | null) => {
+  const src = normalizeAssetPath(value);
+  if (!src) return '';
+  if (src.startsWith('http') || src.startsWith('data:') || src.startsWith('blob:')) return src;
+  return `${apiRoot}${src.startsWith('/') ? '' : '/'}${src}`;
+};
+
+const dishImages = (dish: DishRecord) => [dish.image, dish.image_2]
+  .map((image) => displayAssetUrl(image))
+  .filter(Boolean);
+
+const extractIngredientNames = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (!item || typeof item !== 'object') return '';
+        const record = item as Record<string, unknown>;
+        const amount = record.age37Weight || record.age13Weight || record.age37Net || record.age13Net || '';
+        return [record.name, amount].filter(Boolean).join(' - ');
+      })
+      .map((item) => String(item).trim())
+      .filter(Boolean);
+  }
+
+  const text = String(value || '').trim();
+  if (!text) return [];
+
+  try {
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed)) return extractIngredientNames(parsed);
+  } catch {
+    // Plain text ingredients are handled below.
+  }
+
+  return text
+    .split(/\n+/)
+    .map((line) => line.replace(/^[-*\s]+/, '').trim())
+    .filter((line) => line && !/^\d-\d\s*yosh/i.test(line))
+    .slice(0, 8);
+};
+
+const formatOutput = (dish: DishRecord) => {
+  const first = String(dish.output_1_3 || '').trim();
+  const second = String(dish.output_3_7 || '').trim();
+  if (first && second) return `${first}/${second}`;
+  return first || second || '-';
+};
+
+const formatKcal = (dish: DishRecord) => {
+  const first = String(dish.kcal_1_3 || '').trim();
+  const second = String(dish.kcal_3_7 || '').trim();
+  if (first && second) return `${first}/${second} kkal`;
+  const kcal = Number(dish.kcal || 0);
+  return kcal > 0 ? `${kcal} kkal` : '-';
+};
+
+const buildRecipeCard = (dish: DishRecord): RecipeCardData => {
+  const ingredients = extractIngredientNames(dish.ingredients);
+  const title = String(dish.name || 'Nomsiz taom').trim();
+  const category = String(dish.category || 'Aqlvoy oshpaz').trim();
+  const chefNote = String(dish.technology || dish.quality_requirements || dish.vitamins || 'Retsept texnologiyasi tez orada kiritiladi.').trim();
+
+  return {
+    id: String(dish.id),
+    title,
+    category,
+    time: String(dish.cook_time || '-').trim(),
+    servings: formatOutput(dish),
+    calories: formatKcal(dish),
+    ingredients: ingredients.length ? ingredients : ['Masalliqlar kiritilmagan'],
+    images: dishImages(dish),
+    chefNote,
+    searchText: [title, category, chefNote, ingredients.join(' ')].join(' ').toLowerCase(),
+  };
+};
 
 export default function RetseptlarKitobi() {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFasl, setActiveFasl] = useState('summer');
+  const [dishes, setDishes] = useState<DishRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [activeSocialSlide, setActiveSocialSlide] = useState(0);
   const authorRoles = [
     { name: "Sh. Sh. Mirziyoyeva", roleKey: "recipes.roleProjectAuthor" },
     { name: "B. Chustiy", roleKey: "recipes.roleChustiyLeader" },
@@ -251,10 +149,83 @@ export default function RetseptlarKitobi() {
     { name: "D. A. Zaredinov", roleKey: "recipes.roleHygieneHead" },
     { name: "N. J. Ermatov", roleKey: "recipes.roleNutritionHead" },
   ];
+  const socialSlides = [
+    {
+      src: "https://data.daryo.uz/media/cache/2019/04/photo_2019-04-04_17-05-07-680x453.jpg",
+      label: "Bolalar bilan uchrashuv",
+      desc: "Maxsus ehtiyojli bolalarga sovg'alar topshirildi",
+      title: t('recipes.supportChildren'),
+      accent: t('recipes.together'),
+    },
+    {
+      src: "https://data.daryo.uz/media/cache/2019/04/photo_2019-04-04_17-05-34-680x453.jpg",
+      label: "G'amxo'rlik lahzasi",
+      desc: "Har bir bolaga alohida e'tibor va mehribonlik",
+      title: "Har bir bolaga alohida",
+      accent: "mehr va e'tibor",
+    },
+    {
+      src: "https://data.daryo.uz/media/cache/2019/04/photo_2019-04-04_17-05-25-680x453.jpg",
+      label: "Birga kuchli",
+      desc: "Jamiyat va davlat birgalikda ishlaydi",
+      title: "Teng imkoniyatlar sari",
+      accent: "birgalikda",
+    },
+  ];
 
-  const filteredRecipes = recipes.filter(recipe => {
-    return recipe.title.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  const goSocialSlide = (direction: 'prev' | 'next') => {
+    setActiveSocialSlide((current) => {
+      if (direction === 'prev') return current === 0 ? socialSlides.length - 1 : current - 1;
+      return (current + 1) % socialSlides.length;
+    });
+  };
+
+  useEffect(() => {
+    let active = true;
+
+    const loadDishes = async () => {
+      try {
+        setLoading(true);
+        setLoadError('');
+        const response = await apiClient.get('/kindergartens/dishes/all');
+        if (active) {
+          setDishes(Array.isArray(response.data) ? response.data : []);
+        }
+      } catch {
+        if (active) {
+          setDishes([]);
+          setLoadError('Aqlvoy oshpaz retseptlarini yuklab bolmadi');
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    loadDishes();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveSocialSlide((current) => (current + 1) % socialSlides.length);
+    }, 5500);
+
+    return () => window.clearInterval(timer);
+  }, [socialSlides.length]);
+
+  const dynamicRecipes = useMemo(
+    () => dishes.map(buildRecipeCard),
+    [dishes]
+  );
+
+  const filteredRecipes = useMemo(() => {
+    const term = searchQuery.trim().toLowerCase();
+    if (!term) return dynamicRecipes;
+    return dynamicRecipes.filter((recipe) => recipe.searchText.includes(term));
+  }, [dynamicRecipes, searchQuery]);
 
   return (
     <div className="space-y-6 md:space-y-12">
@@ -338,12 +309,18 @@ export default function RetseptlarKitobi() {
         </div>
 
         {/* Asosiy karta */}
-        <div className="rounded-[2rem] overflow-hidden shadow-2xl" style={{ background: 'linear-gradient(135deg, #1a0a1e 0%, #2d1b3d 50%, #1a0a1e 100%)' }}>
-          <div className="grid grid-cols-1 lg:grid-cols-2">
+        <div className="relative rounded-[2rem] overflow-hidden shadow-2xl" style={{ background: 'linear-gradient(135deg, #1a0a1e 0%, #2d1b3d 50%, #1a0a1e 100%)' }}>
+          <motion.div
+            key={activeSocialSlide}
+            initial={{ opacity: 0, x: 28 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+            className="grid grid-cols-1 lg:grid-cols-2"
+          >
             <div className="relative min-h-[340px]">
               <img
-                src="https://data.daryo.uz/media/cache/2019/04/photo_2019-04-04_17-05-07-680x453.jpg"
-                alt="Shahnoza Mirziyoyeva"
+                src={socialSlides[activeSocialSlide].src}
+                alt={socialSlides[activeSocialSlide].label}
                 style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', minHeight: 340 }}
               />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, transparent 60%, #1a0a1e)' }} />
@@ -356,8 +333,19 @@ export default function RetseptlarKitobi() {
               </div>
             </div>
             <div className="p-8 flex flex-col justify-center gap-5">
+              <div className="flex items-center gap-2">
+                {socialSlides.map((slide, index) => (
+                  <button
+                    key={slide.label}
+                    type="button"
+                    onClick={() => setActiveSocialSlide(index)}
+                    aria-label={`${slide.label} slaydini ochish`}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${activeSocialSlide === index ? 'w-10 bg-rose-300' : 'w-4 bg-white/20 hover:bg-white/40'}`}
+                  />
+                ))}
+              </div>
               <h4 className="text-[26px] font-black text-white leading-tight">
-                {t('recipes.supportChildren')} <span className="text-rose-300">{t('recipes.together')}</span>
+                {socialSlides[activeSocialSlide].title} <span className="text-rose-300">{socialSlides[activeSocialSlide].accent}</span>
               </h4>
               <p className="text-[14px] leading-relaxed font-medium" style={{ color: 'rgba(203,213,225,0.85)' }}>
                 {t('recipes.socialDesc')}
@@ -376,23 +364,44 @@ export default function RetseptlarKitobi() {
                 ))}
               </div>
             </div>
+          </motion.div>
+
+          <div className="absolute inset-y-0 left-3 flex items-center">
+            <button
+              type="button"
+              onClick={() => goSocialSlide('prev')}
+              className="h-11 w-11 rounded-full border border-white/15 bg-black/25 text-white backdrop-blur-md flex items-center justify-center transition hover:bg-rose-500/80"
+              aria-label="Oldingi slayd"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="absolute inset-y-0 right-3 flex items-center">
+            <button
+              type="button"
+              onClick={() => goSocialSlide('next')}
+              className="h-11 w-11 rounded-full border border-white/15 bg-black/25 text-white backdrop-blur-md flex items-center justify-center transition hover:bg-rose-500/80"
+              aria-label="Keyingi slayd"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
         </div>
 
         {/* 3 ta kichik rasm */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { src: "https://data.daryo.uz/media/cache/2019/04/photo_2019-04-04_17-05-07-680x453.jpg", label: "Bolalar bilan uchrashuv", desc: "Maxsus ehtiyojli bolalarga sovg'alar topshirildi" },
-            { src: "https://data.daryo.uz/media/cache/2019/04/photo_2019-04-04_17-05-34-680x453.jpg", label: "G'amxo'rlik lahzasi", desc: "Har bir bolaga alohida e'tibor va mehribonlik" },
-            { src: "https://data.daryo.uz/media/cache/2019/04/photo_2019-04-04_17-05-25-680x453.jpg", label: "Birga kuchli", desc: "Jamiyat va davlat birgalikda ishlaydi" },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
+          {socialSlides.map((item, i) => {
+            const isActive = activeSocialSlide === i;
+            return (
+            <motion.button
+              type="button"
+              onClick={() => setActiveSocialSlide(i)}
+              key={item.label}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1, duration: 0.5 }}
               viewport={{ once: true }}
-              className="group rounded-2xl overflow-hidden shadow-md relative"
+              className={`group rounded-2xl overflow-hidden shadow-md relative text-left transition-all duration-300 ${isActive ? 'ring-2 ring-rose-300 ring-offset-2 ring-offset-[#0f172a]' : 'hover:-translate-y-1 hover:shadow-xl'}`}
             >
               <img
                 src={item.src}
@@ -405,8 +414,9 @@ export default function RetseptlarKitobi() {
                 <p className="text-[13px] font-black text-white mb-1">{item.label}</p>
                 <p className="text-[11px] text-rose-200 font-medium">{item.desc}</p>
               </div>
-            </motion.div>
-          ))}
+            </motion.button>
+            );
+          })}
         </div>
       </div>
 
@@ -438,20 +448,46 @@ export default function RetseptlarKitobi() {
       <FaslSelector activeFasl={activeFasl} setActiveFasl={setActiveFasl} />
 
       {/* Recipe Grid */}
-      {filteredRecipes.length > 0 ? (
+      {loadError && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-bold text-amber-800">
+          {loadError}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="py-16 md:py-24 text-center bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm">
+          <div className="w-12 h-12 md:w-20 md:h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 animate-pulse">
+            <ChefHat className="h-6 w-6 md:h-9 md:w-9 text-indigo-500" />
+          </div>
+          <h3 className="text-base md:text-xl font-black text-slate-900 mb-1 md:mb-2">Retseptlar yuklanmoqda...</h3>
+          <p className="text-[10px] md:text-sm text-slate-500 font-medium max-w-xs md:max-w-sm mx-auto px-4">Aqlvoy oshpaz bazasidagi taomlar olinmoqda.</p>
+        </div>
+      ) : filteredRecipes.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {filteredRecipes.map(recipe => (
             <div key={recipe.id} className="group bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-full">
-              <div className="h-48 md:h-64 bg-slate-200 relative overflow-hidden">
+              <div className="h-48 md:h-64 bg-slate-50 relative overflow-hidden">
                  <div className="absolute top-3 left-3 md:top-4 left-4 z-10 bg-white/95 backdrop-blur-md text-slate-900 px-2.5 py-1 md:px-4 md:py-2 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest shadow-lg border border-white/50 flex items-center gap-1.5 md:gap-2">
                    <Heart className="h-2 w-2 md:h-3 md:w-3 text-rose-500 fill-rose-500" />
                    {t('recipes.food')}
                  </div>
-                 <img 
-                   src={recipe.image} 
-                   alt={recipe.title} 
-                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                 />
+                 {recipe.images.length > 0 ? (
+                   <div className={`h-full w-full grid ${recipe.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2 gap-1.5 p-1.5 md:gap-2 md:p-2'}`}>
+                     {recipe.images.map((image, imageIndex) => (
+                       <div key={image} className="min-w-0 h-full flex items-center justify-center overflow-hidden">
+                         <img
+                           src={image}
+                           alt={`${recipe.title} rasmi ${imageIndex + 1}`}
+                           className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                         />
+                       </div>
+                     ))}
+                   </div>
+                 ) : (
+                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-50 to-slate-100">
+                     <ChefHat className="h-16 w-16 text-indigo-200" />
+                   </div>
+                 )}
                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
                  <div className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-4 md:right-4 text-white">
                    <h4 className="text-base md:text-2xl font-black mb-0.5 md:mb-1 line-clamp-2 leading-tight drop-shadow-lg uppercase">{recipe.title}</h4>
@@ -480,7 +516,7 @@ export default function RetseptlarKitobi() {
                   </div>
                   <div className="flex flex-wrap gap-1 md:gap-2">
                     {recipe.ingredients.map(ing => (
-                      <span key={ing} className="bg-indigo-50/50 text-indigo-700 text-[8px] md:text-xs font-bold px-2 py-0.5 md:px-3 md:py-1.5 rounded-md md:rounded-xl border border-indigo-100/50 hover:bg-indigo-100 transition-colors cursor-default">
+                      <span key={`${recipe.id}-${ing}`} className="bg-indigo-50/50 text-indigo-700 text-[8px] md:text-xs font-bold px-2 py-0.5 md:px-3 md:py-1.5 rounded-md md:rounded-xl border border-indigo-100/50 hover:bg-indigo-100 transition-colors cursor-default">
                         {ing}
                       </span>
                     ))}

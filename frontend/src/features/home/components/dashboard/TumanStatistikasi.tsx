@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { districts, getDistrictNameKey } from '../../../../constants';
 import KashkadaryaMap from './KashkadaryaMap';
@@ -7,6 +7,7 @@ import DistrictDetailModal from '../modals/DistrictDetailModal';
 import { motion } from 'motion/react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Trophy, Medal } from 'lucide-react';
+import { kindergartenApi } from '@/shared/api';
 
 const RANK_COLORS = [
   "#f59e0b", "#94a3b8", "#b45309",
@@ -18,16 +19,91 @@ interface TumanStatistikasiProps {
   CustomTooltip?: any;
 }
 
+type KindergartenRow = {
+  district?: string;
+};
+
+const DISTRICT_ALIASES = [
+  { name: "Qarshi sh.", aliases: ["qarshi sh", "qarshi shahri"] },
+  { name: "Shahrisabz sh.", aliases: ["shahrisabz sh", "shahrisabz shahri"] },
+  { name: "Qarshi t.", aliases: ["qarshi t", "qarshi tumani"] },
+  { name: "Shahrisabz t.", aliases: ["shahrisabz t", "shahrisabz tumani"] },
+  { name: "Kitob t.", aliases: ["kitob", "kitob t", "kitob tumani"] },
+  { name: "Koson t.", aliases: ["koson", "koson t", "koson tumani"] },
+  { name: "Muborak t.", aliases: ["muborak", "muborak t", "muborak tumani"] },
+  { name: "G'uzor t.", aliases: ["g'uzor", "g'uzor t", "g'uzor tumani", "g‘uzor", "g‘uzor t", "g‘uzor tumani"] },
+  { name: "Nishon t.", aliases: ["nishon", "nishon t", "nishon tumani"] },
+  { name: "Dehqonobod t.", aliases: ["dehqonobod", "dehqonobod t", "dehqonobod tumani"] },
+  { name: "Qamashi t.", aliases: ["qamashi", "qamashi t", "qamashi tumani"] },
+  { name: "Chiroqchi t.", aliases: ["chiroqchi", "chiroqchi t", "chiroqchi tumani"] },
+  { name: "Kasbi t.", aliases: ["kasbi", "kasbi t", "kasbi tumani"] },
+  { name: "Mirishkor t.", aliases: ["mirishkor", "mirishkor t", "mirishkor tumani"] },
+  { name: "Yakkabog' t.", aliases: ["yakkabog'", "yakkabog' t", "yakkabog' tumani", "yakkabog‘", "yakkabog‘ t", "yakkabog‘ tumani"] },
+  { name: "Ko'kdala t.", aliases: ["ko'kdala", "ko'kdala t", "ko'kdala tumani", "ko‘kdala", "ko‘kdala t", "ko‘kdala tumani"] },
+];
+
+const normalizeDistrict = (value: unknown) => String(value || '')
+  .trim()
+  .toLowerCase()
+  .replace(/[\u2018\u2019`]/g, "'")
+  .replace(/\./g, '')
+  .replace(/\s+/g, ' ');
+
+const districtAliasMap = new Map<string, string>(
+  DISTRICT_ALIASES.flatMap((district): Array<[string, string]> => [
+    [normalizeDistrict(district.name), district.name],
+    ...district.aliases.map((alias): [string, string] => [normalizeDistrict(alias), district.name]),
+  ])
+);
+
+const resolveDistrictName = (value: unknown) => {
+  const normalized = normalizeDistrict(value);
+  return districtAliasMap.get(normalized) || String(value || "Noma'lum hudud").trim() || "Noma'lum hudud";
+};
+
 const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [kindergartens, setKindergartens] = useState<KindergartenRow[]>([]);
   const { t } = useTranslation();
   const districtName = (name: string) => t(getDistrictNameKey(name), { defaultValue: name });
 
+  useEffect(() => {
+    let mounted = true;
+    kindergartenApi.getAll()
+      .then((res) => {
+        if (mounted) setKindergartens(Array.isArray(res) ? res : []);
+      })
+      .catch(() => {
+        if (mounted) setKindergartens([]);
+      });
+
+    return () => { mounted = false; };
+  }, []);
+
   const ranked = useMemo(() =>
-    [...districts]
-      .map(d => ({ name: d.name, nameLabel: districtName(d.name), count: d.count || 0, attendance: d.attendance || 0 }))
-      .sort((a, b) => b.count - a.count),
-    [t]
+    {
+      if (!kindergartens.length) {
+        return [...districts]
+          .map(d => ({ name: d.name, nameLabel: districtName(d.name), count: d.count || 0, attendance: d.attendance || 0 }))
+          .sort((a, b) => b.count - a.count);
+      }
+
+      const counts = new Map<string, number>();
+      kindergartens.forEach((kg) => {
+        const name = resolveDistrictName(kg.district);
+        counts.set(name, (counts.get(name) || 0) + 1);
+      });
+
+      return Array.from(counts.entries())
+        .map(([name, count]) => ({
+          name,
+          nameLabel: districtName(name),
+          count,
+          attendance: districts.find((district) => district.name === name)?.attendance || 0,
+        }))
+        .sort((a, b) => b.count - a.count);
+    },
+    [kindergartens, t]
   );
 
   const totalMTT = ranked.reduce((s, d) => s + d.count, 0);

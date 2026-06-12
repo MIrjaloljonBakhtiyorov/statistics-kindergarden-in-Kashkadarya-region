@@ -3,21 +3,27 @@ import { useTranslation } from 'react-i18next';
 import { stats } from '../../../../constants';
 import { motion } from 'motion/react';
 
-const StatsGrid: React.FC = () => {
+type StatsGridProps = {
+  items?: typeof stats;
+};
+
+const StatsGrid: React.FC<StatsGridProps> = ({ items }) => {
   const { t } = useTranslation();
+  const displayStats = items ?? stats;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
-      {stats.map((s, index) => (
+      {displayStats.map((s, index) => (
         <motion.div 
           key={s.label}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
           whileHover={{ y: -4 }}
-          className="bg-white p-5 rounded-[1.5rem] shadow-sm border border-slate-100 transition-all duration-500 flex flex-col group relative overflow-hidden h-full min-h-[120px]"
+          className="bg-white p-5 rounded-[1.5rem] shadow-sm border border-slate-100 transition-all duration-500 flex flex-col group relative overflow-hidden h-full min-h-[120px] dark:bg-slate-900 dark:border-slate-800"
         >
           {/* Subtle Background Icon */}
-          <div className="absolute -bottom-2 -right-2 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-500">
+          <div className="absolute -bottom-2 -right-2 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-500 dark:opacity-[0.08] dark:group-hover:opacity-[0.14]">
              <s.icon className="w-20 h-20" />
           </div>
 
@@ -29,15 +35,15 @@ const StatsGrid: React.FC = () => {
             </div>
 
             <div>
-              <p className="text-[14px] font-semibold text-slate-500 uppercase tracking-wide leading-snug mb-2">
+              <p className="text-[14px] font-semibold text-slate-500 uppercase tracking-wide leading-snug mb-2 dark:text-slate-300">
                 {t(s.label)}
               </p>
               <div className="flex items-baseline gap-0.5">
-                <p className="text-[30px] font-bold text-[#003580] tracking-tight">
+                <p className="text-[30px] font-bold text-[#003580] tracking-tight dark:text-blue-300">
                   {s.value.split('%')[0]}
                 </p>
                 {s.value.includes('%') && (
-                  <span className="text-[30px] font-bold text-[#003580]">%</span>
+                  <span className="text-[30px] font-bold text-[#003580] dark:text-blue-300">%</span>
                 )}
               </div>
             </div>

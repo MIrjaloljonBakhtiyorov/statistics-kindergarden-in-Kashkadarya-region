@@ -55,19 +55,19 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="bg-white border-b border-slate-200/50 sticky top-0 z-50 shadow-sm">
+    <header className="bg-white border-b border-slate-200/50 sticky top-0 z-50 shadow-sm dark:bg-slate-950/95 dark:border-slate-800">
       <nav className="max-w-[1400px] mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleNavigation('/viloyat-statistikasi')}>
           <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center text-white font-black text-xl md:text-2xl shadow-lg border border-indigo-400/20">R</div>
           <div className="flex flex-col justify-center">
-            <h1 className="text-lg md:text-2xl leading-none select-none flex items-baseline font-black text-black">
+            <h1 className="text-lg md:text-2xl leading-none select-none flex items-baseline font-black text-black dark:text-white">
               <span className="text-base md:text-lg">{t('appName')}</span>
             </h1>
           </div>
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden lg:flex items-center gap-1.5 bg-white p-1.5 rounded-2xl">
+        <div className="hidden lg:flex items-center gap-1.5 bg-white p-1.5 rounded-2xl dark:bg-slate-900/70">
           {menuItems.map((item, index) => (
             <button
               key={item.name}
@@ -75,7 +75,7 @@ const Header: React.FC<HeaderProps> = ({
               className={`flex items-center px-5 py-2.5 rounded-xl text-[15px] font-bold transition-all duration-300 ${
                 location.pathname === item.path
                   ? 'text-indigo-600 scale-[1.02]'
-                  : 'text-slate-500 hover:text-slate-700'
+                  : 'text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-white'
               }`}
             >
               <item.icon className={`mr-2.5 h-4 w-4 ${location.pathname === item.path ? 'text-indigo-500' : 'text-slate-400'}`} />
@@ -91,14 +91,14 @@ const Header: React.FC<HeaderProps> = ({
             <button 
               ref={langBtnRef}
               onClick={() => setIsLangOpen(!isLangOpen)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               <Globe className="h-4 w-4 text-indigo-500" />
               <span>{getShortName(currentLang)}</span>
             </button>
             
             {isLangOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in zoom-in duration-200">
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in zoom-in duration-200 dark:bg-slate-900 dark:border-slate-700">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
@@ -107,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({
                       setIsLangOpen(false);
                     }}
                     className={`w-full text-left px-5 py-3 text-sm font-bold transition-colors ${
-                        currentLang === lang.code ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'
+                        currentLang === lang.code ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800'
                     }`}
                   >
                     {lang.name}
@@ -130,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({
         <button 
           ref={mobileMenuBtnRef}
           onClick={() => setIsMenuOpen(!isMobileMenuOpen)}
-          className="lg:hidden p-2.5 bg-slate-100 rounded-xl text-slate-600 active:scale-95 transition-transform"
+          className="lg:hidden p-2.5 bg-slate-100 rounded-xl text-slate-600 active:scale-95 transition-transform dark:bg-slate-800 dark:text-slate-100"
         >
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
@@ -138,7 +138,7 @@ const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div ref={mobileMenuRef} className="lg:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200/50 shadow-2xl animate-in slide-in-from-top duration-300 z-50">
+        <div ref={mobileMenuRef} className="lg:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200/50 shadow-2xl animate-in slide-in-from-top duration-300 z-50 dark:bg-slate-950/95 dark:border-slate-800">
           <div className="p-4 grid grid-cols-1 gap-2">
             {menuItems.map((item) => (
               <button
@@ -150,7 +150,7 @@ const Header: React.FC<HeaderProps> = ({
                 className={`flex items-center px-5 py-4 rounded-xl text-sm font-bold transition-all ${
                   location.pathname === item.path
                     ? 'bg-indigo-600 text-white shadow-lg'
-                    : 'text-slate-600 hover:bg-slate-50'
+                    : 'text-slate-600 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800'
                 }`}
               >
                 <item.icon className={`mr-3 h-5 w-5 ${location.pathname === item.path ? 'text-white' : 'text-slate-400'}`} />
@@ -168,7 +168,7 @@ const Header: React.FC<HeaderProps> = ({
                 onClick={() => {
                   setIsLangOpen(!isLangOpen);
                 }}
-                className="flex items-center justify-between px-5 py-4 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50"
+                className="flex items-center justify-between px-5 py-4 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 <div className="flex items-center gap-3">
                   <Globe className="h-5 w-5 text-indigo-500" />
@@ -188,7 +188,7 @@ const Header: React.FC<HeaderProps> = ({
                         setIsMenuOpen(false);
                       }}
                       className={`px-4 py-3 text-xs font-bold rounded-xl transition-colors ${
-                          currentLang === lang.code ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
+                          currentLang === lang.code ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-indigo-500/15 dark:hover:text-indigo-300'
                       }`}
                     >
                       {lang.name}

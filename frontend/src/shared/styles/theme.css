@@ -83,6 +83,15 @@ html.dark body {
   color: var(--app-dark-muted) !important;
 }
 
+.dark .text-\[\#003580\],
+.dark .text-\[\#00008B\] {
+  color: #93c5fd !important;
+}
+
+.dark .bg-\[\#0f172a\] {
+  background-color: #020617 !important;
+}
+
 .dark .border-white,
 .dark .border-slate-50,
 .dark .border-slate-100,
@@ -118,6 +127,27 @@ html.dark body {
 .dark .shadow-xl,
 .dark .shadow-2xl {
   box-shadow: 0 18px 45px rgb(0 0 0 / 0.28) !important;
+}
+
+.dark .shadow-slate-100,
+.dark .shadow-slate-100\/80,
+.dark .shadow-indigo-200,
+.dark .shadow-emerald-50,
+.dark .shadow-emerald-200 {
+  --tw-shadow-color: rgb(0 0 0 / 0.3) !important;
+}
+
+.dark .recharts-cartesian-grid line {
+  stroke: rgb(51 65 85 / 0.55);
+}
+
+.dark .recharts-text {
+  fill: #cbd5e1;
+}
+
+.dark .recharts-tooltip-cursor {
+  fill: rgb(30 41 59 / 0.55);
+  stroke: rgb(71 85 105 / 0.65);
 }
 
 .dark .kindergarten-shell {
