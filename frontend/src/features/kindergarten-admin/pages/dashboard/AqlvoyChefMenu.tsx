@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BookOpenCheck, Database, Edit3, Flame, Plus, Search, Sparkles, Thermometer, Timer, Utensils, X } from 'lucide-react';
+import { BookOpenCheck, Database, Download, Edit3, FileSpreadsheet, Flame, Plus, Search, Sparkles, Thermometer, Timer, Trash2, Utensils, X } from 'lucide-react';
 import { toast } from 'sonner';
+import * as XLSX from 'xlsx';
 import { apiClient } from '@/shared/api';
+import { FoodImagePreview } from '@/shared/components/FoodImagePreview';
+import { isAqlvoyDefaultDish, withAqlvoyDefaultDishes } from '@/features/kindergarten-admin/lib/aqlvoyChefDishes';
 
 type DishForm = {
   id?: string;
@@ -99,9 +102,124 @@ const getDishImages = (dish: any) => [
   { src: normalizeImageUrl(dish?.image_2), label: 'Taom rasmi 2' },
 ].filter((image) => image.src);
 
-export const AqlvoyChefMenu: React.FC = () => {
+const normalizeExcelHeader = (value: unknown) => String(value || '')
+  .toLowerCase()
+  .replace(/[’'`ʻʼ]/g, '')
+  .replace(/[().,;:/\\|_-]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+const cellText = (value: unknown) => String(value ?? '').trim();
+
+const cellNumberText = (value: unknown) => {
+  const text = cellText(value).replace(',', '.');
+  const numberText = text.replace(/[^\d.-]/g, '');
+  if (!numberText) return '';
+  const number = Number(numberText);
+  return Number.isFinite(number) ? String(number) : '';
+};
+
+const getExcelValue = (row: Record<string, unknown>, aliases: string[]) => {
+  const normalizedAliases = aliases.map(normalizeExcelHeader);
+  const entry = Object.entries(row).find(([key]) => normalizedAliases.includes(normalizeExcelHeader(key)));
+  return entry ? entry[1] : '';
+};
+
+const firstFilledCell = (row: Record<string, unknown>) => Object.values(row).find((value) => cellText(value));
+
+const rowToDishPayload = (row: Record<string, unknown>) => {
+  const name = cellText(getExcelValue(row, [
+    'Taom nomi',
+    'Ovqat nomi',
+    'Nomi',
+    'Taom',
+    'Name',
+    'Meal name',
+    'Meal',
+    'Название',
+    'Блюдо',
+    'Таом номи',
+    'Овқат номи',
+  ]) || firstFilledCell(row));
+
+  return {
+    name,
+    image: cellText(getExcelValue(row, ['Rasm', 'Rasm 1', 'Image', 'Image 1', 'Photo', 'URL', 'Rasm url'])),
+    image_2: cellText(getExcelValue(row, ['Rasm 2', 'Image 2', 'Photo 2', 'Ikkinchi rasm'])),
+    category: cellText(getExcelValue(row, ['Bo\'lim', 'Bolim', 'Kategoriya', 'Category', 'Tur', 'Turi', 'Раздел', 'Категория'])),
+    cook_time: cellText(getExcelValue(row, ['Vaqti', 'Pishirish vaqti', 'Cook time', 'Time', 'Время'])),
+    cook_temperature: cellText(getExcelValue(row, ['Harorati', 'Harorat', 'Temperature', 'Cook temperature', 'Температура'])),
+    output_1_3: cellText(getExcelValue(row, ['Chiqishi 1-3', 'Chiqish 1-3', 'Output 1-3', '1-3 yosh chiqishi'])),
+    output_3_7: cellText(getExcelValue(row, ['Chiqishi 3-7', 'Chiqish 3-7', 'Output 3-7', '3-7 yosh chiqishi'])),
+    kcal_1_3: cellNumberText(getExcelValue(row, ['Kkal 1-3', 'Kaloriya 1-3', 'Calories 1-3'])),
+    kcal_3_7: cellNumberText(getExcelValue(row, ['Kkal 3-7', 'Kaloriya 3-7', 'Calories 3-7'])),
+    kcal: cellNumberText(getExcelValue(row, ['Kkal', 'Kaloriya', 'Calories', 'Calorie', 'Umumiy kkal'])),
+    iron: cellNumberText(getExcelValue(row, ['Temir', 'Iron', 'Fe'])),
+    carbs: cellNumberText(getExcelValue(row, ['Uglevod', 'Uglevodlar', 'Carbs', 'Carbohydrates'])),
+    vitamins: cellText(getExcelValue(row, ['Vitamin', 'Vitaminlar', 'Vitamins', 'Izoh', 'Mineral'])),
+    ingredients: cellText(getExcelValue(row, ['Masalliqlar', 'Mahsulotlar', 'Tarkib', 'Ingredients', 'Products', 'Состав'])),
+    technology: cellText(getExcelValue(row, ['Texnologiya', 'Tayyorlash texnologiyasi', 'Technology', 'Preparation', 'Технология'])),
+    quality_requirements: cellText(getExcelValue(row, ['Sifat talablari', 'Sifatiga qo\'yiladigan talablar', 'Quality requirements', 'Quality', 'Требования'])),
+  };
+};
+
+const parseExcelDishes = async (file: File) => {
+  const buffer = await file.arrayBuffer();
+  const workbook = XLSX.read(buffer, { type: 'array' });
+
+  return workbook.SheetNames.flatMap((sheetName) => {
+    const worksheet = workbook.Sheets[sheetName];
+    if (!worksheet) return [];
+
+    return XLSX.utils
+      .sheet_to_json<Record<string, unknown>>(worksheet, { defval: '', raw: false })
+      .map(rowToDishPayload)
+      .filter((dish) => dish.name);
+  });
+};
+
+const dishToExcelRow = (dish: any) => ({
+  'Taom nomi': dish.name || '',
+  'Bo\'lim': dish.category || '',
+  'Vaqti': dish.cook_time || '',
+  'Harorati': dish.cook_temperature || '',
+  'Chiqishi 1-3': dish.output_1_3 || '',
+  'Chiqishi 3-7': dish.output_3_7 || '',
+  'Kkal 1-3': dish.kcal_1_3 || '',
+  'Kkal 3-7': dish.kcal_3_7 || '',
+  'Umumiy kkal': dish.kcal || 0,
+  'Temir': dish.iron || 0,
+  'Uglevod': dish.carbs || 0,
+  'Vitaminlar': dish.vitamins || '',
+  'Masalliqlar': ingredientsText(dish.ingredients),
+  'Tayyorlash texnologiyasi': dish.technology || '',
+  'Sifatiga qo\'yiladigan talablar': dish.quality_requirements || '',
+  'Rasm': dish.image || '',
+  'Rasm 2': dish.image_2 || '',
+});
+
+const normalizedDishName = (value: unknown) => cellText(value).toLowerCase();
+
+const normalizeCategoryKey = (value: unknown) => {
+  const normalized = cellText(value)
+    .toLowerCase()
+    .replace(/[’'`ʻʼ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return normalized.replace(/lar$/i, '');
+};
+
+export const AqlvoyChefMenu: React.FC<{ readOnly?: boolean; managementEditOnly?: boolean }> = ({
+  readOnly = false,
+  managementEditOnly = false,
+}) => {
+  const canEdit = !readOnly;
+  const canCreateAndImport = canEdit && !managementEditOnly;
+  const canDelete = canEdit && !managementEditOnly;
   const [dishes, setDishes] = useState<any[]>([]);
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [form, setForm] = useState<DishForm>(emptyForm);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedDish, setSelectedDish] = useState<any | null>(null);
@@ -109,13 +227,15 @@ export const AqlvoyChefMenu: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingField, setUploadingField] = useState<'image' | 'image_2' | null>(null);
   const [analyzingPage, setAnalyzingPage] = useState(false);
+  const [importingExcel, setImportingExcel] = useState(false);
 
   const loadDishes = async () => {
     setLoading(true);
     try {
       const res = await apiClient.get('/kindergartens/dishes/all');
-      setDishes(Array.isArray(res.data) ? res.data : []);
+      setDishes(withAqlvoyDefaultDishes(Array.isArray(res.data) ? res.data : []));
     } catch {
+      setDishes(withAqlvoyDefaultDishes([]));
       toast.error('Taomlar bazasini yuklashda xatolik');
     } finally {
       setLoading(false);
@@ -128,15 +248,36 @@ export const AqlvoyChefMenu: React.FC = () => {
 
   const filteredDishes = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return dishes;
-    return dishes.filter((dish) => [
-      dish.name,
-      dish.category,
-      dish.vitamins,
-      dish.technology,
-      dish.quality_requirements,
-    ].some((value) => String(value || '').toLowerCase().includes(term)));
-  }, [dishes, search]);
+    return dishes.filter((dish) => {
+      const matchesCategory = categoryFilter === 'ALL' || normalizeCategoryKey(dish.category) === categoryFilter;
+      const matchesSearch = !term || [
+        dish.name,
+        dish.category,
+        dish.vitamins,
+        dish.technology,
+        dish.quality_requirements,
+      ].some((value) => String(value || '').toLowerCase().includes(term));
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [dishes, search, categoryFilter]);
+
+  const categoryOptions = useMemo(() => (
+    Array.from(dishes.reduce((map, dish) => {
+      const rawCategory = String(dish.category || '').trim();
+      const key = normalizeCategoryKey(rawCategory);
+      if (!key) return map;
+
+      const existing = map.get(key);
+      map.set(key, {
+        key,
+        label: existing?.label || rawCategory,
+        count: (existing?.count || 0) + 1,
+      });
+      return map;
+    }, new Map<string, { key: string; label: string; count: number }>()).values())
+      .sort((a, b) => a.label.localeCompare(b.label, 'uz'))
+  ), [dishes]);
 
   const stats = useMemo(() => ({
     total: dishes.length,
@@ -145,11 +286,13 @@ export const AqlvoyChefMenu: React.FC = () => {
   }), [dishes]);
 
   const openCreate = () => {
+    if (!canCreateAndImport) return;
     setForm(emptyForm);
     setIsFormOpen(true);
   };
 
   const openEdit = (dish: any) => {
+    if (!canEdit) return;
     setForm({
       id: dish.id,
       name: dish.name || '',
@@ -173,8 +316,78 @@ export const AqlvoyChefMenu: React.FC = () => {
     setIsFormOpen(true);
   };
 
+  const importExcelDishes = async (files?: FileList | File[] | null) => {
+    if (!canCreateAndImport) {
+      toast.error('Bu rolda import qilish mumkin emas');
+      return;
+    }
+    const selectedFiles = Array.from(files || []);
+    if (selectedFiles.length === 0) return;
+
+    const unsupportedFile = selectedFiles.find((file) => !/\.(xlsx|xls|csv)$/i.test(file.name));
+    if (unsupportedFile) {
+      toast.error('Excel yoki CSV fayl yuklang');
+      return;
+    }
+
+    try {
+      setImportingExcel(true);
+      const parsedDishes = (await Promise.all(selectedFiles.map(parseExcelDishes))).flat();
+      if (parsedDishes.length === 0) {
+        toast.error('Excel ichidan taom nomlari topilmadi');
+        return;
+      }
+
+      const existingNames = new Set(
+        dishes
+          .filter((dish) => !isAqlvoyDefaultDish(dish))
+          .map((dish) => normalizedDishName(dish.name))
+          .filter(Boolean)
+      );
+      const seenImportNames = new Set<string>();
+      const importableDishes = parsedDishes.filter((dish) => {
+        const key = normalizedDishName(dish.name);
+        if (!key || existingNames.has(key) || seenImportNames.has(key)) return false;
+        seenImportNames.add(key);
+        return true;
+      });
+      const skipped = parsedDishes.length - importableDishes.length;
+
+      if (importableDishes.length === 0) {
+        toast.info(`Yangi taom topilmadi. ${skipped} ta qator allaqachon bazada bor yoki takrorlangan.`);
+        return;
+      }
+
+      let added = 0;
+      let failed = 0;
+      const batchSize = 5;
+
+      for (let index = 0; index < importableDishes.length; index += batchSize) {
+        const batch = importableDishes.slice(index, index + batchSize);
+        const results = await Promise.allSettled(batch.map((dish) => apiClient.post('/kindergartens/dish-items', dish)));
+        added += results.filter((result) => result.status === 'fulfilled').length;
+        failed += results.filter((result) => result.status === 'rejected').length;
+      }
+
+      await loadDishes();
+      if (failed > 0) {
+        toast.error(`${added} ta taom qo'shildi, ${failed} ta qator qo'shilmadi`);
+      } else {
+        toast.success(`${added} ta taom Aqlvoy oshpaz menyusiga import qilindi${skipped ? `, ${skipped} ta takror qator o'tkazildi` : ''}`);
+      }
+    } catch (error: any) {
+      toast.error(error?.message || 'Excel import qilishda xatolik');
+    } finally {
+      setImportingExcel(false);
+    }
+  };
+
   const saveDish = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!canEdit) {
+      toast.error('Bu rolda retseptlarni o\'zgartirish mumkin emas');
+      return;
+    }
     if (!form.name.trim()) {
       toast.error('Taom nomini kiriting');
       return;
@@ -209,6 +422,7 @@ export const AqlvoyChefMenu: React.FC = () => {
   };
 
   const uploadImage = async (field: 'image' | 'image_2', file?: File) => {
+    if (!canEdit) return;
     if (!file) return;
     const formData = new FormData();
     formData.append('image', file);
@@ -225,6 +439,56 @@ export const AqlvoyChefMenu: React.FC = () => {
     } finally {
       setUploadingField(null);
     }
+  };
+
+  const deleteDish = async (dish: any) => {
+    if (!canDelete || isAqlvoyDefaultDish(dish)) return;
+    const confirmed = window.confirm(`"${dish.name}" taomini o'chirishni tasdiqlaysizmi?`);
+    if (!confirmed) return;
+
+    try {
+      await apiClient.delete(`/kindergartens/dish-items/${dish.id}`);
+      toast.success('Taom o\'chirildi');
+      if (selectedDish?.id === dish.id) setSelectedDish(null);
+      await loadDishes();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || 'Taomni o\'chirishda xatolik');
+    }
+  };
+
+  const exportExcelDishes = () => {
+    const exportableDishes = dishes.filter((dish) => !isAqlvoyDefaultDish(dish));
+    if (exportableDishes.length === 0) {
+      toast.info('Export qilish uchun taom topilmadi');
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(exportableDishes.map(dishToExcelRow));
+    worksheet['!cols'] = [
+      { wch: 32 },
+      { wch: 24 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 34 },
+      { wch: 46 },
+      { wch: 46 },
+      { wch: 46 },
+      { wch: 34 },
+      { wch: 34 },
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Aqlvoy taomlar');
+    const date = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(workbook, `aqlvoy-taomlar-${date}.xlsx`);
+    toast.success(`${exportableDishes.length} ta taom Excel faylga export qilindi`);
   };
 
   const preparePageImage = (file: File) => new Promise<string>((resolve, reject) => {
@@ -306,9 +570,44 @@ export const AqlvoyChefMenu: React.FC = () => {
               <p className="text-sm font-bold text-slate-400 mt-2 max-w-2xl">Kitobdagi kabi texnologik karta: masalliqlar jadvali, vaqt, harorat, chiqish, kkal, texnologiya va sifat talablari.</p>
             </div>
           </div>
-          <button onClick={openCreate} className="h-14 px-6 rounded-2xl bg-emerald-500 text-white text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-400 transition-colors">
-            <Plus size={18} /> Yangi taom qo'shish
-          </button>
+          {readOnly ? (
+            <div className="h-14 px-6 rounded-2xl bg-white/10 text-emerald-200 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 border border-white/10">
+              <BookOpenCheck size={18} /> Faqat ko'rish
+            </div>
+          ) : managementEditOnly ? (
+            <div className="h-14 px-6 rounded-2xl bg-white/10 text-emerald-200 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 border border-white/10">
+              <Edit3 size={18} /> Faqat tahrirlash
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <label className={`h-14 px-6 rounded-2xl bg-white/10 text-white text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 border border-white/10 transition-colors ${importingExcel ? 'opacity-60 cursor-wait' : 'hover:bg-white/15 cursor-pointer'}`}>
+                <input
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  multiple
+                  className="hidden"
+                  disabled={importingExcel}
+                  onChange={(event) => {
+                    const files = Array.from(event.target.files || []);
+                    event.target.value = '';
+                    importExcelDishes(files);
+                  }}
+                />
+                <FileSpreadsheet size={18} /> {importingExcel ? 'Import qilinmoqda...' : 'Barcha menyuni import'}
+              </label>
+              <button
+                type="button"
+                onClick={exportExcelDishes}
+                disabled={dishes.length === 0}
+                className="h-14 px-6 rounded-2xl bg-white/10 text-white text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 border border-white/10 hover:bg-white/15 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download size={18} /> Barchasini export
+              </button>
+              <button onClick={openCreate} className="h-14 px-6 rounded-2xl bg-emerald-500 text-white text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-400 transition-colors">
+                <Plus size={18} /> Yangi taom qo'shish
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -319,14 +618,40 @@ export const AqlvoyChefMenu: React.FC = () => {
       </section>
 
       <section className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900">Retsept kartalari</h2>
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Search, edit va qo'shish amallari</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">
+              {filteredDishes.length} ta retsept ko'rsatilmoqda
+            </p>
           </div>
-          <div className="relative w-full lg:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Taom yoki texnologiya bo'yicha qidirish..." className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-indigo-400" />
+          <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(220px,260px)] gap-3 w-full xl:w-[760px]">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Taom yoki texnologiya bo'yicha qidirish..." className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-indigo-400" />
+            </div>
+            <div className="relative">
+              <select
+                value={categoryFilter}
+                onChange={(event) => setCategoryFilter(event.target.value)}
+                className="w-full appearance-none px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-indigo-400"
+              >
+                <option value="ALL">Barcha taom turlari ({dishes.length})</option>
+                {categoryOptions.map((item) => (
+                  <option key={item.key} value={item.key}>{item.label} ({item.count})</option>
+                ))}
+              </select>
+              {categoryFilter !== 'ALL' && (
+                <button
+                  type="button"
+                  onClick={() => setCategoryFilter('ALL')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-white text-slate-400 border border-slate-200 flex items-center justify-center hover:text-slate-700"
+                  aria-label="Taom turi filterini tozalash"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -337,7 +662,15 @@ export const AqlvoyChefMenu: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4 sm:p-5">
             {filteredDishes.map((dish) => (
-              <RecipeCard key={dish.id} dish={dish} onOpen={() => setSelectedDish(dish)} onEdit={() => openEdit(dish)} />
+              <RecipeCard
+                key={dish.id}
+                dish={dish}
+                canEdit={canEdit && !isAqlvoyDefaultDish(dish)}
+                canDelete={canDelete && !isAqlvoyDefaultDish(dish)}
+                onOpen={() => setSelectedDish(dish)}
+                onEdit={() => openEdit(dish)}
+                onDelete={() => deleteDish(dish)}
+              />
             ))}
           </div>
         )}
@@ -431,7 +764,21 @@ export const AqlvoyChefMenu: React.FC = () => {
   );
 };
 
-const RecipeCard = ({ dish, onOpen, onEdit }: { dish: any; onOpen: () => void; onEdit: () => void }) => {
+const RecipeCard = ({
+  dish,
+  canEdit,
+  canDelete,
+  onOpen,
+  onEdit,
+  onDelete,
+}: {
+  dish: any;
+  canEdit?: boolean;
+  canDelete?: boolean;
+  onOpen: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) => {
   const images = getDishImages(dish);
 
   return (
@@ -460,11 +807,20 @@ const RecipeCard = ({ dish, onOpen, onEdit }: { dish: any; onOpen: () => void; o
         )}
         <p className="mt-4 text-xs font-serif leading-5 text-stone-600 line-clamp-3">{dish.technology || dish.vitamins || 'Tayyorlash texnologiyasi kiritilmagan'}</p>
       </button>
-      <div className="mt-3">
-        <button onClick={onEdit} className="w-full h-10 rounded-xl bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-100">
-          <Edit3 size={15} /> Edit
-        </button>
-      </div>
+      {(canEdit || canDelete) && (
+        <div className={`mt-3 grid gap-2 ${canEdit && canDelete ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          {canEdit && (
+          <button onClick={onEdit} className="w-full h-10 rounded-xl bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-100">
+            <Edit3 size={15} /> Edit
+          </button>
+          )}
+          {canDelete && (
+          <button onClick={onDelete} className="w-full h-10 rounded-xl bg-rose-50 text-rose-600 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-100">
+            <Trash2 size={15} /> O'chirish
+          </button>
+          )}
+        </div>
+      )}
     </article>
   );
 };
@@ -550,7 +906,14 @@ const FoodImageSlot = ({ src, label }: { src?: string | null; label: string }) =
 
   return (
     <div className="h-28 sm:h-32 flex items-center justify-center overflow-hidden">
-      <img src={displayAssetUrl(imageSrc)} alt={label} className="w-full h-full object-contain" />
+      <FoodImagePreview
+        src={displayAssetUrl(imageSrc)}
+        alt={label}
+        label={label}
+        className="h-full w-full"
+        imageClassName="object-contain"
+        focusable={false}
+      />
     </div>
   );
 };
@@ -561,7 +924,13 @@ const BookFoodImage = ({ src, alt, label }: { src?: string | null; alt: string; 
 
   return (
     <figure className="h-72 sm:h-80 flex items-center justify-center overflow-hidden">
-      <img src={displayAssetUrl(imageSrc)} alt={alt || label} className="w-full h-full object-contain" />
+      <FoodImagePreview
+        src={displayAssetUrl(imageSrc)}
+        alt={alt || label}
+        label={label}
+        className="h-full w-full"
+        imageClassName="object-contain"
+      />
     </figure>
   );
 };
@@ -609,7 +978,13 @@ const ImageField = ({
     <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
       <div className="h-32 rounded-xl border border-dashed border-slate-200 bg-transparent overflow-hidden flex items-center justify-center">
         {value ? (
-          <img src={displayAssetUrl(value)} alt={label} className="w-full h-full object-contain" />
+          <FoodImagePreview
+            src={displayAssetUrl(value)}
+            alt={label}
+            label={label}
+            className="h-full w-full"
+            imageClassName="object-contain"
+          />
         ) : (
           <div className="text-center">
             <Utensils className="mx-auto text-slate-300" size={24} />

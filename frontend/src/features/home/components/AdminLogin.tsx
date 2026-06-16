@@ -2,6 +2,14 @@
 import { useTranslation } from 'react-i18next';
 import { ShieldCheck, Lock, Mail, Loader2, ChevronRight } from 'lucide-react';
 import { apiClient } from '@/shared/api';
+import {
+  MANAGEMENT_LOGIN,
+  MANAGEMENT_PASSWORD,
+  SUPER_ADMIN_LOGIN,
+  SUPER_ADMIN_PASSWORD,
+  clearAdminSession,
+  setAdminSession,
+} from '@/features/kindergarten-admin/lib/adminAccess';
 
 interface AdminLoginProps {
   onClose?: () => void;
@@ -57,10 +65,18 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
     const panelTab = reservePanelTab();
 
     try {
-      if (trimmedLogin === 'm_login' && trimmedPassword === 'm_admin') {
+      if (trimmedLogin === SUPER_ADMIN_LOGIN && trimmedPassword === SUPER_ADMIN_PASSWORD) {
         localStorage.removeItem('auth_user');
-        localStorage.setItem('isDemoAuth', 'true');
+        setAdminSession('super_admin');
         openPanel(panelTab, '/admin/');
+        onClose?.();
+        return;
+      }
+
+      if (trimmedLogin === MANAGEMENT_LOGIN && trimmedPassword === MANAGEMENT_PASSWORD) {
+        localStorage.removeItem('auth_user');
+        setAdminSession('management');
+        openPanel(panelTab, '/admin/kindergartens');
         onClose?.();
         return;
       }
@@ -69,7 +85,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
         const kindergartenId = userData.kindergarten_id || userData.id;
         const role = String(userData.role || 'DIRECTOR').toLowerCase();
 
-        localStorage.removeItem('isDemoAuth');
+        clearAdminSession();
         localStorage.setItem('auth_user', JSON.stringify(userData));
         openPanel(panelTab, `/kindergarten/${kindergartenId}/${role}`);
       };
@@ -104,6 +120,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
       const { auth } = await import('../../../lib/firebase');
       await signInWithEmailAndPassword(auth, trimmedLogin, trimmedPassword);
       localStorage.removeItem('auth_user');
+      setAdminSession('super_admin', { demoAuth: false });
       openPanel(panelTab, '/admin/');
       onClose?.();
     } catch (err: any) {
@@ -188,7 +205,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
                     value={login}
                     onChange={(e) => setLogin(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-slate-900 font-semibold text-sm sm:text-base focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all outline-none"
-                    placeholder="m_login (yoki email)"
+                    placeholder={`${SUPER_ADMIN_LOGIN} (yoki email)`}
                     required
                   />
                 </div>

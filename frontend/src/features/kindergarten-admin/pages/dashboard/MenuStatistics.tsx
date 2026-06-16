@@ -210,17 +210,17 @@ const KpiCard = ({ title, value, caption, Icon, tone }: { title: string; value: 
   <motion.div
     initial={{ opacity: 0, y: 16 }}
     animate={{ opacity: 1, y: 0 }}
-    className="group relative overflow-hidden rounded-[30px] border border-white/80 bg-white/90 p-5 shadow-[0_22px_70px_rgba(15,23,42,0.08)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_rgba(37,99,235,0.16)]"
+    className="group relative overflow-hidden rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-[0_22px_70px_rgba(15,23,42,0.08)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_rgba(37,99,235,0.16)]"
   >
     <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-slate-100/80 transition-transform duration-500 group-hover:scale-125" />
     <div className="relative flex items-start justify-between gap-4">
       <div>
         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{title}</p>
-        <h3 className="mt-2 text-3xl font-black tracking-tight text-slate-950">{value}</h3>
+        <h3 className="mt-1.5 text-3xl font-black tracking-tight text-slate-950">{value}</h3>
         <p className="mt-1 text-[11px] font-bold text-slate-500">{caption}</p>
       </div>
-      <div className={clsx('flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-inner', tone)}>
-        <Icon size={22} />
+      <div className={clsx('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-inner', tone)}>
+        <Icon size={20} />
       </div>
     </div>
   </motion.div>
@@ -233,19 +233,19 @@ const DayCard = ({ day, active, onClick }: { day: DayData; active: boolean; onCl
       type="button"
       onClick={onClick}
       className={clsx(
-        'group relative min-h-[142px] overflow-hidden rounded-[30px] border p-3 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl',
+        'group relative min-h-[100px] overflow-hidden rounded-[24px] border p-2.5 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl',
         meta.card,
         active && 'bg-white ring-4 shadow-[0_26px_70px_rgba(15,23,42,0.16)]',
         active && meta.ring,
       )}
     >
-      <span className="absolute -right-10 -top-12 h-24 w-24 rounded-full bg-white/60 blur-xl transition-transform group-hover:scale-125" />
-      <span className="text-sm font-black text-slate-400">{day.day}</span>
-      <div className="mt-5 flex flex-col items-center text-center">
-        <div className={clsx('flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg shadow-slate-300/70', meta.dot)}>
-          <meta.Icon size={22} strokeWidth={2.6} />
+      <span className="absolute -right-8 -top-10 h-20 w-20 rounded-full bg-white/60 blur-xl transition-transform group-hover:scale-125" />
+      <span className="text-xs font-black text-slate-400">{day.day}</span>
+      <div className="mt-3 flex flex-col items-center text-center">
+        <div className={clsx('flex h-10 w-10 items-center justify-center rounded-2xl text-white shadow-lg shadow-slate-300/70', meta.dot)}>
+          <meta.Icon size={19} strokeWidth={2.6} />
         </div>
-        <span className={clsx('mt-3 text-[10px] font-black uppercase leading-tight', meta.text)}>{meta.label}</span>
+        <span className={clsx('mt-2 text-[8px] font-black uppercase leading-tight', meta.text)}>{meta.label}</span>
       </div>
       {day.menus > 0 && (
         <span className="absolute right-3 top-3 rounded-full bg-white/80 px-2 py-0.5 text-[9px] font-black text-slate-500 shadow-sm">
@@ -445,9 +445,9 @@ export const MenuStatistics = () => {
           <KpiCard title="To'liq moslik" value={`${summary?.counts.full || 0}`} caption="yashil kunlar" Icon={Trophy} tone="bg-amber-50 text-amber-600" />
         </div>
 
-        <div className="grid gap-7 xl:grid-cols-[340px_1fr]">
+        <div className="grid items-start gap-7 xl:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="space-y-4">
-            <div className="sticky top-28 rounded-[34px] border border-white/80 bg-white/90 p-4 shadow-[0_24px_90px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+            <div className="sticky top-28 flex rounded-[34px] border border-white/80 bg-white/90 p-4 shadow-[0_24px_90px_rgba(15,23,42,0.08)] backdrop-blur-xl xl:h-[min(760px,calc(100vh-128px))] xl:flex-col">
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Tumanlar</p>
@@ -457,12 +457,12 @@ export const MenuStatistics = () => {
                   <MapPin size={20} />
                 </div>
               </div>
-              <div className="max-h-[590px] space-y-2 overflow-y-auto pr-1">
+              <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
                 <button
                   type="button"
                   onClick={() => setSelectedDistrict('all')}
                   className={clsx(
-                    'w-full overflow-hidden rounded-[24px] border p-4 text-left transition-all',
+                    'w-full overflow-hidden rounded-[22px] border p-3.5 text-left transition-all',
                     selectedDistrict === 'all' ? 'border-slate-950 bg-slate-950 text-white shadow-xl shadow-slate-300/70' : 'border-slate-100 bg-slate-50 hover:border-slate-200 hover:bg-white',
                   )}
                 >
@@ -480,7 +480,7 @@ export const MenuStatistics = () => {
                     type="button"
                     onClick={() => setSelectedDistrict(district.name)}
                     className={clsx(
-                      'w-full rounded-[24px] border p-4 text-left transition-all hover:-translate-y-0.5',
+                      'w-full rounded-[22px] border p-3.5 text-left transition-all hover:-translate-y-0.5',
                       selectedDistrict === district.name ? 'border-indigo-500 bg-indigo-50 shadow-xl shadow-indigo-100' : 'border-slate-100 bg-white hover:border-slate-200 hover:shadow-lg hover:shadow-slate-200/70',
                     )}
                   >
@@ -502,13 +502,13 @@ export const MenuStatistics = () => {
           </aside>
 
           <section className="space-y-7">
-            <div className="overflow-hidden rounded-[40px] border border-white/80 bg-white/90 p-5 shadow-[0_24px_90px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-7">
-              <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+            <div className="flex overflow-hidden rounded-[40px] border border-white/80 bg-white/90 p-5 shadow-[0_24px_90px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-6 xl:h-[min(760px,calc(100vh-128px))] xl:flex-col">
+              <div className="mb-4 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
                 <div>
                   <p className="inline-flex rounded-full bg-indigo-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-indigo-600 ring-1 ring-indigo-100">
                     {uzMonth(month)}
                   </p>
-                  <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-950">Bog'chalar kesimidagi moslik kalendari</h2>
+                  <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Bog'chalar kesimidagi moslik kalendari</h2>
                   <p className="mt-1 text-sm font-bold text-slate-500">
                     Tanlangan tuman ichidagi har bir MTT uchun 30 kunlik taomnoma nazorati.
                   </p>
@@ -526,12 +526,12 @@ export const MenuStatistics = () => {
                 </div>
               </div>
 
-              <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-                <div className="rounded-[30px] border border-slate-100 bg-slate-50/90 p-3 shadow-inner">
+              <div className="grid min-h-0 flex-1 gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
+                <div className="flex min-h-0 flex-col rounded-[30px] border border-slate-100 bg-slate-50/90 p-3 shadow-inner">
                   <p className="mb-3 px-2 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
                     Bog'chalar
                   </p>
-                  <div className="max-h-[620px] space-y-2 overflow-y-auto pr-1">
+                  <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
                     {loading ? (
                       <div className="flex items-center gap-2 rounded-2xl bg-white p-4 text-sm font-bold text-slate-500">
                         <Loader2 size={18} className="animate-spin" />
@@ -549,7 +549,7 @@ export const MenuStatistics = () => {
                             setSelectedDay(visualDayForKindergarten(kg, kg.days[0]));
                           }}
                           className={clsx(
-                            'w-full rounded-[24px] border p-4 text-left transition-all hover:-translate-y-0.5',
+                            'w-full rounded-[22px] border p-3.5 text-left transition-all hover:-translate-y-0.5',
                             selectedKindergarten?.id === kg.id ? 'border-slate-950 bg-slate-950 text-white shadow-xl shadow-slate-300/70' : 'border-white bg-white hover:border-indigo-100 hover:shadow-lg hover:shadow-slate-200/70',
                           )}
                         >
@@ -570,29 +570,29 @@ export const MenuStatistics = () => {
                   </div>
                 </div>
 
-                <div className="min-w-0">
+                <div className="min-h-0 min-w-0 overflow-hidden">
                   {selectedKindergarten ? (
                     <>
-                      <div className="mb-5 grid gap-3 md:grid-cols-4">
-                        <div className="rounded-[24px] border border-emerald-100 bg-emerald-50 p-4 shadow-sm">
+                      <div className="mb-3 grid gap-3 md:grid-cols-4">
+                        <div className="rounded-[22px] border border-emerald-100 bg-emerald-50 p-3 shadow-sm">
                           <p className="text-[10px] font-black uppercase tracking-wider text-emerald-600">Mos</p>
                           <p className="mt-1 text-2xl font-black text-emerald-700">{selectedCounts.full}</p>
                         </div>
-                        <div className="rounded-[24px] border border-amber-100 bg-amber-50 p-4 shadow-sm">
+                        <div className="rounded-[22px] border border-amber-100 bg-amber-50 p-3 shadow-sm">
                           <p className="text-[10px] font-black uppercase tracking-wider text-amber-600">Mahsulot</p>
                           <p className="mt-1 text-2xl font-black text-amber-700">{selectedCounts.product_changed}</p>
                         </div>
-                        <div className="rounded-[24px] border border-blue-100 bg-blue-50 p-4 shadow-sm">
+                        <div className="rounded-[22px] border border-blue-100 bg-blue-50 p-3 shadow-sm">
                           <p className="text-[10px] font-black uppercase tracking-wider text-blue-600">O'rin</p>
                           <p className="mt-1 text-2xl font-black text-blue-700">{selectedCounts.meal_replaced}</p>
                         </div>
-                        <div className="rounded-[24px] border border-rose-100 bg-rose-50 p-4 shadow-sm">
+                        <div className="rounded-[22px] border border-rose-100 bg-rose-50 p-3 shadow-sm">
                           <p className="text-[10px] font-black uppercase tracking-wider text-rose-600">Xato</p>
                           <p className="mt-1 text-2xl font-black text-rose-700">{selectedCounts.violation}</p>
                         </div>
                       </div>
 
-                      <div className="mb-5 flex flex-col justify-between gap-3 rounded-[30px] border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-5 shadow-inner lg:flex-row lg:items-center">
+                      <div className="mb-3 flex flex-col justify-between gap-3 rounded-[26px] border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-4 shadow-inner lg:flex-row lg:items-center">
                         <div>
                           <h3 className="text-xl font-black text-slate-950">{selectedKindergarten.name}</h3>
                           <p className="mt-1 text-xs font-bold uppercase tracking-widest text-slate-400">{selectedKindergarten.district}</p>
@@ -609,7 +609,7 @@ export const MenuStatistics = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6">
+                      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6">
                         {visualSelectedDays.map((day) => (
                           <DayCard
                             key={day.date}

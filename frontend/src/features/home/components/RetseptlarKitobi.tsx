@@ -465,16 +465,16 @@ export default function RetseptlarKitobi() {
       ) : filteredRecipes.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {filteredRecipes.map(recipe => (
-            <div key={recipe.id} className="group bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-full">
-              <div className="h-48 md:h-64 bg-slate-50 relative overflow-hidden">
-                 <div className="absolute top-3 left-3 md:top-4 left-4 z-10 bg-white/95 backdrop-blur-md text-slate-900 px-2.5 py-1 md:px-4 md:py-2 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest shadow-lg border border-white/50 flex items-center gap-1.5 md:gap-2">
+            <div key={recipe.id} className="group bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-500 flex flex-col h-full">
+              <div className="h-48 md:h-64 bg-white relative overflow-hidden border-b border-slate-100">
+                 <div className="absolute top-3 left-3 md:top-4 left-4 z-10 bg-white text-slate-950 px-2.5 py-1 md:px-4 md:py-2 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest shadow-md border border-slate-200 flex items-center gap-1.5 md:gap-2">
                    <Heart className="h-2 w-2 md:h-3 md:w-3 text-rose-500 fill-rose-500" />
                    {t('recipes.food')}
                  </div>
                  {recipe.images.length > 0 ? (
                    <div className={`h-full w-full grid ${recipe.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2 gap-1.5 p-1.5 md:gap-2 md:p-2'}`}>
                      {recipe.images.map((image, imageIndex) => (
-                       <div key={image} className="min-w-0 h-full flex items-center justify-center overflow-hidden">
+                       <div key={image} className="min-w-0 h-full flex items-center justify-center overflow-hidden bg-white">
                          <img
                            src={image}
                            alt={`${recipe.title} rasmi ${imageIndex + 1}`}
@@ -484,16 +484,18 @@ export default function RetseptlarKitobi() {
                      ))}
                    </div>
                  ) : (
-                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-50 to-slate-100">
-                     <ChefHat className="h-16 w-16 text-indigo-200" />
+                   <div className="w-full h-full flex items-center justify-center bg-white">
+                     <ChefHat className="h-16 w-16 text-slate-300" />
                    </div>
                  )}
-                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
-                 <div className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-4 md:right-4 text-white">
-                   <h4 className="text-base md:text-2xl font-black mb-0.5 md:mb-1 line-clamp-2 leading-tight drop-shadow-lg uppercase">{recipe.title}</h4>
-                 </div>
               </div>
               <div className="p-4 md:p-8 flex-1 flex flex-col">
+                <div className="mb-4 md:mb-6">
+                  <p className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.22em] text-slate-500">{recipe.category}</p>
+                  <h4 className="mt-1.5 text-xl md:text-3xl font-black leading-[0.95] tracking-tight text-slate-950 uppercase line-clamp-2">
+                    {recipe.title}
+                  </h4>
+                </div>
                 <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-4 md:mb-6 pb-4 md:pb-6 border-b border-slate-100">
                   <div className="flex items-center gap-1 md:gap-2 text-slate-500 bg-slate-50 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-slate-100">
                     <Clock className="h-3 w-3 md:h-4 md:w-4 text-indigo-500" />

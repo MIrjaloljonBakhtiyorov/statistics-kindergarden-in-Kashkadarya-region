@@ -20,6 +20,15 @@ import {
 import { apiClient } from '@/shared/api';
 import { useNotification } from '../../../context/NotificationContext';
 
+const apiRoot = String(apiClient.defaults.baseURL || '').replace(/\/api\/?$/, '');
+
+const displayAssetUrl = (url?: string | null) => {
+  const src = String(url || '').trim();
+  if (!src) return '';
+  if (src.startsWith('http') || src.startsWith('data:') || src.startsWith('blob:')) return src;
+  return encodeURI(`${apiRoot}${src.startsWith('/') ? '' : '/'}${src}`);
+};
+
 const MEALS = [
   { id: 'BREAKFAST', label: 'Nonushta', time: '08:30' },
   { id: 'LUNCH', label: 'Tushlik', time: '12:30' },
@@ -367,7 +376,7 @@ const TaskCard = ({
     <article className="bg-white border border-brand-border rounded-xl shadow-sm overflow-hidden">
       {task.imageUrl && (
         <img
-          src={task.imageUrl}
+          src={displayAssetUrl(task.imageUrl)}
           alt={task.mealName || 'Taom rasmi'}
           className="w-full h-44 object-cover border-b border-brand-border"
         />

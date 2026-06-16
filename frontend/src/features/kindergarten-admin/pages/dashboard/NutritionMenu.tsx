@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { apiClient } from '@/shared/api';
+import { FoodImagePreview } from '@/shared/components/FoodImagePreview';
+import { withAqlvoyDefaultDishes } from '@/features/kindergarten-admin/lib/aqlvoyChefDishes';
 
 const TABS = [
   { id: 'today', label: 'Bugungi menyu', icon: Clock },
@@ -56,6 +58,7 @@ const WORK_HOUR_GROUPS = [
 ];
 type MealDraft = {
   dish_id?: string;
+  dish_ids?: string[];
   meal_name: string;
   composition: string;
   products: string;
@@ -147,8 +150,10 @@ const parseDishIngredients = (value: unknown) => {
     return text;
   }
 };
+const MAX_DISHES_PER_MEAL = 5;
 const createEmptyMealDraft = (): MealDraft => ({
   dish_id: '',
+  dish_ids: [],
   meal_name: '',
   composition: '',
   products: '',
@@ -162,6 +167,7 @@ const createEmptyMealDraft = (): MealDraft => ({
 
 const dishToMealDraft = (dish: any): MealDraft => ({
   dish_id: dish.id,
+  dish_ids: dish.id ? [String(dish.id)] : [],
   meal_name: dish.name || '',
   composition: dish.technology || dish.quality_requirements || dish.name || '',
   products: parseDishIngredients(dish.ingredients),
@@ -172,6 +178,46 @@ const dishToMealDraft = (dish: any): MealDraft => ({
   carbohydrates: String(dish.carbs || ''),
   vitamins: dish.vitamins || '',
 });
+
+const selectedDishIdsOf = (draft?: MealDraft) => (
+  Array.isArray(draft?.dish_ids) && draft.dish_ids.length
+    ? draft.dish_ids
+    : draft?.dish_id
+      ? [draft.dish_id]
+      : []
+).map(String).filter(Boolean);
+
+const combineDishDraft = (selectedDishes: any[], current?: MealDraft): MealDraft => {
+  if (selectedDishes.length === 0) return createEmptyMealDraft();
+
+  const names = selectedDishes.map((dish) => String(dish.name || '').trim()).filter(Boolean);
+  const productBlocks = selectedDishes
+    .map((dish) => {
+      const products = parseDishIngredients(dish.ingredients);
+      return [dish.name, products].filter(Boolean).join('\n');
+    })
+    .filter(Boolean);
+  const vitamins = selectedDishes
+    .map((dish) => [dish.category, dish.vitamins].filter(Boolean).join(': '))
+    .filter(Boolean)
+    .join(' | ');
+  const sum = (field: string) => selectedDishes.reduce((total, dish) => total + toNumber(dish[field]), 0);
+  const calories = selectedDishes.reduce((total, dish) => total + toNumber(dish.kcal_3_7 || dish.kcal || dish.kcal_1_3), 0);
+
+  return {
+    dish_id: String(selectedDishes[0]?.id || ''),
+    dish_ids: selectedDishes.map((dish) => String(dish.id)),
+    meal_name: names.join(', '),
+    composition: names.join('\n'),
+    products: productBlocks.join('\n\n'),
+    image_url: selectedDishes.find((dish) => dish.image || dish.image_2)?.image || selectedDishes.find((dish) => dish.image || dish.image_2)?.image_2 || current?.image_url || '',
+    calories: calories ? String(calories) : '',
+    protein: current?.protein || '',
+    fat: current?.fat || '',
+    carbohydrates: sum('carbs') ? String(sum('carbs')) : '',
+    vitamins,
+  };
+};
 
 const CircularMetric = ({ label, value, total, tone }: { label: string; value: number; total: number; tone: 'emerald' | 'indigo' | 'rose' }) => {
   const pct = total > 0 ? Math.round((value / total) * 100) : 0;
@@ -242,6 +288,8 @@ const TenDayMenuPlannerModal = ({
   const [targetGroup, setTargetGroup] = useState('DAY_9_105');
   const [selectedPlanDate, setSelectedPlanDate] = useState(initialDate);
   const [mealPlan, setMealPlan] = useState<Record<string, Record<string, MealDraft>>>({});
+  const [dishSearchByMeal, setDishSearchByMeal] = useState<Record<string, string>>({});
+  const [dishSlotCountByMeal, setDishSlotCountByMeal] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -295,25 +343,54 @@ const TenDayMenuPlannerModal = ({
     });
   };
 
-  const applyDishToMeal = (date: string, mealType: string, dishId: string) => {
-    const dish = dishes.find((item) => String(item.id) === String(dishId));
+  const setDishSlot = (date: string, mealType: string, slotIndex: number, dishId: string) => {
     setMealPlan((prev) => ({
       ...prev,
-      [date]: {
-        ...(prev[date] || {}),
-        [mealType]: dish ? dishToMealDraft(dish) : {
-          dish_id: '',
-          meal_name: '',
-          composition: '',
-          products: '',
-          image_url: '',
-          calories: '',
-          protein: '',
-          fat: '',
-          carbohydrates: '',
-          vitamins: '',
-        },
-      },
+      [date]: (() => {
+        const dayPlan = prev[date] || {};
+        const currentDraft = dayPlan[mealType] || createEmptyMealDraft();
+        const nextIds = Array.from({ length: MAX_DISHES_PER_MEAL }).map((_, index) => selectedDishIdsOf(currentDraft)[index] || '');
+        nextIds[slotIndex] = String(dishId || '');
+
+        const uniqueIds = nextIds
+          .map(String)
+          .filter(Boolean)
+          .filter((id, index, list) => list.indexOf(id) === index);
+        const selectedDishes = uniqueIds
+          .map((id) => dishes.find((item) => String(item.id) === id))
+          .filter(Boolean);
+
+        return {
+          ...dayPlan,
+          [mealType]: combineDishDraft(selectedDishes, currentDraft),
+        };
+      })(),
+    }));
+  };
+
+  const addDishSlot = (mealKey: string) => {
+    setDishSlotCountByMeal((prev) => ({
+      ...prev,
+      [mealKey]: Math.min(MAX_DISHES_PER_MEAL, (prev[mealKey] || 1) + 1),
+    }));
+  };
+
+  const removeDishFromMeal = (date: string, mealType: string, dishId: string) => {
+    setMealPlan((prev) => ({
+      ...prev,
+      [date]: (() => {
+        const dayPlan = prev[date] || {};
+        const currentDraft = dayPlan[mealType] || createEmptyMealDraft();
+        const nextIds = selectedDishIdsOf(currentDraft).filter((id) => id !== String(dishId));
+        const selectedDishes = nextIds
+          .map((id) => dishes.find((item) => String(item.id) === id))
+          .filter(Boolean);
+
+        return {
+          ...dayPlan,
+          [mealType]: combineDishDraft(selectedDishes, currentDraft),
+        };
+      })(),
     }));
   };
 
@@ -498,6 +575,19 @@ const TenDayMenuPlannerModal = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                   {selectedMealTypes.map((mealType) => {
                     const draft = mealPlan[activeDay.iso]?.[mealType];
+                    const mealKey = `${activeDay.iso}-${mealType}`;
+                    const selectedDishIds = selectedDishIdsOf(draft);
+                    const selectedDishes = selectedDishIds
+                      .map((id) => dishes.find((dish) => String(dish.id) === id))
+                      .filter(Boolean);
+                    const dishSearch = dishSearchByMeal[mealKey] || '';
+                    const dishSearchTerm = dishSearch.trim().toLowerCase();
+                    const visibleSlotCount = Math.min(
+                      MAX_DISHES_PER_MEAL,
+                      Math.max(1, dishSlotCountByMeal[mealKey] || 1, selectedDishIds.length)
+                    );
+                    const canAddDish = visibleSlotCount < MAX_DISHES_PER_MEAL;
+
                     return (
                       <div key={`${activeDay.iso}-${mealType}`} className="bg-white border border-slate-100 rounded-[1px] shadow-sm overflow-hidden">
                         <div className={clsx("px-4 py-3 border-b flex items-center justify-between", MEAL_TIME_META[mealType].soft)}>
@@ -518,7 +608,14 @@ const TenDayMenuPlannerModal = ({
                             />
                             <div className="h-32 rounded-[1px] border border-dashed border-slate-300 bg-slate-50 overflow-hidden flex items-center justify-center">
                               {draft?.image_url ? (
-                                <img src={displayAssetUrl(draft.image_url)} alt={draft.meal_name || MEAL_LABELS[mealType]} className="w-full h-full object-cover" />
+                                <FoodImagePreview
+                                  src={displayAssetUrl(draft.image_url)}
+                                  alt={draft.meal_name || MEAL_LABELS[mealType]}
+                                  label={draft.meal_name || MEAL_LABELS[mealType]}
+                                  className="h-full w-full"
+                                  imageClassName="object-cover"
+                                  previewImageClassName="object-cover"
+                                />
                               ) : (
                                 <div className="text-center px-4">
                                   <Apple className="mx-auto text-slate-300 mb-2" size={28} />
@@ -530,19 +627,95 @@ const TenDayMenuPlannerModal = ({
                           </label>
 
                           <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Aqlvoy oshpaz taomi</label>
-                            <select
-                              value={draft?.dish_id || ''}
-                              onChange={(event) => applyDishToMeal(activeDay.iso, mealType, event.target.value)}
-                              className="w-full border border-slate-200 rounded-[1px] px-3 py-2.5 text-xs font-black outline-none focus:border-indigo-400"
-                            >
-                              <option value="">Taom tanlang</option>
-                              {dishes.map((dish) => (
-                                <option key={dish.id} value={dish.id}>
-                                  {dish.name}{dish.category ? ` | ${dish.category}` : ''}
-                                </option>
-                              ))}
-                            </select>
+                            <div className="flex items-center justify-between gap-2">
+                              <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Aqlvoy oshpaz taomlari</label>
+                              <span className={clsx(
+                                "text-[8px] font-black uppercase tracking-widest",
+                                canAddDish ? "text-slate-400" : "text-amber-600"
+                              )}>
+                                {selectedDishIds.length}/{MAX_DISHES_PER_MEAL}
+                              </span>
+                            </div>
+                            <div className="relative">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                              <input
+                                value={dishSearch}
+                                onChange={(event) => setDishSearchByMeal((prev) => ({ ...prev, [mealKey]: event.target.value }))}
+                                placeholder="Menu ichidan qidirish..."
+                                className="w-full border border-slate-200 rounded-[1px] pl-9 pr-3 py-2.5 text-xs font-black outline-none focus:border-indigo-400"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              {Array.from({ length: visibleSlotCount }).map((_, slotIndex) => {
+                                const slotValue = selectedDishIds[slotIndex] || '';
+                                const slotOptions = dishes
+                                  .filter((dish) => slotValue === String(dish.id) || !selectedDishIds.includes(String(dish.id)))
+                                  .filter((dish) => {
+                                    if (!dishSearchTerm) return true;
+                                    return [dish.name, dish.category, dish.kindergartenName, dish.district]
+                                      .join(' ')
+                                      .toLowerCase()
+                                      .includes(dishSearchTerm);
+                                  })
+                                  .slice(0, 80);
+
+                                return (
+                                  <div key={`${mealKey}-slot-${slotIndex}`} className="rounded-[1px] border border-slate-200 bg-slate-50/40 p-2">
+                                    <div className="mb-1.5 flex items-center justify-between gap-2">
+                                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                                        Taom {slotIndex + 1}
+                                      </span>
+                                      {slotValue && (
+                                        <button
+                                          type="button"
+                                          onClick={() => setDishSlot(activeDay.iso, mealType, slotIndex, '')}
+                                          className="text-[8px] font-black uppercase tracking-widest text-rose-500"
+                                        >
+                                          Tozalash
+                                        </button>
+                                      )}
+                                    </div>
+                                    <select
+                                      value={slotValue}
+                                      onChange={(event) => setDishSlot(activeDay.iso, mealType, slotIndex, event.target.value)}
+                                      className="min-w-0 w-full border border-slate-200 rounded-[1px] px-3 py-2.5 text-xs font-black outline-none focus:border-indigo-400"
+                                    >
+                                      <option value="">Tanlanmagan</option>
+                                      {slotOptions.map((dish) => (
+                                        <option key={dish.id} value={dish.id}>
+                                          {dish.name}{dish.category ? ` | ${dish.category}` : ''}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                );
+                              })}
+                              <button
+                                type="button"
+                                onClick={() => addDishSlot(mealKey)}
+                                disabled={!canAddDish}
+                                className="w-full h-10 rounded-[1px] border border-dashed border-indigo-300 bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+                              >
+                                <Plus size={14} />
+                                {canAddDish ? "Yangi taom qo'shish" : '5 ta taom ochildi'}
+                              </button>
+                            </div>
+                            {selectedDishes.length > 0 && (
+                              <div className="flex flex-wrap gap-2">
+                                {selectedDishes.map((dish) => (
+                                  <button
+                                    key={dish.id}
+                                    type="button"
+                                    onClick={() => removeDishFromMeal(activeDay.iso, mealType, String(dish.id))}
+                                    className="max-w-full inline-flex items-center gap-1.5 rounded-xl border border-emerald-100 bg-emerald-50 px-2.5 py-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-700"
+                                    title="Tanlovdan olib tashlash"
+                                  >
+                                    <span className="truncate">{dish.name}</span>
+                                    <X size={12} />
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                             <input
                               value={draft?.meal_name || ''}
                               onChange={(event) => updateMealField(activeDay.iso, mealType, 'meal_name', event.target.value)}
@@ -662,12 +835,12 @@ export const NutritionMenu = () => {
     ])
       .then(([dishesRes, kindergartensRes]) => {
         if (!mounted) return;
-        setDishes(Array.isArray(dishesRes.data) ? dishesRes.data : []);
+        setDishes(withAqlvoyDefaultDishes(Array.isArray(dishesRes.data) ? dishesRes.data : []));
         setKindergartens(Array.isArray(kindergartensRes.data) ? kindergartensRes.data : []);
       })
       .catch(() => {
         if (!mounted) return;
-        setDishes([]);
+        setDishes(withAqlvoyDefaultDishes([]));
         setKindergartens([]);
       });
 
@@ -1056,10 +1229,13 @@ export const NutritionMenu = () => {
                               {menu ? (
                                 <div className="pl-2 space-y-3">
                                   {menu.image_url && (
-                                    <img
+                                    <FoodImagePreview
                                       src={displayAssetUrl(menu.image_url)}
                                       alt={menu.meal_name || "Taom rasmi"}
-                                      className="w-full h-28 object-cover rounded-2xl border border-slate-100"
+                                      label={menu.meal_name}
+                                      className="h-28 w-full rounded-2xl border border-slate-100"
+                                      imageClassName="object-cover"
+                                      previewImageClassName="object-cover"
                                     />
                                   )}
                                   <div>
@@ -1106,7 +1282,7 @@ export const NutritionMenu = () => {
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-xl sm:text-3xl font-black text-slate-900">Taomlar bazasi</h2>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Real `dishes` jadvalidagi retseptlar</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Aqlvoy oshpaz menyusidagi retseptlar</p>
                 </div>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
@@ -1133,10 +1309,13 @@ export const NutritionMenu = () => {
                 {filteredDishes.map((dish) => (
                   <article key={dish.id} className="border border-slate-100 rounded-3xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all bg-white">
                     {dish.image && (
-                      <img
+                      <FoodImagePreview
                         src={displayAssetUrl(dish.image)}
                         alt={dish.name || 'Taom rasmi'}
-                        className="w-full h-40 object-cover rounded-2xl border border-slate-100 mb-4"
+                        label={dish.name}
+                        className="mb-4 h-40 w-full rounded-2xl border border-slate-100"
+                        imageClassName="object-cover"
+                        previewImageClassName="object-cover"
                       />
                     )}
                     <div className="flex items-start justify-between gap-4 mb-5">

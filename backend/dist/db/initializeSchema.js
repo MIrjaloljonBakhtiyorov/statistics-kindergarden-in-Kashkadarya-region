@@ -608,30 +608,13 @@ const initializeSchema = () => {
         createIndex('idx_admin_warehouse_purchases_district', 'admin_warehouse_purchases', 'date, district');
         createIndex('idx_admin_alert_events_created', 'admin_alert_events', 'created_at DESC');
         createIndex('idx_admin_alert_events_entity', 'admin_alert_events', 'entity_type, entity_id, event_type');
-        db.run(`
-        CREATE OR REPLACE FUNCTION prevent_aqlvoy_dish_delete()
-        RETURNS trigger AS $$
-        BEGIN
-          RAISE EXCEPTION 'Aqlvoy oshpaz taomlar bazasi doimiy saqlanadi va ochirib yuborilmaydi';
-        END;
-        $$ LANGUAGE plpgsql
-      `, (err) => {
-            if (err)
-                console.error('Migration error on Aqlvoy dish delete guard:', err.message);
-        });
         db.run('DROP TRIGGER IF EXISTS protect_aqlvoy_dishes ON dishes', (err) => {
             if (err)
                 console.error('Migration error dropping Aqlvoy dish delete trigger:', err.message);
         });
-        db.run(`
-        CREATE TRIGGER protect_aqlvoy_dishes
-        BEFORE DELETE ON dishes
-        FOR EACH ROW
-        EXECUTE FUNCTION prevent_aqlvoy_dish_delete()
-      `, (err) => {
-            if (err && !err.message.includes('already exists')) {
-                console.error('Migration error creating Aqlvoy dish delete trigger:', err.message);
-            }
+        db.run('DROP FUNCTION IF EXISTS prevent_aqlvoy_dish_delete()', (err) => {
+            if (err)
+                console.error('Migration error dropping Aqlvoy dish delete function:', err.message);
         });
         ensureCascadeForeignKey('parents', 'parents_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
         ensureCascadeForeignKey('parent_accounts', 'parent_accounts_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');

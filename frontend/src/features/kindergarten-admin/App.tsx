@@ -17,15 +17,34 @@ import { MenuStatistics } from './pages/dashboard/MenuStatistics';
 import { Alerts } from './pages/dashboard/Alerts';
 import { Loader2, Settings, ShieldCheck } from 'lucide-react';
 import { Toaster } from 'sonner';
+import { SUPER_ADMIN_LOGIN, type AdminRole, canAccessAdminPath, getStoredAdminRole, isManagementRole } from './lib/adminAccess';
+
+const ProtectedAdminRoute = ({
+  role,
+  path,
+  children,
+}: {
+  role: AdminRole;
+  path: string;
+  children: React.ReactNode;
+}) => {
+  if (!canAccessAdminPath(role, path)) {
+    return <Navigate to="/admin" replace />;
+  }
+
+  return <>{children}</>;
+};
 
 export default function App() {
   const [user, setUser] = useState<User | { email: string } | null>(null);
+  const [adminRole, setAdminRole] = useState<AdminRole>('super_admin');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const isDemo = localStorage.getItem('isDemoAuth') === 'true';
     if (isDemo) {
-      setUser({ email: 'm_login@admin.com' });
+      setAdminRole(getStoredAdminRole());
+      setUser({ email: `${SUPER_ADMIN_LOGIN}@admin.local` });
       setLoading(false);
       return;
     }
@@ -36,6 +55,7 @@ export default function App() {
       .then(async ({ onAuthStateChanged }) => {
         const { auth } = await import('./services/firebase');
         unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          setAdminRole(getStoredAdminRole());
           setUser(currentUser);
           setLoading(false);
         });
@@ -67,21 +87,29 @@ export default function App() {
   return (
     <>
       <Toaster position="top-center" richColors />
-      <DashboardLayout>
+      <DashboardLayout role={adminRole}>
         <Routes>
           <Route index element={<Overview />} />
           <Route path="districts" element={<Districts />} />
           <Route path="tuman-stats" element={<Districts />} />
           <Route path="menu" element={<NutritionMenu />} />
-          <Route path="aqlvoy-chef-menu" element={<AqlvoyChefMenu />} />
-          <Route path="rating" element={<RatingAudit />} />
+          <Route path="aqlvoy-chef-menu" element={<AqlvoyChefMenu managementEditOnly={isManagementRole(adminRole)} />} />
+          <Route path="rating" element={
+            <ProtectedAdminRoute role={adminRole} path="rating">
+              <RatingAudit />
+            </ProtectedAdminRoute>
+          } />
           <Route path="kindergartens" element={<MTTManagement />} />
           <Route path="kindergarten-inspection" element={<KindergartenInspection />} />
           <Route path="ai-insights" element={<AIInsights />} />
           <Route path="warehouse" element={<WarehouseCommandCenter />} />
           <Route path="medical-stock" element={<MedicalStockReserve />} />
           <Route path="financial-stats" element={<FinancialAnalytics />} />
-          <Route path="menu-stats" element={<MenuStatistics />} />
+          <Route path="menu-stats" element={
+            <ProtectedAdminRoute role={adminRole} path="menu-stats">
+              <MenuStatistics />
+            </ProtectedAdminRoute>
+          } />
           <Route path="alerts" element={<Alerts />} />
           <Route path="settings" element={
             <div className="p-8 max-w-4xl mx-auto">

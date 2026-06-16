@@ -3037,8 +3037,14 @@ const KindergartenController = {
   },
 
   deleteDish: (req, res) => {
-    res.status(409).json({
-      error: 'Aqlvoy oshpaz taomlar bazasi doimiy saqlanadi. Taomlarni o\'chirish mumkin emas.',
+    db.run('DELETE FROM dishes WHERE id = ?', [req.params.id], function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (!this.changes) {
+        return res.status(404).json({ error: 'Taom topilmadi' });
+      }
+      res.json({ id: req.params.id, deleted: true });
     });
   },
 

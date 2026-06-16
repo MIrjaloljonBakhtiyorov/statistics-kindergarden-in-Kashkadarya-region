@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { AnimatePresence } from 'framer-motion';
+import type { AdminRole } from '../../lib/adminAccess';
 
-export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const DashboardLayout: React.FC<{ children: React.ReactNode; role: AdminRole }> = ({ children, role }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -11,10 +12,10 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   return (
     <div className="min-h-screen bg-[#f8fafc] font-sans text-slate-900 flex overflow-hidden">
       {/* Sidebar - Desktop is fixed, Mobile is toggleable */}
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} role={role} />
       
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden lg:ml-80 w-full">
-        <Topbar onMenuClick={toggleSidebar} />
+        <Topbar onMenuClick={toggleSidebar} role={role} />
         <main className="flex-1 p-3 sm:p-5 lg:p-8 overflow-auto custom-scrollbar">
           {children}
         </main>

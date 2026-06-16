@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { apiClient } from '@/shared/api';
+import { type AdminRole, canAccessAdminPath, clearAdminSession } from '../../lib/adminAccess';
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Viloyat statistikasi", path: "" },
@@ -41,10 +42,12 @@ const getAdminPath = (path: string) => (path ? `/admin/${path}` : '/admin');
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  role: AdminRole;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, role }) => {
   const [alertCount, setAlertCount] = useState(0);
+  const visibleMenuItems = menuItems.filter((item) => canAccessAdminPath(role, item.path));
 
   useEffect(() => {
     let mounted = true;
@@ -70,7 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   const handleLogout = async () => {
     try {
-      localStorage.removeItem('isDemoAuth');
+      clearAdminSession();
       const { signOut } = await import('firebase/auth');
       const { auth } = await import('../../services/firebase');
       await signOut(auth);
@@ -110,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <p className="text-[10px] font-black text-slate-600 tracking-[0.3em] uppercase px-3 mb-3">Main Monitor</p>
 
         <div className="space-y-1">
-          {menuItems.map((item) => (
+          {visibleMenuItems.map((item) => (
             <NavLink
               key={item.path}
               to={getAdminPath(item.path)}

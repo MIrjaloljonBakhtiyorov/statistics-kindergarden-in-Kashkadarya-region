@@ -35,6 +35,7 @@ import { useStaff } from '../../features/staff/hooks/useStaff';
 import { OperationsLog } from '../../features/operations/components/OperationsLog';
 import { useNotification } from '../../context/NotificationContext';
 import { apiClient } from '@/shared/api';
+import { FoodImagePreview } from '@/shared/components/FoodImagePreview';
 
 interface OperatorViewProps {
   groups: any[];
@@ -454,10 +455,13 @@ const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) =>
             {todayMenu.map((item) => (
               <div key={item.id} className="rounded-xl border border-slate-100 bg-slate-50 p-4 overflow-hidden">
                 {item.image_url && (
-                  <img
+                  <FoodImagePreview
                     src={item.image_url}
                     alt={item.meal_name || 'Taom rasmi'}
-                    className="w-full h-28 object-cover rounded-lg mb-3 border border-white"
+                    label={item.meal_name}
+                    className="mb-3 h-28 w-full rounded-lg border border-white"
+                    imageClassName="object-cover"
+                    previewImageClassName="object-cover"
                   />
                 )}
                 <p className="text-[9px] font-black text-brand-primary uppercase tracking-widest">

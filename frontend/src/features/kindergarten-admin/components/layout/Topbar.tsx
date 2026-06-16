@@ -3,14 +3,18 @@ import { Bell, CalendarDays, Clock, Menu, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/shared/theme/theme';
+import { type AdminRole, clearAdminSession, getStoredAdminLabel, isManagementRole } from '../../lib/adminAccess';
 
 interface TopbarProps {
   onMenuClick: () => void;
+  role: AdminRole;
 }
 
-export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
+export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, role }) => {
   const navigate = useNavigate();
   const [time, setTime] = React.useState(new Date());
+  const adminName = isManagementRole(role) ? 'Boshqarma' : 'Mirjalol S.';
+  const adminRoleLabel = getStoredAdminLabel();
 
   React.useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -19,7 +23,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
 
   const handleLogout = async () => {
     try {
-      localStorage.removeItem('isDemoAuth');
+      clearAdminSession();
       const { signOut } = await import('firebase/auth');
       const { auth } = await import('../../services/firebase');
       await signOut(auth);
@@ -93,15 +97,15 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
             <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 rounded-full ring-4 ring-white shadow-lg"></span>
           </button>
           
-          <div className="flex items-center gap-4 pl-2 group">
+            <div className="flex items-center gap-4 pl-2 group">
             <div className="text-right hidden md:block select-none">
-              <span className="block text-sm font-black text-slate-900 leading-none group-hover:text-indigo-600 transition-colors">Mirjalol S.</span>
-              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Super Admin</span>
+              <span className="block text-sm font-black text-slate-900 leading-none group-hover:text-indigo-600 transition-colors">{adminName}</span>
+              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">{adminRoleLabel}</span>
             </div>
             
             <div className="relative">
               <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-white flex items-center justify-center text-slate-700 transition-all group-hover:scale-110 group-hover:rotate-3 shadow-xl shadow-slate-200/50 group-hover:shadow-indigo-500/10 cursor-pointer overflow-hidden ring-1 ring-slate-200/60">
-                <span className="text-xs font-black font-mono">MS</span>
+                <span className="text-xs font-black font-mono">{isManagementRole(role) ? 'BQ' : 'MS'}</span>
               </div>
             </div>
 

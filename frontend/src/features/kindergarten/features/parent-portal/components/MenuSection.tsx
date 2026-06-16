@@ -2,6 +2,7 @@
 import { Apple, Clock, Flame, Zap, Target, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { apiClient } from '@/shared/api';
+import { FoodImagePreview } from '@/shared/components/FoodImagePreview';
 
 
 const MEAL_LABELS: Record<string, string> = {
@@ -141,7 +142,14 @@ export const MenuSection = ({ data: initialData, childId }: any) => {
                 {/* Meal Image Container */}
                 <div className="relative h-40 md:h-48 w-full rounded-[1.5rem] md:rounded-[2rem] overflow-hidden mb-4 bg-slate-100">
                    {item.image_url ? (
-                      <img src={item.image_url} alt={item.meal_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      <FoodImagePreview
+                        src={item.image_url}
+                        alt={item.meal_name || 'Taom rasmi'}
+                        label={item.meal_name}
+                        className="h-full w-full"
+                        imageClassName="object-cover group-hover:scale-110 transition-transform duration-700"
+                        previewImageClassName="object-cover"
+                      />
                    ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
                          <Apple size={48} className="opacity-20" />
