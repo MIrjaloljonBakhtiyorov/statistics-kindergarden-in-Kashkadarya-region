@@ -24,7 +24,7 @@ export function Footer() {
         <div className="absolute bottom-0 left-0 right-0 h-[200px] bg-gradient-to-t from-blue-900/10 via-transparent to-transparent" />
       </div>
 
-      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-20 relative z-10">
         <div className="grid lg:grid-cols-5 gap-8 mb-12">
           {/* Brand Column */}
           <div className="lg:col-span-2">

@@ -50,7 +50,7 @@ export function Navbar() {
           ${isScrolled ? "bg-slate-950/80 backdrop-blur-xl border-b border-white/5" : "bg-transparent"}
         `}
       >
-        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-20">
           <div className="flex h-20 items-center justify-between">
             {/* Logo */}
             <a href="/#top" className="flex items-center gap-3 group">
@@ -107,7 +107,7 @@ export function Navbar() {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="absolute top-20 left-0 right-0 lg:hidden z-50 bg-slate-950/95 backdrop-blur-xl border-b border-white/10 animate-in slide-in-from-top-5 duration-200">
-            <div className="w-full max-w-[1920px] mx-auto px-4 py-6">
+            <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-20 py-6">
               <div className="space-y-2">
                 {navItems.map((item, index) => (
                   <a

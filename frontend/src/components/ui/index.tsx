@@ -3,20 +3,22 @@ import type { SectionProps, CardProps, SectionHeadProps, ButtonVariant, ButtonSi
 
 // ─── UI COMPONENTS ────────────────────────────────────────────────────────────
 
-// 1. Container
+// 1. Container — max-w-7xl, chap/o'ngdan 24px–96px joy
 export function Container({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
+    <div className={`w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-20 ${className}`}>
       {children}
     </div>
   );
 }
 
-// 2. Section Wrapper
+// 2. Section Wrapper — container ichiga auto wrap
 export function Section({ id, className = "", children }: SectionProps) {
   return (
     <section id={id} className={`py-20 lg:py-28 ${className}`}>
-      {children}
+      <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-20">
+        {children}
+      </div>
     </section>
   );
 }

@@ -12,7 +12,7 @@ export function CTASection() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-blue-500/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-20 relative z-10">
         <Card className="p-8 lg:p-12 bg-gradient-to-br from-slate-900/50 via-slate-900/30 to-transparent border-white/10 backdrop-blur-xl overflow-hidden">
           {/* Decorative Elements */}
           <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl" />
