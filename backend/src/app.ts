@@ -1,57 +1,21 @@
-import cors from 'cors';
-import express from 'express';
-import fs from 'fs';
-import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import cors from "cors";
+import express from "express";
+import helmet from "helmet";
+import { env } from "./config/env.js";
+import { healthRouter } from "./routes/health.routes.js";
 
-import './db/schema.js';
-import kindergartenAdminRoutes from './modules/admin/routes/kindergartenRoutes.js';
-import kindergartenSystemRoutes from './modules/kindergarten/routes/kindergartenRoutes.js';
+export const app = express();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadsDir = path.join(__dirname, '../uploads');
+app.use(helmet());
+app.use(cors({ origin: env.CORS_ORIGIN }));
+app.use(express.json());
 
-fs.mkdirSync(uploadsDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (_req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
+app.get("/api", (_req, res) => {
+  res.json({
+    name: "Qashqadaryo Startaplar Ligasi API",
+    version: "0.1.0",
+    status: "running"
+  });
 });
 
-const upload = multer({ storage });
-
-export const createApp = () => {
-  const app = express();
-
-  app.use(cors());
-  app.use(express.json({ limit: '50mb' }));
-  app.use((err: any, _req: express.Request, res: express.Response, next: express.NextFunction) => {
-    if (err instanceof SyntaxError && 'body' in err) {
-      return res.status(400).json({ error: "JSON formati noto'g'ri" });
-    }
-    return next(err);
-  });
-  app.use('/uploads', express.static(uploadsDir));
-
-  app.post('/api/upload', upload.single('image'), (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-    return res.json({ url: `/uploads/${req.file.filename}` });
-  });
-
-  app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', message: 'Unified Backend is running' });
-  });
-
-  app.use('/api/kindergartens', kindergartenAdminRoutes);
-  app.use('/api', kindergartenSystemRoutes);
-
-  return app;
-};
+app.use("/api/health", healthRouter);

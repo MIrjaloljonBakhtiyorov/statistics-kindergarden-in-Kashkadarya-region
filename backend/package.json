@@ -1,29 +1,28 @@
 {
-  "name": "raqamli-mtt-backend",
-  "version": "1.0.0",
+  "name": "backend",
+  "version": "0.1.0",
+  "private": true,
   "type": "module",
   "scripts": {
-    "start": "node dist/index.js",
-    "dev": "tsx --watch src/index.ts",
-    "build": "tsc",
-    "migrate": "tsx src/db/migrate.ts"
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "multer": "^2.1.1",
-    "pg": "^8.20.0"
+    "helmet": "^8.1.0",
+    "pg": "^8.16.3",
+    "zod": "^4.2.1"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/multer": "^2.1.0",
-    "@types/node": "^22.19.20",
-    "@types/pg": "^8.20.0",
-    "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
+    "@types/node": "^24.10.1",
+    "@types/pg": "^8.15.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
