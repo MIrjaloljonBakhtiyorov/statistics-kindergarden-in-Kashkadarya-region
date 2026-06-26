@@ -26,6 +26,9 @@ interface InstitutionApplication {
   presentationUrl?: string;
   videoUrl?: string;
   demoUrl?: string;
+  presentationExists?: boolean;
+  videoExists?: boolean;
+  demoExists?: boolean;
   githubUrl?: string;
   websiteUrl?: string;
   status: "submitted" | "under_review" | "needs_correction" | "accepted" | "rejected" | "next_stage";
@@ -55,17 +58,19 @@ const formatDate = (value?: string | null) => {
   return date.toLocaleDateString("uz-UZ");
 };
 
-const ApplicationLink = ({ href, label, icon: Icon }: { href?: string; label: string; icon: typeof LinkIcon }) => {
+const ApplicationLink = ({ href, label, icon: Icon, exists = true }: { href?: string; label: string; icon: typeof LinkIcon; exists?: boolean }) => {
   if (!href) return null;
   const canDownload = href.startsWith("/uploads/") || href.startsWith("http://") || href.startsWith("https://");
   return (
     <div className="inline-flex items-center gap-2 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 py-2 text-xs text-[var(--admin-text-secondary)]">
       <Icon size={14} />
       {label}
-      {canDownload && (
+      {canDownload && exists ? (
         <a href={normalizeHref(href)} download={href.startsWith("/uploads/") || undefined} target="_blank" rel="noreferrer" className="font-semibold text-green-300 hover:text-green-200">
           Yuklab olish
         </a>
+      ) : (
+        <span className="font-semibold text-red-300">Fayl serverda topilmadi</span>
       )}
     </div>
   );
@@ -261,9 +266,9 @@ export function InstitutionsPage() {
                       <span>Kurs: {app.course || "-"}</span>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <ApplicationLink href={app.presentationUrl} label="Taqdimot" icon={FileUp} />
-                      <ApplicationLink href={app.videoUrl} label="Video" icon={Video} />
-                      <ApplicationLink href={app.demoUrl} label="Demo" icon={FileUp} />
+                      <ApplicationLink href={app.presentationUrl} label="Taqdimot" icon={FileUp} exists={app.presentationExists} />
+                      <ApplicationLink href={app.videoUrl} label="Video" icon={Video} exists={app.videoExists} />
+                      <ApplicationLink href={app.demoUrl} label="Demo" icon={FileUp} exists={app.demoExists} />
                       <ApplicationLink href={app.githubUrl} label="GitHub" icon={GitBranch} />
                       <ApplicationLink href={app.websiteUrl} label="Sayt" icon={LinkIcon} />
                     </div>
@@ -319,6 +324,7 @@ function ApplicationDetailModal({ app, onClose }: { app: InstitutionApplication;
             <Info label="Fakultet" value={app.faculty} />
             <Info label="Ta'lim yo'nalishi" value={app.educationDirection} />
             <Info label="Kurs" value={app.course ? `${app.course}-kurs` : undefined} />
+            <Info label="Yangilangan sana" value={formatDate(app.updatedAt)} />
           </div>
 
           <TextBlock label="Loyiha maqsadi" value={app.goal} />
@@ -328,9 +334,9 @@ function ApplicationDetailModal({ app, onClose }: { app: InstitutionApplication;
           <div>
             <h3 className="mb-3 text-lg font-semibold text-white">Fayllar va havolalar</h3>
             <div className="grid gap-3 md:grid-cols-2">
-              <ResourceCard href={app.presentationUrl} label="Taqdimot materiali" icon={FileUp} />
-              <ResourceCard href={app.videoUrl} label="Video material" icon={Video} />
-              <ResourceCard href={app.demoUrl} label="Demo versiyasi" icon={FileUp} />
+              <ResourceCard href={app.presentationUrl} label="Taqdimot materiali" icon={FileUp} exists={app.presentationExists} />
+              <ResourceCard href={app.videoUrl} label="Video material" icon={Video} exists={app.videoExists} />
+              <ResourceCard href={app.demoUrl} label="Demo versiyasi" icon={FileUp} exists={app.demoExists} />
               <ResourceCard href={app.githubUrl} label="GitHub" icon={GitBranch} />
               <ResourceCard href={app.websiteUrl} label="Yaratilgan sayt" icon={LinkIcon} />
             </div>
@@ -361,7 +367,7 @@ function TextBlock({ label, value }: { label: string; value?: string | null }) {
   );
 }
 
-function ResourceCard({ href, label, icon: Icon }: { href?: string | null; label: string; icon: typeof LinkIcon }) {
+function ResourceCard({ href, label, icon: Icon, exists = true }: { href?: string | null; label: string; icon: typeof LinkIcon; exists?: boolean }) {
   if (!href) {
     return (
       <div className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-bg)] p-4">
@@ -378,10 +384,12 @@ function ResourceCard({ href, label, icon: Icon }: { href?: string | null; label
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-white">{label}</p>
           <p className="mt-1 break-all text-xs text-[var(--admin-text-muted)]">{getFileName(href)}</p>
-          {downloadable ? (
+          {downloadable && exists ? (
             <a href={normalizeHref(href)} download={href.startsWith("/uploads/") || undefined} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-xs font-semibold text-green-300 hover:text-green-200">
               Yuklab olish
             </a>
+          ) : !exists ? (
+            <p className="mt-3 text-xs text-red-300">Fayl serverda topilmadi. Uni qayta yuklash kerak.</p>
           ) : (
             <p className="mt-3 text-xs text-amber-300">Fayl yo'li mavjud, lekin yuklab olish manzili noto'g'ri.</p>
           )}

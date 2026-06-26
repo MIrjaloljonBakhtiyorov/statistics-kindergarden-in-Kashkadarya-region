@@ -1,4 +1,6 @@
 import { Router } from "express";
+import fs from "node:fs/promises";
+import path from "node:path";
 import { z } from "zod";
 import { pool } from "../db/pool.js";
 import { toUserDto } from "./auth.routes.js";
@@ -533,8 +535,9 @@ adminRouter.get("/user-applications", async (req, res, next) => {
       values
     );
 
+    const rows = await Promise.all(result.rows.map(enrichApplicationFileAvailability));
     res.json({
-      data: result.rows.map(toAdminUserApplicationDto)
+      data: rows.map(toAdminUserApplicationDto)
     });
   } catch (error) {
     next(error);
@@ -721,6 +724,9 @@ function toAdminUserApplicationDto(row: any) {
     presentationUrl: row.presentation_url,
     videoUrl: row.video_url,
     demoUrl: row.demo_url,
+    presentationExists: row.presentation_exists ?? !isUploadPath(row.presentation_url),
+    videoExists: row.video_exists ?? !isUploadPath(row.video_url),
+    demoExists: row.demo_exists ?? !isUploadPath(row.demo_url),
     githubUrl: row.github_url,
     websiteUrl: row.website_url,
     status: row.status || "submitted",
@@ -737,6 +743,33 @@ function toAdminUserApplicationDto(row: any) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+function isUploadPath(value: unknown) {
+  return typeof value === "string" && value.startsWith("/uploads/");
+}
+
+async function enrichApplicationFileAvailability(row: any) {
+  return {
+    ...row,
+    presentation_exists: await resourceAvailable(row.presentation_url),
+    video_exists: await resourceAvailable(row.video_url),
+    demo_exists: await resourceAvailable(row.demo_url)
+  };
+}
+
+async function resourceAvailable(value: unknown) {
+  if (!isUploadPath(value)) return Boolean(value);
+  const relativePath = String(value).replace(/^\/uploads\//, "").split("?")[0];
+  const uploadsRoot = path.resolve(process.cwd(), "uploads");
+  const filePath = path.resolve(uploadsRoot, relativePath);
+  if (!filePath.startsWith(`${uploadsRoot}${path.sep}`)) return false;
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function makeShortName(name: string) {
