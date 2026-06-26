@@ -1,0 +1,4 @@
+import{v as i}from"./vendor-Gg0p6gBv.js";function d({tabs:s,activeTab:t,onTabChange:r,className:l=""}){return i.jsx("div",{className:`flex gap-1 bg-[#07172b] border border-[rgba(112,145,190,.18)] rounded-xl p-1 ${l}`,role:"tablist",children:s.map(e=>i.jsxs("button",{role:"tab","aria-selected":t===e.id,onClick:()=>r(e.id),className:`
+            flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-1 justify-center
+            ${t===e.id?"bg-blue-600 text-white shadow-sm":"text-[#aab6c9] hover:text-white hover:bg-white/5"}
+          `,children:[e.icon&&i.jsx("span",{className:"flex-shrink-0",children:e.icon}),i.jsx("span",{children:e.label}),e.badge!==void 0&&i.jsx("span",{className:`text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${t===e.id?"bg-white/20 text-white":"bg-white/10 text-[#aab6c9]"}`,children:e.badge})]},e.id))})}export{d as P};

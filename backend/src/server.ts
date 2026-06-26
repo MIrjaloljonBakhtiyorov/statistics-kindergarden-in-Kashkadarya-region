@@ -1,5 +1,8 @@
 import { app } from "./app.js";
 import { env } from "./config/env.js";
+import { ensureDatabaseSchema } from "./db/schema.js";
+
+await ensureDatabaseSchema();
 
 const server = app.listen(env.PORT, () => {
   console.log(`API server listening on http://localhost:${env.PORT}`);
