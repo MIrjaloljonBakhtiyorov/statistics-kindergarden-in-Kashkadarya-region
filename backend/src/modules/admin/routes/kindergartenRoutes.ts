@@ -1,0 +1,32 @@
+import express from 'express';
+const router = express.Router();
+import KindergartenController from '../controllers/kindergartenController.js';
+
+router.get('/', KindergartenController.getAll);
+router.get('/menus/all', KindergartenController.getMenus);
+router.get('/menus/compliance-statistics', KindergartenController.getMenuComplianceStatistics);
+router.get('/dishes/all', KindergartenController.getDishes);
+router.get('/medical-stock-alerts', KindergartenController.getMedicalStockAlerts);
+router.get('/alerts', KindergartenController.getAlerts);
+router.get('/ai-insights', KindergartenController.getAIInsights);
+router.get('/inspections', KindergartenController.getInspections);
+router.get('/inspections/:id/word', KindergartenController.downloadInspectionWord);
+router.post('/inspections', KindergartenController.createInspection);
+router.post('/dish-items/analyze-page', KindergartenController.analyzeDishPage);
+router.post('/dish-items', KindergartenController.createDish);
+router.put('/dish-items/:id', KindergartenController.updateDish);
+router.delete('/dish-items/:id', KindergartenController.deleteDish);
+router.post('/dishes', KindergartenController.createDish);
+router.put('/dishes/:id', KindergartenController.updateDish);
+router.delete('/dishes/:id', KindergartenController.deleteDish);
+router.post('/menus/ten-day', KindergartenController.createTenDayMenus);
+router.get('/daily-district-expenses', KindergartenController.getDailyDistrictExpenses);
+router.post('/daily-district-expenses', KindergartenController.saveDailyDistrictExpenses);
+router.get('/district-warehouse-purchases', KindergartenController.getDistrictWarehousePurchases);
+router.post('/district-warehouse-purchases', KindergartenController.saveDistrictWarehousePurchases);
+router.get('/:id', KindergartenController.getById);
+router.post('/', KindergartenController.create);
+router.put('/:id', KindergartenController.update);
+router.delete('/:id', KindergartenController.delete);
+
+export default router;

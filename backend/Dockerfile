@@ -1,19 +1,18 @@
-FROM node:22-alpine AS deps
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
+FROM node:20-bookworm
 
-FROM deps AS build
-COPY tsconfig.json ./
-COPY src ./src
-RUN npm run build
-RUN npm prune --omit=dev
-
-FROM node:22-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=build /app/package*.json ./
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
-EXPOSE 4000
-CMD ["node", "dist/server.js"]
+
+ENV NO_UPDATE_NOTIFIER=1
+
+COPY package.json pnpm-lock.yaml ./
+RUN npm config set strict-ssl false \
+    && npm install -g pnpm@10.14.0 --no-audit --no-fund \
+    && pnpm config set strict-ssl false \
+    && pnpm config set update-notifier false \
+    && pnpm install --frozen-lockfile --ignore-scripts
+
+COPY . .
+
+EXPOSE 4001
+
+CMD ["pnpm", "run", "dev"]

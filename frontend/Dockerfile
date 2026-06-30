@@ -1,18 +1,18 @@
-FROM node:22-alpine AS build
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY index.html ./
-COPY tsconfig*.json ./
-COPY vite.config.ts ./
-COPY postcss.config.js ./
-COPY tailwind.config.js ./
-COPY public ./public
-COPY src ./src
-RUN npm run build
+FROM node:20-bookworm
 
-FROM nginx:1.27-alpine AS runner
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+WORKDIR /app
+
+ENV NO_UPDATE_NOTIFIER=1
+
+COPY package.json pnpm-lock.yaml ./
+RUN npm config set strict-ssl false \
+    && npm install -g pnpm@10.14.0 --no-audit --no-fund \
+    && pnpm config set strict-ssl false \
+    && pnpm config set update-notifier false \
+    && pnpm install --frozen-lockfile --ignore-scripts
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["pnpm", "exec", "vite", "--host", "0.0.0.0"]

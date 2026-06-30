@@ -1,1 +1,0 @@
-import{v as n}from"./vendor-Gg0p6gBv.js";import{L as o}from"./LoginModal-Bi3qNZeT.js";function e(){return n.jsx("main",{className:"min-h-screen bg-[linear-gradient(135deg,#020617_0%,#07122f_48%,#0b1024_100%)]",children:n.jsx(o,{onClose:()=>{window.location.href="/"}})})}export{e as Login};

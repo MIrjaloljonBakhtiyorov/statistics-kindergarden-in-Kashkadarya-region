@@ -1,0 +1,94 @@
+import { Baby, School, Users, TrendingUp, LayoutGrid } from 'lucide-react';
+
+export const stats = [
+  { label: 'stats.3to7', value: '341,403', icon: Baby, color: 'from-[#003580] to-[#1565C0]', bg: 'bg-blue-100/50' },
+  { label: 'stats.totalMTT', value: '4,439', icon: School, color: 'from-[#1B5E20] to-[#2E7D32]', bg: 'bg-green-100/50' },
+  { label: 'stats.totalChildren', value: '243,901', icon: Users, color: 'from-[#4527A0] to-[#6A1B9A]', bg: 'bg-purple-100/50' },
+  { label: 'stats.coverage', value: '71.44%', icon: TrendingUp, color: 'from-[#B71C1C] to-[#C62828]', bg: 'bg-red-100/50' },
+  { label: 'stats.typeCount', value: '5 TA', icon: LayoutGrid, color: 'from-[#E65100] to-[#BF360C]', bg: 'bg-orange-100/50' },
+];
+
+export const attendanceData = [
+  { name: 'Qarshi sh.', value: 81.06 }, { name: 'Shahrisabz sh.', value: 86.96 },
+  { name: 'Qarshi t.', value: 86.20 }, { name: 'Shahrisabz t.', value: 73.42 },
+  { name: 'Kitob t.', value: 67.44 }, { name: 'Koson t.', value: 71.32 },
+  { name: 'Muborak t.', value: 95.31 }, { name: 'G\'uzor t.', value: 74.57 },
+  { name: 'Nishon t.', value: 78.88 }, { name: 'Dehqonobod t.', value: 57.12 },
+  { name: 'Qamashi t.', value: 66.11 }, { name: 'Chiroqchi t.', value: 60.39 },
+  { name: 'Kasbi t.', value: 77.46 }, { name: 'Mirishkor t.', value: 77.26 },
+  { name: 'Yakkabog\' t.', value: 73.48 }, { name: 'Ko\'kdala t.', value: 49.04 },
+];
+
+export const kindergartenTypes = [
+  { name: 'type.davlat', count: 496, children: 115202 },
+  { name: 'type.xususiy', count: 12, children: 304 },
+  { name: 'type.dxsh', count: 200, children: 19691 },
+  { name: 'type.oilaviy', count: 3721, children: 109443 },
+  { name: 'type.tashkilot', count: 10, children: 820 },
+];
+
+export const COLORS = ['#003580', '#1B5E20', '#4527A0', '#0277BD', '#00695C'];
+
+export const districts = [
+  { name: 'Qarshi sh.', count: 269, attendance: 81.06, details: { totalChildren3to7: 22318, totalMTT: 269, totalCoveredChildren: 18091, coveragePercentage: 81.06, types: [{ name: 'type.davlat', count: 41, children: 9665 }, { name: 'type.xususiy', count: 0, children: 0 }, { name: 'type.dxsh', count: 27, children: 2314 }, { name: 'type.oilaviy', count: 197, children: 5876 }, { name: 'type.tashkilot', count: 4, children: 236 }] } },
+  { name: 'Shahrisabz sh.', count: 245, attendance: 86.96, details: { totalChildren3to7: 12277, totalMTT: 245, totalCoveredChildren: 10676, coveragePercentage: 86.96, types: [{ name: 'type.davlat', count: 33, children: 5184 }, { name: 'type.xususiy', count: 1, children: 0 }, { name: 'type.dxsh', count: 7, children: 584 }, { name: 'type.oilaviy', count: 204, children: 4908 }, { name: 'type.tashkilot', count: 0, children: 0 }] } },
+  { name: 'Qarshi t.', count: 359, attendance: 86.20, details: { totalChildren3to7: 24041, totalMTT: 359, totalCoveredChildren: 20723, coveragePercentage: 86.20, types: [{ name: 'type.davlat', count: 29, children: 7202 }, { name: 'type.xususiy', count: 0, children: 0 }, { name: 'type.dxsh', count: 27, children: 3315 }, { name: 'type.oilaviy', count: 303, children: 10206 }, { name: 'type.tashkilot', count: 0, children: 0 }] } },
+  { name: 'Shahrisabz t.', count: 280, attendance: 73.42, details: { totalChildren3to7: 20934, totalMTT: 280, totalCoveredChildren: 15369, coveragePercentage: 73.42, types: [{ name: 'type.davlat', count: 45, children: 8657 }, { name: 'type.xususiy', count: 1, children: 0 }, { name: 'type.dxsh', count: 9, children: 842 }, { name: 'type.oilaviy', count: 225, children: 5870 }, { name: 'type.tashkilot', count: 0, children: 0 }] } },
+  { name: 'Kitob t.', count: 305, attendance: 67.44, details: { totalChildren3to7: 26303, totalMTT: 305, totalCoveredChildren: 17740, coveragePercentage: 67.44, types: [{ name: 'type.davlat', count: 37, children: 8539 }, { name: 'type.xususiy', count: 7, children: 113 }, { name: 'type.dxsh', count: 9, children: 604 }, { name: 'type.oilaviy', count: 252, children: 8484 }, { name: 'type.tashkilot', count: 0, children: 0 }] } },
+  { name: 'Koson t.', count: 379, attendance: 71.32, details: { totalChildren3to7: 30200, totalMTT: 379, totalCoveredChildren: 21539, coveragePercentage: 71.32, types: [{ name: 'type.davlat', count: 49, children: 9678 }, { name: 'type.xususiy', count: 0, children: 0 }, { name: 'type.dxsh', count: 25, children: 2942 }, { name: 'type.oilaviy', count: 305, children: 8919 }, { name: 'type.tashkilot', count: 0, children: 0 }] } },
+  { name: 'Muborak t.', count: 146, attendance: 95.31, details: { totalChildren3to7: 8867, totalMTT: 146, totalCoveredChildren: 8451, coveragePercentage: 95.31, types: [{ name: 'type.davlat', count: 21, children: 3849 }, { name: 'type.xususiy', count: 0, children: 0 }, { name: 'type.dxsh', count: 8, children: 787 }, { name: 'type.oilaviy', count: 117, children: 3815 }, { name: 'type.tashkilot', count: 0, children: 0 }] } },
+  { name: 'G\'uzor t.', count: 258, attendance: 74.57, details: { totalChildren3to7: 21875, totalMTT: 258, totalCoveredChildren: 16312, coveragePercentage: 74.57, types: [{ name: 'type.davlat', count: 34, children: 9364 }, { name: 'type.xususiy', count: 1, children: 120 }, { name: 'type.dxsh', count: 5, children: 573 }, { name: 'type.oilaviy', count: 216, children: 6063 }, { name: 'type.tashkilot', count: 2, children: 192 }] } },
+  { name: 'Nishon t.', count: 212, attendance: 78.88, details: { totalChildren3to7: 16116, totalMTT: 212, totalCoveredChildren: 12713, coveragePercentage: 78.88, types: [{ name: 'type.davlat', count: 24, children: 6052 }, { name: 'type.xususiy', count: 1, children: 25 }, { name: 'type.dxsh', count: 10, children: 940 }, { name: 'type.oilaviy', count: 175, children: 5356 }, { name: 'type.tashkilot', count: 2, children: 340 }] } },
+  { name: 'Dehqonobod t.', count: 192, attendance: 57.12, details: { totalChildren3to7: 16491, totalMTT: 192, totalCoveredChildren: 9419, coveragePercentage: 57.12, types: [{ name: 'type.davlat', count: 15, children: 4202 }, { name: 'type.xususiy', count: 0, children: 0 }, { name: 'type.dxsh', count: 11, children: 950 }, { name: 'type.oilaviy', count: 165, children: 4219 }, { name: 'type.tashkilot', count: 1, children: 48 }] } },
+  { name: 'Qamashi t.', count: 337, attendance: 66.11, details: { totalChildren3to7: 29848, totalMTT: 337, totalCoveredChildren: 19734, coveragePercentage: 66.11, types: [{ name: 'type.davlat', count: 32, children: 8602 }, { name: 'type.xususiy', count: 0, children: 0 }, { name: 'type.dxsh', count: 10, children: 837 }, { name: 'type.oilaviy', count: 295, children: 10295 }, { name: 'type.tashkilot', count: 0, children: 0 }] } },
+  { name: 'Chiroqchi t.', count: 339, attendance: 60.39, details: { totalChildren3to7: 31124, totalMTT: 339, totalCoveredChildren: 18797, coveragePercentage: 60.39, types: [{ name: 'type.davlat', count: 24, children: 8125 }, { name: 'type.xususiy', count: 0, children: 0 }, { name: 'type.dxsh', count: 7, children: 696 }, { name: 'type.oilaviy', count: 308, children: 9976 }, { name: 'type.tashkilot', count: 0, children: 0 }] } },
+  { name: 'Kasbi t.', count: 358, attendance: 77.46, details: { totalChildren3to7: 20022, totalMTT: 358, totalCoveredChildren: 15510, coveragePercentage: 77.46, types: [{ name: 'type.davlat', count: 32, children: 6530 }, { name: 'type.xususiy', count: 1, children: 46 }, { name: 'type.dxsh', count: 17, children: 1502 }, { name: 'type.oilaviy', count: 307, children: 7428 }, { name: 'type.tashkilot', count: 1, children: 4 }] } },
+  { name: 'Mirishkor t.', count: 184, attendance: 77.26, details: { totalChildren3to7: 11730, totalMTT: 184, totalCoveredChildren: 9063, coveragePercentage: 77.26, types: [{ name: 'type.davlat', count: 21, children: 3722 }, { name: 'type.xususiy', count: 0, children: 0 }, { name: 'type.dxsh', count: 12, children: 1060 }, { name: 'type.oilaviy', count: 151, children: 4281 }, { name: 'type.tashkilot', count: 0, children: 0 }] } },
+  { name: 'Yakkabog\' t.', count: 481, attendance: 73.48, details: { totalChildren3to7: 28545, totalMTT: 481, totalCoveredChildren: 20975, coveragePercentage: 73.48, types: [{ name: 'type.davlat', count: 33, children: 7835 }, { name: 'type.xususiy', count: 0, children: 0 }, { name: 'type.dxsh', count: 12, children: 1383 }, { name: 'type.oilaviy', count: 436, children: 11757 }, { name: 'type.tashkilot', count: 0, children: 0 }] } },
+  { name: 'Ko\'kdala t.', count: 95, attendance: 49.04, details: { totalChildren3to7: 21103, totalMTT: 95, totalCoveredChildren: 10348, coveragePercentage: 49.04, types: [{ name: 'type.davlat', count: 26, children: 7996 }, { name: 'type.xususiy', count: 0, children: 0 }, { name: 'type.dxsh', count: 4, children: 362 }, { name: 'type.oilaviy', count: 65, children: 1990 }, { name: 'type.tashkilot', count: 0, children: 0 }] } },
+];
+
+export const getDistrictNameKey = (name: string) => `districtName.${name}`;
+
+export const productData = [
+  { name: 'Qarshi sh.', Sut: 120, Go_sht: 80, Guruch: 90, Sabzavot: 50, Non: 40 },
+  { name: 'Shahrisabz sh.', Sut: 100, Go_sht: 70, Guruch: 80, Sabzavot: 45, Non: 35 },
+  { name: 'Qarshi t.', Sut: 110, Go_sht: 75, Guruch: 85, Sabzavot: 48, Non: 38 },
+  { name: 'Shahrisabz t.', Sut: 105, Go_sht: 70, Guruch: 80, Sabzavot: 45, Non: 35 },
+  { name: 'Kitob t.', Sut: 95, Go_sht: 65, Guruch: 75, Sabzavot: 40, Non: 30 },
+  { name: 'Koson t.', Sut: 120, Go_sht: 85, Guruch: 95, Sabzavot: 55, Non: 45 },
+  { name: 'Muborak t.', Sut: 80, Go_sht: 50, Guruch: 60, Sabzavot: 35, Non: 25 },
+  { name: 'G\'uzor t.', Sut: 85, Go_sht: 55, Guruch: 65, Sabzavot: 38, Non: 28 },
+  { name: 'Nishon t.', Sut: 75, Go_sht: 45, Guruch: 55, Sabzavot: 30, Non: 20 },
+  { name: 'Dehqonobod t.', Sut: 85, Go_sht: 55, Guruch: 65, Sabzavot: 38, Non: 28 },
+  { name: 'Qamashi t.', Sut: 90, Go_sht: 60, Guruch: 70, Sabzavot: 40, Non: 32 },
+  { name: 'Chiroqchi t.', Sut: 130, Go_sht: 95, Guruch: 105, Sabzavot: 60, Non: 50 },
+  { name: 'Kasbi t.', Sut: 85, Go_sht: 55, Guruch: 65, Sabzavot: 38, Non: 28 },
+  { name: 'Mirishkor t.', Sut: 80, Go_sht: 50, Guruch: 60, Sabzavot: 35, Non: 25 },
+  { name: 'Yakkabog\' t.', Sut: 95, Go_sht: 65, Guruch: 75, Sabzavot: 40, Non: 30 },
+  { name: 'Ko\'kdala t.', Sut: 85, Go_sht: 55, Guruch: 65, Sabzavot: 38, Non: 28 },
+];
+
+import { Milk, Beef, Wheat, Carrot, Pizza } from 'lucide-react';
+
+export const products = [
+  { id: 'Sut', label: 'SUT', labelKey: 'product.milk', icon: Milk, color: '#2563eb', grad: 'from-blue-600 to-blue-700', unit: 'litr', unitKey: 'unit.liter' },
+  { id: 'Go_sht', label: 'GO\'SHT', labelKey: 'product.meat', icon: Beef, color: '#dc2626', grad: 'from-red-600 to-red-700', unit: 'kg', unitKey: 'unit.kg' },
+  { id: 'Guruch', label: 'GURUCH', labelKey: 'product.rice', icon: Wheat, color: '#059669', grad: 'from-emerald-600 to-emerald-700', unit: 'kg', unitKey: 'unit.kg' },
+  { id: 'Sabzavot', label: 'SABZAVOT', labelKey: 'product.vegetable', icon: Carrot, color: '#d97706', grad: 'from-amber-600 to-amber-700', unit: 'kg', unitKey: 'unit.kg' },
+  { id: 'Non', label: 'NON', labelKey: 'product.bread', icon: Pizza, color: '#7c3aed', grad: 'from-violet-600 to-violet-700', unit: 'dona', unitKey: 'unit.piece' },
+];
+
+export const languages = [
+  { code: 'uz-lat', name: "O'zbek (Lotin)" },
+  { code: 'uz-cyr', name: "O'zbek (Kirill)" },
+  { code: 'kaa', name: "Qaraqalpaqsha" },
+  { code: 'ru', name: "Rus tili" },
+];
+
+export const kindergartenImages = [
+  { url: 'https://plus.unsplash.com/premium_photo-1663091062435-ef04d1ea008c?w=1200&auto=format&fit=crop&q=80', title: 'Shodumon bolajonlar' },
+  { url: 'https://media.istockphoto.com/id/1434918490/photo/cute-little-girl-eats-fruit-salad.jpg?s=612x612&w=0&k=20&c=8zi80wlKZADN_koDY7EXg-kAzeyhiPlYdtJvM4BfLDQ=', title: 'Sog\'lom ovqatlanish' },
+  { url: 'https://plus.unsplash.com/premium_photo-1661373657799-a9b4d6543c07?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', title: 'Ta\'lim jarayoni' },
+  { url: 'https://plus.unsplash.com/premium_photo-1723579338213-da0a162d6977?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', title: 'Quvnoq o\'yinlar' },
+];

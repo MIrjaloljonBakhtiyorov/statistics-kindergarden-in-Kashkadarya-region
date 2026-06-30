@@ -1,22 +1,62 @@
 services:
   postgres:
-    image: postgres:16-alpine
-    container_name: qsl-postgres
-    restart: unless-stopped
+    image: postgres:16-bookworm
+    container_name: raqamli-mtt-postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-qsl_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-qsl_password}
-      POSTGRES_DB: ${POSTGRES_DB:-qsl_db}
+      POSTGRES_DB: raqamli_mtt
+      POSTGRES_USER: raqamli_mtt
+      POSTGRES_PASSWORD: raqamli_mtt_password
     ports:
-      - "${POSTGRES_PORT:-5433}:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-qsl_user} -d ${POSTGRES_DB:-qsl_db}"]
+      test: ["CMD-SHELL", "pg_isready -U raqamli_mtt -d raqamli_mtt"]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+    container_name: raqamli-mtt-backend
+    command: ["pnpm", "run", "dev"]
+    env_file:
+      - ./.env
+    environment:
+      PORT: 4001
+      DATABASE_URL: postgresql://raqamli_mtt:raqamli_mtt_password@postgres:5432/raqamli_mtt
+      NO_UPDATE_NOTIFIER: "1"
+    ports:
+      - "4001:4001"
+    volumes:
+      - .:/app
+      - backend_node_modules:/app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+    container_name: raqamli-mtt-frontend
+    command: ["pnpm", "exec", "vite", "--host", "0.0.0.0"]
+    environment:
+      VITE_API_BASE_URL: http://localhost:4001/api
+      VITE_PROXY_TARGET: http://backend:4001
+      NO_UPDATE_NOTIFIER: "1"
+    ports:
+      - "5173:3000"
+    volumes:
+      - ../frontend:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  backend_node_modules:
+  frontend_node_modules:
