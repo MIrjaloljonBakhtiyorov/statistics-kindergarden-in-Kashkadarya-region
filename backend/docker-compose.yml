@@ -10,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./database/dumps/current_database.sql:/docker-entrypoint-initdb.d/current_database.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U raqamli_mtt -d raqamli_mtt"]
       interval: 10s
@@ -29,7 +30,7 @@ services:
       DATABASE_URL: postgresql://raqamli_mtt:raqamli_mtt_password@postgres:5432/raqamli_mtt
       NO_UPDATE_NOTIFIER: "1"
     ports:
-      - "4001:4001"
+      - "4101:4001"
     volumes:
       - .:/app
       - backend_node_modules:/app/node_modules
@@ -42,9 +43,9 @@ services:
     build:
       context: ../frontend
     container_name: raqamli-mtt-frontend
-    command: ["pnpm", "exec", "vite", "--host", "0.0.0.0"]
+    command: ["pnpm", "exec", "vite", "--host", "0.0.0.0", "--port", "3000"]
     environment:
-      VITE_API_BASE_URL: http://localhost:4001/api
+      VITE_API_BASE_URL: http://localhost:4101/api
       VITE_PROXY_TARGET: http://backend:4001
       NO_UPDATE_NOTIFIER: "1"
     ports:
