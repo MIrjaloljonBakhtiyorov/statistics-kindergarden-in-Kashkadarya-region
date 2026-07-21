@@ -26,7 +26,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { apiClient } from '@/shared/api';
-import { ThemeToggle } from '@/shared/theme/theme';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 
@@ -209,83 +208,82 @@ const ParentView = () => {
   };
 
   return (
-    <div className="max-w-[1440px] mx-auto p-3 md:p-6 lg:p-8 space-y-5 md:space-y-8 bg-slate-50/30 min-h-screen">
+    <div className="kg-page max-w-[1440px] mx-auto p-2 sm:p-3 md:p-5 lg:p-6 space-y-3 md:space-y-5 bg-slate-50/30 min-h-screen overflow-x-hidden">
       {/* Header Profile Summary - Fully Responsive */}
-      <div className="relative p-5 md:p-8 lg:p-10 bg-brand-depth rounded-[2rem] md:rounded-[3rem] text-white shadow-xl overflow-hidden group border border-white/5">
+      <div className="relative p-3.5 sm:p-4 md:p-5 lg:p-6 bg-brand-depth rounded-2xl md:rounded-[1.5rem] text-white shadow-xl overflow-hidden group border border-white/5">
         <div className="absolute top-0 right-0 w-48 md:w-[350px] h-48 md:h-[350px] bg-brand-primary/10 rounded-full blur-[60px] md:blur-[100px] -mr-16 -mt-16"></div>
         
-        <div className="relative z-10 flex flex-col md:flex-row items-center gap-5 md:gap-8 text-center md:text-left">
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-3 md:gap-5 text-center md:text-left">
+          <div className="order-first self-end md:order-last md:self-start md:ml-auto flex items-center gap-1.5 md:gap-2 shrink-0">
+             <button onClick={logout} className="p-2 bg-white/5 rounded-lg md:rounded-xl hover:bg-rose-500 transition-all border border-white/10 group"><LogOut size={16} /></button>
+          </div>
+
           <div className="relative shrink-0">
-             <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl md:rounded-3xl border-2 border-white/10 p-0.5 bg-white/5 shadow-xl flex items-center justify-center">
+             <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl border-2 border-white/10 p-0.5 bg-white/5 shadow-xl flex items-center justify-center">
                 {childPhotoUrl ? (
-                  <img src={childPhotoUrl} alt="Bola rasmi" className="w-full h-full rounded-[1rem] md:rounded-[1.35rem] object-cover" />
+                  <img src={childPhotoUrl} alt="Bola rasmi" className="w-full h-full rounded-[0.9rem] md:rounded-[1.15rem] object-cover" />
                 ) : (
                   <>
                     <User size={32} className="text-white/20 md:hidden" />
                     <User size={48} className="text-white/20 hidden md:block" />
                   </>
                 )}
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 md:w-8 md:h-8 bg-emerald-500 rounded-lg flex items-center justify-center border-2 border-brand-depth shadow-lg">
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 md:w-7 md:h-7 bg-emerald-500 rounded-lg flex items-center justify-center border-2 border-brand-depth shadow-lg">
                    <CheckCircle2 size={12} className="text-white md:w-4 md:h-4" />
                 </div>
              </div>
           </div>
 
-          <div className="flex-1 space-y-3 md:space-y-4">
+          <div className="flex-1 min-w-0 space-y-3">
              <div className="space-y-1">
                 <div className="flex flex-wrap justify-center md:justify-start items-center gap-2">
-                   <h2 className="text-xl md:text-2xl lg:text-3xl font-black tracking-tight uppercase leading-tight">{parentData?.first_name} {parentData?.last_name}</h2>
+                   <h2 className="min-w-0 text-lg sm:text-xl md:text-2xl lg:text-3xl font-black tracking-tight uppercase leading-tight break-words">{parentData?.first_name} {parentData?.last_name}</h2>
                    {parentData?.kindergartenName && (
-                     <div className="px-2 py-0.5 bg-brand-primary/20 text-brand-primary text-[7px] md:text-[9px] font-black uppercase rounded-md tracking-widest border border-brand-primary/30">
+                     <div className="max-w-full px-2 py-0.5 bg-brand-primary/20 text-brand-primary text-[7px] md:text-[9px] font-black uppercase rounded-md tracking-wide md:tracking-widest border border-brand-primary/30 leading-tight break-words">
                        {parentData.kindergartenName}
                      </div>
                    )}
                 </div>
-                <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 md:gap-6 text-white/60">
-                   <p className="font-bold text-[9px] md:text-[10px] uppercase tracking-wider flex items-center gap-1.5">
-                      <Users size={14} className="text-brand-primary" /> {parentData?.childGroup || 'Guruh biriktirilmagan'}
+                <div className="flex flex-wrap justify-center md:justify-start items-center gap-2.5 md:gap-4 text-white/60">
+                   <p className="min-w-0 font-bold text-[9px] md:text-[10px] uppercase tracking-wide flex items-center gap-1.5 leading-tight">
+                      <Users size={14} className="text-brand-primary shrink-0" /> <span className="break-words">{parentData?.childGroup || 'Guruh biriktirilmagan'}</span>
                    </p>
-                   <p className="font-bold text-[9px] md:text-[10px] uppercase tracking-wider flex items-center gap-1.5">
-                      <MapPin size={14} className="text-brand-primary" /> {parentData?.kindergartenDistrict || parentData?.kindergartenAddress || "Manzil kiritilmagan"}
+                   <p className="min-w-0 font-bold text-[9px] md:text-[10px] uppercase tracking-wide flex items-center gap-1.5 leading-tight">
+                      <MapPin size={14} className="text-brand-primary shrink-0" /> <span className="break-words">{parentData?.kindergartenDistrict || parentData?.kindergartenAddress || "Manzil kiritilmagan"}</span>
                    </p>
                 </div>
              </div>
 
-             <div className="flex flex-wrap justify-center md:justify-start items-center gap-5 pt-3 border-t border-white/5">
-                <div className="flex items-center gap-2.5">
+             <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center md:justify-start sm:items-center sm:gap-3 pt-2.5 border-t border-white/5">
+                <div className="flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 p-2 sm:border-0 sm:bg-transparent sm:p-0">
                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10"><Target size={14} className="text-brand-primary" /></div>
                    <div className="text-left">
                       <p className="text-[7px] font-black text-white/40 uppercase tracking-wide">Davomat</p>
                       <p className="text-base font-black leading-none">{attendanceRate == null ? '--' : `${attendanceRate}%`}</p>
                    </div>
                 </div>
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 p-2 sm:border-0 sm:bg-transparent sm:p-0">
                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10"><Activity size={14} className="text-emerald-400" /></div>
                    <div className="text-left">
                       <p className="text-[7px] font-black text-white/40 uppercase tracking-wide">Salomatlik</p>
-                      <p className="text-base font-black leading-none">{healthLabel}</p>
+                      <p className="text-sm sm:text-base font-black leading-none break-words">{healthLabel}</p>
                    </div>
                 </div>
              </div>
           </div>
-
-          <div className="absolute top-3 right-3 md:static flex items-center gap-2">
-             <ThemeToggle className="p-2 md:p-3.5 bg-white/5 rounded-xl hover:bg-white/10 transition-all border border-white/10 text-white" />
-             <button onClick={logout} className="p-2 md:p-3.5 bg-white/5 rounded-xl hover:bg-rose-500 transition-all border border-white/10 group"><LogOut size={16} className="md:w-5 md:h-5" /></button>
-          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-5">
         {/* Navigation - Sidebar for Desktop, Horizontal Scroll for Mobile */}
         <div className="lg:col-span-3">
           {/* Mobile Menu Toggle */}
-          <div className="lg:hidden flex overflow-x-auto pb-3 gap-2 no-scrollbar scroll-smooth px-1">
+          <div className="lg:hidden kg-scroll-x flex pb-3 gap-2 no-scrollbar scroll-smooth px-1">
             {navItems.map(item => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest transition-all ${
+                className={`shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-wide transition-all ${
                   activeTab === item.id 
                     ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/30 scale-105' 
                     : 'bg-white text-brand-muted border border-brand-border'
@@ -298,20 +296,20 @@ const ParentView = () => {
           </div>
 
           {/* Desktop Sidebar */}
-          <div className="hidden lg:block bg-white p-5 rounded-[2.5rem] border border-brand-border shadow-sm space-y-1.5 sticky top-8">
+          <div className="hidden lg:block bg-white p-4 rounded-[1.5rem] border border-brand-border shadow-sm space-y-1.5 sticky top-8">
             <p className="text-[9px] font-black text-brand-depth uppercase tracking-[0.2em] px-5 py-3 border-b border-slate-50 mb-3">Navigatsiya</p>
             {navItems.map(item => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3.5 p-4 rounded-[1.5rem] font-black text-[11px] transition-all group ${
+                className={`w-full flex items-center gap-3 p-3 rounded-2xl font-black text-[11px] transition-all group text-left ${
                   activeTab === item.id 
                     ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20 translate-x-1' 
                     : 'text-brand-muted hover:bg-slate-50 hover:text-brand-depth'
                 }`}
               >
-                <item.icon size={18} className={activeTab === item.id ? 'text-white' : 'text-brand-muted group-hover:text-brand-primary'} />
-                <span className="uppercase tracking-wider">{item.label}</span>
+                <item.icon size={18} className={`shrink-0 ${activeTab === item.id ? 'text-white' : 'text-brand-muted group-hover:text-brand-primary'}`} />
+                <span className="uppercase tracking-wider truncate">{item.label}</span>
               </button>
             ))}
           </div>
@@ -319,11 +317,11 @@ const ParentView = () => {
 
         {/* Content Area */}
         <div className="lg:col-span-9">
-          <div className="bg-white p-5 md:p-8 lg:p-10 rounded-[2rem] md:rounded-[3.5rem] border border-brand-border shadow-sm min-h-[500px] relative overflow-hidden">
-            <div className="flex flex-col md:flex-row items-center justify-between mb-6 md:mb-10 gap-4 text-center md:text-left">
+          <div className="bg-white p-3.5 sm:p-4 md:p-5 lg:p-6 rounded-2xl md:rounded-[1.5rem] border border-brand-border shadow-sm min-h-0 relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 md:mb-6 gap-3 text-left">
                <div>
-                  <h1 className="text-xl md:text-3xl font-black text-brand-depth tracking-tight uppercase">{navItems.find(n => n.id === activeTab)?.label}</h1>
-                  <div className="text-brand-muted text-[7px] md:text-[9px] font-black mt-1.5 uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-2">
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-black text-brand-depth tracking-tight uppercase leading-tight">{navItems.find(n => n.id === activeTab)?.label}</h1>
+                  <div className="text-brand-muted text-[7px] md:text-[9px] font-black mt-1.5 uppercase tracking-[0.14em] md:tracking-[0.25em] flex items-center justify-start gap-2">
                      <div className="w-4 md:w-6 h-px bg-brand-primary/30"></div> Portal Xizmati
                   </div>
                </div>

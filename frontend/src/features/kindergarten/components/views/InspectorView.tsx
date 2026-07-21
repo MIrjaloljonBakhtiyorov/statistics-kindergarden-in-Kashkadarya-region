@@ -96,26 +96,28 @@ const InspectorView: React.FC = () => {
 
   return (
     <InspectionProvider>
-    <div className="min-h-screen bg-slate-50/50 p-4 sm:p-8">
-      <div className="max-w-[1600px] mx-auto space-y-6 sm:space-y-8">
+    <div className="min-h-screen p-3 sm:p-5" style={{
+      background: 'radial-gradient(circle at 8% 0%, rgba(14,165,233,0.12), transparent 28rem), radial-gradient(circle at 95% 12%, rgba(124,58,237,0.10), transparent 30rem), linear-gradient(135deg, #f8fafc 0%, #eef7ff 48%, #f7f5ff 100%)',
+    }}>
+      <div className="max-w-[1600px] mx-auto space-y-4 sm:space-y-5">
         
         {viewMode !== 'CREATE' && (
-          <div className="flex flex-wrap bg-white p-2 rounded-2xl border border-slate-200 w-full sm:w-fit gap-2 shadow-sm">
+          <div className="flex flex-wrap bg-white/85 p-1.5 rounded-2xl border border-sky-100 w-full sm:w-fit gap-1.5 shadow-[0_14px_32px_rgba(14,165,233,0.09)] backdrop-blur-md">
             <button 
               onClick={() => { setViewMode('DASHBOARD'); setSelectedDate(null); }} 
-              className={`flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${viewMode === 'DASHBOARD' && !selectedDate ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
+              className={`flex-1 sm:flex-none px-4 sm:px-7 py-2 sm:py-2.5 rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2 ${viewMode === 'DASHBOARD' && !selectedDate ? 'bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-lg shadow-sky-600/20' : 'text-slate-500 hover:bg-sky-50 hover:text-sky-700'}`}
             >
               <LayoutDashboard size={14} /> Dashboard
             </button>
             <button 
               onClick={() => setViewMode('CALENDAR')} 
-              className={`flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${viewMode === 'CALENDAR' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-500 hover:bg-slate-50'}`}
+              className={`flex-1 sm:flex-none px-4 sm:px-7 py-2 sm:py-2.5 rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2 ${viewMode === 'CALENDAR' ? 'bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-lg shadow-sky-600/20' : 'text-slate-500 hover:bg-sky-50 hover:text-sky-700'}`}
             >
               <CalendarIcon size={14} /> Taqvim
             </button>
             <button 
               onClick={() => { setViewMode('DASHBOARD'); setSelectedDate(null); }} 
-              className={`flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 text-slate-500 hover:bg-slate-50`}
+              className="flex-1 sm:flex-none px-4 sm:px-7 py-2 sm:py-2.5 rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-[0.18em] transition-all flex items-center justify-center gap-2 text-slate-500 hover:bg-violet-50 hover:text-violet-700"
             >
               <HistoryIcon size={14} /> Arxiv
             </button>
@@ -154,7 +156,7 @@ const InspectorView: React.FC = () => {
                 />
               </div>
               <div className="lg:col-span-4 space-y-4 sm:space-y-6">
-                <div className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <div className="bg-white/90 p-6 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-sky-100 shadow-[0_18px_42px_rgba(14,165,233,0.10)] backdrop-blur-md">
                   <h4 className="text-[10px] sm:text-sm font-black uppercase tracking-[0.2em] text-slate-900 mb-4 sm:mb-6">Tezkor Ma'lumot</h4>
                   <div className="space-y-3 sm:space-y-4">
                     <div className="flex justify-between items-center p-4 bg-slate-50 rounded-xl sm:rounded-2xl">

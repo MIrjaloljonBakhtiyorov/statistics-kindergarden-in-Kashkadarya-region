@@ -25,7 +25,8 @@ const mealLabels: Record<string, string> = {
 const getAssetUrl = (value?: string | null) => {
   if (!value) return '';
   if (value.startsWith('http') || value.startsWith('data:')) return value;
-  return `http://localhost:4001${value}`;
+  const apiRoot = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/api\/?$/, '');
+  return `${apiRoot || 'http://localhost:5002'}${value}`;
 };
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
@@ -152,10 +153,12 @@ const NurseSanitaryPanel: React.FC = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <section className="bg-white border border-brand-border rounded-[2rem] p-6 shadow-sm">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <section className="relative overflow-hidden bg-white/90 border border-emerald-100 rounded-[2rem] p-6 shadow-[0_20px_52px_rgba(16,185,129,0.10)] backdrop-blur-md">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-emerald-200/45 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-1/3 h-28 w-72 rounded-full bg-sky-200/30 blur-3xl" />
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 ring-4 ring-white/70">
               <ShieldCheck size={24} />
             </div>
             <div>
@@ -170,11 +173,11 @@ const NurseSanitaryPanel: React.FC = () => {
               type="date"
               value={date}
               onChange={(event) => setDate(event.target.value)}
-              className="bg-slate-50 border border-brand-border rounded-xl px-4 py-3 text-sm font-black outline-none focus:border-brand-primary"
+              className="bg-white/85 border border-emerald-100 rounded-xl px-4 py-3 text-sm font-black outline-none focus:border-brand-primary shadow-sm"
             />
             <button
               onClick={loadData}
-              className="px-4 py-3 rounded-xl border border-brand-border bg-white text-brand-depth text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+              className="px-4 py-3 rounded-xl border border-emerald-100 bg-white/85 text-brand-depth text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm hover:bg-emerald-50 transition-colors"
             >
               <RefreshCw size={15} /> Yangilash
             </button>
@@ -189,33 +192,46 @@ const NurseSanitaryPanel: React.FC = () => {
         <StatCard label="Organoleptik ko'rsatkichlar" value={pendingQualityCount} tone="rose" />
       </div>
 
-      <section className="bg-white border border-brand-border rounded-[2rem] shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-brand-border">
+      <section className="bg-white/92 border border-emerald-100 rounded-[2rem] shadow-[0_20px_52px_rgba(16,185,129,0.09)] overflow-hidden backdrop-blur-md">
+        <div className="p-6 border-b border-emerald-100 bg-gradient-to-r from-white via-emerald-50/55 to-sky-50/45">
           <h3 className="text-xl font-black text-brand-depth">Hamshiraga yuborilgan checkpointlar</h3>
         </div>
-        <div className="divide-y divide-slate-50">
+        <div className="space-y-3 p-4">
           {checkpoints.length === 0 && (
-            <div className="p-10 text-center text-brand-muted font-black uppercase tracking-widest text-[10px]">
+            <div className="rounded-[1.5rem] border border-dashed border-emerald-100 bg-gradient-to-br from-emerald-50/60 to-sky-50/50 p-10 text-center text-brand-muted font-black uppercase tracking-widest text-[10px]">
               Bugun checkpoint yuborilmagan
             </div>
           )}
           {checkpoints.map((checkpoint) => {
             const answersCount = Object.values(checkpoint.answers || {}).filter(Boolean).length;
+            const approvedStatus = checkpoint.status === 'APPROVED';
             return (
-              <div key={checkpoint.id} className="p-6 flex flex-col xl:flex-row xl:items-center justify-between gap-5">
+              <div
+                key={checkpoint.id}
+                className="relative overflow-hidden rounded-[1.5rem] border p-5 flex flex-col xl:flex-row xl:items-center justify-between gap-5 transition-all hover:-translate-y-0.5"
+                style={{
+                  background: approvedStatus
+                    ? 'radial-gradient(circle at 92% 0%, rgba(16,185,129,0.16), transparent 8rem), linear-gradient(135deg, #ecfdf5, #fff 58%, #f0fdfa)'
+                    : 'radial-gradient(circle at 92% 0%, rgba(245,158,11,0.16), transparent 8rem), linear-gradient(135deg, #fffbeb, #fff 58%, #fff7ed)',
+                  borderColor: approvedStatus ? '#bbf7d0' : '#fed7aa',
+                  boxShadow: approvedStatus ? '0 16px 36px rgba(16,185,129,0.10)' : '0 16px 36px rgba(245,158,11,0.10)',
+                }}
+              >
+                <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full blur-2xl opacity-35" style={{ background: approvedStatus ? '#10b981' : '#f59e0b' }} />
+                <span className="absolute inset-x-0 top-0 h-1" style={{ background: approvedStatus ? 'linear-gradient(90deg,#10b981,transparent)' : 'linear-gradient(90deg,#f59e0b,transparent)' }} />
                 <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-                    checkpoint.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                  <div className={`relative z-10 w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ring-4 ring-white/70 ${
+                    approvedStatus ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'
                   }`}>
-                    {checkpoint.status === 'APPROVED' ? <CheckCircle2 size={22} /> : <Clock size={22} />}
+                    {approvedStatus ? <CheckCircle2 size={22} /> : <Clock size={22} />}
                   </div>
-                  <div>
+                  <div className="relative z-10">
                     <p className="text-lg font-black text-brand-depth">{checkpoint.chef_name || 'Oshpaz'}</p>
                     <p className="text-xs font-bold text-brand-slate mt-1">
-                      {checkpoint.period_label || checkpoint.period_start} В· {answersCount} ta band tasdiqlangan
+                      {checkpoint.period_label || checkpoint.period_start} - {answersCount} ta band tasdiqlangan
                     </p>
-                    <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest mt-2">
-                        {checkpoint.status === 'APPROVED' ? 'Hamshira tasdiqlagan' : "Hamshira tasdig'i kutilmoqda"}
+                    <p className={`text-[10px] font-black uppercase tracking-widest mt-2 ${approvedStatus ? 'text-emerald-700' : 'text-amber-700'}`}>
+                        {approvedStatus ? 'Hamshira tasdiqlagan' : "Hamshira tasdig'i kutilmoqda"}
                     </p>
                   </div>
                 </div>
@@ -223,12 +239,12 @@ const NurseSanitaryPanel: React.FC = () => {
                   <button
                     onClick={() => approveCheckpoint(checkpoint.id)}
                     disabled={approvingId === checkpoint.id}
-                    className="px-5 py-3 rounded-xl bg-brand-primary text-white text-[10px] font-black uppercase tracking-widest"
+                    className="relative z-10 px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 disabled:opacity-60"
                   >
                     {approvingId === checkpoint.id ? 'Tasdiqlanmoqda...' : 'Tasdiqlayman'}
                   </button>
                 ) : (
-                  <span className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest">
+                  <span className="relative z-10 px-4 py-2 rounded-xl bg-white/75 border border-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest shadow-sm">
                     Tasdiqlangan
                   </span>
                 )}
@@ -239,10 +255,12 @@ const NurseSanitaryPanel: React.FC = () => {
       </section>
 
       {canShowMeals && (
-        <section className="bg-white border border-brand-border rounded-[2rem] shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-brand-border flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <section className="bg-white/92 border border-emerald-100 rounded-[2rem] shadow-[0_20px_52px_rgba(16,185,129,0.09)] overflow-hidden backdrop-blur-md">
+          <div className="p-6 border-b border-emerald-100 bg-gradient-to-r from-white via-teal-50/45 to-amber-50/40 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <MessageSquareText className="text-brand-primary" size={22} />
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/15 ring-4 ring-white/70">
+                <MessageSquareText size={22} />
+              </div>
               <div>
                 <h3 className="text-xl font-black text-brand-depth">Tayyor taomlarning organoleptik ko'rsatkichlari</h3>
                 <p className="text-xs font-bold text-brand-slate mt-1">Oshpaz tayyor deb belgilagan taomlar hidi, ta'mi, rangi, harorati va tashqi ko'rinishi bo'yicha tekshiriladi.</p>
@@ -270,10 +288,10 @@ const NurseSanitaryPanel: React.FC = () => {
               const draft = qualityDrafts[taskId] ?? meal.nurse_quality_comment ?? '';
 
               return (
-                <article key={taskId} className="border border-brand-border rounded-2xl overflow-hidden bg-slate-50/40">
+                <article key={taskId} className="border border-emerald-100 rounded-[1.5rem] overflow-hidden bg-gradient-to-br from-white to-emerald-50/35 shadow-sm hover:shadow-[0_18px_38px_rgba(16,185,129,0.10)] transition-all">
                   <div className="p-5 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-5">
                     <div className="flex gap-4">
-                      <div className="w-20 h-20 rounded-2xl bg-white border border-brand-border overflow-hidden shrink-0">
+                      <div className="w-20 h-20 rounded-2xl bg-white border border-emerald-100 overflow-hidden shrink-0 shadow-sm">
                         {meal.image_url ? (
                           <img src={getAssetUrl(meal.image_url)} alt={meal.meal_name} className="w-full h-full object-cover" />
                         ) : (
@@ -356,9 +374,11 @@ const NurseSanitaryPanel: React.FC = () => {
       )}
 
       {canShowMeals && (
-        <section className="bg-white border border-brand-border rounded-[2rem] shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-brand-border flex items-center gap-3">
-            <Apple className="text-orange-500" size={22} />
+        <section className="bg-white/92 border border-emerald-100 rounded-[2rem] shadow-[0_20px_52px_rgba(16,185,129,0.09)] overflow-hidden backdrop-blur-md">
+          <div className="p-6 border-b border-emerald-100 bg-gradient-to-r from-white via-orange-50/50 to-emerald-50/45 flex items-center gap-3">
+            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-orange-400 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/15 ring-4 ring-white/70">
+              <Apple size={22} />
+            </div>
             <div>
               <h3 className="text-xl font-black text-brand-depth">Bugungi ovqatlar paneli</h3>
               <p className="text-xs font-bold text-brand-slate mt-1">Sanitariya checkpointi tasdiqlangandan keyin ochiladi.</p>
@@ -371,7 +391,7 @@ const NurseSanitaryPanel: React.FC = () => {
               </div>
             )}
             {meals.map((meal) => (
-              <article key={meal.id} className="border border-brand-border rounded-2xl overflow-hidden bg-slate-50/50">
+              <article key={meal.id} className="border border-orange-100 rounded-[1.5rem] overflow-hidden bg-gradient-to-br from-white to-orange-50/40 shadow-sm hover:shadow-[0_18px_38px_rgba(249,115,22,0.10)] transition-all">
                 <div className="h-36 bg-slate-100">
                   {meal.image_url ? (
                     <img src={getAssetUrl(meal.image_url)} alt={meal.meal_name} className="w-full h-full object-cover" />
@@ -406,20 +426,31 @@ const NurseSanitaryPanel: React.FC = () => {
 };
 
 const StatCard = ({ label, value, tone }: { label: string; value: number; tone: 'amber' | 'emerald' | 'blue' | 'rose' }) => {
-  const color = tone === 'amber'
-    ? 'text-amber-600 bg-amber-50'
+  const theme = tone === 'amber'
+    ? { from: '#fffbeb', to: '#fed7aa', accent: '#d97706', glow: 'rgba(217,119,6,0.14)' }
     : tone === 'emerald'
-      ? 'text-emerald-600 bg-emerald-50'
+      ? { from: '#ecfdf5', to: '#bbf7d0', accent: '#059669', glow: 'rgba(5,150,105,0.14)' }
       : tone === 'rose'
-        ? 'text-rose-600 bg-rose-50'
-        : 'text-blue-600 bg-blue-50';
+        ? { from: '#fff1f2', to: '#fecdd3', accent: '#e11d48', glow: 'rgba(225,29,72,0.13)' }
+        : { from: '#eff6ff', to: '#bae6fd', accent: '#0284c7', glow: 'rgba(2,132,199,0.14)' };
   return (
-    <div className="bg-white border border-brand-border rounded-[1.5rem] p-5 shadow-sm">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
+    <div
+      className="relative overflow-hidden border rounded-[1.5rem] p-5 transition-all hover:-translate-y-0.5"
+      style={{
+        background: `radial-gradient(circle at 92% 0%, ${theme.accent}22, transparent 7rem), linear-gradient(135deg, ${theme.from}, #fff 54%, ${theme.to})`,
+        borderColor: `${theme.accent}30`,
+        boxShadow: `0 18px 40px ${theme.glow}`,
+      }}
+    >
+      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl opacity-35" style={{ background: theme.accent }} />
+      <div className="relative z-10 w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg ring-4 ring-white/70" style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}cc)` }}>
         <ShieldCheck size={18} />
       </div>
-      <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest mt-4">{label}</p>
-      <p className="text-3xl font-black text-brand-depth mt-1">{value}</p>
+      <p className="relative z-10 text-[10px] font-black text-brand-muted uppercase tracking-widest mt-4">{label}</p>
+      <div className="relative z-10 mt-1 flex items-end justify-between gap-3">
+        <p className="text-3xl font-black text-brand-depth leading-none">{value}</p>
+        <span className="h-2 w-14 rounded-full opacity-80" style={{ background: `linear-gradient(90deg, ${theme.accent}, transparent)` }} />
+      </div>
     </div>
   );
 };

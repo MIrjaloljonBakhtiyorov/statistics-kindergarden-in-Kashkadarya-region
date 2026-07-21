@@ -13,6 +13,6 @@ RUN npm config set strict-ssl false \
 
 COPY . .
 
-EXPOSE 3000
+EXPOSE 3001
 
 CMD ["pnpm", "exec", "vite", "--host", "0.0.0.0"]

@@ -1,9 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParents } from '../hooks/useParents';
 import { useGroups } from '../../groups/hooks/useGroups';
 import { Edit2, Trash2, Key, User, Phone, AlertTriangle, Search, Filter, X } from 'lucide-react';
 import { useNotification } from '../../../context/NotificationContext';
 import { ParentEditModal } from './ParentEditModal';
+import { Pagination } from '../../../components/ui/Pagination';
+
+const PAGE_SIZE = 20;
 
 export const ParentsTable: React.FC = () => {
   const { parents, loading, deleteParent, updateParent } = useParents();
@@ -15,6 +18,7 @@ export const ParentsTable: React.FC = () => {
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGroup, setSelectedGroup] = useState('ALL');
+  const [page, setPage] = useState(1);
 
   const filteredParents = useMemo(() => {
     return parents.filter(parent => {
@@ -25,6 +29,20 @@ export const ParentsTable: React.FC = () => {
       return matchesSearch && matchesGroup;
     });
   }, [parents, searchQuery, selectedGroup]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredParents.length / PAGE_SIZE));
+  const visibleParents = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filteredParents.slice(start, start + PAGE_SIZE);
+  }, [filteredParents, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, selectedGroup]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   if (loading) return <div className="p-8 text-center text-brand-muted font-bold italic tracking-widest uppercase text-xs">Yuklanmoqda...</div>;
 
@@ -115,9 +133,9 @@ export const ParentsTable: React.FC = () => {
             {filteredParents.length === 0 ? (
               <tr><td colSpan={8} className="px-6 py-20 text-center text-sm font-bold text-brand-muted uppercase tracking-widest bg-white">Hech qanday ma'lumot topilmadi.</td></tr>
             ) : (
-              filteredParents.map((parent: any, index: number) => (
+              visibleParents.map((parent: any, index: number) => (
                 <tr key={parent.id} className="group hover:bg-slate-50/80 transition-all bg-white">
-                  <td className="px-6 py-6 text-center text-xs font-black text-brand-muted/50 group-hover:text-brand-primary">{index + 1}</td>
+                  <td className="px-6 py-6 text-center text-xs font-black text-brand-muted/50 group-hover:text-brand-primary">{(page - 1) * PAGE_SIZE + index + 1}</td>
                   <td className="px-6 py-6">
                     <div className="font-black text-sm text-brand-depth group-hover:translate-x-1 transition-transform">{parent.childName}</div>
                     <div className="text-[10px] font-bold text-brand-muted mt-0.5">{parent.childBirthCertificate}</div>
@@ -183,6 +201,8 @@ export const ParentsTable: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      <Pagination page={page} pageSize={PAGE_SIZE} totalItems={filteredParents.length} onPageChange={setPage} />
 
       {deletingId && (
         <div className="fixed inset-0 flex items-center justify-center z-[200] p-4 bg-black/20">

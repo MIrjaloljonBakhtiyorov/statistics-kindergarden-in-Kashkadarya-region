@@ -398,23 +398,24 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
   };
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-1000">
-      {/* Premium Gallery Section - Compact */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+    <div className="space-y-3 md:space-y-4 animate-in fade-in duration-1000">
+      {/* Premium Gallery Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         {kindergartenImages.map((img, index) => (
           <motion.div 
             key={index} 
-            whileHover={{ y: -5 }}
-            className="group relative overflow-hidden rounded-[1.5rem] shadow-xl aspect-[4/3.5] border-2 border-white"
+            whileHover={{ y: -3 }}
+            className="group relative min-h-[176px] overflow-hidden rounded-xl shadow-sm aspect-[16/9.2] border border-white"
           >
             <img  
               src={img.url} 
               alt={img.title} 
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+              style={{ objectPosition: img.objectPosition }}
             />
             <div className="absolute inset-0 bg-black/15 opacity-60"></div>
-            <div className="absolute inset-0 p-4 flex flex-col justify-end">
-              <p className="text-white font-black text-sm uppercase tracking-tighter leading-none">{img.title}</p>
+            <div className="absolute inset-0 p-2.5 flex flex-col justify-end">
+              <p className="text-white font-black text-[11px] uppercase tracking-tight leading-none">{img.title}</p>
             </div>
           </motion.div>
         ))}
@@ -423,43 +424,43 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
       <StatsGrid />
 
       {/* Bog'cha Turlari Section */}
-      <div className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800">
-        <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800">
+        <div className="mb-2.5 flex flex-col md:flex-row md:items-end justify-between gap-2">
           <div>
-            <div className="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg mb-3 dark:bg-slate-800">
-              <School className="w-3.5 h-3.5 text-[#003580]" />
-              <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest dark:text-slate-300">{t('stats.types')}</span>
+            <div className="inline-flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md mb-1.5 dark:bg-slate-800">
+              <School className="w-3 h-3 text-[#003580]" />
+              <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-widest dark:text-slate-300">{t('stats.types')}</span>
             </div>
-            <h3 className="text-2xl font-bold text-[#003580] uppercase leading-tight dark:text-blue-300">{t('stats.title')}</h3>
+            <h3 className="text-sm sm:text-base font-bold text-[#003580] uppercase leading-tight dark:text-blue-300">{t('stats.title')}</h3>
           </div>
-          <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-widest">{t('stats.subtitle')}</p>
+          <p className="text-[9px] text-slate-400 font-semibold uppercase tracking-widest">{t('stats.subtitle')}</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 min-[430px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-1.5">
           {fallbackKindergartenTypes.map((type, index) => {
             const color = COLORS[index % COLORS.length];
             const Icon = typeIcons[index % typeIcons.length];
             return (
               <motion.div
                 key={index}
-                whileHover={{ y: -4, boxShadow: '0 12px 32px rgba(0,0,0,0.10)' }}
-                className="relative overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 p-5 flex flex-col gap-3 cursor-pointer transition-all dark:bg-slate-950 dark:border-slate-800"
+                whileHover={{ y: -2, boxShadow: '0 8px 20px rgba(0,0,0,0.08)' }}
+                className="relative overflow-hidden rounded-lg border border-slate-100 bg-slate-50 p-2.5 flex flex-col gap-1.5 cursor-pointer transition-all dark:bg-slate-950 dark:border-slate-800"
                 onClick={() => setSelectedMTTType(type)}
               >
                 <div className="absolute top-0 left-0 w-full h-1 rounded-t-2xl" style={{ background: color }} />
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${color}18` }}>
-                    <Icon size={20} style={{ color }} />
+                  <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: `${color}18` }}>
+                    <Icon size={14} style={{ color }} />
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg" style={{ background: `${color}18`, color }}>
+                  <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md" style={{ background: `${color}18`, color }}>
                     #{index + 1}
                   </span>
                 </div>
                 <div>
-                  <p className="text-[26px] font-black text-[#003580] leading-none dark:text-blue-300">{type.count.toLocaleString()}</p>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">{t('common.mttCount')}</p>
+                  <p className="text-lg font-black text-[#003580] leading-none dark:text-blue-300">{type.count.toLocaleString()}</p>
+                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">{t('common.mttCount')}</p>
                 </div>
-                <p className="text-[12px] font-semibold text-slate-700 leading-snug dark:text-slate-200">{t(type.name)}</p>
-                <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+                <p className="text-[10px] font-semibold text-slate-700 leading-snug dark:text-slate-200">{t(type.name)}</p>
+                <div className="pt-1 border-t border-slate-200 dark:border-slate-800">
                   <p className="text-[11px] text-slate-500 font-medium">{type.children.toLocaleString()} <span className="text-slate-400">{t('common.childrenUnit')}</span></p>
                 </div>
               </motion.div>
@@ -469,32 +470,32 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
       </div>
 
       {/* Main Analysis Section - Pie Chart - Compressed */}
-      <div className="grid grid-cols-1 gap-6">
-        <div className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 group/card relative overflow-hidden flex flex-col dark:bg-slate-900 dark:border-slate-800">
-          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-slate-100 rounded-full -mr-32 -mt-32 opacity-60 border border-slate-200 dark:bg-slate-800 dark:border-slate-700"></div>
+      <div className="grid grid-cols-1 gap-4">
+        <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-slate-100 group/card relative overflow-hidden flex flex-col dark:bg-slate-900 dark:border-slate-800">
+          <div className="absolute top-0 right-0 w-[180px] h-[180px] bg-slate-100 rounded-full -mr-24 -mt-24 opacity-40 border border-slate-200 dark:bg-slate-800 dark:border-slate-700"></div>
           
-          <div className="relative z-10 mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="relative z-10 mb-3 flex flex-col md:flex-row md:items-end justify-between gap-3">
             <div>
-              <div className="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg mb-3 dark:bg-slate-800">
+              <div className="inline-flex items-center gap-2 bg-slate-100 px-2 py-1 rounded-lg mb-2 dark:bg-slate-800">
                 <Info className="w-3.5 h-3.5 text-[#003580]" />
                 <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest dark:text-slate-300">{t('region.byMttTypes')}</span>
               </div>
-              <h3 className="text-2xl font-bold text-[#003580] uppercase leading-tight dark:text-blue-300">
+              <h3 className="text-base sm:text-lg font-bold text-[#003580] uppercase leading-tight dark:text-blue-300">
                 {t('stats.title')}
               </h3>
             </div>
             <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-widest">{t('stats.subtitle')}</p>
           </div>
 
-          <div className="flex-1 flex flex-col lg:flex-row gap-8 items-center relative z-10">
-            <div className="flex-1 w-full h-[320px] relative">
+          <div className="flex-1 flex flex-col lg:flex-row gap-3 lg:gap-4 items-center relative z-10">
+            <div className="flex-1 w-full h-[190px] sm:h-[230px] relative">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-0 pointer-events-none">
-                <p className="text-[30px] font-bold text-[#003580] leading-none">
+                <p className="text-[22px] font-bold text-[#003580] leading-none">
                   {fallbackKindergartenTypes.reduce((acc, curr) => acc + curr.count, 0).toLocaleString()}
                 </p>
                 <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-1">{t('stats.total')}</p>
               </div>
-              <ResponsiveContainer width="100%" height={320}>
+              <ResponsiveContainer width="100%" height={230}>
                 <PieChart>
                   <Pie
                     {...({ activeIndex, activeShape: (props: any) => renderActiveShape(props, t('common.countUnit')) } as any)}
@@ -517,7 +518,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
               </ResponsiveContainer>
             </div>
 
-            <div className="flex-1 grid grid-cols-2 gap-3">
+            <div className="flex-1 grid grid-cols-1 min-[520px]:grid-cols-2 gap-2">
               {fallbackKindergartenTypes.map((type, index) => {
                 const color = COLORS[index % COLORS.length];
                 const isActive = activeIndex === index;
@@ -529,7 +530,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                       setActiveIndex(index);
                       setSelectedMTTType(type);
                     }}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer ${isLast ? 'col-span-2' : ''} ${
+                    className={`p-3 rounded-xl border transition-all cursor-pointer ${isLast ? 'min-[520px]:col-span-2' : ''} ${
                       isActive
                         ? 'border-transparent shadow-md'
                         : 'bg-white border-slate-200 hover:border-slate-300'
@@ -563,9 +564,9 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
         </div>
 
         {/* ── PREMIUM PHOTO BANNER ── */}
-        <div className="mb-8">
+        <div className="mb-4">
           {/* Sarlavha */}
-          <div className="flex items-center gap-3 mb-5">
+          <div className="flex items-center gap-3 mb-4 sm:mb-5">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
             <span className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-400">{t('region.presidentVisit')}</span>
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
@@ -573,7 +574,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
 
           {/* 2 ta katta banner — bir qatorda */}
           <div className="space-y-5">
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
               {presidentSlides.slice(0, 2).map((slide, index) => (
                 <motion.div
                   key={`${slide.label}-${index}`}
@@ -581,9 +582,9 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.45, delay: index * 0.08 }}
                   viewport={{ once: true }}
-                  className="group relative overflow-hidden rounded-[2rem] border border-slate-200 bg-[#081018] shadow-xl"
+                  className="group relative overflow-hidden rounded-xl border border-slate-200 bg-[#081018] shadow-sm"
                 >
-                  <div className="relative aspect-[16/10]">
+                  <div className="relative aspect-[16/7]">
                     <img
                       src={slide.src}
                       alt={slide.label}
@@ -591,13 +592,13 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#07140c]/88 via-[#07140c]/20 to-transparent" />
                     <div className="absolute inset-0 bg-gradient-to-r from-[#07140c]/70 via-transparent to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                    <div className="absolute inset-x-0 bottom-0 p-4">
                       <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-sm">
                         <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
                         {slide.badge}
                       </span>
                       <p className="mb-2 text-[11px] font-black uppercase tracking-widest text-green-300">{slide.label}</p>
-                      <h3 className="max-w-xl text-[24px] font-black leading-tight text-white md:text-[32px]">
+                      <h3 className="max-w-xl text-[18px] sm:text-[20px] font-black leading-tight text-white">
                         {slide.title} <span className="text-green-300">{slide.accent}</span>
                       </h3>
                     </div>
@@ -606,7 +607,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
               ))}
             </div>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
               {presidentSlides.slice(2).map((slide, index) => (
                 <motion.div
                   key={`${slide.label}-${index + 2}`}
@@ -614,18 +615,18 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.45, delay: index * 0.08 }}
                   viewport={{ once: true }}
-                  className="group relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-[#081018] shadow-lg"
+                  className="group relative overflow-hidden rounded-xl border border-slate-200 bg-[#081018] shadow-sm"
                 >
-                  <div className="relative aspect-[16/11]">
+                  <div className="relative aspect-[16/8]">
                     <img
                       src={slide.src}
                       alt={slide.label}
                       className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-[1.04]"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#07140c]/88 via-[#07140c]/18 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-5">
+                    <div className="absolute inset-x-0 bottom-0 p-4">
                       <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-green-300">{slide.label}</p>
-                      <h4 className="text-[20px] font-black leading-tight text-white">
+                      <h4 className="text-[16px] sm:text-[18px] font-black leading-tight text-white">
                         {slide.title} <span className="text-green-300">{slide.accent}</span>
                       </h4>
                     </div>
@@ -637,55 +638,55 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
         </div>
 
         {/* Tizimli Nazorat va Xarajatlar - Compressed */}
-        <div className="bg-white p-6 md:p-10 rounded-[2.5rem] border border-slate-200 relative overflow-hidden shadow-sm dark:bg-slate-900 dark:border-slate-800">
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-slate-100 rounded-full -mr-32 -mt-32 opacity-50 border border-slate-200 dark:bg-slate-800 dark:border-slate-700"></div>
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 relative overflow-hidden shadow-sm dark:bg-slate-900 dark:border-slate-800">
+            <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-slate-100 rounded-full -mr-28 -mt-28 opacity-35 border border-slate-200 dark:bg-slate-800 dark:border-slate-700"></div>
             
-            <div className="relative z-10 flex flex-col xl:flex-row xl:items-start justify-between gap-6 mb-8">
+            <div className="relative z-10 flex flex-col xl:flex-row xl:items-start justify-between gap-3 mb-4">
               <div className="max-w-xl">
                 <div className="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-3 py-1 rounded-lg mb-3 shadow-sm shadow-indigo-100">
                   <TrendingUp className="w-3.5 h-3.5" />
                   <span className="text-[9px] font-black uppercase tracking-[0.1em]">{t('region.financialMonitoring')}</span>
                 </div>
-                <h3 className="text-2xl md:text-4xl font-black text-black tracking-tighter uppercase mb-4 leading-none dark:text-white">{t('region.systematic')} <span className="text-indigo-600 italic dark:text-indigo-300">{t('region.control')}</span></h3>
-                <p className="text-sm text-slate-500 font-bold leading-relaxed italic border-l-2 border-indigo-100 pl-4 dark:text-slate-300 dark:border-indigo-400/30">
+                <h3 className="text-lg md:text-2xl font-black text-black tracking-tight uppercase mb-2 leading-none dark:text-white">{t('region.systematic')} <span className="text-indigo-600 italic dark:text-indigo-300">{t('region.control')}</span></h3>
+                <p className="text-xs text-slate-500 font-bold leading-relaxed italic border-l-2 border-indigo-100 pl-3 dark:text-slate-300 dark:border-indigo-400/30">
                   "{t('region.financeQuotePrefix')} <span className="text-indigo-600 font-black underline decoration-indigo-200 underline-offset-4">{t('region.targetedSpending')}</span> {t('region.financeQuoteSuffix')}"
                 </p>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-[2rem] border border-slate-100 shadow-inner flex flex-col items-center gap-1 shrink-0 dark:bg-slate-950 dark:border-slate-800">
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 shadow-inner flex flex-col items-center gap-1 shrink-0 dark:bg-slate-950 dark:border-slate-800">
                 <p className="text-[9px] font-black text-black uppercase tracking-[0.1em] dark:text-white">{t('region.dailyTotalCost')}</p>
-<p className="text-xl font-black tracking-tighter text-[#003580] dark:text-blue-300">{(totalRegionalDailyCost / 1000000000).toFixed(2)} <span className="text-sm text-black uppercase dark:text-slate-300">{t('common.billion')}</span></p>
+<p className="text-lg font-black tracking-tight text-[#003580] dark:text-blue-300">{(totalRegionalDailyCost / 1000000000).toFixed(2)} <span className="text-xs text-black uppercase dark:text-slate-300">{t('common.billion')}</span></p>
                 <div className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-black">+4.2%</div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 min-[430px]:grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-3">
               {[
                 { label: t('region.beforeNine'), value: formatCount(dashboardData.totalBeforeNine), sub: t('common.childrenShort'), icon: Clock, color: 'text-emerald-600', bg: 'bg-emerald-50' },
                 { label: t('region.afterNine'), value: formatCount(dashboardData.totalAfterNine), sub: t('common.childrenShort'), icon: Activity, color: 'text-amber-600', bg: 'bg-amber-50' },
                 { label: t('region.absent'), value: formatCount(dashboardData.totalAbsent), sub: t('common.childrenShort'), icon: Users, color: 'text-rose-600', bg: 'bg-rose-50' },
                 { label: t('region.perChildCost'), value: formatCount(averageCostPerChild), sub: t('common.sum'), icon: Wallet, color: 'text-indigo-600', bg: 'bg-indigo-50' },
               ].map((item, i) => (
-                <div key={i} className="bg-white p-6 rounded-xl border border-slate-200 flex flex-col items-center text-center shadow-sm dark:bg-slate-950 dark:border-slate-800">
-                  <div className={`w-10 h-10 ${item.bg} ${item.color} rounded-lg flex items-center justify-center mb-3`}>
-                    <item.icon className="w-5 h-5" />
+                <div key={i} className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col items-center text-center shadow-sm dark:bg-slate-950 dark:border-slate-800">
+                  <div className={`w-8 h-8 ${item.bg} ${item.color} rounded-lg flex items-center justify-center mb-2`}>
+                    <item.icon className="w-4 h-4" />
                   </div>
-                  <p className="text-[14px] font-semibold text-slate-500 uppercase tracking-wide mb-2 leading-snug dark:text-slate-300">{item.label}</p>
-                  <p className="text-[30px] font-bold text-[#003580] tracking-tight dark:text-blue-300">{item.value}</p>
-                  <p className="text-[14px] font-medium text-slate-400 uppercase tracking-wide mt-1">{item.sub}</p>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1 leading-snug dark:text-slate-300">{item.label}</p>
+                  <p className="text-xl font-bold text-[#003580] tracking-tight dark:text-blue-300">{item.value}</p>
+                  <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mt-0.5">{item.sub}</p>
                 </div>
               ))}
             </div>
             
-            <div className="mt-10 pt-10 border-t border-slate-100 dark:border-slate-800">
-              <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white dark:bg-slate-950 dark:border-slate-800">
+            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-white dark:bg-slate-950 dark:border-slate-800">
                 {/* Section header */}
-                <div className="px-8 pt-7 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="px-4 pt-3 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-3">
                     <MapPin className="w-4 h-4 text-[#003580]" />
                     <h4 className="text-[16px] font-bold text-[#003580] uppercase tracking-widest">{t('region.childrenByDistrict')}</h4>
                   </div>
-                  <div className="flex items-center gap-5 text-[12px] font-medium text-slate-500">
+                  <div className="flex flex-wrap items-center gap-3 text-[10px] font-medium text-slate-500">
                     <span className="flex items-center gap-2">
                       <span className="w-3 h-3 rounded-sm inline-block bg-[#3B82F6]" />{t('region.beforeNineShort')}
                     </span>
@@ -701,9 +702,9 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                 {/* Body: chart + info card */}
                 <div className="grid grid-cols-1 xl:grid-cols-[3fr_2fr]">
                   {/* Chart */}
-                  <div className="p-6 border-r border-slate-100 dark:border-slate-800">
-                  <div className="h-[680px] w-full">
-                    <ResponsiveContainer width="100%" height={600}>
+                  <div className="p-3 border-r border-slate-100 dark:border-slate-800">
+                  <div className="h-[260px] sm:h-[320px] xl:h-[360px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={attendanceChartData}
                         margin={{ top: 10, right: 10, left: 0, bottom: 60 }}
@@ -782,16 +783,16 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                </div>
 
                {/* Right — Premium Card */}
-               <div className="flex flex-col min-h-[680px]">
+               <div className="flex flex-col min-h-[260px] sm:min-h-[320px] xl:min-h-[360px]">
                   {/* Hero — Shavkat Mirziyoyev rasmi */}
-                  <div className="relative h-80 shrink-0">
+                  <div className="relative h-48 shrink-0">
                     <img
                       src="https://static.xabar.uz/crop/2/4/736_736_95_2491735778.jpg"
                       alt="Shavkat Mirziyoyev"
                       className="w-full h-full object-cover object-top"
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#1a5c2a]/20 to-[#1a5c2a]/75" />
-                    <div className="absolute inset-0 p-6 flex flex-col justify-end gap-2">
+                    <div className="absolute inset-0 p-4 flex flex-col justify-end gap-2">
                       <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full w-fit text-[10px] font-semibold text-white uppercase tracking-widest bg-white/15 border border-white/25">
                         <TrendingUp className="w-3 h-3 text-green-300" />
                         {t('region.presidentQuotes')}
@@ -803,11 +804,11 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                   </div>
 
                   {/* Kontent */}
-                  <div className="bg-white flex-1 flex flex-col gap-4 p-6">
+                  <div className="bg-white flex-1 flex flex-col gap-3 p-4">
 
                     {/* Muallif + 2-rasm */}
-                    <div className="flex items-start gap-4 pb-3 border-b border-slate-100">
-                      <div className="w-24 h-28 rounded-xl overflow-hidden shrink-0 ring-2 ring-green-200 shadow-md">
+                    <div className="flex items-start gap-3 pb-3 border-b border-slate-100">
+                      <div className="w-16 h-20 rounded-xl overflow-hidden shrink-0 ring-2 ring-green-200 shadow-md">
                         <img
                           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRucZHGEZvR9oLQ7fZdH7sqc0IJm5rMi7LUUg&s"
                           alt="Shavkat Mirziyoyev"
@@ -855,8 +856,8 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
             </div>{/* closes outer mt-10 */}
 
             {/* Total Daily Cost Analysis — Premium */}
-            <div className="mt-12 pt-12 border-t border-slate-100">
-              <div className="rounded-2xl overflow-hidden shadow-xl border border-slate-200">
+            <div className="mt-5 pt-5 border-t border-slate-100">
+              <div className="rounded-xl overflow-hidden shadow-sm border border-slate-200">
 
                 {/* Dark header */}
                 <div className="bg-[#001228] px-8 pt-8 pb-7">
@@ -870,10 +871,10 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
 
                   {/* 3 KPI kartalar — dark premium */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="rounded-xl p-5 relative overflow-hidden" style={{background:'rgba(255,255,255,0.07)',border:'1px solid rgba(255,255,255,0.1)'}}>
+                    <div className="rounded-xl p-3 relative overflow-hidden" style={{background:'rgba(255,255,255,0.07)',border:'1px solid rgba(255,255,255,0.1)'}}>
                       <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-[#1565C0]/20 blur-2xl" />
                       <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">{t('region.plannedToday')}</p>
-                      <p className="text-[32px] font-bold text-white leading-none">
+                      <p className="text-[22px] font-bold text-white leading-none">
                         {(plannedDailyCost / 1000000000).toFixed(2)}
                         <span className="text-[14px] font-semibold text-slate-400 ml-1">{t('common.billion')}</span>
                       </p>
@@ -882,10 +883,10 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                       </div>
                     </div>
 
-                    <div className="rounded-xl p-5 relative overflow-hidden" style={{background:'rgba(255,255,255,0.07)',border:'1px solid rgba(255,255,255,0.1)'}}>
+                    <div className="rounded-xl p-3 relative overflow-hidden" style={{background:'rgba(255,255,255,0.07)',border:'1px solid rgba(255,255,255,0.1)'}}>
                       <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-[#2E7D32]/20 blur-2xl" />
                       <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">{t('region.forAttendedChildren')}</p>
-                      <p className="text-[32px] font-bold text-[#4ADE80] leading-none">
+                      <p className="text-[22px] font-bold text-[#4ADE80] leading-none">
                         {(totalRegionalDailyCost / 1000000000).toFixed(2)}
                         <span className="text-[14px] font-semibold text-slate-400 ml-1">{t('common.billion')}</span>
                       </p>
@@ -898,10 +899,10 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                       </p>
                     </div>
 
-                    <div className="rounded-xl p-5 relative overflow-hidden" style={{background:'rgba(255,255,255,0.07)',border:'1px solid rgba(255,255,255,0.1)'}}>
+                    <div className="rounded-xl p-3 relative overflow-hidden" style={{background:'rgba(255,255,255,0.07)',border:'1px solid rgba(255,255,255,0.1)'}}>
                       <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-amber-500/20 blur-2xl" />
                       <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">{t('region.savings')}</p>
-                      <p className="text-[32px] font-bold text-amber-300 leading-none">
+                      <p className="text-[22px] font-bold text-amber-300 leading-none">
                         {(savedDailyCost / 1000000000).toFixed(2)}
                         <span className="text-[14px] font-semibold text-slate-400 ml-1">{t('common.billion')}</span>
                       </p>
@@ -916,7 +917,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                   </div>
 
                   {/* Legend */}
-                  <div className="flex flex-wrap items-center gap-5 mt-5 text-[12px] font-medium text-slate-400">
+                  <div className="flex flex-wrap items-center gap-4 mt-4 text-[11px] font-medium text-slate-400">
                     <span className="flex items-center gap-2">
                       <span className="w-3 h-3 rounded-sm inline-block bg-[#4ADE80]" />{t('region.attendedCost')}
                     </span>
@@ -928,9 +929,9 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                 </div>
 
                 {/* Chart — oq fon */}
-                <div className="bg-white p-6">
-                  <div className="h-[540px] w-full">
-                    <ResponsiveContainer width="100%" height={500}>
+                <div className="bg-white p-3">
+                  <div className="h-[260px] sm:h-[320px] xl:h-[360px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={costChartData}
                         margin={{ top: 15, right: 20, left: 10, bottom: 65 }}
@@ -1014,18 +1015,18 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
               </div>
             </div>
 
-            {/* Profit & Savings Analysis Section - Fullscreen (100vh) */}
-            <div className="mt-6 pt-6 border-t border-slate-100 h-[80vh] flex flex-col dark:border-slate-800">
-              <div className="grid gap-6 xl:grid-cols-2 flex-1 min-h-0">
+            {/* Profit & Savings Analysis Section */}
+            <div className="mt-4 pt-4 border-t border-slate-100 min-h-0 flex flex-col dark:border-slate-800">
+              <div className="grid gap-3 xl:grid-cols-2 flex-1 min-h-0">
                 {/* Left Column - District Analytics (Scrollable) */}
                 <div className="flex flex-col min-h-0">
-                  <div className="flex-1 rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100/80 relative overflow-hidden flex flex-col min-h-0 dark:bg-slate-950 dark:border-slate-800">
+                  <div className="flex-1 rounded-xl border border-slate-200 bg-white shadow-sm relative overflow-hidden flex flex-col min-h-0 dark:bg-slate-950 dark:border-slate-800">
                     {/* Top accent bar */}
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500" />
 
                     {/* Header */}
-                    <div className="px-6 pt-7 pb-4 shrink-0 border-b border-slate-100 dark:border-slate-800">
-                      <div className="flex items-center justify-between">
+                    <div className="px-4 pt-4 pb-3 shrink-0 border-b border-slate-100 dark:border-slate-800">
+                      <div className="flex flex-col min-[520px]:flex-row min-[520px]:items-center justify-between gap-3">
                         <div>
                           <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-emerald-600 flex items-center gap-2 mb-1">
                             <TrendingUp className="w-4 h-4" /> {t('region.profitByDistrict')}
@@ -1040,7 +1041,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                     </div>
 
                     {/* Scrollable list - 6 items visible, rest scrollable */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-3 space-y-2" style={{ maxHeight: "80vh" }}>
+                    <div className="flex-1 overflow-y-auto custom-scrollbar px-3 py-3 space-y-2" style={{ maxHeight: "420px" }}>
                       {districtAnalytics.map((item, idx) => (
                         <motion.div
                           initial={{ opacity: 0, y: 6 }}
@@ -1048,21 +1049,21 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                           transition={{ delay: idx * 0.03 }}
                           viewport={{ once: true }}
                           key={item.name}
-                          className="group flex items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 px-4 py-3 transition-all duration-200 hover:bg-white hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-50 cursor-pointer dark:bg-slate-900/70 dark:border-slate-800 dark:hover:bg-slate-800 dark:hover:border-emerald-500/30"
+                          className="group flex flex-col min-[620px]:flex-row min-[620px]:items-center min-[620px]:justify-between gap-2 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2 transition-all duration-200 hover:bg-white hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-50 cursor-pointer dark:bg-slate-900/70 dark:border-slate-800 dark:hover:bg-slate-800 dark:hover:border-emerald-500/30"
                         >
                           {/* Rank + Name */}
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white group-hover:bg-emerald-500 transition-colors text-sm font-black shadow-md">
+                          <div className="flex w-full items-center gap-2 min-w-0">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white group-hover:bg-emerald-500 transition-colors text-xs font-black shadow-sm">
                               {String(item.rank).padStart(2, "0")}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-sm font-black uppercase tracking-tight text-slate-800 group-hover:text-emerald-700 transition-colors truncate dark:text-slate-100 dark:group-hover:text-emerald-300">{item.name}</p>
+                              <p className="text-xs font-black uppercase tracking-tight text-slate-800 group-hover:text-emerald-700 transition-colors line-clamp-2 dark:text-slate-100 dark:group-hover:text-emerald-300">{item.name}</p>
                               <p className="text-xs font-semibold text-slate-400">{item.absent.toLocaleString()} {t('common.childrenUnit')}</p>
                             </div>
                           </div>
 
                           {/* Sparkline */}
-                          <div className="hidden sm:flex h-8 items-end gap-0.5 opacity-30 group-hover:opacity-90 transition-opacity">
+                          <div className="hidden min-[620px]:flex h-8 items-end gap-0.5 opacity-30 group-hover:opacity-90 transition-opacity">
                             {item.sparkline.map((value, sparkIndex) => (
                               <motion.span
                                 initial={{ height: 0 }}
@@ -1075,14 +1076,14 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                           </div>
 
                           {/* Profit + Efficiency */}
-                          <div className="flex flex-col items-end gap-1 shrink-0">
-                            <div className="inline-flex items-baseline gap-1 rounded-lg bg-white border border-slate-100 group-hover:border-emerald-100 px-3 py-1.5 shadow-sm dark:bg-slate-950 dark:border-slate-700 dark:group-hover:border-emerald-500/30">
+                          <div className="flex w-full flex-row items-center justify-between gap-2 min-[620px]:w-auto min-[620px]:flex-col min-[620px]:items-end min-[620px]:justify-start min-[620px]:shrink-0">
+                            <div className="inline-flex min-w-0 items-baseline gap-1 rounded-lg bg-white border border-slate-100 group-hover:border-emerald-100 px-3 py-1.5 shadow-sm dark:bg-slate-950 dark:border-slate-700 dark:group-hover:border-emerald-500/30">
                               <span className="text-base font-black tracking-tight text-[#003580] dark:text-blue-300">+{(item.profit / 1000000).toFixed(1)}m</span>
                               <span className="text-[10px] font-bold text-slate-400 uppercase">{t('common.sum')}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                            <div className="flex min-w-0 items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide min-[620px]:tracking-widest text-slate-400">
                               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                              {t('region.efficiencyShort')}: {item.efficiency}%
+                              <span className="truncate">{t('region.efficiencyShort')}: {item.efficiency}%</span>
                             </div>
                           </div>
                         </motion.div>
@@ -1092,7 +1093,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                 </div>
 
                 {/* Right Column */}
-                <div className="flex flex-col gap-4 min-h-0">
+                <div className="flex flex-col gap-3 min-h-0">
 
                   {/* ── VILOYAT UMUMIY FOYDASI ── */}
                   <motion.div
@@ -1100,16 +1101,16 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                     className="flex-1 min-h-0 relative overflow-hidden flex flex-col"
-                    style={{ borderRadius: 24, background: "linear-gradient(160deg,#071f14 0%,#0a2d1e 50%,#0c3824 100%)" }}
+                    style={{ borderRadius: 16, background: "linear-gradient(160deg,#071f14 0%,#0a2d1e 50%,#0c3824 100%)" }}
                   >
                     {/* ambient glow */}
                     <div className="pointer-events-none absolute inset-0">
-                      <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full" style={{ background: "radial-gradient(circle,rgba(52,211,153,0.22) 0%,transparent 70%)" }} />
+                      <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full" style={{ background: "radial-gradient(circle,rgba(52,211,153,0.18) 0%,transparent 70%)" }} />
                       <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full" style={{ background: "radial-gradient(circle,rgba(16,185,129,0.1) 0%,transparent 70%)" }} />
                     </div>
 
                     {/* header row */}
-                    <div className="relative z-10 flex items-center justify-between px-5 pt-5 shrink-0">
+                    <div className="relative z-10 flex items-center justify-between px-4 pt-4 shrink-0">
                       <div className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-xl" style={{ background: "rgba(52,211,153,0.18)", border: "1px solid rgba(52,211,153,0.25)" }}>
                           <TrendingUp className="w-4 h-4 text-emerald-400" />
@@ -1129,9 +1130,9 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                     </div>
 
                     {/* big metric */}
-                    <div className="relative z-10 px-5 pt-3 pb-3 shrink-0">
+                    <div className="relative z-10 px-4 pt-3 pb-3 shrink-0">
                       <div className="flex items-baseline gap-2 mb-0.5">
-                        <span className="font-black text-white leading-none" style={{ fontSize: "3.2rem", letterSpacing: "-0.04em" }}>
+                        <span className="font-black text-white leading-none" style={{ fontSize: "2rem", letterSpacing: 0 }}>
                           {(savedDailyCost / 1000000000).toFixed(2)}
                         </span>
                         <span className="text-base font-black text-emerald-400 uppercase tracking-wide pb-1">{t('common.billion')} {t('common.sum')}</span>
@@ -1139,7 +1140,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                       <p className="text-[9px] font-semibold uppercase tracking-[0.25em]" style={{ color: "rgba(255,255,255,0.22)" }}>{t('region.dailyAverageSaving')}</p>
 
                       {/* KPI row */}
-                      <div className="grid grid-cols-3 gap-2 mt-3">
+                      <div className="grid grid-cols-1 min-[430px]:grid-cols-3 gap-2 mt-3">
                         {[
                           { label: t('region.growth'), val: "+12.4%", accent: "#34d399", bg: "rgba(52,211,153,0.08)", br: "rgba(52,211,153,0.15)" },
                           { label: t('footer.districts'), val: `${dashboardData.dashboardDistricts.length} ${t('common.countUnit')}`, accent: "#60a5fa", bg: "rgba(96,165,250,0.08)", br: "rgba(96,165,250,0.15)" },
@@ -1155,8 +1156,8 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                     </div>
 
                     {/* chart */}
-                    <div className="relative z-10 flex-1 min-h-0 px-1 pb-4" style={{ minHeight: 130 }}>
-                      <ResponsiveContainer width="100%" height={150}>
+                    <div className="relative z-10 flex-1 min-h-0 px-1 pb-3" style={{ minHeight: 100 }}>
+                      <ResponsiveContainer width="100%" height={120}>
                         <AreaChart data={regionalTrend} margin={{ top: 6, right: 8, left: -22, bottom: 0 }}>
                           <defs>
                             <linearGradient id="pf2" x1="0" y1="0" x2="0" y2="1">
@@ -1198,12 +1199,12 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
                     className="flex-1 min-h-0 relative overflow-hidden flex flex-col bg-white border border-[#e8eaf0] dark:bg-slate-950 dark:border-slate-800"
-                    style={{ borderRadius: 24 }}
+                    style={{ borderRadius: 16 }}
                   >
-                    <div className="pointer-events-none absolute top-0 right-0 w-56 h-56 rounded-full" style={{ background: "radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 70%)", transform: "translate(30%,-30%)" }} />
+                    <div className="pointer-events-none absolute top-0 right-0 w-40 h-40 rounded-full" style={{ background: "radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 70%)", transform: "translate(30%,-30%)" }} />
 
                     {/* header */}
-                    <div className="relative z-10 flex items-center justify-between px-5 pt-5 pb-4 shrink-0 border-b border-slate-100 dark:border-slate-800">
+                    <div className="relative z-10 flex items-center justify-between px-4 pt-4 pb-3 shrink-0 border-b border-slate-100 dark:border-slate-800">
                       <div className="flex items-center gap-2.5">
                         <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-50 border border-indigo-100 dark:bg-indigo-500/15 dark:border-indigo-400/20">
                           <BrainCircuit className="w-4 h-4 text-indigo-600" />
@@ -1223,7 +1224,7 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                     </div>
 
                     {/* cards grid */}
-                    <div className="relative z-10 grid grid-cols-2 gap-3 p-4 flex-1 min-h-0">
+                    <div className="relative z-10 grid grid-cols-1 min-[430px]:grid-cols-2 gap-2 p-3 flex-1 min-h-0">
                       {[
                         { title: t('region.territorialEfficiency'), value: "+18.6%", status: t('region.rising'), icon: Target, accent: "#059669", bg: "#f0fdf8", br: "#d1fae5", ic: "#10b981" },
                         { title: t('region.controlZones'), value: t('region.attention'), status: t('region.observation'), icon: ShieldCheck, accent: "#b45309", bg: "#fffbeb", br: "#fde68a", ic: "#f59e0b" },
@@ -1236,17 +1237,17 @@ const ViloyatStatistikasi: React.FC<ViloyatStatistikasiProps> = ({ setSelectedMT
                           whileInView={{ opacity: 1, y: 0 }}
                           whileHover={{ y: -2, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
                           transition={{ delay: idx * 0.06 }}
-                          style={{ background: item.bg, border: `1px solid ${item.br}`, borderRadius: 16, padding: "14px", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 10 }}
+                          style={{ background: item.bg, border: `1px solid ${item.br}`, borderRadius: 12, padding: "10px", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 8 }}
                         >
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 10, background: "#fff", border: `1px solid ${item.br}`, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: 8, background: "#fff", border: `1px solid ${item.br}`, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
                               <item.icon style={{ width: 15, height: 15, color: item.ic }} />
                             </div>
                             <span style={{ fontSize: 8, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.15em", color: item.accent, background: "#fff", border: `1px solid ${item.br}`, borderRadius: 20, padding: "2px 8px" }}>{item.status}</span>
                           </div>
                           <div>
                             <p style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "#64748b", marginBottom: 3 }}>{item.title}</p>
-                            <p style={{ fontSize: 22, fontWeight: 900, color: item.accent, letterSpacing: "-0.03em", lineHeight: 1 }}>{item.value}</p>
+                            <p style={{ fontSize: 18, fontWeight: 900, color: item.accent, letterSpacing: 0, lineHeight: 1 }}>{item.value}</p>
                           </div>
                         </motion.div>
                       ))}

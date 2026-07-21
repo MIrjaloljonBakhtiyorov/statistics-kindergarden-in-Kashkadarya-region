@@ -104,26 +104,32 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col lg:flex-row bg-[#f8fafc] font-sans overflow-x-hidden">
-      <div className="relative w-full lg:w-[55%] min-h-[30vh] lg:min-h-screen bg-[#0f172a] flex items-end">
+    <div className="fixed inset-0 z-[100] flex flex-col lg:flex-row bg-[#f8fafc] font-sans overflow-x-hidden overflow-y-auto lg:overflow-hidden">
+      <div className="relative w-full lg:w-[55%] bg-[#0f172a] lg:min-h-screen lg:flex lg:items-end shrink-0 overflow-hidden">
         <img
           src="/login-bg-1.png"
           alt="Modern Kindergarten"
-          className="absolute inset-0 w-full h-full object-cover object-top lg:object-top transition-transform duration-1000 hover:scale-105"
+          className="block lg:hidden w-full h-[270px] min-[380px]:h-[290px] sm:h-[340px] object-contain object-center bg-white"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/20 lg:via-transparent to-black/20"></div>
+        <img
+          src="/login-bg-1.png"
+          alt="Modern Kindergarten"
+          className="hidden lg:block absolute inset-0 h-full w-full object-cover object-top bg-white transition-transform duration-1000 lg:hover:scale-105"
+        />
+        <div className="hidden lg:block absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-black/10"></div>
+        <div className="hidden lg:block absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0f172a] to-transparent"></div>
 
-        <div className="relative z-10 p-6 sm:p-10 lg:p-16 xl:p-20 w-full">
+        <div className="relative z-10 p-4 min-[380px]:p-5 sm:p-8 lg:p-16 xl:p-20 w-full">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-2 bg-indigo-500/20 backdrop-blur-md rounded-xl border border-white/20 text-white text-[9px] sm:text-xs font-bold uppercase tracking-widest mb-4 sm:mb-6 shadow-2xl">
+            <div className="inline-flex max-w-full items-center gap-2 px-2.5 py-1 sm:px-4 sm:py-2 bg-indigo-500/20 backdrop-blur-md rounded-xl border border-white/20 text-white text-[8px] sm:text-xs font-bold uppercase tracking-wide sm:tracking-widest mb-2.5 sm:mb-4 lg:mb-6 shadow-2xl leading-tight">
               <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-500"></span>
               </span>
-              {t('adminLogin.online')}
+              <span className="min-w-0 truncate">{t('adminLogin.online')}</span>
             </div>
 
-            <h2 className="text-xl sm:text-4xl xl:text-6xl font-black text-white mb-2 sm:mb-6 leading-tight drop-shadow-2xl">
+            <h2 className="max-w-[20rem] sm:max-w-xl text-[21px] min-[380px]:text-2xl sm:text-4xl xl:text-6xl font-black text-white mb-0 sm:mb-5 lg:mb-6 leading-tight drop-shadow-2xl break-words">
               {t('adminLogin.heroTitlePrefix')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-indigo-100">MTT</span> <br className="hidden xs:block" />
               {t('adminLogin.heroTitleSuffix')}
             </h2>
@@ -138,30 +144,31 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
         </div>
       </div>
 
-      <div className="w-full lg:w-[45%] flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 xl:p-20 bg-slate-50 min-h-[60vh] lg:min-h-screen">
+      <div className="w-full lg:w-[45%] flex flex-col items-center justify-center px-4 py-5 min-[380px]:py-6 sm:p-8 lg:p-12 xl:p-20 bg-slate-50 min-h-0 lg:min-h-screen flex-1">
         <div className="max-w-md w-full">
-          <div className="mb-6 sm:mb-8 text-center lg:text-left">
-            <div className="flex flex-col lg:flex-row items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-indigo-600 rounded-xl sm:rounded-2xl shadow-2xl shadow-indigo-600/30 shrink-0">
-                <ShieldCheck size={28} className="text-white" />
+          <div className="mb-4 sm:mb-8 text-center lg:text-left">
+            <div className="flex flex-col sm:flex-row lg:flex-row items-center justify-center lg:justify-start gap-2.5 sm:gap-4 mb-3 sm:mb-6">
+              <div className="inline-flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14 bg-indigo-600 rounded-xl sm:rounded-2xl shadow-2xl shadow-indigo-600/30 shrink-0">
+                <ShieldCheck size={24} className="text-white sm:hidden" />
+                <ShieldCheck size={28} className="hidden sm:block text-white" />
               </div>
-              <div className="text-center lg:text-left">
-                <h1 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none uppercase">
+              <div className="text-center sm:text-left min-w-0">
+                <h1 className="text-base sm:text-2xl font-black text-slate-900 tracking-tight leading-none uppercase break-words">
                   {t('adminLogin.brandRegion')}
                 </h1>
-                <p className="text-indigo-600 font-bold uppercase tracking-widest text-[8px] sm:text-[10px] mt-1">
+                <p className="text-indigo-600 font-bold uppercase tracking-wide sm:tracking-widest text-[8px] sm:text-[10px] mt-1 leading-tight break-words">
                   {t('adminLogin.managementSystem')}
                 </p>
               </div>
             </div>
-            <h3 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">{t('adminLogin.welcome')}</h3>
-            <p className="text-slate-500 font-medium mt-1 sm:mt-2 text-xs sm:text-base">{t('adminLogin.prompt')}</p>
+            <h3 className="text-lg min-[380px]:text-xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">{t('adminLogin.welcome')}</h3>
+            <p className="text-slate-500 font-medium mt-1 sm:mt-2 text-[11px] sm:text-base leading-snug">{t('adminLogin.prompt')}</p>
           </div>
 
-          <div className="bg-white p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100">
-            <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
+          <div className="bg-white p-4 min-[380px]:p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100">
+            <form onSubmit={handleLogin} className="space-y-3.5 sm:space-y-5">
               <div>
-                <label className="block text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 sm:mb-3 px-1">{t('login.loginLabel')}</label>
+                <label className="block text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wide sm:tracking-widest mb-1.5 sm:mb-3 px-1">{t('login.loginLabel')}</label>
                 <div className="relative group">
                   <Mail className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
                   <input
@@ -169,15 +176,15 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
                     autoComplete="username"
                     value={login}
                     onChange={(e) => setLogin(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-slate-900 font-semibold text-sm sm:text-base focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all outline-none"
-                    placeholder="m_login (yoki email)"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl py-3 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-slate-900 font-semibold text-sm sm:text-base placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all outline-none"
+                    placeholder="Login kiriting"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 sm:mb-3 px-1">{t('login.passwordLabel')}</label>
+                <label className="block text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wide sm:tracking-widest mb-1.5 sm:mb-3 px-1">{t('login.passwordLabel')}</label>
                 <div className="relative group">
                   <Lock className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
                   <input
@@ -185,8 +192,8 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-slate-900 font-semibold text-sm sm:text-base focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all outline-none"
-                    placeholder="********"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl py-3 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-slate-900 font-semibold text-sm sm:text-base placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all outline-none"
+                    placeholder="Parol kiriting"
                     required
                   />
                 </div>
@@ -201,13 +208,13 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 sm:gap-3 disabled:opacity-50 transform active:scale-[0.98] mt-2"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 sm:gap-3 disabled:opacity-50 transform active:scale-[0.98] mt-1 sm:mt-2 leading-tight"
               >
                 {loading ? (
                   <Loader2 className="animate-spin" size={20} />
                 ) : (
                   <>
-                    <span className="text-sm sm:text-base">{t('login.submit')}</span>
+                    <span className="text-sm sm:text-base break-words">{t('login.submit')}</span>
                     <ChevronRight size={18} />
                   </>
                 )}
@@ -215,7 +222,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
             </form>
           </div>
 
-          <div className="mt-8 sm:mt-10 text-center text-slate-400 font-medium">
+          <div className="mt-5 sm:mt-10 text-center text-slate-400 font-medium">
             <p className="text-[9px] sm:text-xs leading-relaxed">
               &copy; 2026 Qashqadaryo VMMB. <br />
               <span className="text-slate-300 font-bold uppercase tracking-widest text-[7px] sm:text-[9px] mt-1 block">

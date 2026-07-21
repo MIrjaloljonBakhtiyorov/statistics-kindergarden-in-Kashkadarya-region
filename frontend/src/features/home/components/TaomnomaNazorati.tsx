@@ -1076,7 +1076,7 @@ const TaomnomaNazorati: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full min-h-[1100px] flex items-center justify-center p-4 md:p-12 overflow-hidden rounded-[4rem] bg-white border border-slate-100 shadow-[0_0_100px_rgba(0,0,0,0.02)]">
+    <div className="relative w-full flex items-start justify-center p-2.5 sm:p-5 lg:p-8 overflow-hidden rounded-[1.35rem] sm:rounded-[2rem] lg:rounded-[3rem] bg-white border border-slate-100 shadow-[0_0_100px_rgba(0,0,0,0.02)]">
       
       {/* NOISE & GRAIN OVERLAY */}
       <div className="absolute inset-0 z-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
@@ -1086,17 +1086,17 @@ const TaomnomaNazorati: React.FC = () => {
         <motion.div 
           animate={{ x: [0, 200, 0], y: [0, 100, 0], scale: [1, 1.2, 1] }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-40 -left-40 w-[800px] h-[800px] bg-indigo-500/20 rounded-full blur-[160px]"
+          className="absolute -top-40 -left-40 w-[420px] h-[420px] md:w-[800px] md:h-[800px] bg-indigo-500/20 rounded-full blur-[110px] md:blur-[160px]"
         />
         <motion.div 
           animate={{ x: [0, -200, 0], y: [0, 200, 0], scale: [1, 1.4, 1] }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="absolute top-1/4 right-[-10%] w-[700px] h-[700px] bg-sky-400/15 rounded-full blur-[140px]"
+          className="absolute top-1/4 right-[-10%] w-[360px] h-[360px] md:w-[700px] md:h-[700px] bg-sky-400/15 rounded-full blur-[100px] md:blur-[140px]"
         />
         <motion.div 
           animate={{ x: [0, 100, 0], y: [0, -150, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-60 left-1/4 w-[1000px] h-[1000px] bg-purple-500/10 rounded-full blur-[180px]"
+          className="absolute -bottom-40 left-1/4 w-[460px] h-[460px] md:w-[1000px] md:h-[1000px] bg-purple-500/10 rounded-full blur-[120px] md:blur-[180px]"
         />
       </div>
 
@@ -1111,22 +1111,22 @@ const TaomnomaNazorati: React.FC = () => {
       />
 
       {/* CORE WRAPPER */}
-      <div className="relative z-10 w-full max-w-7xl bg-white/40 backdrop-blur-3xl border border-white/80 p-8 md:p-20 rounded-[4rem] shadow-[0_40px_120px_rgba(0,0,0,0.06),inset_0_0_0_1px_rgba(255,255,255,1)] flex flex-col">
+      <div className="relative z-10 w-full max-w-7xl bg-white/40 backdrop-blur-3xl border border-white/80 p-3.5 sm:p-6 lg:p-12 xl:p-16 rounded-[1.25rem] sm:rounded-[2rem] lg:rounded-[3.5rem] shadow-[0_40px_120px_rgba(0,0,0,0.06),inset_0_0_0_1px_rgba(255,255,255,1)] flex flex-col">
         
         {/* TOP STATUS BAR */}
-        <div className="flex flex-col items-center text-center mb-20 md:mb-32">
-          <h2 className="text-5xl md:text-8xl font-black tracking-tighter mb-8 leading-none">
+        <div className="flex flex-col items-center text-center mb-5 sm:mb-8 lg:mb-12">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl xl:text-8xl font-black tracking-tight mb-3 sm:mb-5 md:mb-7 leading-none">
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-500 to-indigo-600 drop-shadow-md">{t('taomnoma.cycle')}</span>
           </h2>
-          <p className="text-xs md:text-xl text-slate-500 font-bold uppercase tracking-[0.4em] max-w-2xl">
+          <p className="text-[10px] sm:text-xs md:text-lg xl:text-xl text-slate-500 font-bold uppercase tracking-[0.16em] sm:tracking-[0.28em] md:tracking-[0.4em] max-w-2xl leading-relaxed">
             {t('taomnoma.subtitle')}
           </p>
         </div>
 
-        <div className="flex flex-col items-center gap-24">
+        <div className="flex flex-col items-center gap-8 sm:gap-10 lg:gap-14">
           
           {/* THE MASTER DIAL (Luxury Watch/Cockpit style) */}
-          <div className="relative w-[380px] h-[380px] md:w-[640px] md:h-[640px] shrink-0 flex items-center justify-center">
+          <div className="relative w-full max-w-[292px] sm:max-w-[380px] md:max-w-[560px] lg:max-w-[640px] aspect-square shrink-0 flex items-center justify-center">
             
             {/* Seasonal Satellites (Outer Orbit - Clockwise) */}
             <motion.div 
@@ -1233,43 +1233,43 @@ const TaomnomaNazorati: React.FC = () => {
             </svg>
 
             {/* THE CENTRAL BADGE (The Jewel) */}
-            <div className="absolute w-[280px] h-[280px] md:w-[320px] md:h-[320px] z-20 flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full border-[12px] border-white/50 backdrop-blur-3xl shadow-[0_30px_60px_rgba(0,0,0,0.15),inset_0_10px_20px_rgba(255,255,255,0.8)]"></div>
+            <div className="absolute w-[58%] h-[58%] max-w-[320px] max-h-[320px] z-20 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border-[8px] sm:border-[10px] md:border-[12px] border-white/50 backdrop-blur-3xl shadow-[0_30px_60px_rgba(0,0,0,0.15),inset_0_10px_20px_rgba(255,255,255,0.8)]"></div>
               
-              <div className="relative w-[236px] h-[226px] md:w-[276px] md:h-[276px] bg-gradient-to-br from-slate-900 via-[#1e1b4b] to-slate-900 rounded-full shadow-[inset_0_-20px_40px_rgba(0,0,0,0.8),0_30px_60px_rgba(0,0,0,0.6)] border border-slate-700 flex flex-col items-center justify-center p-8 group overflow-hidden">
+              <div className="relative w-[86%] h-[86%] bg-gradient-to-br from-slate-900 via-[#1e1b4b] to-slate-900 rounded-full shadow-[inset_0_-20px_40px_rgba(0,0,0,0.8),0_30px_60px_rgba(0,0,0,0.6)] border border-slate-700 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 group overflow-hidden">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] h-[200px] bg-indigo-500/40 rounded-full blur-[60px] mix-blend-screen"></div>
                 
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }} className="absolute inset-4 rounded-full border border-indigo-500/30 border-t-indigo-400"></motion.div>
                 
-                <div className="relative z-10 w-24 h-24 bg-white/5 backdrop-blur-2xl border border-white/20 rounded-[2.5rem] flex items-center justify-center mb-6 shadow-2xl group-hover:scale-110 transition-transform duration-700">
-                  <Fingerprint className="w-12 h-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]" strokeWidth={1.2} />
+                <div className="relative z-10 w-12 h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white/5 backdrop-blur-2xl border border-white/20 rounded-[1.25rem] sm:rounded-[1.75rem] md:rounded-[2.5rem] flex items-center justify-center mb-3 sm:mb-4 md:mb-6 shadow-2xl group-hover:scale-110 transition-transform duration-700">
+                  <Fingerprint className="w-6 h-6 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]" strokeWidth={1.2} />
                 </div>
                 
                 <h3 className="relative z-10 text-center">
-                  <span className="block text-[11px] font-black tracking-[0.5em] text-indigo-300 mb-2 opacity-80 uppercase">{t('taomnoma.org')}</span>
-                  <span className="block text-3xl font-black uppercase tracking-tighter text-white drop-shadow-2xl leading-none">{t('taomnoma.approved')}</span>
+                  <span className="block text-[7px] sm:text-[10px] md:text-[11px] font-black tracking-[0.14em] sm:tracking-[0.25em] md:tracking-[0.5em] text-indigo-300 mb-1.5 sm:mb-2 opacity-80 uppercase">{t('taomnoma.org')}</span>
+                  <span className="block text-base sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-white drop-shadow-2xl leading-none">{t('taomnoma.approved')}</span>
                 </h3>
               </div>
             </div>
           </div>
 
           {/* INFOGRAPHIC CARDS - MOVED BELOW */}
-          <div className="w-full max-w-6xl z-20 space-y-10 mt-32">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="w-full max-w-6xl z-20 space-y-4 sm:space-y-6 lg:space-y-8 mt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5 lg:gap-8">
               {[
                 { icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-50", label: t('taomnoma.expertBase'), desc: t('taomnoma.expertDesc') },
                 { icon: Lock, color: "text-rose-500", bg: "bg-rose-50", label: t('taomnoma.strictLock'), desc: t('taomnoma.lockDesc') }
               ].map((card, i) => (
                 <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.2 }}
-                  className="bg-white/80 backdrop-blur-2xl p-10 rounded-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.03)] border border-white/90 hover:shadow-[0_40px_100px_rgba(79,70,229,0.15)] transition-all duration-700 group h-full"
+                  className="bg-white/80 backdrop-blur-2xl p-4 sm:p-6 lg:p-8 rounded-[1.25rem] sm:rounded-[1.75rem] lg:rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.03)] border border-white/90 hover:shadow-[0_40px_100px_rgba(79,70,229,0.15)] transition-all duration-700 group h-full"
                 >
-                  <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-8">
-                     <div className={`w-20 h-20 rounded-[2.2rem] ${card.bg} border-2 border-white flex items-center justify-center shrink-0 shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700`}>
-                        <card.icon className={`w-10 h-10 ${card.color}`} strokeWidth={1.5} />
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6">
+                     <div className={`w-14 h-14 sm:w-20 sm:h-20 rounded-[1.25rem] sm:rounded-[2.2rem] ${card.bg} border-2 border-white flex items-center justify-center shrink-0 shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700`}>
+                        <card.icon className={`w-7 h-7 sm:w-10 sm:h-10 ${card.color}`} strokeWidth={1.5} />
                      </div>
                      <div>
-                        <h4 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">{card.label}</h4>
-                        <p className="text-sm md:text-base text-slate-500 font-bold leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{card.desc}</p>
+                        <h4 className="text-lg sm:text-2xl font-black text-slate-900 mb-2 sm:mb-3 tracking-tight">{card.label}</h4>
+                        <p className="text-xs sm:text-sm md:text-base text-slate-500 font-bold leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{card.desc}</p>
                      </div>
                   </div>
                 </motion.div>
@@ -1278,21 +1278,21 @@ const TaomnomaNazorati: React.FC = () => {
 
             {/* LIVE STATUS CARD */}
             <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
-              className="mt-6 bg-slate-900 p-2 rounded-[3.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.5)] relative overflow-hidden group"
+              className="mt-4 sm:mt-6 bg-slate-900 p-1.5 sm:p-2 rounded-[1.5rem] sm:rounded-[2rem] lg:rounded-[3rem] shadow-[0_30px_80px_rgba(0,0,0,0.35)] relative overflow-hidden group"
             >
                <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0_340deg,white_360deg)] animate-[spin_5s_linear_infinite] opacity-30"></div>
-               <div className="relative bg-slate-900/95 backdrop-blur-3xl p-8 px-10 rounded-[3.2rem] flex items-center justify-between border border-slate-700/50">
-                  <div className="flex items-center gap-6">
-                    <div className="relative w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-inner">
-                       <Activity className="w-8 h-8 text-emerald-400" />
+               <div className="relative bg-slate-900/95 backdrop-blur-3xl p-4 sm:p-6 lg:px-8 rounded-[1.25rem] sm:rounded-[1.75rem] lg:rounded-[2.6rem] flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-5 border border-slate-700/50">
+                  <div className="flex items-center gap-3 sm:gap-5">
+                    <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-inner">
+                       <Activity className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-400" />
                        <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-10"></div>
                     </div>
                     <div>
-                       <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.5em] mb-2">{t('taomnoma.status')}</p>
-                       <p className="text-white font-black text-3xl tracking-tighter">{t('taomnoma.safe')}</p>
+                       <p className="text-[9px] sm:text-[11px] font-black text-slate-400 uppercase tracking-[0.22em] sm:tracking-[0.5em] mb-1 sm:mb-2">{t('taomnoma.status')}</p>
+                       <p className="text-white font-black text-xl sm:text-3xl tracking-tight">{t('taomnoma.safe')}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end">
+                  <div className="flex flex-col items-start sm:items-end">
                      <div className="flex items-center gap-3 px-4 py-2 bg-emerald-500/10 rounded-full border border-emerald-500/20">
                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                         <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">{t('taomnoma.live')}</span>
@@ -1307,73 +1307,73 @@ const TaomnomaNazorati: React.FC = () => {
 
       <AnimatePresence>
         {selectedMenu && (
-          <div className="fixed inset-x-0 top-[calc(4rem+6vh)] md:top-[calc(5rem+6vh)] bottom-[6vh] z-[200] flex items-center justify-center px-[5vw]">
+          <div className="fixed inset-x-0 top-[4.5rem] sm:top-[5rem] bottom-3 sm:bottom-5 z-[200] flex items-center justify-center px-2 sm:px-4 lg:px-[5vw]">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedMenu(null)}
-              className="fixed inset-0 bg-transparent"
+              className="fixed inset-0 bg-slate-950/10"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.92, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 30 }}
-              className="relative z-10 w-full max-w-6xl max-h-full overflow-y-auto rounded-[1%] bg-[#fffdf8] shadow-2xl border border-white p-4 md:p-6"
+              className="relative z-10 w-full max-w-6xl max-h-full overflow-y-auto rounded-2xl sm:rounded-[1.5rem] bg-[#fffdf8] shadow-2xl border border-white p-3 sm:p-4 md:p-6"
             >
               <div className="sticky top-0 z-40 -mx-1 -mt-1 mb-2 flex justify-end pointer-events-none">
                 <button
                   onClick={() => setSelectedMenu(null)}
-                  className="pointer-events-auto w-11 h-11 rounded-[1%] bg-white/95 hover:bg-white text-slate-700 font-black shrink-0 shadow-lg ring-1 ring-slate-200 flex items-center justify-center backdrop-blur"
+                  className="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/95 hover:bg-white text-slate-700 font-black shrink-0 shadow-lg ring-1 ring-slate-200 flex items-center justify-center backdrop-blur"
                   aria-label={t('taomnoma.close')}
                 >
                   <XIcon size={18} />
                 </button>
               </div>
-              <div className="relative overflow-hidden rounded-[1%] bg-[#fff7ed] border border-amber-100 p-5 md:p-7 mb-6">
+              <div className="relative overflow-hidden rounded-2xl bg-[#fff7ed] border border-amber-100 p-3.5 sm:p-5 md:p-7 mb-4 sm:mb-6">
                 <div className="absolute right-8 top-6 hidden md:grid grid-cols-2 gap-2 opacity-80">
                   <span className="w-12 h-12 rounded-full bg-amber-200/70 border-4 border-white" />
                   <span className="w-12 h-12 rounded-full bg-emerald-200/70 border-4 border-white" />
                   <span className="w-12 h-12 rounded-full bg-sky-200/70 border-4 border-white" />
                   <span className="w-12 h-12 rounded-full bg-rose-200/70 border-4 border-white" />
                 </div>
-                <div className="relative flex flex-col md:flex-row md:items-start justify-between gap-5">
-                <div>
-                  <div className="flex flex-wrap items-center gap-3 mb-3">
-                    <span className="px-3 py-1 rounded-full bg-white/80 text-amber-600 text-[10px] font-black uppercase tracking-widest shadow-sm">{formatDataText(selectedMenu.season)}</span>
-                    <span className="px-3 py-1 rounded-full bg-white/80 text-emerald-600 text-[10px] font-black uppercase tracking-widest shadow-sm">{formatDataText(selectedMenu.audience)}</span>
-                    <span className="px-3 py-1 rounded-full bg-white/80 text-indigo-600 text-[10px] font-black uppercase tracking-widest shadow-sm">{t('taomnoma.tenDayCycle')}</span>
+                <div className="relative flex flex-col md:flex-row md:items-start justify-between gap-4 sm:gap-5">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
+                    <span className="px-2.5 sm:px-3 py-1 rounded-full bg-white/80 text-amber-600 text-[8px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest shadow-sm">{formatDataText(selectedMenu.season)}</span>
+                    <span className="px-2.5 sm:px-3 py-1 rounded-full bg-white/80 text-emerald-600 text-[8px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest shadow-sm">{formatDataText(selectedMenu.audience)}</span>
+                    <span className="px-2.5 sm:px-3 py-1 rounded-full bg-white/80 text-indigo-600 text-[8px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest shadow-sm">{t('taomnoma.tenDayCycle')}</span>
                   </div>
-                  <p className="text-[11px] font-black text-orange-500 uppercase tracking-[0.35em] mb-2">{t('taomnoma.healthyKids')}</p>
-                  <h3 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">{formatMenuTitle(selectedMenu.title)}</h3>
+                  <p className="text-[9px] sm:text-[11px] font-black text-orange-500 uppercase tracking-[0.18em] sm:tracking-[0.35em] mb-2">{t('taomnoma.healthyKids')}</p>
+                  <h3 className="text-2xl sm:text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">{formatMenuTitle(selectedMenu.title)}</h3>
                   {selectedMenu.heroImage && (
-                    <div className="mt-5 mb-5 w-full overflow-hidden rounded-[1%] border border-white bg-amber-50 shadow-lg">
+                    <div className="mt-4 sm:mt-5 mb-4 sm:mb-5 w-full overflow-hidden rounded-2xl border border-white bg-amber-50 shadow-lg">
                       <img
                         src={selectedMenu.heroImage}
                         alt={formatMenuTitle(selectedMenu.title)}
-                        className="w-full h-44 sm:h-56 md:h-64 lg:h-72 object-cover object-center"
+                        className="w-full h-36 sm:h-56 md:h-64 lg:h-72 object-cover object-center"
                         onError={(event) => {
                           event.currentTarget.src = "/welcome_image.png";
                         }}
                       />
                     </div>
                   )}
-                  <p className="mt-3 max-w-2xl text-sm md:text-base font-bold text-slate-600 leading-relaxed">{formatSummary(selectedMenu.summary)}</p>
-                  <div className="mt-5 flex flex-wrap gap-2">
+                  <p className="mt-3 max-w-2xl text-xs sm:text-sm md:text-base font-bold text-slate-600 leading-relaxed">{formatSummary(selectedMenu.summary)}</p>
+                  <div className="mt-4 sm:mt-5 flex flex-wrap gap-2">
                     {selectedMenu.kidTags.map((tag: string) => (
-                      <span key={tag} className="px-3 py-2 rounded-[1%] bg-white text-slate-700 text-[11px] font-black uppercase tracking-wider border border-amber-100 shadow-sm">
+                      <span key={tag} className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-white text-slate-700 text-[9px] sm:text-[11px] font-black uppercase tracking-wider border border-amber-100 shadow-sm">
                         {formatDataText(tag)}
                       </span>
                     ))}
                   </div>
-                  <div className="mt-4 inline-flex items-center gap-2 px-3 py-2 rounded-[1%] bg-emerald-100 text-emerald-700 text-[11px] font-black uppercase tracking-widest">
+                  <div className="mt-4 inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-100 text-emerald-700 text-[9px] sm:text-[11px] font-black uppercase tracking-wider sm:tracking-widest">
                     <CheckCircle2 size={14} />
                     {formatDataText(selectedMenu.status)}
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedMenu(null)}
-                  className="hidden md:flex w-11 h-11 rounded-[1%] bg-white/80 hover:bg-white text-slate-600 font-black shrink-0 shadow-sm items-center justify-center"
+                  className="hidden md:flex w-11 h-11 rounded-xl bg-white/80 hover:bg-white text-slate-600 font-black shrink-0 shadow-sm items-center justify-center"
                   aria-label={t('taomnoma.close')}
                 >
                   <XIcon size={18} />
@@ -1381,56 +1381,56 @@ const TaomnomaNazorati: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
                 {selectedMenu.meals.map((meal: any, mealIndex: number) => (
-                  <div key={meal.title} className={`rounded-[1%] border border-white bg-white p-4 shadow-sm ring-1 ring-slate-100`}>
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-[1%] bg-gradient-to-br ${meal.accent} flex items-center justify-center text-white font-black shadow-lg`}>
-                          {mealIndex === 0 ? <Coffee size={22} /> : mealIndex === 1 ? <Soup size={22} /> : <UtensilsCrossed size={22} />}
+                  <div key={meal.title} className={`rounded-2xl border border-white bg-white p-3 sm:p-4 shadow-sm ring-1 ring-slate-100`}>
+                    <div className="flex items-start justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className={`w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl bg-gradient-to-br ${meal.accent} flex items-center justify-center text-white font-black shadow-lg`}>
+                          {mealIndex === 0 ? <Coffee size={20} /> : mealIndex === 1 ? <Soup size={20} /> : <UtensilsCrossed size={20} />}
                         </div>
-                        <div>
-                          <h4 className="text-lg font-black text-slate-900">{formatMealTitle(meal.title)}</h4>
-                          <p className={`text-[10px] font-black uppercase tracking-widest ${meal.textColor}`}>{t('taomnoma.kidPortion')}</p>
+                        <div className="min-w-0">
+                          <h4 className="text-base sm:text-lg font-black text-slate-900 leading-tight">{formatMealTitle(meal.title)}</h4>
+                          <p className={`text-[8px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest ${meal.textColor}`}>{t('taomnoma.kidPortion')}</p>
                         </div>
                       </div>
-                      <span className={`px-3 py-2 rounded-[1%] ${meal.softBg} ${meal.textColor} text-[10px] font-black uppercase tracking-widest`}>
+                      <span className={`shrink-0 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl ${meal.softBg} ${meal.textColor} text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest`}>
                         {meal.weight}
                       </span>
                     </div>
 
-                    <div className={`${meal.softBg} rounded-[1%] border border-white p-3 mb-4`}>
-                      <p className={`text-[10px] font-black uppercase tracking-widest mb-3 ${meal.textColor}`}>{t('taomnoma.mainMeals')}</p>
-                    <div className="grid grid-cols-1 gap-2">
+                    <div className={`${meal.softBg} rounded-xl border border-white p-2.5 sm:p-3 mb-3 sm:mb-4`}>
+                      <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest mb-2 sm:mb-3 ${meal.textColor}`}>{t('taomnoma.mainMeals')}</p>
+                    <div className="grid grid-cols-1 gap-1.5 sm:gap-2">
                       {meal.items.map((item: string) => (
-                        <div key={item} className="rounded-[1%] bg-white border border-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm">
+                        <div key={item} className="rounded-xl bg-white border border-white px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-slate-700 shadow-sm">
                           {formatDataText(item)}
                         </div>
                       ))}
                     </div>
                     </div>
 
-                    <div className="overflow-hidden rounded-[1%] border border-slate-100 mb-4">
-                      <div className={`grid grid-cols-[1fr_72px_82px] bg-gradient-to-r ${meal.accent} text-white text-[9px] font-black uppercase tracking-wider`}>
-                        <span className="px-3 py-2">{t('taomnoma.product')}</span>
-                        <span className="px-3 py-2">{t('taomnoma.weight')}</span>
-                        <span className="px-3 py-2">{t('taomnoma.kcal')}</span>
+                    <div className="overflow-hidden rounded-xl border border-slate-100 mb-3 sm:mb-4">
+                      <div className={`grid grid-cols-[minmax(0,1fr)_58px_64px] sm:grid-cols-[minmax(0,1fr)_72px_82px] bg-gradient-to-r ${meal.accent} text-white text-[8px] sm:text-[9px] font-black uppercase tracking-wide sm:tracking-wider`}>
+                        <span className="px-2 sm:px-3 py-2">{t('taomnoma.product')}</span>
+                        <span className="px-2 sm:px-3 py-2">{t('taomnoma.weight')}</span>
+                        <span className="px-2 sm:px-3 py-2">{t('taomnoma.kcal')}</span>
                       </div>
                       {meal.products.map(([product, weight, kcal]: string[]) => (
-                        <div key={product} className="grid grid-cols-[1fr_72px_82px] border-t border-slate-100 text-[11px] font-bold text-slate-600">
-                          <span className="px-3 py-2">{formatDataText(product)}</span>
-                          <span className="px-3 py-2">{weight}</span>
-                          <span className="px-3 py-2">{kcal}</span>
+                        <div key={product} className="grid grid-cols-[minmax(0,1fr)_58px_64px] sm:grid-cols-[minmax(0,1fr)_72px_82px] border-t border-slate-100 text-[9px] sm:text-[11px] font-bold text-slate-600">
+                          <span className="min-w-0 px-2 sm:px-3 py-2 break-words">{formatDataText(product)}</span>
+                          <span className="px-2 sm:px-3 py-2">{weight}</span>
+                          <span className="px-2 sm:px-3 py-2">{kcal}</span>
                         </div>
                       ))}
                     </div>
 
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('taomnoma.nutrition')}</p>
+                    <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-wider sm:tracking-widest mb-2">{t('taomnoma.nutrition')}</p>
                     <div className="grid grid-cols-2 gap-2">
                       {meal.nutrition.map(([label, value]: string[]) => (
-                        <div key={label} className="rounded-[1%] bg-slate-50 border border-slate-100 p-3">
-                          <p className="text-[10px] font-black text-slate-400 uppercase">{formatDataText(label)}</p>
-                          <p className="text-sm font-black text-slate-900">{value}</p>
+                        <div key={label} className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 sm:p-3">
+                          <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase">{formatDataText(label)}</p>
+                          <p className="text-xs sm:text-sm font-black text-slate-900">{value}</p>
                         </div>
                       ))}
                     </div>
@@ -1438,22 +1438,22 @@ const TaomnomaNazorati: React.FC = () => {
                 ))}
               </div>
 
-              <div className="mt-5 rounded-[1%] bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-5 md:p-6">
+              <div className="mt-4 sm:mt-5 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-4 sm:p-5 md:p-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
                   <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.35em]">{t('taomnoma.dailyBalance')}</p>
-                    <p className="text-sm font-bold text-slate-300 mt-2">{t('taomnoma.balanceDesc')}</p>
+                    <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.18em] sm:tracking-[0.35em]">{t('taomnoma.dailyBalance')}</p>
+                    <p className="text-xs sm:text-sm font-bold text-slate-300 mt-2">{t('taomnoma.balanceDesc')}</p>
                   </div>
-                  <div className="inline-flex items-center gap-2 rounded-[1%] bg-white/10 border border-white/10 px-4 py-3 text-emerald-300 text-[10px] font-black uppercase tracking-widest">
+                  <div className="inline-flex items-center gap-2 rounded-xl bg-white/10 border border-white/10 px-3 sm:px-4 py-2.5 sm:py-3 text-emerald-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest">
                     <Activity size={14} />
                     {t('taomnoma.balanced')}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
                   {selectedMenu.total.map(([label, value]: string[]) => (
-                    <div key={label} className="rounded-[1%] bg-white/10 border border-white/10 p-4">
-                      <p className="text-[10px] font-black text-slate-400 uppercase">{formatDataText(label)}</p>
-                      <p className="text-lg font-black text-white">{value}</p>
+                    <div key={label} className="rounded-xl bg-white/10 border border-white/10 p-3 sm:p-4">
+                      <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase">{formatDataText(label)}</p>
+                      <p className="text-sm sm:text-lg font-black text-white">{value}</p>
                     </div>
                   ))}
                 </div>

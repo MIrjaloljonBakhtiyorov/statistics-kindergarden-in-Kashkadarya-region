@@ -153,8 +153,8 @@ export default function App() {
         />
       )}
 
-      <main className="max-w-[1400px] mx-auto px-4 md:px-6 py-6 md:py-12 relative">
-        <div className={`relative z-10 rounded-[4rem] transition-all duration-700`}>
+      <main className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-10 relative">
+        <div className={`relative z-10 rounded-[1.5rem] sm:rounded-[2rem] lg:rounded-[4rem] transition-all duration-700`}>
           <Routes>
             <Route path="/viloyat-statistikasi" element={
               <ViloyatStatistikasi 

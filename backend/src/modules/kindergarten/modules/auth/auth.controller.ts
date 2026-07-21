@@ -10,6 +10,19 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^\+?\d[\d\s-]{7,18}$/;
 
 const normalizeEmail = (email: unknown) => String(email || '').trim().toLowerCase();
+const isBcryptHash = (value: unknown) => /^\$2[aby]\$\d{2}\$/.test(String(value || ''));
+
+const verifyPassword = async (password: string, storedPassword: unknown) => {
+  const stored = String(storedPassword || '');
+  if (!stored) return false;
+  if (!isBcryptHash(stored)) return password === stored;
+
+  try {
+    return await bcrypt.compare(password, stored);
+  } catch {
+    return false;
+  }
+};
 
 const run = (sql: string, params: any[] = []) =>
   new Promise<{ lastID?: number; changes?: number }>((resolve, reject) => {
@@ -45,53 +58,65 @@ const createTransporter = () => {
 
 export class AuthController {
   login = async (req: Request, res: Response) => {
-    const { login, password } = req.body;
+    const { login } = req.body;
+    const password = String(req.body.password || '');
     const normalizedLogin = normalizeLogin(login);
 
-    db.get('SELECT * FROM kindergartens WHERE lower(trim(username)) = ? AND password = ?', [normalizedLogin, password], (err, user: any) => {
+    db.get(
+      `SELECT *
+       FROM kindergartens
+       WHERE lower(regexp_replace(COALESCE(username, ''), '\\s+', '', 'g')) = ?
+          OR lower(regexp_replace(COALESCE(system_id, ''), '\\s+', '', 'g')) = ?
+          OR lower(regexp_replace(COALESCE(email, ''), '\\s+', '', 'g')) = ?
+       LIMIT 1`,
+      [normalizedLogin, normalizedLogin, normalizedLogin],
+      async (err, user: any) => {
       if (err) return res.status(500).json({ error: err.message });
-      if (!user) {
-        db.get(
-          `SELECT ra.*, k.name as kindergarten_name
-           FROM role_accounts ra
-           LEFT JOIN kindergartens k ON k.id = ra.kindergarten_id
-           WHERE lower(trim(ra.login)) = ?
-             AND ra.role IN (
-               'OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR'
-             )
-           LIMIT 1`,
-          [normalizedLogin],
-          async (roleErr, roleUser: any) => {
-            if (roleErr) {
-              if (roleErr.message.includes('no such table')) {
-                return res.status(401).json({ error: 'Invalid login or password' });
-              }
-              return res.status(500).json({ error: roleErr.message });
-            }
-            if (!roleUser) return res.status(401).json({ error: 'Invalid login or password' });
 
-            const ok = await bcrypt.compare(password, roleUser.password_hash);
-            if (!ok) return res.status(401).json({ error: 'Invalid login or password' });
+      if (user) {
+        const ok = await verifyPassword(password, user.password);
+        if (!ok) return res.status(401).json({ error: 'Invalid login or password' });
 
-            return res.json({
-              id: roleUser.id,
-              kindergarten_id: roleUser.kindergarten_id,
-              login: roleUser.login,
-              role: roleUser.role,
-              full_name: roleUser.full_name || roleUser.kindergarten_name || roleUser.login
-            });
-          }
-        );
-        return;
+        return res.json({
+          id: user.id,
+          kindergarten_id: user.id,
+          login: user.username,
+          role: 'DIRECTOR', // Default role for now
+          full_name: user.directorName
+        });
       }
 
-      res.json({
-        id: user.id,
-        kindergarten_id: user.id,
-        login: user.username,
-        role: 'DIRECTOR', // Default role for now
-        full_name: user.directorName
-      });
+      db.get(
+        `SELECT ra.*, k.name as kindergarten_name
+         FROM role_accounts ra
+         LEFT JOIN kindergartens k ON k.id = ra.kindergarten_id
+         WHERE lower(trim(ra.login)) = ?
+           AND ra.role IN (
+             'OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR'
+           )
+         LIMIT 1`,
+        [normalizedLogin],
+        async (roleErr, roleUser: any) => {
+          if (roleErr) {
+            if (roleErr.message.includes('no such table')) {
+              return res.status(401).json({ error: 'Invalid login or password' });
+            }
+            return res.status(500).json({ error: roleErr.message });
+          }
+          if (!roleUser) return res.status(401).json({ error: 'Invalid login or password' });
+
+          const ok = await verifyPassword(password, roleUser.password_hash);
+          if (!ok) return res.status(401).json({ error: 'Invalid login or password' });
+
+          return res.json({
+            id: roleUser.id,
+            kindergarten_id: roleUser.kindergarten_id,
+            login: roleUser.login,
+            role: roleUser.role,
+            full_name: roleUser.full_name || roleUser.kindergarten_name || roleUser.login
+          });
+        }
+      );
     });
   };
 

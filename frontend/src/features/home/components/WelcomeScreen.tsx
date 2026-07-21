@@ -12,7 +12,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-12 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-3 sm:p-5 lg:p-12 relative overflow-hidden font-sans">
       {/* ... (background elements) ... */}
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
@@ -32,16 +32,16 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="max-w-7xl w-full bg-white/70 backdrop-blur-3xl rounded-[4rem] shadow-[0_40px_100px_rgba(0,0,0,0.08)] overflow-hidden flex flex-col md:flex-row border border-white/50 relative z-10"
+        className="max-w-7xl w-full bg-white/70 backdrop-blur-3xl rounded-[1.75rem] sm:rounded-[2.5rem] lg:rounded-[4rem] shadow-[0_40px_100px_rgba(0,0,0,0.08)] overflow-hidden flex flex-col lg:flex-row border border-white/50 relative z-10"
       >
         {/* Left Side: Content */}
-        <div className="flex-1 p-8 md:p-20 flex flex-col justify-center space-y-12">
-          <div className="space-y-6">
+        <div className="flex-1 p-5 sm:p-8 md:p-12 lg:p-16 xl:p-20 flex flex-col justify-center space-y-7 sm:space-y-10 lg:space-y-12">
+          <div className="space-y-4 sm:space-y-6">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-violet-600/10 text-violet-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em]"
+              className="inline-flex max-w-full items-center gap-2 bg-violet-600/10 text-violet-600 px-4 sm:px-6 py-2 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-[0.16em] sm:tracking-[0.2em]"
             >
               <Star className="w-3 h-3 fill-violet-600" />
               {t('welcome.region')}
@@ -51,7 +51,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-5xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-slate-900 leading-[0.92] tracking-tight"
             >
               {t('welcome.titleLine1')} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600">{t('welcome.titleLine2')}</span>
@@ -61,7 +61,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="text-slate-500 text-lg md:text-2xl font-medium max-w-lg leading-relaxed"
+              className="text-slate-500 text-base sm:text-lg md:text-xl xl:text-2xl font-medium max-w-lg leading-relaxed"
             >
               {t('welcome.description')}
             </motion.p>
@@ -71,9 +71,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
-            className="grid grid-cols-2 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5 lg:gap-6"
           >
-            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4 hover:shadow-xl transition-all group">
+            <div className="bg-white p-5 sm:p-6 lg:p-8 rounded-[1.5rem] lg:rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4 hover:shadow-xl transition-all group">
               <div className="w-12 h-12 bg-violet-50 rounded-2xl flex items-center justify-center text-violet-600 group-hover:scale-110 transition-transform">
                 <Zap className="h-6 w-6" />
               </div>
@@ -82,7 +82,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
                 <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{t('welcome.realtime')}</p>
               </div>
             </div>
-            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4 hover:shadow-xl transition-all group">
+            <div className="bg-white p-5 sm:p-6 lg:p-8 rounded-[1.5rem] lg:rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4 hover:shadow-xl transition-all group">
               <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
                 <ShieldCheck className="h-6 w-6" />
               </div>
@@ -100,7 +100,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
             onClick={onEnter}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="group flex items-center justify-between px-10 py-8 bg-slate-900 text-white rounded-[2.5rem] font-black text-xl uppercase tracking-widest transition-all shadow-2xl hover:shadow-violet-500/40 relative overflow-hidden"
+            className="group flex items-center justify-between gap-4 px-5 sm:px-8 lg:px-10 py-5 sm:py-6 lg:py-8 bg-slate-900 text-white rounded-[1.5rem] lg:rounded-[2.5rem] font-black text-sm sm:text-base lg:text-xl uppercase tracking-[0.12em] sm:tracking-widest transition-all shadow-2xl hover:shadow-violet-500/40 relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
             <span className="relative z-10 flex items-center gap-4">
@@ -113,7 +113,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
         </div>
 
         {/* Right Side: Visual Design */}
-        <div className="flex-1 bg-slate-900 relative min-h-[700px] hidden md:block overflow-hidden">
+        <div className="flex-1 bg-slate-900 relative min-h-[520px] xl:min-h-[700px] hidden lg:block overflow-hidden">
           <div className="absolute inset-0 bg-[url('https://plus.unsplash.com/premium_photo-1663091062435-ef04d1ea008c?w=1200&auto=format&fit=crop&q=80')] bg-cover bg-center opacity-20"></div>
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/80 via-slate-900 to-slate-900"></div>
           
@@ -134,7 +134,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
             <RotatingFoodMenu />
           </div>
 
-          <div className="absolute inset-0 p-16 flex flex-col justify-between text-white z-10">
+          <div className="absolute inset-0 p-8 xl:p-16 flex flex-col justify-between text-white z-10">
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -144,7 +144,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
                 <School className="h-8 w-8 text-white" />
               </div>
               <div>
-                <p className="font-black text-3xl leading-none tracking-tighter">{t('appName')}</p>
+                <p className="font-black text-3xl leading-none tracking-tight">{t('appName')}</p>
                 <p className="text-[12px] font-bold text-indigo-400 uppercase tracking-widest mt-2">{t('welcome.regionalMonitoring')}</p>
               </div>
             </motion.div>

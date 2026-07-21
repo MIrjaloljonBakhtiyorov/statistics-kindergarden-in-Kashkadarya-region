@@ -56,18 +56,18 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="bg-white border-b border-slate-200/50 sticky top-0 z-50 shadow-sm dark:bg-slate-950/95 dark:border-slate-800">
-      <nav className="max-w-[1400px] mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleNavigation('/viloyat-statistikasi')}>
+      <nav className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 h-16 md:h-20 flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3 cursor-pointer" onClick={() => handleNavigation('/viloyat-statistikasi')}>
           <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center text-white font-black text-xl md:text-2xl shadow-lg border border-indigo-400/20">R</div>
-          <div className="flex flex-col justify-center">
+          <div className="flex min-w-0 flex-col justify-center">
             <h1 className="text-lg md:text-2xl leading-none select-none flex items-baseline font-black text-black dark:text-white">
-              <span className="text-base md:text-lg">{t('appName')}</span>
+              <span className="max-w-[190px] truncate text-sm sm:text-base md:max-w-none md:text-lg">{t('appName')}</span>
             </h1>
           </div>
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden lg:flex items-center gap-1.5 bg-white p-1.5 rounded-2xl dark:bg-slate-900/70">
+        <div className="hidden xl:flex items-center gap-1.5 bg-white p-1.5 rounded-2xl dark:bg-slate-900/70">
           {menuItems.map((item, index) => (
             <button
               key={item.name}
@@ -84,7 +84,7 @@ const Header: React.FC<HeaderProps> = ({
           ))}
         </div>
 
-        <div className="hidden lg:flex items-center gap-4">
+        <div className="hidden xl:flex items-center gap-4">
           <ThemeToggle className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-all hover:bg-slate-50 hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800" />
 
           <div className="relative" ref={langRef}>
@@ -130,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({
         <button 
           ref={mobileMenuBtnRef}
           onClick={() => setIsMenuOpen(!isMobileMenuOpen)}
-          className="lg:hidden p-2.5 bg-slate-100 rounded-xl text-slate-600 active:scale-95 transition-transform dark:bg-slate-800 dark:text-slate-100"
+          className="xl:hidden p-2.5 bg-slate-100 rounded-xl text-slate-600 active:scale-95 transition-transform dark:bg-slate-800 dark:text-slate-100"
         >
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
@@ -138,8 +138,8 @@ const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div ref={mobileMenuRef} className="lg:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200/50 shadow-2xl animate-in slide-in-from-top duration-300 z-50 dark:bg-slate-950/95 dark:border-slate-800">
-          <div className="p-4 grid grid-cols-1 gap-2">
+        <div ref={mobileMenuRef} className="xl:hidden absolute top-full left-0 w-full max-h-[calc(100vh-4rem)] overflow-y-auto bg-white/95 backdrop-blur-xl border-b border-slate-200/50 shadow-2xl animate-in slide-in-from-top duration-300 z-50 dark:bg-slate-950/95 dark:border-slate-800">
+          <div className="p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {menuItems.map((item) => (
               <button
                 key={item.name}
@@ -157,7 +157,7 @@ const Header: React.FC<HeaderProps> = ({
                 {t(item.name)}
               </button>
             ))}
-            <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2">
+            <div className="mt-2 pt-4 border-t border-slate-100 flex flex-col gap-2 sm:col-span-2">
               <ThemeToggle
                 showLabel
                 className="flex items-center justify-between px-5 py-4 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800"

@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useGroups } from '../hooks/useGroups';
 import { GroupFormModal } from './GroupFormModal';
 import { Group } from '../types/group.types';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useNotification } from '../../../context/NotificationContext';
+import { Pagination } from '../../../components/ui/Pagination';
+
+const PAGE_SIZE = 20;
 
 export const GroupsList: React.FC = () => {
   const { groups, loading, createGroup, updateGroup, deleteGroup } = useGroups();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<Group | undefined>(undefined);
+  const [page, setPage] = useState(1);
   const { showNotification, confirm } = useNotification();
+
+  const totalPages = Math.max(1, Math.ceil(groups.length / PAGE_SIZE));
+  const visibleGroups = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return groups.slice(start, start + PAGE_SIZE);
+  }, [groups, page]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   if (loading) return <div className="p-8 text-center text-brand-muted font-bold">Yuklanmoqda...</div>;
 
@@ -47,7 +61,7 @@ export const GroupsList: React.FC = () => {
           {groups.length === 0 ? (
             <div className="col-span-full py-10 text-center text-brand-muted font-bold">Guruhlar mavjud emas.</div>
           ) : (
-            groups.map(group => (
+            visibleGroups.map(group => (
               <div key={group.id} className="p-5 bg-white rounded-3xl border border-brand-border flex items-center justify-between group hover:border-brand-primary hover:shadow-xl hover:shadow-brand-primary/5 transition-all">
                  <div className="flex-1 min-w-0 pr-4">
                     <span className="font-black text-brand-depth block text-lg truncate">{group.name}</span>
@@ -79,6 +93,10 @@ export const GroupsList: React.FC = () => {
               </div>
             ))
           )}
+       </div>
+
+       <div className="mt-6">
+         <Pagination page={page} pageSize={PAGE_SIZE} totalItems={groups.length} onPageChange={setPage} />
        </div>
 
        {isModalOpen && (

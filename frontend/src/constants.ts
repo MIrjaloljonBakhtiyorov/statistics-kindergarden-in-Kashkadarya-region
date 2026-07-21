@@ -87,8 +87,8 @@ export const languages = [
 ];
 
 export const kindergartenImages = [
-  { url: 'https://plus.unsplash.com/premium_photo-1663091062435-ef04d1ea008c?w=1200&auto=format&fit=crop&q=80', title: 'Shodumon bolajonlar' },
-  { url: 'https://media.istockphoto.com/id/1434918490/photo/cute-little-girl-eats-fruit-salad.jpg?s=612x612&w=0&k=20&c=8zi80wlKZADN_koDY7EXg-kAzeyhiPlYdtJvM4BfLDQ=', title: 'Sog\'lom ovqatlanish' },
-  { url: 'https://plus.unsplash.com/premium_photo-1661373657799-a9b4d6543c07?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', title: 'Ta\'lim jarayoni' },
-  { url: 'https://plus.unsplash.com/premium_photo-1723579338213-da0a162d6977?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', title: 'Quvnoq o\'yinlar' },
+  { url: 'https://plus.unsplash.com/premium_photo-1663091062435-ef04d1ea008c?w=1200&auto=format&fit=crop&q=80', title: 'Shodumon bolajonlar', objectPosition: '50% 43%' },
+  { url: 'https://media.istockphoto.com/id/1434918490/photo/cute-little-girl-eats-fruit-salad.jpg?s=612x612&w=0&k=20&c=8zi80wlKZADN_koDY7EXg-kAzeyhiPlYdtJvM4BfLDQ=', title: 'Sog\'lom ovqatlanish', objectPosition: '58% 36%' },
+  { url: 'https://plus.unsplash.com/premium_photo-1661373657799-a9b4d6543c07?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', title: 'Ta\'lim jarayoni', objectPosition: '52% 42%' },
+  { url: 'https://plus.unsplash.com/premium_photo-1723579338213-da0a162d6977?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', title: 'Quvnoq o\'yinlar', objectPosition: '52% 38%' },
 ];

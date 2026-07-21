@@ -228,26 +228,26 @@ export default function RetseptlarKitobi() {
   }, [dynamicRecipes, searchQuery]);
 
   return (
-    <div className="space-y-6 md:space-y-12">
+    <div className="space-y-5 sm:space-y-7 md:space-y-10">
       {/* Top Banner */}
-      <div className="w-full overflow-hidden rounded-3xl relative bg-white border border-slate-100 shadow-xl">
+      <div className="w-full overflow-hidden rounded-2xl sm:rounded-3xl relative bg-white border border-slate-100 shadow-xl">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-50/60 -skew-x-12 translate-x-16" />
         <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 opacity-60" />
 
-        <div className="relative flex flex-col md:flex-row items-center gap-6 px-8 py-10 md:px-16 md:py-14">
-          <div className="flex-1 space-y-6">
-            <h1 className="text-5xl md:text-8xl font-black leading-none tracking-tighter">
+        <div className="relative flex flex-col md:flex-row items-start md:items-center gap-5 sm:gap-7 px-4 sm:px-6 md:px-12 xl:px-16 py-6 sm:py-8 md:py-12">
+          <div className="flex-1 min-w-0 space-y-4 sm:space-y-5 md:space-y-6">
+            <h1 className="text-3xl min-[380px]:text-4xl sm:text-5xl md:text-7xl xl:text-8xl font-black leading-none tracking-tight break-words">
               <span className="block text-slate-900">AQLVOY</span>
               <span className="block text-indigo-600">{t('recipes.chef')}</span>
             </h1>
-            <p className="text-lg md:text-2xl font-bold text-slate-800 leading-snug max-w-lg">
+            <p className="text-sm min-[380px]:text-base sm:text-lg md:text-2xl font-bold text-slate-800 leading-snug max-w-lg">
               {t('recipes.projectPrefix')} <span className="text-indigo-600 underline underline-offset-4">Sh. Sh. Mirziyoyeva</span> {t('recipes.projectSuffix')}
             </p>
-            <p className="text-sm md:text-base text-slate-500 italic leading-relaxed max-w-md">
+            <p className="text-xs sm:text-sm md:text-base text-slate-500 italic leading-relaxed max-w-md">
               {t('recipes.intro')}
             </p>
           </div>
-          <div className="w-64 md:w-96 shrink-0 relative">
+          <div className="w-40 min-[380px]:w-52 sm:w-64 md:w-80 lg:w-96 shrink-0 relative self-center md:self-auto">
             <div className="absolute inset-0 bg-indigo-200 rounded-full blur-3xl opacity-20 animate-pulse" />
             <img
               src="/welcome_image.png"
@@ -259,57 +259,57 @@ export default function RetseptlarKitobi() {
       </div>
 
       {/* Authors - always visible, compact */}
-      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm px-6 py-5 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm px-4 sm:px-6 py-4 sm:py-5 grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
         <div className="md:col-span-2">
-          <div className="flex items-center gap-2 mb-5">
+          <div className="flex items-center gap-2 mb-4 sm:mb-5 min-w-0">
             <div className="w-1.5 h-5 bg-indigo-600 rounded-full" />
-            <p className="text-[16px] font-black text-slate-900 uppercase tracking-widest">{t('recipes.authors')}</p>
+            <p className="min-w-0 text-[13px] sm:text-[16px] font-black text-slate-900 uppercase tracking-[0.16em] sm:tracking-widest leading-tight break-words">{t('recipes.authors')}</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-3">
             {authorRoles.map((a, i) => (
-              <div key={i} className="flex items-start gap-2">
+              <div key={i} className="flex items-start gap-2 min-w-0">
                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-2 shrink-0" />
-                <div>
-                  <p className="text-[15px] font-black text-slate-800 leading-tight">{a.name}</p>
-                  <p className="text-[13px] font-semibold text-slate-400 leading-tight mt-0.5">{t(a.roleKey)}</p>
+                <div className="min-w-0">
+                  <p className="text-[13px] sm:text-[15px] font-black text-slate-800 leading-tight break-words">{a.name}</p>
+                  <p className="text-[11px] sm:text-[13px] font-semibold text-slate-400 leading-tight mt-0.5 break-words">{t(a.roleKey)}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
         <div>
-          <div className="flex items-center gap-2 mb-5">
+          <div className="flex items-center gap-2 mb-4 sm:mb-5 min-w-0">
             <div className="w-1.5 h-5 bg-slate-300 rounded-full" />
-            <p className="text-[16px] font-black text-slate-900 uppercase tracking-widest">{t('recipes.reviewers')}</p>
+            <p className="min-w-0 text-[13px] sm:text-[16px] font-black text-slate-900 uppercase tracking-[0.16em] sm:tracking-widest leading-tight break-words">{t('recipes.reviewers')}</p>
           </div>
           <div className="space-y-3">
             {reviewerRoles.map((r, i) => (
-              <div key={i} className="flex items-start gap-2">
+              <div key={i} className="flex items-start gap-2 min-w-0">
                 <div className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-2 shrink-0" />
-                <div>
-                  <p className="text-[15px] font-black text-slate-800 leading-tight">{r.name}</p>
-                  <p className="text-[13px] font-semibold text-slate-400 leading-tight mt-0.5">{t(r.roleKey)}</p>
+                <div className="min-w-0">
+                  <p className="text-[13px] sm:text-[15px] font-black text-slate-800 leading-tight break-words">{r.name}</p>
+                  <p className="text-[11px] sm:text-[13px] font-semibold text-slate-400 leading-tight mt-0.5 break-words">{t(r.roleKey)}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="mt-5 flex items-center gap-2.5 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+          <div className="mt-5 flex items-center gap-2.5 bg-emerald-50 border border-emerald-100 rounded-xl px-3 sm:px-4 py-3 min-w-0">
             <ChefHat className="w-4 h-4 text-emerald-600 shrink-0" />
-            <p className="text-[12px] font-black text-emerald-700 uppercase tracking-wider">{t('recipes.approved')}</p>
+            <p className="text-[10px] sm:text-[12px] font-black text-emerald-700 uppercase tracking-wide sm:tracking-wider leading-tight break-words">{t('recipes.approved')}</p>
           </div>
         </div>
       </div>
 
       {/* ── SHAHNOZA MIRZIYOYEVA TASHABBUSI ── */}
       <div className="space-y-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <div className="h-px w-8 bg-rose-300" />
-          <span className="text-[11px] font-black uppercase tracking-[0.25em] text-rose-400">{t('recipes.socialInitiative')}</span>
+          <span className="min-w-0 text-[9px] sm:text-[11px] font-black uppercase tracking-[0.16em] sm:tracking-[0.25em] text-rose-400 leading-tight break-words">{t('recipes.socialInitiative')}</span>
           <div className="h-px flex-1 bg-gradient-to-r from-rose-100 to-transparent" />
         </div>
 
         {/* Asosiy karta */}
-        <div className="relative rounded-[2rem] overflow-hidden shadow-2xl" style={{ background: 'linear-gradient(135deg, #1a0a1e 0%, #2d1b3d 50%, #1a0a1e 100%)' }}>
+        <div className="relative rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-2xl" style={{ background: 'linear-gradient(135deg, #1a0a1e 0%, #2d1b3d 50%, #1a0a1e 100%)' }}>
           <motion.div
             key={activeSocialSlide}
             initial={{ opacity: 0, x: 28 }}
@@ -317,22 +317,22 @@ export default function RetseptlarKitobi() {
             transition={{ duration: 0.45, ease: 'easeOut' }}
             className="grid grid-cols-1 lg:grid-cols-2"
           >
-            <div className="relative min-h-[340px]">
+            <div className="relative min-h-[240px] sm:min-h-[320px] lg:min-h-[420px]">
               <img
                 src={socialSlides[activeSocialSlide].src}
                 alt={socialSlides[activeSocialSlide].label}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', minHeight: 340 }}
+                className="block h-60 sm:h-80 lg:h-full w-full object-cover object-center"
               />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, transparent 60%, #1a0a1e)' }} />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #1a0a1e 0%, transparent 50%)' }} />
-              <div className="absolute bottom-5 left-5">
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black text-rose-300 uppercase tracking-widest border" style={{ background: 'rgba(244,63,94,0.12)', borderColor: 'rgba(244,63,94,0.3)' }}>
+              <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-auto">
+                <span className="inline-flex max-w-full items-center gap-2 px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-black text-rose-300 uppercase tracking-wide sm:tracking-widest border leading-tight" style={{ background: 'rgba(244,63,94,0.12)', borderColor: 'rgba(244,63,94,0.3)' }}>
                   <Heart className="w-3 h-3 fill-rose-400 text-rose-400" />
                   {t('recipes.socialInitiative')}
                 </span>
               </div>
             </div>
-            <div className="p-8 flex flex-col justify-center gap-5">
+            <div className="p-4 sm:p-6 lg:p-8 flex flex-col justify-center gap-4 sm:gap-5 min-w-0">
               <div className="flex items-center gap-2">
                 {socialSlides.map((slide, index) => (
                   <button
@@ -344,21 +344,21 @@ export default function RetseptlarKitobi() {
                   />
                 ))}
               </div>
-              <h4 className="text-[26px] font-black text-white leading-tight">
+              <h4 className="text-xl sm:text-[26px] font-black text-white leading-tight break-words">
                 {socialSlides[activeSocialSlide].title} <span className="text-rose-300">{socialSlides[activeSocialSlide].accent}</span>
               </h4>
-              <p className="text-[14px] leading-relaxed font-medium" style={{ color: 'rgba(203,213,225,0.85)' }}>
+              <p className="text-xs sm:text-[14px] leading-relaxed font-medium" style={{ color: 'rgba(203,213,225,0.85)' }}>
                 {t('recipes.socialDesc')}
               </p>
               <blockquote className="border-l-4 border-rose-400 pl-4">
-                <p className="text-[13px] italic font-medium text-rose-200 leading-relaxed">
+                <p className="text-[11px] sm:text-[13px] italic font-medium text-rose-200 leading-relaxed">
                   "Har bir bola — alohida dunyo. Ularning qalbidagi nur bizning kelajagimizdir. Biror bolaning ko'zlarida umid ko'rsak, uni so'ndirmasligimiz kerak."
                 </p>
-                <p className="text-[11px] font-black text-rose-400 uppercase tracking-wider mt-2">— Shahnoza Mirziyoyeva</p>
+                <p className="text-[10px] sm:text-[11px] font-black text-rose-400 uppercase tracking-wider mt-2">— Shahnoza Mirziyoyeva</p>
               </blockquote>
               <div className="flex flex-wrap gap-2 pt-2">
                 {[t('recipes.tagSpecial'), t('recipes.tagInclusive'), t('recipes.tagSupport'), t('recipes.tagEqual')].map((tag, i) => (
-                  <span key={i} className="text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full" style={{ background: 'rgba(244,63,94,0.15)', color: '#fda4af', border: '1px solid rgba(244,63,94,0.2)' }}>
+                  <span key={i} className="max-w-full break-words text-[9px] sm:text-[10px] font-black uppercase tracking-wide sm:tracking-wider px-2.5 sm:px-3 py-1.5 rounded-full leading-tight" style={{ background: 'rgba(244,63,94,0.15)', color: '#fda4af', border: '1px solid rgba(244,63,94,0.2)' }}>
                     {tag}
                   </span>
                 ))}
@@ -366,21 +366,21 @@ export default function RetseptlarKitobi() {
             </div>
           </motion.div>
 
-          <div className="absolute inset-y-0 left-3 flex items-center">
+          <div className="absolute inset-y-0 left-2 sm:left-3 flex items-center">
             <button
               type="button"
               onClick={() => goSocialSlide('prev')}
-              className="h-11 w-11 rounded-full border border-white/15 bg-black/25 text-white backdrop-blur-md flex items-center justify-center transition hover:bg-rose-500/80"
+              className="h-9 w-9 sm:h-11 sm:w-11 rounded-full border border-white/15 bg-black/25 text-white backdrop-blur-md flex items-center justify-center transition hover:bg-rose-500/80"
               aria-label="Oldingi slayd"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
           </div>
-          <div className="absolute inset-y-0 right-3 flex items-center">
+          <div className="absolute inset-y-0 right-2 sm:right-3 flex items-center">
             <button
               type="button"
               onClick={() => goSocialSlide('next')}
-              className="h-11 w-11 rounded-full border border-white/15 bg-black/25 text-white backdrop-blur-md flex items-center justify-center transition hover:bg-rose-500/80"
+              className="h-9 w-9 sm:h-11 sm:w-11 rounded-full border border-white/15 bg-black/25 text-white backdrop-blur-md flex items-center justify-center transition hover:bg-rose-500/80"
               aria-label="Keyingi slayd"
             >
               <ChevronRight className="h-5 w-5" />
@@ -389,7 +389,7 @@ export default function RetseptlarKitobi() {
         </div>
 
         {/* 3 ta kichik rasm */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           {socialSlides.map((item, i) => {
             const isActive = activeSocialSlide === i;
             return (
@@ -406,13 +406,12 @@ export default function RetseptlarKitobi() {
               <img
                 src={item.src}
                 alt={item.label}
-                style={{ width: '100%', height: 220, objectFit: 'cover', objectPosition: 'center', display: 'block' }}
-                className="group-hover:scale-105 transition-transform duration-500"
+                className="block h-40 sm:h-44 md:h-[220px] w-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(26,10,30,0.85) 0%, transparent 55%)' }} />
-              <div className="absolute bottom-4 left-4 right-4">
-                <p className="text-[13px] font-black text-white mb-1">{item.label}</p>
-                <p className="text-[11px] text-rose-200 font-medium">{item.desc}</p>
+              <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4">
+                <p className="text-[12px] sm:text-[13px] font-black text-white mb-1 leading-tight break-words">{item.label}</p>
+                <p className="text-[10px] sm:text-[11px] text-rose-200 font-medium leading-tight break-words">{item.desc}</p>
               </div>
             </motion.button>
             );
@@ -421,15 +420,15 @@ export default function RetseptlarKitobi() {
       </div>
 
       {/* Header and Search */}
-      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-start lg:items-center justify-between bg-white p-5 md:p-10 rounded-2xl md:rounded-[2.5rem] shadow-xl border border-slate-100">
-        <div className="max-w-xl">
-          <h2 className="text-lg md:text-4xl font-black text-slate-900 tracking-tight mb-1 md:mb-2 flex items-center gap-2 md:gap-4">
-            <div className="p-2 md:p-3 bg-indigo-50 rounded-xl md:rounded-2xl">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-start lg:items-center justify-between bg-white p-4 sm:p-5 lg:p-8 rounded-2xl md:rounded-[2.5rem] shadow-xl border border-slate-100">
+        <div className="max-w-xl min-w-0">
+          <h2 className="text-base sm:text-xl md:text-4xl font-black text-slate-900 tracking-tight mb-1 md:mb-2 flex items-center gap-2 md:gap-4 leading-tight min-w-0">
+            <div className="p-2 md:p-3 bg-indigo-50 rounded-xl md:rounded-2xl shrink-0">
               <ChefHat className="h-5 w-5 md:h-10 md:w-10 text-indigo-600" />
             </div>
-            {t('recipes.collection')}
+            <span className="min-w-0 break-words">{t('recipes.collection')}</span>
           </h2>
-          <p className="text-[10px] md:text-base text-slate-500 font-medium ml-1 md:ml-2 uppercase tracking-widest">{t('recipes.verifiedByChefs')}</p>
+          <p className="text-[9px] sm:text-[10px] md:text-base text-slate-500 font-medium ml-1 md:ml-2 uppercase tracking-[0.14em] sm:tracking-widest leading-tight break-words">{t('recipes.verifiedByChefs')}</p>
         </div>
         <div className="flex gap-3 w-full lg:w-auto">
           <div className="relative flex-1 lg:w-96 group">
@@ -455,7 +454,7 @@ export default function RetseptlarKitobi() {
       )}
 
       {loading ? (
-        <div className="py-16 md:py-24 text-center bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm">
+        <div className="py-12 md:py-24 text-center bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm">
           <div className="w-12 h-12 md:w-20 md:h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 animate-pulse">
             <ChefHat className="h-6 w-6 md:h-9 md:w-9 text-indigo-500" />
           </div>
@@ -463,13 +462,13 @@ export default function RetseptlarKitobi() {
           <p className="text-[10px] md:text-sm text-slate-500 font-medium max-w-xs md:max-w-sm mx-auto px-4">Aqlvoy oshpaz bazasidagi taomlar olinmoqda.</p>
         </div>
       ) : filteredRecipes.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 xl:gap-8">
           {filteredRecipes.map(recipe => (
             <div key={recipe.id} className="group bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-full">
-              <div className="h-48 md:h-64 bg-slate-50 relative overflow-hidden">
-                 <div className="absolute top-3 left-3 md:top-4 left-4 z-10 bg-white/95 backdrop-blur-md text-slate-900 px-2.5 py-1 md:px-4 md:py-2 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest shadow-lg border border-white/50 flex items-center gap-1.5 md:gap-2">
+              <div className="h-44 sm:h-52 md:h-64 bg-slate-50 relative overflow-hidden">
+                 <div className="absolute top-3 left-3 right-3 md:top-4 md:left-4 md:right-auto z-10 bg-white/95 backdrop-blur-md text-slate-900 px-2.5 py-1 md:px-4 md:py-2 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-wide md:tracking-widest shadow-lg border border-white/50 flex w-fit max-w-[calc(100%-1.5rem)] items-center gap-1.5 md:gap-2 leading-tight">
                    <Heart className="h-2 w-2 md:h-3 md:w-3 text-rose-500 fill-rose-500" />
-                   {t('recipes.food')}
+                   <span className="min-w-0 truncate">{t('recipes.food')}</span>
                  </div>
                  {recipe.images.length > 0 ? (
                    <div className={`h-full w-full grid ${recipe.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2 gap-1.5 p-1.5 md:gap-2 md:p-2'}`}>
@@ -490,33 +489,33 @@ export default function RetseptlarKitobi() {
                  )}
                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
                  <div className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-4 md:right-4 text-white">
-                   <h4 className="text-base md:text-2xl font-black mb-0.5 md:mb-1 line-clamp-2 leading-tight drop-shadow-lg uppercase">{recipe.title}</h4>
+                   <h4 className="text-sm sm:text-base md:text-2xl font-black mb-0.5 md:mb-1 line-clamp-2 leading-tight drop-shadow-lg uppercase break-words">{recipe.title}</h4>
                  </div>
               </div>
-              <div className="p-4 md:p-8 flex-1 flex flex-col">
+              <div className="p-3.5 sm:p-4 md:p-6 xl:p-8 flex-1 flex flex-col min-w-0">
                 <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-4 md:mb-6 pb-4 md:pb-6 border-b border-slate-100">
-                  <div className="flex items-center gap-1 md:gap-2 text-slate-500 bg-slate-50 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-slate-100">
+                  <div className="min-w-0 max-w-full flex items-center gap-1 md:gap-2 text-slate-500 bg-slate-50 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-slate-100">
                     <Clock className="h-3 w-3 md:h-4 md:w-4 text-indigo-500" />
-                    <span className="text-[8px] md:text-xs font-black tracking-wider uppercase">{recipe.time}</span>
+                    <span className="min-w-0 truncate text-[8px] md:text-xs font-black tracking-wide md:tracking-wider uppercase">{recipe.time}</span>
                   </div>
-                  <div className="flex items-center gap-1 md:gap-2 text-slate-500 bg-slate-50 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-slate-100">
+                  <div className="min-w-0 max-w-full flex items-center gap-1 md:gap-2 text-slate-500 bg-slate-50 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-slate-100">
                     <Users className="h-3 w-3 md:h-4 md:w-4 text-emerald-500" />
-                    <span className="text-[8px] md:text-xs font-black tracking-wider uppercase">{recipe.servings}</span>
+                    <span className="min-w-0 truncate text-[8px] md:text-xs font-black tracking-wide md:tracking-wider uppercase">{recipe.servings}</span>
                   </div>
-                  <div className="flex items-center gap-1 md:gap-2 text-slate-500 bg-slate-50 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-slate-100">
+                  <div className="min-w-0 max-w-full flex items-center gap-1 md:gap-2 text-slate-500 bg-slate-50 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-slate-100">
                     <Flame className="h-3 w-3 md:h-4 md:w-4 text-rose-500" />
-                    <span className="text-[8px] md:text-xs font-black tracking-wider uppercase">{recipe.calories}</span>
+                    <span className="min-w-0 truncate text-[8px] md:text-xs font-black tracking-wide md:tracking-wider uppercase">{recipe.calories}</span>
                   </div>
                 </div>
                 
                 <div className="mb-4 md:mb-6 flex-1">
-                  <div className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 md:mb-3 flex items-center gap-1.5 md:gap-2">
+                  <div className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wide md:tracking-widest mb-2 md:mb-3 flex items-center gap-1.5 md:gap-2 leading-tight">
                     <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-slate-300"></div>
                     {t('recipes.ingredients')}
                   </div>
                   <div className="flex flex-wrap gap-1 md:gap-2">
                     {recipe.ingredients.map(ing => (
-                      <span key={`${recipe.id}-${ing}`} className="bg-indigo-50/50 text-indigo-700 text-[8px] md:text-xs font-bold px-2 py-0.5 md:px-3 md:py-1.5 rounded-md md:rounded-xl border border-indigo-100/50 hover:bg-indigo-100 transition-colors cursor-default">
+                      <span key={`${recipe.id}-${ing}`} className="max-w-full break-words bg-indigo-50/50 text-indigo-700 text-[8px] md:text-xs font-bold px-2 py-0.5 md:px-3 md:py-1.5 rounded-md md:rounded-xl border border-indigo-100/50 hover:bg-indigo-100 transition-colors cursor-default leading-tight">
                         {ing}
                       </span>
                     ))}
@@ -524,14 +523,14 @@ export default function RetseptlarKitobi() {
                 </div>
 
                 <div className="bg-amber-50/50 p-2.5 md:p-4 rounded-xl md:rounded-2xl border border-amber-100/50 mb-4 md:mb-6">
-                  <p className="text-[10px] md:text-xs text-amber-800 font-medium italic leading-relaxed">
+                  <p className="text-[10px] md:text-xs text-amber-800 font-medium italic leading-relaxed line-clamp-5 break-words">
                     <span className="font-black not-italic text-amber-600 mr-1.5 md:mr-2 uppercase text-[8px] md:text-[10px]">{t('recipes.tip')}:</span>
                     &ldquo;{recipe.chefNote}&rdquo;
                   </p>
                 </div>
 
-                <button className="w-full mt-auto bg-slate-900 text-white py-2.5 md:py-4 rounded-lg md:rounded-2xl font-black text-[9px] md:text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-md hover:shadow-xl active:scale-95 flex items-center justify-center gap-1.5 md:gap-2">
-                  {t('recipes.viewFull')}
+                <button className="w-full mt-auto bg-slate-900 text-white px-3 py-2.5 md:py-4 rounded-lg md:rounded-2xl font-black text-[9px] md:text-xs uppercase tracking-wide md:tracking-widest hover:bg-indigo-600 transition-all shadow-md hover:shadow-xl active:scale-95 flex items-center justify-center gap-1.5 md:gap-2 leading-tight">
+                  <span className="min-w-0 break-words">{t('recipes.viewFull')}</span>
                   <span className="text-base md:text-lg leading-none">&rarr;</span>
                 </button>
               </div>
@@ -539,7 +538,7 @@ export default function RetseptlarKitobi() {
           ))}
         </div>
       ) : (
-        <div className="py-16 md:py-24 text-center bg-white rounded-2xl md:rounded-[2rem] border-2 border-dashed border-slate-200">
+        <div className="py-12 md:py-24 text-center bg-white rounded-2xl md:rounded-[2rem] border-2 border-dashed border-slate-200">
           <div className="w-12 h-12 md:w-24 md:h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
             <ChefHat className="h-6 w-6 md:h-10 md:w-10 text-slate-400" />
           </div>

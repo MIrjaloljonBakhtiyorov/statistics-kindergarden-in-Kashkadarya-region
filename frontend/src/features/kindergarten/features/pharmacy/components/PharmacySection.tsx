@@ -110,7 +110,8 @@ const today = () => new Date().toISOString().slice(0, 10);
 const getAssetUrl = (url?: string | null) => {
   if (!url) return '';
   if (url.startsWith('http') || url.startsWith('data:')) return url;
-  return `http://localhost:4001${url}`;
+  const apiRoot = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/api\/?$/, '');
+  return `${apiRoot || 'http://localhost:5002'}${url}`;
 };
 
 const emptyItemForm = {

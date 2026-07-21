@@ -16,11 +16,11 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 3500,
     },
     server: {
-      port: 3000,
+      port: 3001,
       strictPort: true,
       proxy: {
         '/api': {
-          target: env.VITE_PROXY_TARGET || 'http://localhost:4001',
+          target: env.VITE_PROXY_TARGET || 'http://localhost:5002',
           changeOrigin: true,
         },
       },

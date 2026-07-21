@@ -12,7 +12,6 @@ import { UserRole } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { apiClient } from '@/shared/api';
-import { ThemeToggle } from '@/shared/theme/theme';
 
 const ROLES_INFO: Record<UserRole, { label: string, description: string }> = {
   DIRECTOR: { label: 'Direktor', description: 'Tizim direktori' },
@@ -113,7 +112,7 @@ const TopBar: React.FC<TopBarProps> = ({ role, onMenuClick }) => {
   };
 
   return (
-    <div className="h-16 sm:h-20 border-b border-emerald-100 flex items-center justify-between px-3 sm:px-6 lg:px-10 sticky top-0 z-40 backdrop-blur-xl bg-white/90 shadow-[0_8px_30px_rgba(6,78,59,0.04)]">
+    <div className="min-h-16 sm:min-h-20 border-b border-emerald-100 flex items-center justify-between gap-2 px-3 sm:px-5 lg:px-8 xl:px-10 sticky top-0 z-40 backdrop-blur-xl bg-white/90 shadow-[0_8px_30px_rgba(6,78,59,0.04)]">
       <div className="flex items-center gap-2 sm:gap-4 lg:gap-8 min-w-0">
         <button 
           onClick={onMenuClick}
@@ -128,7 +127,7 @@ const TopBar: React.FC<TopBarProps> = ({ role, onMenuClick }) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-6">
+      <div className="flex items-center gap-1.5 sm:gap-4 lg:gap-6 shrink-0">
         <div className="relative group hidden lg:block">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-slate group-focus-within:text-brand-primary transition-colors" size={16} />
           <input 
@@ -138,7 +137,7 @@ const TopBar: React.FC<TopBarProps> = ({ role, onMenuClick }) => {
           />
         </div>
         
-        <div className="flex items-center gap-1 sm:gap-3 border-l pl-2 sm:pl-6 border-slate-100">
+        <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 border-l pl-2 sm:pl-4 lg:pl-6 border-slate-100">
           <div className="relative">
             <button
               onClick={() => {
@@ -157,7 +156,7 @@ const TopBar: React.FC<TopBarProps> = ({ role, onMenuClick }) => {
             </button>
 
             {isNotificationsOpen && (
-              <div className="absolute right-0 top-full mt-3 w-[340px] max-w-[calc(100vw-24px)] bg-white border border-emerald-100 rounded-2xl shadow-2xl shadow-emerald-900/10 overflow-hidden z-50">
+              <div className="fixed right-3 sm:absolute sm:right-0 top-16 sm:top-full sm:mt-3 w-[calc(100vw-1.5rem)] sm:w-[340px] max-w-[calc(100vw-24px)] bg-white border border-emerald-100 rounded-2xl shadow-2xl shadow-emerald-900/10 overflow-hidden z-50">
                 <div className="p-4 border-b border-slate-100 flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-black text-brand-depth">Bildirishnomalar</p>
@@ -213,10 +212,9 @@ const TopBar: React.FC<TopBarProps> = ({ role, onMenuClick }) => {
           <button className="p-1.5 sm:p-2 text-brand-slate hover:text-brand-primary hover:bg-brand-primary/5 rounded-lg transition-all" title="Sozlamalar">
             <Settings size={18} className="sm:w-5 sm:h-5" />
           </button>
-          <ThemeToggle className="p-1.5 sm:p-2 text-brand-slate hover:text-brand-primary hover:bg-brand-primary/5 rounded-lg transition-all" />
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4 border-l pl-2 sm:pl-6 border-slate-100">
+        <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 border-l pl-2 sm:pl-4 lg:pl-6 border-slate-100">
           <div className="text-right hidden md:block max-w-[120px]">
              <p className="text-xs sm:text-sm font-bold text-brand-depth leading-none mb-1 truncate">{user?.full_name || 'Foydalanuvchi'}</p>
              <p className="text-[9px] sm:text-[10px] text-brand-slate uppercase font-bold tracking-wider truncate">{user?.role === 'DIRECTOR' ? 'Admin / direktor' : user?.role}</p>
@@ -226,7 +224,7 @@ const TopBar: React.FC<TopBarProps> = ({ role, onMenuClick }) => {
                {user?.login?.substring(0, 2) || 'US'}
             </button>
             
-            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl shadow-emerald-900/10 border border-emerald-100 py-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200">
+            <div className="absolute right-0 top-full mt-2 w-48 max-w-[calc(100vw-1.5rem)] bg-white rounded-xl shadow-xl shadow-emerald-900/10 border border-emerald-100 py-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200">
                <div className="px-4 py-2 border-b border-slate-50 mb-1">
                   <p className="text-xs font-bold text-brand-depth">{user?.full_name}</p>
                   <p className="text-[10px] text-brand-muted uppercase font-bold">{user?.role}</p>

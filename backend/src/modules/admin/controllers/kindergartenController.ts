@@ -1,5 +1,6 @@
 // @ts-nocheck
 import db from '../../shared/database.js';
+import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { assertLoginAvailable } from '../../shared/loginUniqueness.js';
 import {
@@ -309,6 +310,25 @@ const toIsoTimestamp = (value, fallback = new Date().toISOString()) => {
   if (!value) return fallback;
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? fallback : date.toISOString();
+};
+
+const isBcryptHash = (value) => /^\$2[aby]\$\d{2}\$/.test(String(value || ''));
+
+const hashPasswordForStorage = async (value) => {
+  const password = String(value || '');
+  if (!password || isBcryptHash(password)) return password;
+  return bcrypt.hash(password, 10);
+};
+
+const DEFAULT_KINDERGARTEN_PASSWORD = 'USER1234';
+
+const publicKindergartenRow = (row) => {
+  if (!row) return row;
+  const { password: _passwordHash, ...safeRow } = row;
+  return {
+    ...safeRow,
+    password: DEFAULT_KINDERGARTEN_PASSWORD,
+  };
 };
 
 const ensureAdminAlertEventsTable = async () => {
@@ -1850,7 +1870,7 @@ const generateKindergartenCredentials = async (name) => {
   for (let attempt = 0; attempt < 1000; attempt += 1) {
     const numericId = String(nextNumber).padStart(6, '0');
     const systemId = `MTT-${numericId}`;
-    const password = `MTT-${numericId}`;
+    const password = DEFAULT_KINDERGARTEN_PASSWORD;
     const existing = await get(
       `SELECT id FROM kindergartens
        WHERE system_id = ?
@@ -1913,7 +1933,7 @@ const KindergartenController = {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
-      res.json(rows);
+      res.json(rows.map(publicKindergartenRow));
     });
   },
 
@@ -2680,7 +2700,7 @@ const KindergartenController = {
       if (!row) {
         return res.status(404).json({ message: 'Kindergarten not found' });
       }
-      res.json(row);
+      res.json(publicKindergartenRow(row));
     });
   },
 
@@ -3225,12 +3245,14 @@ const KindergartenController = {
   create: async (req, res) => {
     const data = { ...req.body };
     let credentials;
+    let plainPassword;
 
     try {
       credentials = await generateKindergartenCredentials(data.name);
+      plainPassword = credentials.password;
       data.system_id = credentials.systemId;
       data.username = await assertLoginAvailable(db, credentials.username);
-      data.password = credentials.password;
+      data.password = await hashPasswordForStorage(plainPassword);
     } catch (error) {
       return res.status(409).json({ error: error.message });
     }
@@ -3296,7 +3318,7 @@ const KindergartenController = {
           } catch (eventError) {
             console.error('Kindergarten create alert event error:', eventError.message);
           }
-          res.status(201).json({ id: kindergartenId, ...data });
+          res.status(201).json({ id: kindergartenId, ...data, password: plainPassword });
         });
       });
     });
@@ -3313,7 +3335,9 @@ const KindergartenController = {
       data.username = data.username
         ? await assertLoginAvailable(db, data.username, { excludeKindergartenId: req.params.id })
         : current.username;
-      data.password = data.password || current.password;
+      data.password = data.password
+        ? await hashPasswordForStorage(data.password)
+        : current.password;
     } catch (error) {
       return res.status(409).json({ error: error.message });
     }

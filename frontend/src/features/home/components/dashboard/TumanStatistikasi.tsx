@@ -110,14 +110,14 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
   const maxCount = ranked[0]?.count || 1;
 
   return (
-    <div className="space-y-8 md:space-y-12">
+    <div className="space-y-6 md:space-y-10 lg:space-y-12">
       <StatsGrid />
 
       {/* Interactive Map */}
       <div className="w-full">
-        <div className="bg-white p-8 md:p-14 rounded-[4rem] shadow-sm border border-slate-100 relative overflow-hidden flex flex-col" style={{ height: "100vh" }}>
+        <div className="bg-white p-4 sm:p-6 lg:p-10 xl:p-14 rounded-[2rem] lg:rounded-[4rem] shadow-sm border border-slate-100 relative overflow-hidden flex flex-col h-[62vh] min-h-[420px] md:h-[70vh] lg:h-[calc(100vh-8rem)]">
           <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 rounded-full -mr-48 -mt-48 blur-3xl" />
-          <div className="relative z-10 flex-1 flex items-center justify-center bg-slate-50/50 rounded-[4rem] border border-slate-100 p-10">
+          <div className="relative z-10 flex-1 flex items-center justify-center bg-slate-50/50 rounded-[1.5rem] lg:rounded-[4rem] border border-slate-100 p-3 sm:p-6 lg:p-10">
             <KashkadaryaMap
               selectedDistrict={selectedDistrict}
               setSelectedDistrict={setSelectedDistrict}
@@ -127,21 +127,21 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
       </div>
 
       {/* ── BOG'CHALAR SONI REYTINGI ── */}
-      <div className="rounded-[2rem] border border-slate-100 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 bg-white shadow-sm overflow-hidden">
         {/* header */}
-        <div className="flex items-center justify-between px-7 pt-6 pb-5 border-b border-slate-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-4 sm:px-7 pt-5 sm:pt-6 pb-4 sm:pb-5 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 border border-amber-100">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 border border-amber-100">
               <Trophy className="w-5 h-5 text-amber-500" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600 mb-0.5">{t('district.rating')}</p>
               <h3 className="text-[14px] font-black text-slate-900 leading-tight">
                 {t('district.byMtt')}
               </h3>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             <p className="text-2xl font-black text-slate-900">
               {totalMTT} <span className="text-sm font-bold text-slate-400">{t('common.mttCount')}</span>
             </p>
@@ -150,48 +150,48 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
         </div>
 
         {/* top-3 podium */}
-        <div className="px-7 pt-6 pb-4 border-b border-slate-50">
-          <div className="flex items-end justify-center gap-4">
+        <div className="px-3 sm:px-7 pt-5 sm:pt-6 pb-4 border-b border-slate-50">
+          <div className="grid grid-cols-3 items-end gap-2 sm:gap-4">
             {/* 2nd */}
             {ranked[1] && (
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} viewport={{ once: true }}
-                className="flex-1 max-w-[180px] flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center mb-2" style={{ background: "#f1f5f9" }}>
-                  <Medal className="w-5 h-5 text-slate-400" />
+                className="min-w-0 flex flex-col items-center">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mb-2" style={{ background: "#f1f5f9" }}>
+                  <Medal className="h-[18px] w-[18px] sm:w-5 sm:h-5 text-slate-400" />
                 </div>
-                <div className="w-full rounded-t-2xl flex flex-col items-center justify-end pb-4 pt-3" style={{ height: 110, background: "linear-gradient(180deg,#e2e8f0,#f1f5f9)" }}>
-                  <p className="text-xl font-black text-slate-700">{ranked[1].count}</p>
-                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">{t('common.mttCount')}</p>
+                <div className="w-full rounded-t-2xl flex flex-col items-center justify-end pb-3 sm:pb-4 pt-3" style={{ height: 96, background: "linear-gradient(180deg,#e2e8f0,#f1f5f9)" }}>
+                  <p className="text-lg sm:text-xl font-black text-slate-700">{ranked[1].count}</p>
+                  <p className="text-[8px] sm:text-[9px] font-bold text-slate-500 uppercase tracking-wide">{t('common.mttCount')}</p>
                 </div>
-                <p className="text-xs font-black text-slate-700 text-center mt-2 leading-tight">{ranked[1].nameLabel}</p>
+                <p className="w-full text-[10px] sm:text-xs font-black text-slate-700 text-center mt-2 leading-tight line-clamp-2">{ranked[1].nameLabel}</p>
               </motion.div>
             )}
             {/* 1st */}
             {ranked[0] && (
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0 }} viewport={{ once: true }}
-                className="flex-1 max-w-[200px] flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2 shadow-lg" style={{ background: "linear-gradient(135deg,#fbbf24,#f59e0b)" }}>
-                  <Trophy className="w-6 h-6 text-white" />
+                className="min-w-0 flex flex-col items-center">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-2 shadow-lg" style={{ background: "linear-gradient(135deg,#fbbf24,#f59e0b)" }}>
+                  <Trophy className="h-[22px] w-[22px] sm:w-6 sm:h-6 text-white" />
                 </div>
-                <div className="w-full rounded-t-2xl flex flex-col items-center justify-end pb-4 pt-3 shadow-md" style={{ height: 140, background: "linear-gradient(180deg,#fef3c7,#fde68a)" }}>
-                  <p className="text-3xl font-black text-amber-800">{ranked[0].count}</p>
-                  <p className="text-[9px] font-bold text-amber-600 uppercase tracking-wide">{t('common.mttCount')}</p>
+                <div className="w-full rounded-t-2xl flex flex-col items-center justify-end pb-3 sm:pb-4 pt-3 shadow-md" style={{ height: 122, background: "linear-gradient(180deg,#fef3c7,#fde68a)" }}>
+                  <p className="text-2xl sm:text-3xl font-black text-amber-800">{ranked[0].count}</p>
+                  <p className="text-[8px] sm:text-[9px] font-bold text-amber-600 uppercase tracking-wide">{t('common.mttCount')}</p>
                 </div>
-                <p className="text-sm font-black text-slate-900 text-center mt-2 leading-tight">{ranked[0].nameLabel}</p>
+                <p className="w-full text-[11px] sm:text-sm font-black text-slate-900 text-center mt-2 leading-tight line-clamp-2">{ranked[0].nameLabel}</p>
               </motion.div>
             )}
             {/* 3rd */}
             {ranked[2] && (
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} viewport={{ once: true }}
-                className="flex-1 max-w-[180px] flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center mb-2" style={{ background: "#fef3c7" }}>
-                  <Medal className="w-5 h-5 text-amber-600" />
+                className="min-w-0 flex flex-col items-center">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mb-2" style={{ background: "#fef3c7" }}>
+                  <Medal className="h-[18px] w-[18px] sm:w-5 sm:h-5 text-amber-600" />
                 </div>
-                <div className="w-full rounded-t-2xl flex flex-col items-center justify-end pb-4 pt-3" style={{ height: 90, background: "linear-gradient(180deg,#fef3c7,#fef9c3)" }}>
-                  <p className="text-xl font-black text-amber-700">{ranked[2].count}</p>
-                  <p className="text-[9px] font-bold text-amber-500 uppercase tracking-wide">{t('common.mttCount')}</p>
+                <div className="w-full rounded-t-2xl flex flex-col items-center justify-end pb-3 sm:pb-4 pt-3" style={{ height: 82, background: "linear-gradient(180deg,#fef3c7,#fef9c3)" }}>
+                  <p className="text-lg sm:text-xl font-black text-amber-700">{ranked[2].count}</p>
+                  <p className="text-[8px] sm:text-[9px] font-bold text-amber-500 uppercase tracking-wide">{t('common.mttCount')}</p>
                 </div>
-                <p className="text-xs font-black text-slate-700 text-center mt-2 leading-tight">{ranked[2].nameLabel}</p>
+                <p className="w-full text-[10px] sm:text-xs font-black text-slate-700 text-center mt-2 leading-tight line-clamp-2">{ranked[2].nameLabel}</p>
               </motion.div>
             )}
           </div>
@@ -199,23 +199,25 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-0 divide-y xl:divide-y-0 xl:divide-x divide-slate-100">
           {/* Bar chart */}
-          <div className="p-6" style={{ height: 480 }}>
+          <div className="p-2.5 sm:p-5 lg:p-6 h-[330px] sm:h-[420px] lg:h-[480px]">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-              <BarChart data={ranked} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
+              <BarChart data={ranked} layout="vertical" margin={{ top: 0, right: 6, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 6" horizontal={false} stroke="#f1f5f9" />
                 <XAxis type="number" axisLine={false} tickLine={false}
-                  tick={{ fill: "#94a3b8", fontSize: 14, fontWeight: 600 }} />
+                  tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 600 }} />
                 <YAxis type="category" dataKey="nameLabel" axisLine={false} tickLine={false}
-                  tick={{ fill: "#475569", fontSize: 14, fontWeight: 700 }} width={115} />
+                  tick={{ fill: "#475569", fontSize: 11, fontWeight: 700 }} width={88} />
                 <Tooltip
                   cursor={{ fill: "rgba(245,158,11,0.05)" }}
+                  wrapperStyle={{ outline: 'none', maxWidth: 190 }}
+                  allowEscapeViewBox={{ x: false, y: true }}
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       const d = payload[0].payload;
                       const rank = ranked.findIndex(r => r.name === d.name) + 1;
                       return (
-                        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "10px 14px", boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}>
-                          <p style={{ fontSize: 9, fontWeight: 800, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>
+                        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "10px 12px", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", maxWidth: 178 }}>
+                          <p style={{ fontSize: 9, fontWeight: 800, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, whiteSpace: "normal" }}>
                             #{rank} - {d.nameLabel}
                           </p>
                           <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
@@ -231,7 +233,7 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
                     return null;
                   }}
                 />
-                <Bar dataKey="count" radius={[0, 6, 6, 0]} maxBarSize={18}
+                <Bar dataKey="count" radius={[0, 6, 6, 0]} maxBarSize={16}
                   fill="#6366f1"
                   label={false}
                 />
@@ -240,7 +242,7 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
           </div>
 
           {/* Ranked list */}
-          <div className="p-5 overflow-y-auto custom-scrollbar" style={{ maxHeight: 480 }}>
+          <div className="p-3 sm:p-5 overflow-y-auto custom-scrollbar max-h-[420px] lg:max-h-[480px]">
             <div className="space-y-2">
               {ranked.map((d, i) => {
                 const pct = (d.count / maxCount) * 100;
@@ -267,7 +269,7 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex flex-col min-[520px]:flex-row min-[520px]:items-center min-[520px]:justify-between gap-1 mb-1.5">
                         <p className="text-[12px] font-black text-slate-800 truncate">{d.nameLabel}</p>
                         <div className="flex items-center gap-2 ml-2 shrink-0">
                           <span className="text-[12px] font-black text-slate-900">{d.count}</span>

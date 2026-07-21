@@ -69,10 +69,10 @@ const attendanceBreakdownOf = (kg: any) => {
 };
 
 const KpiCard = ({ kpi }: { kpi: any }) => (
-  <div className="bg-white border border-slate-100 rounded-2xl p-5 flex flex-col gap-3 shadow-sm relative overflow-hidden">
+  <div className="bg-white border border-slate-100 rounded-xl p-3 flex flex-col gap-2 shadow-sm relative overflow-hidden min-h-[88px]">
     <div className="flex justify-between items-start">
       <div className={clsx(
-        "w-10 h-10 rounded-xl flex items-center justify-center",
+        "w-8 h-8 rounded-lg flex items-center justify-center",
         kpi.color === "indigo" && "bg-indigo-50 text-indigo-500",
         kpi.color === "emerald" && "bg-emerald-50 text-emerald-500",
         kpi.color === "amber" && "bg-amber-50 text-amber-500",
@@ -82,23 +82,23 @@ const KpiCard = ({ kpi }: { kpi: any }) => (
         kpi.color === "blue" && "bg-blue-50 text-blue-500",
         kpi.color === "teal" && "bg-teal-50 text-teal-500",
       )}>
-        <kpi.icon size={20} />
+        <kpi.icon size={16} />
       </div>
       <span className={clsx(
-        "text-[11px] font-bold flex items-center gap-1",
+        "text-[9px] font-bold flex items-center gap-1",
         kpi.trend > 0 ? "text-emerald-500" : kpi.trend < 0 ? "text-rose-500" : "text-slate-400"
       )}>
-        {kpi.trend > 0 ? <TrendingUp size={12} /> : kpi.trend < 0 ? <TrendingDown size={12} /> : null}
+        {kpi.trend > 0 ? <TrendingUp size={10} /> : kpi.trend < 0 ? <TrendingDown size={10} /> : null}
         {kpi.trend > 0 ? "+" : ""}{kpi.trend}%
       </span>
     </div>
     <div>
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{kpi.title}</p>
-      <h3 className="text-2xl font-black text-slate-900 tracking-tight">{kpi.val}</h3>
+      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{kpi.title}</p>
+      <h3 className="text-lg font-black text-slate-900 tracking-tight leading-none">{kpi.val}</h3>
     </div>
     {/* subtle bg icon */}
-    <div className="absolute -bottom-3 -right-3 opacity-5">
-      <kpi.icon size={64} />
+    <div className="absolute -bottom-2 -right-2 opacity-5">
+      <kpi.icon size={48} />
     </div>
   </div>
 );
@@ -205,56 +205,56 @@ export const Overview = () => {
   }, [kindergartens]);
 
   return (
-    <div className="space-y-6 pb-20 bg-[#f4f6fb] min-h-screen">
+    <div className="space-y-4 pb-12 bg-[#f4f6fb] min-h-screen">
 
       {/* Page Header */}
-      <div className="bg-white border border-slate-100 rounded-2xl px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+      <div className="bg-white border border-slate-100 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div>
-          <h1 className="text-xl font-black text-slate-900 tracking-tight">Viloyat statistikasi</h1>
+          <h1 className="text-lg font-black text-slate-900 tracking-tight">Viloyat statistikasi</h1>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
             Qashqadaryo viloyati bo'yicha monitoring
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={() => setStatsType('Viloyat kesimi')} className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
-            <Filter size={14} /> Filtr
+        <div className="flex items-center gap-2">
+          <button onClick={() => setStatsType('Viloyat kesimi')} className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition-all">
+            <Filter size={12} /> Filtr
           </button>
-          <button onClick={() => setStatsType('Live Report')} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded-xl text-xs font-bold text-white hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
-            <Activity size={14} /> Live Report
+          <button onClick={() => setStatsType('Live Report')} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 rounded-lg text-[10px] font-bold text-white hover:bg-indigo-700 transition-all shadow-md shadow-indigo-600/20">
+            <Activity size={12} /> Live Report
           </button>
         </div>
       </div>
 
       {/* KPI Row 1 */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-2.5">
         {stats.kpiRow1.map((kpi, i) => <KpiCard key={i} kpi={kpi} />)}
       </div>
 
       {/* KPI Row 2 */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-2.5">
         {stats.kpiRow2.map((kpi, i) => <KpiCard key={i} kpi={kpi} />)}
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
         {/* Bar Chart */}
-        <div className="lg:col-span-8 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="lg:col-span-8 bg-white border border-slate-100 rounded-xl p-3 shadow-sm">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tuman kesimida kunlik bolalar davomati</p>
-              <p className="mt-1 text-[11px] font-bold text-slate-400">Jami bolalar va bugungi 09:30 chegarasi bo'yicha kelish holati</p>
+              <p className="mt-0.5 text-[10px] font-bold text-slate-400">Jami bolalar va bugungi 09:30 chegarasi bo'yicha kelish holati</p>
             </div>
-            <div className="flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
-              <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-slate-300" /> Jami</span>
-              <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" /> 09:30 gacha</span>
-              <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-amber-400" /> Keyin</span>
-              <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-rose-500" /> Kelmagan</span>
+            <div className="flex flex-wrap gap-1.5 text-[9px] font-black uppercase tracking-widest text-slate-500">
+              <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-slate-300" /> Jami</span>
+              <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500" /> 09:30 gacha</span>
+              <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-amber-400" /> Keyin</span>
+              <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-rose-500" /> Kelmagan</span>
             </div>
           </div>
           <div className="w-full min-w-0 overflow-x-auto">
-            <div className="min-w-[1120px]">
-              <ResponsiveContainer width="100%" height={340} minWidth={0} minHeight={0}>
+            <div className="min-w-[920px]">
+              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0}>
                 <BarChart data={stats.districtData} margin={{ top: 8, right: 8, left: -10, bottom: 6 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis
@@ -295,19 +295,19 @@ export const Overview = () => {
         </div>
 
         {/* Pie Chart */}
-        <div className="lg:col-span-4 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">Bog'cha turlari</p>
+        <div className="lg:col-span-4 bg-white border border-slate-100 rounded-xl p-3 shadow-sm flex flex-col">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Bog'cha turlari</p>
           <div className="flex-1 flex items-center justify-center">
             <div className="w-full min-w-0">
-              <ResponsiveContainer width="100%" height={280} minWidth={0} minHeight={0}>
+              <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0}>
                 <PieChart>
                   <Pie
                     data={stats.pieData}
                     dataKey="value"
                     cx="50%"
                     cy="45%"
-                    innerRadius={75}
-                    outerRadius={110}
+                    innerRadius={58}
+                    outerRadius={86}
                     paddingAngle={4}
                     strokeWidth={0}
                   >
@@ -327,44 +327,44 @@ export const Overview = () => {
       </div>
 
       {/* Bottom Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
         {/* Left: AI + District Monitor */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-8 space-y-4">
 
           {/* AI Analitika */}
-          <div className="bg-indigo-700 rounded-2xl p-6 text-white">
-            <div className="flex items-center gap-2 mb-3">
-              <Zap size={18} className="text-yellow-300" />
-              <h3 className="font-black text-base">AI Chuqur Analitika</h3>
+          <div className="bg-indigo-700 rounded-xl p-4 text-white">
+            <div className="flex items-center gap-2 mb-2">
+              <Zap size={15} className="text-yellow-300" />
+              <h3 className="font-black text-sm">AI Chuqur Analitika</h3>
             </div>
-            <p className="text-sm text-indigo-200 leading-relaxed italic">
+            <p className="text-xs text-indigo-200 leading-relaxed italic">
               "Viloyat statistikasi real bazaga kiritilgan bog'chalar ma'lumotlari asosida shakllanadi. Davomat ma'lumotlari kiritilmaguncha tegishli ko'rsatkichlar 0 bo'ladi."
             </p>
           </div>
 
           {/* Eng past davomat TOP */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Eng past davomat - TOP 5</p>
-            <div className="space-y-3">
+          <div className="bg-white border border-slate-100 rounded-xl p-3 shadow-sm">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Eng past davomat - TOP 5</p>
+            <div className="space-y-1.5">
               {stats.bottomDistricts.length === 0 && (
                 <div className="py-6 text-center text-xs font-black text-slate-400 uppercase tracking-widest">
                   Ma'lumot yo'q
                 </div>
               )}
               {stats.bottomDistricts.map((item: any, i: number) => (
-                <div key={i} className="flex items-center gap-4 py-3 border-b border-slate-50 last:border-0">
-                  <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-xs font-black text-indigo-500">
+                <div key={i} className="flex items-center gap-2.5 py-2 border-b border-slate-50 last:border-0">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center text-[10px] font-black text-indigo-500">
                     #{i + 1}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-black text-slate-900">{item.name}</p>
+                    <p className="text-xs font-black text-slate-900">{item.name}</p>
                     <p className="text-[10px] font-bold text-slate-400 flex items-center gap-1 mt-0.5">
                       <MapPin size={9} /> {item.hudud}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-rose-500">{item.kechikkan} kechikkan</p>
+                    <p className="text-xs font-black text-rose-500">{item.kechikkan} kechikkan</p>
                     <p className="text-[10px] font-bold text-slate-400">{item.davomat}% davomat</p>
                   </div>
                 </div>
@@ -373,9 +373,9 @@ export const Overview = () => {
           </div>
 
           {/* Hududiy boshqaruv monitori */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">Hududiy boshqaruv monitori</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-white border border-slate-100 rounded-xl p-3 shadow-sm">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Hududiy boshqaruv monitori</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {stats.districtMonitor.length === 0 && (
                 <div className="col-span-full py-6 text-center text-xs font-black text-slate-400 uppercase tracking-widest">
                   Real ma'lumot yo'q
@@ -384,9 +384,9 @@ export const Overview = () => {
               {stats.districtMonitor.map((d, i) => {
                 const barColor = d.davomat >= 93 ? "bg-emerald-500" : d.davomat >= 89 ? "bg-amber-400" : "bg-rose-500";
                 return (
-                  <div key={i} className="space-y-2">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{d.name}</p>
-                    <p className="text-lg font-black text-slate-900">
+                  <div key={i} className="space-y-1.5">
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{d.name}</p>
+                    <p className="text-base font-black text-slate-900">
                       {d.davomat}%
                       <span className="text-[9px] font-black text-slate-400 ml-1">DAVOMAT</span>
                     </p>
@@ -406,22 +406,22 @@ export const Overview = () => {
         </div>
 
         {/* Right: AI Command Center */}
-        <div className="lg:col-span-4 bg-[#0f172a] rounded-2xl p-6 text-white flex flex-col gap-5 shadow-sm">
+        <div className="lg:col-span-4 bg-[#0f172a] rounded-xl p-4 text-white flex flex-col gap-3 shadow-sm">
           <div className="flex items-center gap-2">
             <TrendingUp size={16} className="text-indigo-400" />
             <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">AI boshqaruv markazi</p>
           </div>
 
           <div className="space-y-3 flex-1">
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
               <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-1">Urgent Alert</p>
               <p className="text-xs font-medium text-slate-300">Davomat o'zgarishi real ma'lumotlar asosida hisoblanadi.</p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
               <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-1">Risk Warning</p>
               <p className="text-xs font-medium text-slate-300">Ta'minot xavfi real ombor ma'lumotlari asosida hisoblanadi.</p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
               <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1">Good News</p>
               <p className="text-xs font-medium text-slate-300">Ijobiy o'zgarishlar real davomat ma'lumotlari asosida ko'rinadi.</p>
             </div>
@@ -429,7 +429,7 @@ export const Overview = () => {
 
           <button
             onClick={() => setShowReport(true)}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20"
+            className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-indigo-600/20"
           >
             Full Report
           </button>

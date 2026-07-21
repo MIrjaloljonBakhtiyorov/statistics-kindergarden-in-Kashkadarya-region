@@ -211,14 +211,14 @@ export default function MTTReyting() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">
             MTT <span className="text-indigo-600">{t('rating.titleAccent')}</span>
           </h2>
           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">
             {t('rating.subtitle')}
           </p>
         </div>
-        <div className="flex items-center gap-3 bg-[#0f172a] rounded-2xl px-5 py-3.5">
+        <div className="flex w-full flex-wrap items-center gap-3 bg-[#0f172a] rounded-2xl px-4 sm:px-5 py-3.5 md:w-auto">
           <Trophy className="w-5 h-5 text-amber-400" />
           <div>
             <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{t('rating.monthlyMax')}</p>
@@ -233,14 +233,14 @@ export default function MTTReyting() {
       </div>
 
       {/* Jarima metodikasi */}
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {JARIMALAR.map((j, i) => (
           <motion.div
             key={j.id}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06 }}
-            className="bg-white border border-slate-100 rounded-2xl p-5 flex flex-col gap-3 shadow-sm"
+            className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 flex flex-col gap-3 shadow-sm"
           >
             <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${j.grad} flex items-center justify-center shadow-sm`}>
               <j.icon className="w-5 h-5 text-white" />
@@ -254,10 +254,10 @@ export default function MTTReyting() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white border border-slate-100 rounded-3xl px-6 py-5 shadow-sm flex flex-wrap items-center gap-6">
+      <div className="bg-white border border-slate-100 rounded-3xl px-4 sm:px-6 py-5 shadow-sm flex flex-col lg:flex-row lg:flex-wrap lg:items-center gap-5 lg:gap-6">
         <div>
           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('common.region')}</p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Dropdown label={t('rating.cities')} items={SHAHARLAR} selected={selectedShahar} onSelect={handleShaharSelect} />
             <Dropdown label={t('footer.districts')} items={TUMANLAR} selected={selectedTuman} onSelect={handleTumanSelect} />
           </div>
@@ -285,7 +285,7 @@ export default function MTTReyting() {
         </div>
 
         {activeHudud && (
-          <div className="ml-auto flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-xl px-3.5 py-2">
+          <div className="lg:ml-auto flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-xl px-3.5 py-2">
             <span className="text-[10px] font-black text-indigo-700 uppercase tracking-wider">{activeHudud}</span>
             <button onClick={() => { setSelectedShahar(null); setSelectedTuman(null); }} className="text-indigo-300 hover:text-indigo-700 transition-colors font-black text-xs">x</button>
           </div>
@@ -297,8 +297,8 @@ export default function MTTReyting() {
 
         {/* Chart */}
         <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-8 pt-8 pb-0">
-            <h3 className="text-3xl font-black text-slate-900 uppercase tracking-tight">
+          <div className="px-5 sm:px-8 pt-6 sm:pt-8 pb-0">
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 uppercase tracking-tight">
               <span className="text-indigo-600">{activeHudud ?? t('rating.allRegions')}</span>
               {activeHudud ? ` - ${t('rating.mtts')}` : ` ${t('rating.results')}`}
             </h3>
@@ -320,8 +320,8 @@ export default function MTTReyting() {
               </div>
             </div>
           ) : (
-            <div className="px-4 pb-8">
-              <ResponsiveContainer width="100%" height={300} minWidth={0} minHeight={0}>
+            <div className="px-2 sm:px-4 pb-6 sm:pb-8">
+              <ResponsiveContainer width="100%" height={320} minWidth={0} minHeight={0}>
                 <BarChart data={sorted} margin={{ top: 5, right: 10, left: 0, bottom: 48 }} barCategoryGap="30%">
                   <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="short" axisLine={false} tickLine={false} tick={{ fill: '#0f172a', fontSize: 13, fontWeight: 800 }} height={64} angle={-40} textAnchor="end" />
@@ -443,7 +443,7 @@ export default function MTTReyting() {
         </div>
 
         {/* Joriy musobaqa - katta dark card */}
-        <div className="relative rounded-[2rem] overflow-hidden p-8 shadow-2xl" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)' }}>
+        <div className="relative rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden p-5 sm:p-8 shadow-2xl" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)' }}>
           <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-25" style={{ background: 'radial-gradient(circle, #f59e0b 0%, transparent 65%)', transform: 'translate(35%, -35%)' }} />
           <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full opacity-15" style={{ background: 'radial-gradient(circle, #818cf8 0%, transparent 70%)', transform: 'translate(-30%, 30%)' }} />
           <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0px, #fff 1px, transparent 0px, transparent 50%)', backgroundSize: '20px 20px' }} />
@@ -454,7 +454,7 @@ export default function MTTReyting() {
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                 {t('rating.plannedCompetition')}
               </span>
-              <h4 className="text-[32px] font-black text-white leading-tight mb-4">
+              <h4 className="text-[24px] sm:text-[32px] font-black text-white leading-tight mb-4">
                 "{t('rating.bestMtt')}" <span className="text-amber-300">2025</span><br />{t('rating.regionContest')}
               </h4>
               <p className="text-[14px] leading-relaxed mb-7" style={{ color: 'rgba(203,213,225,0.85)' }}>
@@ -472,7 +472,7 @@ export default function MTTReyting() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 min-[430px]:grid-cols-2 gap-3">
               {[
                 { label: t('rating.participants'), value: "4,439", icon: Trophy, color: "#fbbf24", glow: "#f59e0b" },
                 { label: t('rating.evaluatedRegions'), value: `16 ${t('common.countUnit')}`, icon: Star, color: "#a5b4fc", glow: "#6366f1" },
@@ -500,7 +500,7 @@ export default function MTTReyting() {
         </div>
 
         {/* Oylik jarayon - timeline */}
-        <div className="rounded-[2rem] border border-slate-100 shadow-sm p-8" style={{ background: 'linear-gradient(135deg, #fafafa 0%, #f8faff 100%)' }}>
+        <div className="rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 shadow-sm p-5 sm:p-8" style={{ background: 'linear-gradient(135deg, #fafafa 0%, #f8faff 100%)' }}>
           <div className="flex items-center gap-3 mb-7">
             <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-200">
               <Calendar className="w-4 h-4 text-white" />

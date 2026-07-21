@@ -12,6 +12,12 @@ import { YangiBogchaQoshishModal } from './YangiBogchaQoshishModal';
 import { kindergartenApi } from '@/shared/api';
 
 const BOGCHA_PANEL_URL = '/kindergarten/';
+const DEFAULT_DIRECTOR_PASSWORD = 'USER1234';
+const isPasswordHash = (value: unknown) => /^\$2[aby]\$\d{2}\$/.test(String(value || ''));
+const getDirectorPassword = (item: any) => {
+  const password = String(item?.password || '').trim();
+  return password && !isPasswordHash(password) ? password : DEFAULT_DIRECTOR_PASSWORD;
+};
 
 const copyToClipboard = async (text: string) => {
   if (!text) return false;
@@ -44,6 +50,7 @@ const copyToClipboard = async (text: string) => {
 const CredentialsModal = ({ item, onClose, onOpen }: { item: any; onClose: () => void; onOpen: () => void }) => {
   const [showPass, setShowPass] = useState(false);
   const [copiedField, setCopiedField] = useState<'username' | 'password' | null>(null);
+  const directorPassword = getDirectorPassword(item);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -124,7 +131,7 @@ const CredentialsModal = ({ item, onClose, onOpen }: { item: any; onClose: () =>
             <div className="min-w-0">
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Parol</p>
               <p className="text-sm font-black text-slate-800 font-mono tracking-widest truncate">
-                {showPass ? (item.password || 'USER1234') : '----------'}
+                {showPass ? directorPassword : '----------'}
               </p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
@@ -136,7 +143,7 @@ const CredentialsModal = ({ item, onClose, onOpen }: { item: any; onClose: () =>
                 {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
               <button
-                onClick={() => copy('password', item.password || 'USER1234')}
+                onClick={() => copy('password', directorPassword)}
                 className={clsx(
                   "p-2.5 rounded-xl hover:bg-white border border-transparent hover:border-slate-200 transition-all",
                   copiedField === 'password' ? "text-emerald-600 bg-white border-emerald-100" : "text-slate-400 hover:text-indigo-600"

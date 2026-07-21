@@ -235,10 +235,10 @@ const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) =>
 
     if (viewMode === 'MANAGE_CHILDREN') {
       return (
-        <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
-           <div className="border-b border-brand-border flex items-center justify-between pb-6 mb-8">
-              <h3 className="text-2xl font-black text-brand-depth">Bolalar ro'yxati</h3>
-              <div className="flex gap-3">
+        <div className="space-y-4 sm:space-y-6 animate-in fade-in zoom-in-95 duration-300">
+           <div className="border-b border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 sm:pb-6 mb-4 sm:mb-8">
+              <h3 className="text-xl sm:text-2xl font-black text-brand-depth leading-tight">Bolalar ro'yxati</h3>
+              <div className="kg-toolbar">
                 <input 
                   type="file" 
                   accept=".xlsx, .xls" 
@@ -248,13 +248,13 @@ const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) =>
                 />
                 <label 
                   htmlFor="excel-import" 
-                  className="bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20"
+                  className="bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20"
                 >
                   <FileDown size={16} /> Excel Import
                 </label>
               </div>
            </div>
-           <div className="bg-white rounded-2xl border border-brand-border shadow-sm overflow-hidden">
+           <div className="bg-white rounded-2xl border border-brand-border shadow-sm overflow-hidden kg-scroll-x">
               <ChildrenTable onEdit={handleEditChild} />
            </div>
         </div>
@@ -263,11 +263,11 @@ const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) =>
 
     if (viewMode === 'MANAGE_GROUPS') {
       return (
-        <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
-           <div className="border-b border-brand-border flex items-center justify-between pb-6 mb-8">
-              <h3 className="text-2xl font-black text-brand-depth">Guruhlar boshqaruvi</h3>
+        <div className="space-y-4 sm:space-y-6 animate-in fade-in zoom-in-95 duration-300">
+           <div className="border-b border-brand-border flex items-center justify-between pb-4 sm:pb-6 mb-4 sm:mb-8">
+              <h3 className="text-xl sm:text-2xl font-black text-brand-depth leading-tight">Guruhlar boshqaruvi</h3>
            </div>
-           <div className="bg-white rounded-2xl border border-brand-border shadow-sm overflow-hidden">
+           <div className="bg-white rounded-2xl border border-brand-border shadow-sm overflow-hidden kg-scroll-x">
               <GroupsList />
            </div>
         </div>
@@ -276,11 +276,11 @@ const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) =>
 
     if (viewMode === 'MANAGE_STAFF') {
       return (
-        <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
-           <div className="border-b border-brand-border flex items-center justify-between pb-6 mb-8">
-              <h3 className="text-2xl font-black text-brand-depth">Xodimlar ruyxati</h3>
+        <div className="space-y-4 sm:space-y-6 animate-in fade-in zoom-in-95 duration-300">
+           <div className="border-b border-brand-border flex items-center justify-between pb-4 sm:pb-6 mb-4 sm:mb-8">
+              <h3 className="text-xl sm:text-2xl font-black text-brand-depth leading-tight">Xodimlar ruyxati</h3>
            </div>
-           <div className="bg-white rounded-2xl border border-brand-border shadow-sm overflow-hidden">
+           <div className="bg-white rounded-2xl border border-brand-border shadow-sm overflow-hidden kg-scroll-x">
               <StaffTable onEdit={handleEditStaff} />
            </div>
         </div>
@@ -289,13 +289,13 @@ const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) =>
 
     if (viewMode === 'MANAGE_PARENTS') {
       return (
-        <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
-           <div className="border-b border-brand-border flex items-center justify-between pb-6 mb-8">
-              <h3 className="text-2xl font-black text-brand-depth">
+        <div className="space-y-4 sm:space-y-6 animate-in fade-in zoom-in-95 duration-300">
+           <div className="border-b border-brand-border flex items-center justify-between pb-4 sm:pb-6 mb-4 sm:mb-8">
+              <h3 className="text-xl sm:text-2xl font-black text-brand-depth leading-tight">
                 Ota-onalar parollari va ID
               </h3>
            </div>
-           <div className="bg-white rounded-2xl border border-brand-border shadow-sm overflow-hidden">
+           <div className="bg-white rounded-2xl border border-brand-border shadow-sm overflow-hidden kg-scroll-x">
               <ParentsTable />
            </div>
         </div>
@@ -304,11 +304,11 @@ const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) =>
 
     if (viewMode === 'MANAGE_ROLE_ACCOUNTS') {
       return (
-        <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
-          <div className="border-b border-brand-border flex items-center justify-between pb-6 mb-8">
-            <div>
-              <h3 className="text-2xl font-black text-brand-depth">Rollar login va parollari</h3>
-              <p className="text-xs font-bold text-brand-muted uppercase tracking-widest mt-2">
+        <div className="space-y-4 sm:space-y-6 animate-in fade-in zoom-in-95 duration-300">
+          <div className="border-b border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 sm:pb-6 mb-4 sm:mb-8">
+            <div className="min-w-0">
+              <h3 className="text-xl sm:text-2xl font-black text-brand-depth leading-tight">Rollar login va parollari</h3>
+              <p className="text-[10px] sm:text-xs font-bold text-brand-muted uppercase tracking-wide sm:tracking-widest mt-2 leading-tight">
                 Bog'cha xodimlari tizimga o'z roli bilan kirishi uchun
               </p>
             </div>
@@ -321,7 +321,7 @@ const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) =>
           </div>
 
           <div className="bg-white rounded-2xl border border-brand-border shadow-sm overflow-hidden">
-            <div className="grid grid-cols-[1.1fr_1fr_1fr_1fr_auto] gap-3 px-5 py-4 bg-slate-50 border-b border-brand-border text-[10px] font-black text-brand-muted uppercase tracking-widest">
+            <div className="hidden lg:grid grid-cols-[1.1fr_1fr_1fr_1fr_auto] gap-3 px-5 py-4 bg-slate-50 border-b border-brand-border text-[10px] font-black text-brand-muted uppercase tracking-widest">
               <span>Rol</span>
               <span>F.I.O / nom</span>
               <span>Login</span>
@@ -394,15 +394,15 @@ const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) =>
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700">
-      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-        <button onClick={() => setViewMode('ADD_CHILD')} className="flex-1 sm:flex-none bg-brand-primary text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-brand-primary/20 hover:scale-105 transition-transform"><Plus size={16}/> Yangi bola</button>
-        <button onClick={() => setViewMode('ADD_STAFF')} className="flex-1 sm:flex-none bg-white text-brand-depth border border-brand-border px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"><Plus size={16}/> Yangi xodim</button>
-        <button onClick={() => setViewMode('MANAGE_CHILDREN')} className="flex-1 sm:flex-none bg-white text-brand-depth border border-brand-border px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"><Users size={16}/> Bolalar</button>
-        <button onClick={() => setViewMode('MANAGE_STAFF')} className="flex-1 sm:flex-none bg-white text-brand-depth border border-brand-border px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"><UserCircle size={16}/> Xodimlar</button>
-        <button onClick={() => setViewMode('MANAGE_GROUPS')} className="flex-1 sm:flex-none bg-white text-brand-depth border border-brand-border px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"><Package size={16}/> Guruhlar</button>
-        <button onClick={() => setViewMode('MANAGE_PARENTS')} className="flex-1 sm:flex-none bg-white text-brand-depth border border-brand-border px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"><ShieldCheck size={16}/> Ota-onalar</button>
-        <button onClick={openRoleAccounts} className="flex-1 sm:flex-none bg-white text-brand-depth border border-brand-border px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"><KeyRound size={16}/> Rollar paroli</button>
+    <div className="kg-page space-y-5 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-2 sm:gap-3">
+        <button onClick={() => setViewMode('ADD_CHILD')} className="bg-brand-primary text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center gap-2 shadow-lg shadow-brand-primary/20 hover:scale-[1.02] transition-transform leading-tight"><Plus size={16} className="shrink-0"/> <span className="truncate">Yangi bola</span></button>
+        <button onClick={() => setViewMode('ADD_STAFF')} className="bg-white text-brand-depth border border-brand-border px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors leading-tight"><Plus size={16} className="shrink-0"/> <span className="truncate">Yangi xodim</span></button>
+        <button onClick={() => setViewMode('MANAGE_CHILDREN')} className="bg-white text-brand-depth border border-brand-border px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors leading-tight"><Users size={16} className="shrink-0"/> <span className="truncate">Bolalar</span></button>
+        <button onClick={() => setViewMode('MANAGE_STAFF')} className="bg-white text-brand-depth border border-brand-border px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors leading-tight"><UserCircle size={16} className="shrink-0"/> <span className="truncate">Xodimlar</span></button>
+        <button onClick={() => setViewMode('MANAGE_GROUPS')} className="bg-white text-brand-depth border border-brand-border px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors leading-tight"><Package size={16} className="shrink-0"/> <span className="truncate">Guruhlar</span></button>
+        <button onClick={() => setViewMode('MANAGE_PARENTS')} className="bg-white text-brand-depth border border-brand-border px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors leading-tight"><ShieldCheck size={16} className="shrink-0"/> <span className="truncate">Ota-onalar</span></button>
+        <button onClick={openRoleAccounts} className="col-span-2 md:col-span-3 xl:col-span-1 bg-white text-brand-depth border border-brand-border px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors leading-tight"><KeyRound size={16} className="shrink-0"/> <span className="truncate">Rollar paroli</span></button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -486,7 +486,7 @@ const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) =>
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-8 md:p-12">
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 md:p-8 lg:p-10">
                  {renderModalContent()}
               </div>
            </div>

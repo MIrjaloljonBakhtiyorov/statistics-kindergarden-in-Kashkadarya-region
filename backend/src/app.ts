@@ -50,6 +50,10 @@ export const createApp = () => {
     res.json({ status: 'ok', message: 'Unified Backend is running' });
   });
 
+  app.get('/', (_req, res) => {
+    res.json({ status: 'ok', service: 'raqamli-mtt-backend' });
+  });
+
   app.use('/api/kindergartens', kindergartenAdminRoutes);
   app.use('/api', kindergartenSystemRoutes);
 

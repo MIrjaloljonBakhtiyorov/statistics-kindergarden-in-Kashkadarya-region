@@ -101,6 +101,17 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
     { id: 'LAB_CONTROLLER', label: 'Laboratoriya', icon: FlaskConical },
   ];
 
+  const menuThemes: Record<string, { from: string; to: string; text: string; glow: string }> = {
+    DIRECTOR: { from: '#eff6ff', to: '#dbeafe', text: '#1d4ed8', glow: 'rgba(37, 99, 235, 0.14)' },
+    OPERATOR: { from: '#ecfdf5', to: '#bbf7d0', text: '#047857', glow: 'rgba(16, 185, 129, 0.16)' },
+    TEACHER: { from: '#fff7ed', to: '#fed7aa', text: '#c2410c', glow: 'rgba(249, 115, 22, 0.15)' },
+    NURSE: { from: '#fdf2f8', to: '#fbcfe8', text: '#be185d', glow: 'rgba(219, 39, 119, 0.14)' },
+    CHEF: { from: '#fffbeb', to: '#fde68a', text: '#b45309', glow: 'rgba(217, 119, 6, 0.16)' },
+    STOREKEEPER: { from: '#ecfeff', to: '#a5f3fc', text: '#0e7490', glow: 'rgba(8, 145, 178, 0.15)' },
+    INSPECTOR: { from: '#f5f3ff', to: '#ddd6fe', text: '#6d28d9', glow: 'rgba(124, 58, 237, 0.15)' },
+    LAB_CONTROLLER: { from: '#eef2ff', to: '#c7d2fe', text: '#4338ca', glow: 'rgba(79, 70, 229, 0.16)' },
+  };
+
   const roleMenuAccess: Partial<Record<UserRole, string[]>> = {
     INSPECTOR: ['INSPECTOR', 'LAB_CONTROLLER'],
     STOREKEEPER: ['STOREKEEPER'],
@@ -122,8 +133,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
         </button>
       )}
 
-      <div className="p-8 border-b border-emerald-100 shrink-0 bg-gradient-to-br from-white to-emerald-50/60">
-        <div className="flex items-center gap-3">
+      <div className="relative overflow-hidden p-5 sm:p-6 lg:p-7 border-b border-emerald-100 shrink-0 bg-gradient-to-br from-white via-emerald-50/70 to-sky-50/60">
+        <div className="pointer-events-none absolute -right-12 -top-14 h-32 w-32 rounded-full bg-emerald-200/55 blur-3xl" />
+        <div className="pointer-events-none absolute -left-10 bottom-0 h-24 w-28 rounded-full bg-sky-200/35 blur-2xl" />
+        <div className="relative z-10 flex items-center gap-3 rounded-[1.35rem] border border-white/70 bg-white/72 p-3 shadow-[0_16px_36px_rgba(5,150,105,0.10)] backdrop-blur-md">
           <input 
             type="file" 
             ref={fileInputRef} 
@@ -133,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
           />
           <div 
             onClick={handleLogoClick}
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-700/10 shrink-0 relative overflow-hidden group/logo ${isUploading ? 'bg-emerald-50' : 'bg-brand-primary cursor-pointer hover:shadow-brand-primary/30 transition-all'}`}
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-700/15 shrink-0 relative overflow-hidden group/logo ring-4 ring-white/80 ${isUploading ? 'bg-emerald-50' : 'bg-gradient-to-br from-emerald-600 to-teal-500 cursor-pointer hover:shadow-brand-primary/30 transition-all'}`}
           >
             {isUploading ? (
               <Loader2 size={20} className="animate-spin text-brand-primary" />
@@ -161,35 +174,48 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
             ) : (
               <h1 
                 onClick={() => canManageBrand && setIsEditing(true)}
-                className={`text-brand-primary font-sans font-bold text-lg leading-tight uppercase tracking-tight truncate ${canManageBrand ? 'cursor-pointer hover:opacity-70' : ''}`}
+                className={`text-brand-primary font-sans font-black text-lg leading-tight uppercase tracking-tight truncate ${canManageBrand ? 'cursor-pointer hover:opacity-70' : ''}`}
               >
                 {kgName}
               </h1>
             )}
-            <p className="text-brand-muted text-[10px] uppercase tracking-widest font-bold">Qashqadaryo MTM Tizimi</p>
+            <div className="mt-1 flex items-center gap-1.5 min-w-0">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.7)] shrink-0" />
+              <p className="text-brand-muted text-[8px] sm:text-[9px] uppercase tracking-wider sm:tracking-widest font-black leading-tight truncate">Qashqadaryo MTM Tizimi</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 mt-6 space-y-1 pb-10">
-        {menuItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onRoleChange(item.id as UserRole)}
-            className={`w-full flex items-center gap-3 px-6 py-4 transition-all duration-300 group border-l-[3px] ${
-              activeRole === item.id 
-                ? 'bg-emerald-50 text-brand-primary border-brand-primary font-bold shadow-sm' 
-                : 'text-brand-slate border-transparent hover:bg-emerald-50/70 hover:text-brand-depth'
-            }`}
-          >
-            <item.icon size={18} className={activeRole === item.id ? 'text-brand-primary' : 'group-hover:scale-110 transition-transform'} />
-            <span className="text-sm whitespace-nowrap">{item.label}</span>
-          </button>
-        ))}
+      <nav className="flex-1 mt-4 sm:mt-6 space-y-1 pb-6 sm:pb-10">
+        {menuItems.map((item) => {
+          const theme = menuThemes[item.id] || menuThemes.OPERATOR;
+          const isActive = activeRole === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => onRoleChange(item.id as UserRole)}
+              className={`kg-sidebar-nav-item w-full flex items-center gap-3 px-4 sm:px-6 py-3.5 sm:py-4 transition-all duration-300 group text-left min-w-0 ${
+                isActive ? 'is-active font-bold' : 'text-brand-slate'
+              }`}
+              style={{
+                ['--kg-menu-from' as string]: theme.from,
+                ['--kg-menu-to' as string]: theme.to,
+                ['--kg-menu-text' as string]: theme.text,
+                ['--kg-menu-glow' as string]: theme.glow,
+              } as React.CSSProperties}
+            >
+              <span className="kg-sidebar-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
+                <item.icon size={18} className="transition-transform duration-300 group-hover:scale-110" />
+              </span>
+              <span className="text-sm leading-tight break-words">{item.label}</span>
+            </button>
+          );
+        })}
       </nav>
 
       {/* Footer info or version */}
-      <div className="p-6 border-t border-slate-50 mt-auto shrink-0">
+      <div className="p-4 sm:p-6 border-t border-slate-50 mt-auto shrink-0">
         <button 
           onClick={logout}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-500 hover:bg-rose-50 transition-colors font-bold mb-4"
@@ -197,11 +223,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
           <LogOut size={18} />
           <span className="text-sm">Chiqish</span>
         </button>
-        <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+        <div className="p-3 sm:p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
            <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest mb-1">Tizim holati</p>
            <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-              <span className="text-[10px] font-bold text-brand-depth">Onlayn - v2.4.0</span>
+              <span className="text-[10px] font-bold text-brand-depth truncate">Onlayn - v2.4.0</span>
            </div>
         </div>
       </div>

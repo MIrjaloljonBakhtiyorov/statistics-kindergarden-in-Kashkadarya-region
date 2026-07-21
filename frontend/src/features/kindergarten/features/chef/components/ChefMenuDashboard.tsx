@@ -382,7 +382,7 @@ const TaskCard = ({
               {task.ageGroup || 'Yosh belgilanmagan'}
             </span>
           </div>
-          <h3 className="text-lg font-black text-brand-depth leading-tight truncate">{task.mealName}</h3>
+          <h3 className="text-lg font-black text-brand-depth leading-tight break-words">{task.mealName}</h3>
           <p className="text-xs font-bold text-brand-muted mt-1">
             {task.dietType === 'DIETARY' ? 'Parhez menyu' : 'Oddiy menyu'}
           </p>
@@ -402,11 +402,11 @@ const TaskCard = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
             <p className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Tarkib</p>
-            <p className="text-xs font-bold text-brand-depth mt-1 leading-relaxed">{task.composition || task.mealName}</p>
+            <p className="text-xs font-bold text-brand-depth mt-1 leading-relaxed whitespace-pre-line break-words">{task.composition || task.mealName}</p>
           </div>
           <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
             <p className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Mahsulotlar</p>
-            <p className="text-xs font-bold text-brand-depth mt-1 leading-relaxed">{task.products || '-'}</p>
+            <p className="text-xs font-bold text-brand-depth mt-1 leading-relaxed whitespace-pre-line break-words">{task.products || '-'}</p>
           </div>
         </div>
 

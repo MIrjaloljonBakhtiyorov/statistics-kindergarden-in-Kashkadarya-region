@@ -122,7 +122,7 @@ const App: React.FC = () => {
   const isParent = currentRole === 'PARENT';
 
   return (
-    <div className="kindergarten-shell flex h-screen bg-brand-ghost font-sans text-brand-depth overflow-hidden">
+    <div className="kindergarten-shell flex h-dvh bg-brand-ghost font-sans text-brand-depth overflow-hidden">
       {/* Sidebar - Hidden for Parents */}
       {!isParent && (
         <>
@@ -136,7 +136,7 @@ const App: React.FC = () => {
 
           {/* Sidebar container */}
           <div className={`
-            fixed inset-y-0 left-0 z-[60] w-72 bg-white transform transition-transform duration-300 lg:translate-x-0 lg:static lg:block h-full shrink-0
+            fixed inset-y-0 left-0 z-[60] w-[min(18rem,calc(100vw-1.5rem))] bg-white transform transition-transform duration-300 lg:translate-x-0 lg:static lg:block h-full shrink-0
             ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
           `}>
             <Sidebar 
@@ -159,10 +159,10 @@ const App: React.FC = () => {
           />
         )}
         
-        <main className={`flex-1 overflow-y-auto ${isParent ? 'p-0' : 'p-4 sm:p-6 lg:p-10'} custom-scrollbar`}>
-          <div className={`${isParent ? 'w-full' : 'max-w-[1600px] mx-auto'}`}>
+        <main className={`flex-1 overflow-y-auto ${isParent ? 'p-0 kg-parent-main' : 'p-3 sm:p-5 lg:p-8 xl:p-10'} custom-scrollbar`}>
+          <div className={`${isParent ? 'w-full' : 'max-w-[1600px] mx-auto w-full min-w-0'}`}>
             <AnimatePresence mode="wait">
-              <div key={currentRole}>
+              <div key={currentRole} className="min-w-0">
                 {renderCurrentView()}
               </div>
             </AnimatePresence>

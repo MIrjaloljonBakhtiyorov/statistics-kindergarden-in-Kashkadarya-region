@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useStaff } from '../hooks/useStaff';
 import { Edit2, Trash2, Users } from 'lucide-react';
+import { Pagination } from '../../../components/ui/Pagination';
+
+const PAGE_SIZE = 20;
 
 interface Props {
   onEdit?: (staff: any) => void;
@@ -8,6 +11,17 @@ interface Props {
 
 export const StaffTable: React.FC<Props> = ({ onEdit }) => {
   const { staff, loading, deleteStaff } = useStaff();
+  const [page, setPage] = useState(1);
+
+  const totalPages = Math.max(1, Math.ceil(staff.length / PAGE_SIZE));
+  const visibleStaff = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return staff.slice(start, start + PAGE_SIZE);
+  }, [staff, page]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   if (loading) return <div className="p-8 text-center text-brand-muted font-bold">Yuklanmoqda...</div>;
 
@@ -16,7 +30,8 @@ export const StaffTable: React.FC<Props> = ({ onEdit }) => {
   };
 
   return (
-    <div className="overflow-x-auto">
+    <div className="space-y-4">
+      <div className="overflow-x-auto">
       <table className="w-full text-left min-w-[1000px]">
         <thead>
           <tr className="bg-slate-50 border-b border-brand-border text-[11px] text-brand-muted uppercase font-bold tracking-wider">
@@ -33,9 +48,9 @@ export const StaffTable: React.FC<Props> = ({ onEdit }) => {
           {staff.length === 0 ? (
             <tr><td colSpan={7} className="px-4 py-4 text-center text-sm text-brand-muted">Hech qanday ma'lumot topilmadi.</td></tr>
           ) : (
-            staff.map((s: any, index: number) => (
+            visibleStaff.map((s: any, index: number) => (
               <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-4 py-5 text-center text-xs font-bold text-brand-muted">{index + 1}</td>
+                <td className="px-4 py-5 text-center text-xs font-bold text-brand-muted">{(page - 1) * PAGE_SIZE + index + 1}</td>
                 <td className="px-4 py-5">
                   <div className="font-black text-sm text-brand-depth">{s.full_name}</div>
                   <div className="text-[10px] text-brand-muted uppercase font-bold">{s.position}</div>
@@ -72,6 +87,9 @@ export const StaffTable: React.FC<Props> = ({ onEdit }) => {
           )}
         </tbody>
       </table>
+      </div>
+
+      <Pagination page={page} pageSize={PAGE_SIZE} totalItems={staff.length} onPageChange={setPage} />
     </div>
   );
 };
