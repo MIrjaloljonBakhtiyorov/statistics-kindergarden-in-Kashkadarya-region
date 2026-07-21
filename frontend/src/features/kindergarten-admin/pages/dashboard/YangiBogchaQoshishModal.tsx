@@ -30,7 +30,9 @@ const formSchema = z.object({
     name: z.string().min(3, "Bog'cha nomi majburiy"),
     type: requiredEnum(['Public', 'Private', 'Home'], "Bog'cha turini tanlang"),
     workHours: z.coerce.number().refine((value) => [4, 9, 9.5, 10.5, 12, 24].includes(value), "Ish vaqti turini tanlang"),
-    district: z.string().min(1, "Tumanni tanlang"),
+    region: z.string().min(1, "Viloyatni tanlang"),
+    district: z.string().min(1, "Tuman/shaharni kiriting"),
+    mahalla: z.string().min(2, "Mahalla nomini kiriting"),
     licenseFile: z.string().optional(),
     brokerageDocumentFile: z.string().optional(),
     commissionOrder: z.string().optional(),
@@ -92,12 +94,123 @@ const STEPS = [
   { id: 8, title: "Ko'rib chiqish", icon: Settings },
 ];
 
-const DISTRICTS = [
-    "Qarshi shahri", "Qarshi tumani", "Shahrisabz shahri", "Shahrisabz tumani",
-    "Kitob tumani", "Koson tumani", "Muborak tumani", "G'uzor tumani",
-    "Nishon tumani", "Dehqonobod tumani", "Qamashi tumani", "Chiroqchi tumani", 
-    "Kasbi tumani", "Mirishkor tumani", "Yakkabog' tumani", "Ko'kdala tumani"
+const REGIONS = [
+    "Qoraqalpog'iston Respublikasi",
+    "Andijon viloyati", "Buxoro viloyati", "Farg'ona viloyati", "Jizzax viloyati",
+    "Xorazm viloyati", "Namangan viloyati", "Navoiy viloyati", "Qashqadaryo viloyati",
+    "Samarqand viloyati", "Sirdaryo viloyati", "Surxondaryo viloyati", "Toshkent viloyati",
+    "Toshkent shahri"
 ];
+
+const DISTRICT_OPTIONS_BY_REGION: Record<string, string[]> = {
+    "Andijon viloyati": [
+        "Andijon tumani", "Asaka tumani", "Baliqchi tumani", "Bo'ston tumani",
+        "Buloqboshi tumani", "Izboskan tumani", "Jalolquduq tumani", "Marhamat tumani",
+        "Oltinko'l tumani", "Paxtaobod tumani", "Qo'rg'ontepa tumani", "Shahrixon tumani",
+        "Ulug'nor tumani", "Xo'jaobod tumani",
+        "Andijon shahri", "Xonobod shahri", "Asaka shahri", "Paxtaobod shahri",
+        "Shahrixon shahri", "Marhamat shahri", "Qo'rg'ontepa shahri", "Baliqchi shahri",
+        "Bo'ston shahri", "Poytug' shahri", "Qorasuv shahri", "Oltinko'l shahri",
+        "Xo'jaobod shahri"
+    ],
+    "Buxoro viloyati": [
+        "Buxoro tumani", "G'ijduvon tumani", "Jondor tumani", "Kogon tumani",
+        "Olot tumani", "Peshku tumani", "Qorako'l tumani", "Qorovulbozor tumani",
+        "Romitan tumani", "Shofirkon tumani", "Vobkent tumani",
+        "Buxoro shahri", "Kogon shahri", "G'ijduvon shahri", "Gazli shahri",
+        "Olot shahri", "Qorako'l shahri", "Romitan shahri", "Shofirkon shahri",
+        "Vobkent shahri"
+    ],
+    "Jizzax viloyati": [
+        "Arnasoy tumani", "Baxmal tumani", "Do'stlik tumani", "Forish tumani",
+        "G'allaorol tumani", "Jizzax tumani", "Mirzacho'l tumani", "Paxtakor tumani",
+        "Sharof Rashidov tumani", "Yangiobod tumani", "Zafarobod tumani", "Zarbdor tumani",
+        "Jizzax shahri", "G'allaorol shahri", "Dashtobod shahri", "Do'stlik shahri",
+        "Paxtakor shahri", "Marjonbuloq shahri"
+    ],
+    "Qashqadaryo viloyati": [
+        "Chiroqchi tumani", "Dehqonobod tumani", "G'uzor tumani", "Kasbi tumani",
+        "Kitob tumani", "Koson tumani", "Ko'kdala tumani", "Mirishkor tumani",
+        "Muborak tumani", "Nishon tumani", "Qamashi tumani", "Shahrisabz tumani",
+        "Yakkabog' tumani",
+        "Qarshi shahri", "Shahrisabz shahri", "Kitob shahri", "Koson shahri",
+        "Muborak shahri", "Yakkabog' shahri"
+    ],
+    "Navoiy viloyati": [
+        "Karmana tumani", "Konimex tumani", "Navbahor tumani", "Nurota tumani",
+        "Qiziltepa tumani", "Tomdi tumani", "Uchquduq tumani", "Xatirchi tumani",
+        "Navoiy shahri", "Zarafshon shahri", "G'ozg'on shahri", "Nurota shahri",
+        "Qiziltepa shahri"
+    ],
+    "Namangan viloyati": [
+        "Chortoq tumani", "Chust tumani", "Kosonsoy tumani", "Mingbuloq tumani",
+        "Namangan tumani", "Norin tumani", "Pop tumani", "To'raqo'rg'on tumani",
+        "Uchqo'rg'on tumani", "Uychi tumani", "Yangiqo'rg'on tumani",
+        "Namangan shahri", "Chortoq shahri", "Chust shahri", "Haqqulobod shahri",
+        "Kosonsoy shahri", "Pop shahri", "To'raqo'rg'on shahri", "Uchqo'rg'on shahri",
+        "Uychi shahri"
+    ],
+    "Samarqand viloyati": [
+        "Bulung'ur tumani", "Ishtixon tumani", "Jomboy tumani", "Kattaqo'rg'on tumani",
+        "Narpay tumani", "Nurobod tumani", "Oqdaryo tumani", "Pastdarg'om tumani",
+        "Payariq tumani", "Paxtachi tumani", "Qo'shrabot tumani", "Samarqand tumani",
+        "Toyloq tumani", "Urgut tumani",
+        "Samarqand shahri", "Kattaqo'rg'on shahri", "Urgut shahri", "Oqtosh shahri",
+        "Chelak shahri", "Juma shahri", "Payshanba shahri"
+    ],
+    "Sirdaryo viloyati": [
+        "Boyovut tumani", "Guliston tumani", "Mirzaobod tumani", "Oqoltin tumani",
+        "Sardoba tumani", "Sayxunobod tumani", "Sirdaryo tumani", "Xovos tumani",
+        "Guliston shahri", "Shirin shahri", "Yangiyer shahri", "Baxt shahri",
+        "Sirdaryo shahri"
+    ],
+    "Surxondaryo viloyati": [
+        "Angor tumani", "Bandixon tumani", "Boysun tumani", "Denov tumani",
+        "Jarqo'rg'on tumani", "Muzrabot tumani", "Oltinsoy tumani", "Qiziriq tumani",
+        "Qumqo'rg'on tumani", "Sariosiyo tumani", "Sherobod tumani", "Sho'rchi tumani",
+        "Termiz tumani", "Uzun tumani",
+        "Termiz shahri", "Denov shahri", "Boysun shahri", "Jarqo'rg'on shahri",
+        "Sherobod shahri", "Sho'rchi shahri"
+    ],
+    "Toshkent viloyati": [
+        "Bekobod tumani", "Bo'ka tumani", "Bo'stonliq tumani", "Chinoz tumani",
+        "Ohangaron tumani", "Oqqo'rg'on tumani", "Parkent tumani", "Piskent tumani",
+        "Quyi Chirchiq tumani", "O'rta Chirchiq tumani", "Yangiyo'l tumani",
+        "Yuqori Chirchiq tumani", "Zangiota tumani", "Qibray tumani", "Toshkent tumani",
+        "Angren shahri", "Bekobod shahri", "Chirchiq shahri", "Nurafshon shahri",
+        "Ohangaron shahri", "Olmaliq shahri", "Yangiyo'l shahri", "Gazalkent shahri",
+        "Parkent shahri"
+    ],
+    "Farg'ona viloyati": [
+        "Bag'dod tumani", "Beshariq tumani", "Buvayda tumani", "Dang'ara tumani",
+        "Farg'ona tumani", "Furqat tumani", "Oltiariq tumani", "O'zbekiston tumani",
+        "Qo'shtepa tumani", "Quva tumani", "Rishton tumani", "So'x tumani",
+        "Toshloq tumani", "Uchko'prik tumani", "Yozyovon tumani",
+        "Farg'ona shahri", "Qo'qon shahri", "Marg'ilon shahri", "Quvasoy shahri",
+        "Quva shahri", "Rishton shahri", "Oltiariq shahri", "Yaypan shahri",
+        "Hamza shahri"
+    ],
+    "Xorazm viloyati": [
+        "Bog'ot tumani", "Gurlan tumani", "Hazorasp tumani", "Xiva tumani",
+        "Xonqa tumani", "Qo'shko'pir tumani", "Shovot tumani", "Urganch tumani",
+        "Yangiariq tumani", "Yangibozor tumani", "Tuproqqal'a tumani",
+        "Urganch shahri", "Xiva shahri", "Pitnak shahri", "Hazorasp shahri",
+        "Xonqa shahri", "Shovot shahri"
+    ],
+    "Qoraqalpog'iston Respublikasi": [
+        "Amudaryo tumani", "Beruniy tumani", "Bo'zatov tumani", "Chimboy tumani",
+        "Ellikqal'a tumani", "Kegeyli tumani", "Mo'ynoq tumani", "Nukus tumani",
+        "Qanliko'l tumani", "Qo'ng'irot tumani", "Qorao'zak tumani", "Shumanay tumani",
+        "Taxtako'pir tumani", "Taxiatosh tumani", "To'rtko'l tumani", "Xo'jayli tumani",
+        "Nukus shahri", "Beruniy shahri", "Chimboy shahri", "Mang'it shahri",
+        "Taxiatosh shahri", "To'rtko'l shahri", "Xo'jayli shahri"
+    ],
+    "Toshkent shahri": [
+        "Bektemir tumani", "Chilonzor tumani", "Mirobod tumani", "Mirzo Ulug'bek tumani",
+        "Olmazor tumani", "Sergeli tumani", "Shayxontohur tumani", "Uchtepa tumani",
+        "Yakkasaroy tumani", "Yashnobod tumani", "Yangihayot tumani", "Yunusobod tumani"
+    ]
+};
 
 const WORK_HOUR_OPTIONS = [
   { label: '4 soatlik', value: 4 },
@@ -110,7 +223,9 @@ const CREATE_DEFAULT_VALUES = {
   name: '',
   type: '',
   workHours: '',
+  region: '',
   district: '',
+  mahalla: '',
   licenseFile: '',
   brokerageDocumentFile: '',
   commissionOrder: '',
@@ -222,6 +337,8 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
     defaultValues: initialData ? {
         ...initialData,
         nurseCount: Number(initialData.nurseCount || 0),
+        region: initialData.region || 'Qashqadaryo viloyati',
+        mahalla: initialData.mahalla || '',
         workHours: [9, 10.5].includes(Number(initialData.workHours)) ? 9.5 : Number(initialData.workHours || 9.5),
         brokerageDocumentFile: initialData.brokerageDocumentFile || '',
         commissionOrder: initialData.commissionOrder || '',
@@ -230,7 +347,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
     } : CREATE_DEFAULT_VALUES
   });
 
-  const { watch, handleSubmit, trigger, setError, reset } = methods;
+  const { watch, handleSubmit, trigger, setError, reset, setValue } = methods;
 
   useEffect(() => {
     if (!isEdit) {
@@ -239,6 +356,14 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
   }, [isEdit, reset]);
 
   const allValues = watch();
+  const districtOptions = DISTRICT_OPTIONS_BY_REGION[allValues.region] || null;
+
+  useEffect(() => {
+    if (districtOptions && allValues.district && !districtOptions.includes(allValues.district)) {
+      setValue('district', '', { shouldDirty: true, shouldValidate: true });
+    }
+  }, [allValues.district, districtOptions, setValue]);
+
   const credentialPreview = useMemo(() => ({
     systemId: initialData?.system_id || "Saqlanganda yaratiladi",
     username: initialData?.username || makeLoginPreview(allValues.name),
@@ -259,7 +384,9 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
       { weight: 5, done: hasText('name') },
       { weight: 4, done: hasSelected('type') },
       { weight: 4, done: hasNumber('workHours', true) },
+      { weight: 4, done: hasSelected('region') },
       { weight: 4, done: hasSelected('district') },
+      { weight: 4, done: hasText('mahalla') },
       { weight: 5, done: hasText('address') },
       { weight: 5, done: hasText('directorName') },
       { weight: 4, done: hasNumber('directorBirthYear', true) },
@@ -289,7 +416,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
 
   const handleNext = async () => {
     const stepFields: any = {
-        1: ['name', 'type', 'workHours', 'district', 'address'],
+        1: ['name', 'type', 'workHours', 'region', 'district', 'mahalla', 'address'],
         2: ['directorName', 'directorBirthYear', 'phone', 'email', 'position'],
         3: ['capacity', 'currentChildren', 'groups', 'age13', 'age37'],
         4: ['educators', 'cooks', 'techStaff', 'nurseCount'],
@@ -345,7 +472,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
 
   const getStepByField = (field: string) => {
     const fieldSteps: Record<string, number> = {
-      name: 1, type: 1, workHours: 1, district: 1, address: 1,
+      name: 1, type: 1, workHours: 1, region: 1, district: 1, mahalla: 1, address: 1,
       directorName: 2, phone: 2, email: 2, position: 2,
       directorBirthYear: 2, directorPhoto: 2,
       capacity: 3, currentChildren: 3, groups: 3, age13: 3, age37: 3,
@@ -404,7 +531,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                         <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{isEdit ? "Bog'cha tahrirlash" : "Bog'cha qo'shish"}</h2>
                         <span className="px-2.5 py-1 bg-indigo-600 text-white text-[8px] sm:text-[9px] font-black uppercase rounded-full tracking-widest">{isEdit ? 'Tahrirlash' : 'Yaratish'}</span>
                     </div>
-                    <p className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-widest">Qashqadaryo viloyati monitoringi</p>
+                    <p className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-widest">Hududlar monitoringi</p>
                 </div>
                 <div className="flex items-center gap-3 sm:text-right">
                     <div className="text-2xl sm:text-3xl font-black text-indigo-600 tracking-tighter">{completionPercentage}%</div>
@@ -441,8 +568,14 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                             <FormField name="id_auto" label="Bog'cha ID" placeholder={credentialPreview.systemId} disabled />
                             <FormField name="type" label="Turi *" options={[{label: 'Davlat', value: 'Public'}, {label: 'Xususiy', value: 'Private'}, {label: 'Oilaviy', value: 'Home'}]} />
                             <FormField name="workHours" label="Ish vaqti turi *" options={WORK_HOUR_OPTIONS} />
-                            <FormField name="region" label="Viloyat" placeholder="Qashqadaryo" disabled />
-                            <FormField name="district" label="Tuman *" options={DISTRICTS} />
+                            <FormField name="region" label="Viloyat / respublika / shahar *" options={REGIONS} />
+                            <FormField
+                              name="district"
+                              label="Tuman / shahar *"
+                              placeholder="Masalan: Yunusobod tumani"
+                              options={districtOptions}
+                            />
+                            <FormField name="mahalla" label="Mahalla *" placeholder="Masalan: Mustaqillik MFY" />
                             <div className="md:col-span-2"><FormField name="address" label="Manzil *" isTextArea /></div>
                         </>)}
 
@@ -514,7 +647,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                         {step === 8 && (
                             <div className="md:col-span-2 space-y-6 sm:space-y-8 pb-6 sm:pb-10">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-                                    <SummaryCard icon={Building2} title="Asosiy" data={{'Nomi': allValues.name, 'Turi': allValues.type}} />
+                                    <SummaryCard icon={Building2} title="Asosiy" data={{'Nomi': allValues.name, 'Turi': allValues.type, 'Viloyat': allValues.region, 'Tuman': allValues.district, 'Mahalla': allValues.mahalla}} />
                                     <SummaryCard icon={FileText} title="Hujjatlar" data={{'Brokerlash': allValues.brokerageDocumentFile ? 'Yuklangan' : "Yo'q", 'Buyruq': allValues.commissionOrder || 'Kiritilmagan', 'Tasdiqlangan kuni': allValues.commissionApprovedDate || 'Kiritilmagan', 'Muddat': allValues.commissionValidUntil || 'Kiritilmagan'}} />
                                     <SummaryCard icon={UserRound} title="Rahbar" data={{'F.I.O': allValues.directorName, 'Yili': allValues.directorBirthYear, 'Login': credentialPreview.username}} />
                                     <SummaryCard icon={Baby} title="Sig'im" data={{'Soni': allValues.capacity, 'Bolalar': allValues.currentChildren}} />

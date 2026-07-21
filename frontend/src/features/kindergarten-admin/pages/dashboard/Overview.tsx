@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Clock, AlertTriangle, ShieldAlert,
@@ -13,6 +14,23 @@ import { clsx } from 'clsx';
 import { StatsModal } from '../../components/StatsModal';
 import { kindergartenApi } from '@/shared/api';
 
+const REGIONAL_STAT_CARDS = [
+  { name: "Qoraqalpog'iston Respublikasi", type: "Respublika", slug: "qoraqalpogiston" },
+  { name: "Andijon viloyati", type: "Viloyat", slug: "andijon" },
+  { name: "Buxoro viloyati", type: "Viloyat", slug: "buxoro" },
+  { name: "Farg'ona viloyati", type: "Viloyat", slug: "fargona" },
+  { name: "Jizzax viloyati", type: "Viloyat", slug: "jizzax" },
+  { name: "Xorazm viloyati", type: "Viloyat", slug: "xorazm" },
+  { name: "Namangan viloyati", type: "Viloyat", slug: "namangan" },
+  { name: "Navoiy viloyati", type: "Viloyat", slug: "navoiy" },
+  { name: "Qashqadaryo viloyati", type: "Viloyat", slug: "qashqadaryo" },
+  { name: "Samarqand viloyati", type: "Viloyat", slug: "samarqand" },
+  { name: "Sirdaryo viloyati", type: "Viloyat", slug: "sirdaryo" },
+  { name: "Surxondaryo viloyati", type: "Viloyat", slug: "surxondaryo" },
+  { name: "Toshkent viloyati", type: "Viloyat", slug: "toshkent-viloyati" },
+  { name: "Toshkent shahri", type: "Shahar", slug: "toshkent-shahri" },
+];
+
 const DISTRICTS = [
   { name: "Qarshi sh.", aliases: ["qarshi shahri"] },
   { name: "Qarshi t.", aliases: ["qarshi tumani"] },
@@ -21,14 +39,14 @@ const DISTRICTS = [
   { name: "Kitob", aliases: ["kitob tumani"] },
   { name: "Koson", aliases: ["koson tumani"] },
   { name: "Muborak", aliases: ["muborak tumani"] },
-  { name: "G'uzor", aliases: ["g'uzor tumani", "g'uzor tumani"] },
+  { name: "G'uzor", aliases: ["g'uzor tumani"] },
   { name: "Nishon", aliases: ["nishon tumani"] },
   { name: "Dehqonobod", aliases: ["dehqonobod tumani"] },
   { name: "Qamashi", aliases: ["qamashi tumani"] },
   { name: "Chiroqchi", aliases: ["chiroqchi tumani"] },
   { name: "Kasbi", aliases: ["kasbi tumani"] },
   { name: "Mirishkor", aliases: ["mirishkor tumani"] },
-  { name: "Yakkabog'", aliases: ["yakkabog' tumani", "yakkabog' tumani"] },
+  { name: "Yakkabog'", aliases: ["yakkabog' tumani"] },
   { name: "Ko'kdala", aliases: ["ko'kdala tumani", "ko'kdala t."] },
 ];
 
@@ -104,9 +122,19 @@ const KpiCard = ({ kpi }: { kpi: any }) => (
 );
 
 export const Overview = () => {
+  const { regionSlug } = useParams();
   const [showReport, setShowReport] = useState(false);
   const [statsType, setStatsType] = useState<string | null>(null);
   const [kindergartens, setKindergartens] = useState<any[]>([]);
+  const selectedRegion = REGIONAL_STAT_CARDS.find((region) => region.slug === (regionSlug || 'qashqadaryo')) || REGIONAL_STAT_CARDS.find((region) => region.slug === 'qashqadaryo')!;
+  const isQashqadaryoRegion = selectedRegion.slug === 'qashqadaryo';
+  const selectedRegionKindergartens = useMemo(() => {
+    if (!isQashqadaryoRegion) return [];
+    return kindergartens.filter((kg) => {
+      const region = normalizeText(kg.region);
+      return !region || region.includes('qashqadaryo');
+    });
+  }, [isQashqadaryoRegion, kindergartens]);
 
   useEffect(() => {
     let mounted = true;
@@ -122,18 +150,17 @@ export const Overview = () => {
   }, []);
 
   const stats = useMemo(() => {
-    const totalChildren = kindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).children, 0);
-    const totalBefore9 = kindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).before930, 0);
-    const totalAfter9 = kindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).after930, 0);
-    const totalAbsent = kindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).absent, 0);
+    const totalChildren = selectedRegionKindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).children, 0);
+    const totalBefore9 = selectedRegionKindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).before930, 0);
+    const totalAfter9 = selectedRegionKindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).after930, 0);
+    const totalAbsent = selectedRegionKindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).absent, 0);
     const typeCounts = {
-      Public: kindergartens.filter(kg => kg.type === 'Public').length,
-      Private: kindergartens.filter(kg => kg.type === 'Private').length,
-      Home: kindergartens.filter(kg => kg.type === 'Home').length,
+      Public: selectedRegionKindergartens.filter(kg => kg.type === 'Public').length,
+      Private: selectedRegionKindergartens.filter(kg => kg.type === 'Private').length,
+      Home: selectedRegionKindergartens.filter(kg => kg.type === 'Home').length,
     };
-
     const districtData = DISTRICTS.map((district) => {
-      const districtKindergartens = kindergartens.filter(kg => matchesDistrict(kg.district, district));
+      const districtKindergartens = selectedRegionKindergartens.filter(kg => matchesDistrict(kg.district, district));
       const districtStats = districtKindergartens.reduce((acc, kg) => {
         const breakdown = attendanceBreakdownOf(kg);
         acc.children += breakdown.children;
@@ -143,6 +170,7 @@ export const Overview = () => {
         acc.absent += breakdown.absent;
         return acc;
       }, { children: 0, before930: 0, after930: 0, present: 0, absent: 0 });
+
       return {
         name: district.name,
         jami: districtStats.children,
@@ -154,7 +182,7 @@ export const Overview = () => {
     });
     const districtsWithData = districtData.filter(d => d.jami > 0 || d.before930 > 0 || d.after930 > 0 || d.absent > 0);
 
-    const bottomDistricts = kindergartens
+    const bottomDistricts = selectedRegionKindergartens
       .map((kg) => {
         const breakdown = attendanceBreakdownOf(kg);
         return {
@@ -169,7 +197,7 @@ export const Overview = () => {
       .sort((a, b) => a.davomat - b.davomat)
       .slice(0, 5);
 
-    const reportCounts = kindergartens.reduce((acc, kg) => {
+    const reportCounts = selectedRegionKindergartens.reduce((acc, kg) => {
       const breakdown = attendanceBreakdownOf(kg);
       const pct = attendancePercent(breakdown.present, breakdown.children);
       if (!breakdown.children) return acc;
@@ -187,22 +215,22 @@ export const Overview = () => {
         { title: "Kelmaganlar", val: totalAbsent.toLocaleString(), icon: ShieldAlert, color: "rose" },
       ],
       kpiRow2: [
-        { title: "Umumiy bog'chalar", val: kindergartens.length.toLocaleString(), icon: Building2, color: "violet" },
+        { title: "Umumiy bog'chalar", val: selectedRegionKindergartens.length.toLocaleString(), icon: Building2, color: "violet" },
         { title: "Private", val: typeCounts.Private.toLocaleString(), icon: Home, color: "orange" },
         { title: "Public", val: typeCounts.Public.toLocaleString(), icon: Building2, color: "blue" },
         { title: "Home", val: typeCounts.Home.toLocaleString(), icon: Home, color: "teal" },
       ],
-      districtData,
       pieData: [
         { name: "Home", value: typeCounts.Home, color: "#10b981" },
         { name: "Private", value: typeCounts.Private, color: "#f59e0b" },
         { name: "Public", value: typeCounts.Public, color: "#6366f1" },
       ],
+      districtData,
       bottomDistricts,
       districtMonitor: districtsWithData.map(district => ({ name: district.name, davomat: district.davomat })),
       reportCounts,
     };
-  }, [kindergartens]);
+  }, [selectedRegionKindergartens]);
 
   return (
     <div className="space-y-4 pb-12 bg-[#f4f6fb] min-h-screen">
@@ -212,7 +240,7 @@ export const Overview = () => {
         <div>
           <h1 className="text-lg font-black text-slate-900 tracking-tight">Viloyat statistikasi</h1>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
-            Qashqadaryo viloyati bo'yicha monitoring
+            {selectedRegion.name} bo'yicha monitoring
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -225,21 +253,35 @@ export const Overview = () => {
         </div>
       </div>
 
+      {!isQashqadaryoRegion && (
+        <div className="bg-white border border-slate-100 rounded-xl p-8 shadow-sm text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+            <MapPin size={24} />
+          </div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{selectedRegion.type}</p>
+          <h2 className="mt-2 text-2xl font-black text-slate-900 tracking-tight">{selectedRegion.name} statistikasi</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm font-bold text-slate-400">
+            Bu hudud uchun alohida statistika menyusi tayyorlanmoqda. Tez kunda ushbu qism qo'shiladi.
+          </p>
+          <span className="mt-5 inline-flex rounded-full bg-amber-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-amber-600 border border-amber-100">
+            Tez kunda
+          </span>
+        </div>
+      )}
+
       {/* KPI Row 1 */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-2.5">
+      <div className={clsx("grid grid-cols-2 xl:grid-cols-4 gap-2.5", !isQashqadaryoRegion && "hidden")}>
         {stats.kpiRow1.map((kpi, i) => <KpiCard key={i} kpi={kpi} />)}
       </div>
 
       {/* KPI Row 2 */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-2.5">
+      <div className={clsx("grid grid-cols-2 xl:grid-cols-4 gap-2.5", !isQashqadaryoRegion && "hidden")}>
         {stats.kpiRow2.map((kpi, i) => <KpiCard key={i} kpi={kpi} />)}
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-
-        {/* Bar Chart */}
-        <div className="lg:col-span-8 bg-white border border-slate-100 rounded-xl p-3 shadow-sm">
+      <div className={clsx("grid grid-cols-1 lg:grid-cols-12 gap-4", !isQashqadaryoRegion && "hidden")}>
+        <div className="lg:col-span-8 bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
           <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tuman kesimida kunlik bolalar davomati</p>
@@ -256,46 +298,45 @@ export const Overview = () => {
             <div className="min-w-[920px]">
               <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0}>
                 <BarChart data={stats.districtData} margin={{ top: 8, right: 8, left: -10, bottom: 6 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis
-                  dataKey="name"
-                  fontSize={9}
-                  fontWeight={700}
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#94a3b8' }}
-                />
-                <YAxis
-                  fontSize={9}
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#94a3b8' }}
-                  tickFormatter={(value) => Number(value || 0).toLocaleString('uz-UZ')}
-                />
-                <Tooltip
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontSize: '11px' }}
-                  formatter={(value, name) => [formatCount(value), name]}
-                  labelFormatter={formatDistrictTodayTitle}
-                />
-                <Legend
-                  verticalAlign="top"
-                  height={28}
-                  iconType="circle"
-                  iconSize={8}
-                  formatter={(value) => <span style={{ color: '#64748b', fontSize: 11, fontWeight: 800 }}>{value}</span>}
-                />
-                <Bar dataKey="jami" name="Jami bolalar" fill="#cbd5e1" radius={[5, 5, 0, 0]} barSize={16} />
-                <Bar dataKey="before930" name="09:30 gacha kelgan" stackId="daily" fill="#10b981" radius={[0, 0, 5, 5]} barSize={18} />
-                <Bar dataKey="after930" name="09:30 dan keyin kelgan" stackId="daily" fill="#f59e0b" barSize={18} />
-                <Bar dataKey="absent" name="Kelmaganlar" stackId="daily" fill="#f43f5e" radius={[5, 5, 0, 0]} barSize={18} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis
+                    dataKey="name"
+                    fontSize={9}
+                    fontWeight={700}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#94a3b8' }}
+                  />
+                  <YAxis
+                    fontSize={9}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#94a3b8' }}
+                    tickFormatter={(value) => Number(value || 0).toLocaleString('uz-UZ')}
+                  />
+                  <Tooltip
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontSize: '11px' }}
+                    formatter={(value, name) => [formatCount(value), name]}
+                    labelFormatter={formatDistrictTodayTitle}
+                  />
+                  <Legend
+                    verticalAlign="top"
+                    height={28}
+                    iconType="circle"
+                    iconSize={8}
+                    formatter={(value) => <span style={{ color: '#64748b', fontSize: 11, fontWeight: 800 }}>{value}</span>}
+                  />
+                  <Bar dataKey="jami" name="Jami bolalar" fill="#cbd5e1" radius={[5, 5, 0, 0]} barSize={16} />
+                  <Bar dataKey="before930" name="09:30 gacha kelgan" stackId="daily" fill="#10b981" radius={[0, 0, 5, 5]} barSize={18} />
+                  <Bar dataKey="after930" name="09:30 dan keyin kelgan" stackId="daily" fill="#f59e0b" barSize={18} />
+                  <Bar dataKey="absent" name="Kelmaganlar" stackId="daily" fill="#f43f5e" radius={[5, 5, 0, 0]} barSize={18} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
         </div>
 
-        {/* Pie Chart */}
-        <div className="lg:col-span-4 bg-white border border-slate-100 rounded-xl p-3 shadow-sm flex flex-col">
+        <div className="lg:col-span-4 bg-white border border-slate-100 rounded-xl p-4 shadow-sm flex flex-col">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Bog'cha turlari</p>
           <div className="flex-1 flex items-center justify-center">
             <div className="w-full min-w-0">
@@ -327,12 +368,9 @@ export const Overview = () => {
       </div>
 
       {/* Bottom Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div className={clsx("grid grid-cols-1 lg:grid-cols-12 gap-4", !isQashqadaryoRegion && "hidden")}>
 
-        {/* Left: AI + District Monitor */}
         <div className="lg:col-span-8 space-y-4">
-
-          {/* AI Analitika */}
           <div className="bg-indigo-700 rounded-xl p-4 text-white">
             <div className="flex items-center gap-2 mb-2">
               <Zap size={15} className="text-yellow-300" />
@@ -343,7 +381,6 @@ export const Overview = () => {
             </p>
           </div>
 
-          {/* Eng past davomat TOP */}
           <div className="bg-white border border-slate-100 rounded-xl p-3 shadow-sm">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Eng past davomat - TOP 5</p>
             <div className="space-y-1.5">
@@ -372,7 +409,6 @@ export const Overview = () => {
             </div>
           </div>
 
-          {/* Hududiy boshqaruv monitori */}
           <div className="bg-white border border-slate-100 rounded-xl p-3 shadow-sm">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Hududiy boshqaruv monitori</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -381,7 +417,7 @@ export const Overview = () => {
                   Real ma'lumot yo'q
                 </div>
               )}
-              {stats.districtMonitor.map((d, i) => {
+              {stats.districtMonitor.map((d: any, i: number) => {
                 const barColor = d.davomat >= 93 ? "bg-emerald-500" : d.davomat >= 89 ? "bg-amber-400" : "bg-rose-500";
                 return (
                   <div key={i} className="space-y-1.5">
@@ -464,7 +500,7 @@ export const Overview = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      <StatsModal isOpen={!!statsType} onClose={() => setStatsType(null)} type={statsType} data={kindergartens} />
+      <StatsModal isOpen={!!statsType} onClose={() => setStatsType(null)} type={statsType} data={selectedRegionKindergartens} />
     </div>
   );
 };

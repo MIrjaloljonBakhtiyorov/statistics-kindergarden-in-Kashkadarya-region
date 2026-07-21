@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, CalendarDays, Clock, Menu, LogOut } from 'lucide-react';
+import { ArrowLeft, Bell, CalendarDays, Clock, Menu, LogOut, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/shared/theme/theme';
@@ -8,9 +8,27 @@ interface TopbarProps {
   onMenuClick: () => void;
 }
 
+const notificationRegions = [
+  { name: "Qoraqalpog'iston Respublikasi", type: "Respublika", slug: "qoraqalpogiston" },
+  { name: "Andijon viloyati", type: "Viloyat", slug: "andijon" },
+  { name: "Buxoro viloyati", type: "Viloyat", slug: "buxoro" },
+  { name: "Farg'ona viloyati", type: "Viloyat", slug: "fargona" },
+  { name: "Jizzax viloyati", type: "Viloyat", slug: "jizzax" },
+  { name: "Xorazm viloyati", type: "Viloyat", slug: "xorazm" },
+  { name: "Namangan viloyati", type: "Viloyat", slug: "namangan" },
+  { name: "Navoiy viloyati", type: "Viloyat", slug: "navoiy" },
+  { name: "Qashqadaryo viloyati", type: "Viloyat", slug: "qashqadaryo" },
+  { name: "Samarqand viloyati", type: "Viloyat", slug: "samarqand" },
+  { name: "Sirdaryo viloyati", type: "Viloyat", slug: "sirdaryo" },
+  { name: "Surxondaryo viloyati", type: "Viloyat", slug: "surxondaryo" },
+  { name: "Toshkent viloyati", type: "Viloyat", slug: "toshkent-viloyati" },
+  { name: "Toshkent shahri", type: "Shahar", slug: "toshkent-shahri" },
+];
+
 export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const [time, setTime] = React.useState(new Date());
+  const [isRegionNotificationsOpen, setIsRegionNotificationsOpen] = React.useState(false);
 
   React.useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -38,6 +56,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
   const formattedYear = time.getFullYear();
 
   return (
+    <>
     <header className="h-20 lg:h-24 bg-white/60 backdrop-blur-2xl border-b border-slate-200/40 sticky top-0 z-[80] flex items-center justify-between px-6 sm:px-10 w-full gap-4 transition-all">
       <div className="flex items-center gap-6 overflow-hidden">
         <button 
@@ -84,14 +103,22 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
         <div className="flex items-center gap-4 sm:gap-6">
           <ThemeToggle className="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all relative group shadow-sm hover:shadow-indigo-500/10 active:scale-95 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-indigo-300" />
 
-          <button
-            onClick={() => navigate('/admin/alerts')}
-            className="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all relative group shadow-sm hover:shadow-indigo-500/10 active:scale-95 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
-            title="Alertlar"
-          >
-            <Bell size={22} />
-            <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 rounded-full ring-4 ring-white shadow-lg"></span>
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsRegionNotificationsOpen((value) => !value)}
+              className={[
+                "p-3 rounded-2xl transition-all relative group shadow-sm hover:shadow-indigo-500/10 active:scale-95",
+                isRegionNotificationsOpen
+                  ? "bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100 shadow-indigo-500/10"
+                  : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
+              ].join(' ')}
+              title="Hududlar"
+            >
+              <Bell size={22} />
+              <span className="absolute right-2.5 top-2.5 h-3 w-3 rounded-full bg-rose-500 shadow-lg ring-4 ring-white"></span>
+            </button>
+          </div>
           
           <div className="flex items-center gap-4 pl-2 group">
             <div className="text-right hidden md:block select-none">
@@ -116,5 +143,100 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
         </div>
       </div>
     </header>
+    {isRegionNotificationsOpen && (
+      <>
+        <button
+          type="button"
+          className="fixed inset-0 z-[119] cursor-default bg-transparent"
+          aria-label="Hududlar oynasini yopish"
+          onClick={() => setIsRegionNotificationsOpen(false)}
+        />
+        <motion.div
+          initial={{ opacity: 0, x: 28 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 28 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Hududlar oynasi"
+          className="fixed bottom-0 right-0 top-0 z-[120] flex w-full overflow-hidden rounded-[1px] border-l border-slate-200/80 bg-white p-3 shadow-[0_24px_80px_rgba(15,23,42,0.22)] sm:w-[520px]"
+        >
+          <div className="flex min-h-0 w-full flex-col">
+            <div className="shrink-0 rounded-[1px] border border-slate-100 bg-white px-4 py-3 shadow-sm">
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsRegionNotificationsOpen(false)}
+                  className="inline-flex w-fit items-center gap-2 rounded-[1px] border border-slate-200 bg-white px-3 py-2 text-[11px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition-all hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+                >
+                  <ArrowLeft size={15} />
+                  Qaytish
+                </button>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-400">Viloyat statistikasi</p>
+                    <h3 className="mt-1 text-sm font-black text-slate-950">Hududni tanlang</h3>
+                    <p className="mt-1 text-[11px] font-bold text-slate-500">
+                      14 ta hudud: viloyatlar, respublika va Toshkent shahri
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-indigo-600 ring-1 ring-indigo-100">
+                    14
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto px-0.5 pb-1 pr-1 custom-scrollbar">
+              {notificationRegions.map((region) => {
+                const isReady = region.slug === 'qashqadaryo';
+                return (
+                  <button
+                    key={region.name}
+                    type="button"
+                    onClick={() => {
+                      setIsRegionNotificationsOpen(false);
+                      navigate(`/admin/region/${region.slug}`);
+                    }}
+                    className={[
+                      "group flex w-full items-start gap-3 rounded-[1px] border px-3 py-3 text-left transition-all duration-200",
+                      isReady
+                        ? "border-indigo-200 bg-indigo-50/80 shadow-sm shadow-indigo-100"
+                        : "border-slate-100 bg-white shadow-sm shadow-slate-100/70 hover:border-indigo-100 hover:bg-slate-50 hover:shadow-md"
+                    ].join(' ')}
+                  >
+                    <div className={[
+                      "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1px] transition-colors",
+                      isReady
+                        ? "bg-white text-indigo-600 shadow-sm ring-1 ring-indigo-100"
+                        : "bg-indigo-50 text-indigo-500 group-hover:bg-indigo-600 group-hover:text-white"
+                    ].join(' ')}>
+                      <MapPin size={15} />
+                    </div>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[12px] font-black leading-tight text-slate-950 group-hover:text-indigo-600">
+                        {region.name}
+                      </span>
+                      <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                        <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-slate-400 ring-1 ring-slate-100">
+                          {region.type}
+                        </span>
+                        <span className={isReady
+                          ? "rounded-full bg-emerald-50 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-emerald-600 ring-1 ring-emerald-100"
+                          : "rounded-full bg-amber-50 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-amber-600 ring-1 ring-amber-100"
+                        }>
+                          {isReady ? "Ishlaydi" : "Tez kunda"}
+                        </span>
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </motion.div>
+      </>
+    )}
+    </>
   );
 };

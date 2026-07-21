@@ -1,0 +1,2 @@
+ALTER TABLE kindergartens
+  ADD COLUMN IF NOT EXISTS mahalla TEXT;

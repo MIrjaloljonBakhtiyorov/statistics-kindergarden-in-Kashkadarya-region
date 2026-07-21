@@ -28,6 +28,7 @@ const initializeSchema = () => {
         workHours REAL DEFAULT 9.5,
         region TEXT,
         district TEXT,
+        mahalla TEXT,
         licenseFile TEXT,
         brokerageDocumentFile TEXT,
         commissionOrder TEXT,
@@ -777,6 +778,7 @@ const initializeSchema = () => {
       addColumn('attendance', 'reason', 'TEXT');
       addColumn('attendance', 'arrival_time', 'TEXT');
       addColumn('kindergartens', 'region', 'TEXT');
+      addColumn('kindergartens', 'mahalla', 'TEXT');
       addColumn('kindergartens', 'workHours', 'REAL DEFAULT 9.5');
       addColumn('kindergartens', 'hasNurse', 'BOOLEAN DEFAULT 0');
       addColumn('kindergartens', 'nurseCount', 'INTEGER DEFAULT 0');

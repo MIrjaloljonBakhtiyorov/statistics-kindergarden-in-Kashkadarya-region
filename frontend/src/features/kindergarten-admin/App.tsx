@@ -70,6 +70,7 @@ export default function App() {
       <DashboardLayout>
         <Routes>
           <Route index element={<Overview />} />
+          <Route path="region/:regionSlug" element={<Overview />} />
           <Route path="districts" element={<Districts />} />
           <Route path="tuman-stats" element={<Districts />} />
           <Route path="menu" element={<NutritionMenu />} />

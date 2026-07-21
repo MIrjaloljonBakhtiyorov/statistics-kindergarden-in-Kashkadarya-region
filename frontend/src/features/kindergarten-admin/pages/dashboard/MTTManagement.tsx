@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   Plus, Search, Filter, Building2, School, LayoutGrid, Home,
-  Edit, Trash2, Loader2, MapPin, User, ChevronRight,
+  Edit, Trash2, Loader2, MapPin, User, ChevronLeft, ChevronRight,
   ShieldCheck, Users, Grid, List, Phone, Download, FileSpreadsheet,
   Eye, EyeOff, Copy, ExternalLink, KeyRound, X, Clock, ArrowUpDown
 } from 'lucide-react';
@@ -12,6 +12,7 @@ import { YangiBogchaQoshishModal } from './YangiBogchaQoshishModal';
 import { kindergartenApi } from '@/shared/api';
 
 const BOGCHA_PANEL_URL = '/kindergarten/';
+const PAGE_SIZE = 20;
 const DEFAULT_DIRECTOR_PASSWORD = 'USER1234';
 const isPasswordHash = (value: unknown) => /^\$2[aby]\$\d{2}\$/.test(String(value || ''));
 const getDirectorPassword = (item: any) => {
@@ -346,6 +347,7 @@ export const MTTManagement = () => {
   const [credItem, setCredItem] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [page, setPage] = useState(1);
 
   const fetchData = async () => {
     setLoading(true);
@@ -412,6 +414,21 @@ export const MTTManagement = () => {
     if (sortMode === 'hours-desc') return getWorkHours(b) - getWorkHours(a);
     return String(a.name || '').localeCompare(String(b.name || ''), 'uz');
   }) : [];
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageEnd = Math.min(pageStart + PAGE_SIZE, filtered.length);
+  const paged = filtered.slice(pageStart, pageEnd);
+  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, districtFilter, typeFilter, workHoursFilter, sortMode]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const stats = [
     { label: 'Jami muassasalar',  val: Array.isArray(data) ? data.length : 0,                               icon: Building2,  iconBg: 'bg-indigo-600' },
@@ -651,9 +668,9 @@ export const MTTManagement = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {filtered.map((item, i) => {
+                  {paged.map((item, i) => {
                     const tc = TYPE_CONFIG[item.type] || TYPE_CONFIG.Public;
-                    const showTypeHeader = sortMode === 'type-group' && (i === 0 || filtered[i - 1]?.type !== item.type);
+                    const showTypeHeader = sortMode === 'type-group' && (i === 0 || paged[i - 1]?.type !== item.type);
                     return [
                       showTypeHeader ? (
                         <tr key={`${item.type}-header`} className="bg-slate-100/70">
@@ -746,9 +763,9 @@ export const MTTManagement = () => {
           /* GRID VIEW */
           <motion.div key="grid" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-            {filtered.map((item, i) => {
+            {paged.map((item, i) => {
               const tc = TYPE_CONFIG[item.type] || TYPE_CONFIG.Public;
-              const showTypeHeader = sortMode === 'type-group' && (i === 0 || filtered[i - 1]?.type !== item.type);
+              const showTypeHeader = sortMode === 'type-group' && (i === 0 || paged[i - 1]?.type !== item.type);
               return [
                 showTypeHeader ? (
                   <div key={`${item.type}-grid-header`} className="sm:col-span-2 xl:col-span-3 flex items-center gap-3 pt-2">
@@ -849,6 +866,52 @@ export const MTTManagement = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {!loading && filtered.length > 0 && (
+        <div className="bg-white border border-slate-100 rounded-2xl px-5 py-4 shadow-sm flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            {pageStart + 1}-{pageEnd} / {filtered.length} ta bog'cha
+          </p>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 transition-all hover:border-indigo-300 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Oldingi sahifa"
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            {pages.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setPage(item)}
+                className={clsx(
+                  "h-9 min-w-9 rounded-xl px-3 text-[11px] font-black transition-all",
+                  item === currentPage
+                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
+                    : "border border-slate-200 bg-slate-50 text-slate-500 hover:border-indigo-300 hover:text-indigo-600"
+                )}
+              >
+                {item}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 transition-all hover:border-indigo-300 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Keyingi sahifa"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
