@@ -637,6 +637,7 @@ const initializeSchema = () => {
         full_name TEXT,
         login TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
+        last_seen_at TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(kindergarten_id, role)
@@ -819,6 +820,7 @@ const initializeSchema = () => {
       addColumn('messages', 'edited_at', 'TEXT');
       addColumn('messages', 'deleted_at', 'TEXT');
       addColumn('messages', 'is_deleted', 'INTEGER DEFAULT 0');
+      addColumn('role_accounts', 'last_seen_at', 'TEXT');
       addColumn('users', 'updated_at', 'DATETIME');
     });
 };

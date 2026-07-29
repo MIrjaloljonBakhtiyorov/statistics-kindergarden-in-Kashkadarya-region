@@ -811,7 +811,7 @@ export const MTTManagement = () => {
 
                     <h3 className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight mb-1">{item.name}</h3>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 mb-4">
-                      <MapPin size={9} /> {item.district} В· {tc.label}
+                      <MapPin size={9} /> {item.district} / {tc.label}
                     </p>
 
                     <div className="grid grid-cols-2 gap-3 mb-4">

@@ -37,8 +37,6 @@ const InspectorView: React.FC = () => {
 
   const handleInspectionSubmit = async (data: any) => {
     try {
-      console.log('Inspection data submitted:', data);
-      
       const checklistItems: any[] = [];
       let hasFail = false;
 

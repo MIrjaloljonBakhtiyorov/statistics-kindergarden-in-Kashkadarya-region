@@ -1,256 +1,242 @@
-﻿import React, { useState } from 'react';
-import { ShieldCheck, UserCheck, Smartphone, Trash2, Contact, X, Save, Camera, ShieldAlert, UserPlus, Info } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState } from 'react';
+import { ShieldCheck, UserCheck, Smartphone, Trash2, Contact, Save, UserPlus, Info, X } from 'lucide-react';
+import { motion } from 'motion/react';
 import { apiClient } from '@/shared/api';
 import { useAuth } from '../../../context/AuthContext';
 import { useNotification } from '../../../context/NotificationContext';
 
-
 const RELATIONS = [
-  'Bobosi', 'Buvisi', 'Amakisi', 'Tog\'asi', 'Ammasi', 'Xolasi', 
-  'Akasi', 'Opasi', 'Otasi', 'Onasi'
+  'Bobosi', 'Buvisi', 'Amakisi', "Tog'asi", 'Ammasi', 'Xolasi',
+  'Akasi', 'Opasi', 'Otasi', 'Onasi',
 ];
+
+const initialForm = {
+  full_name: '',
+  relation: 'Bobosi',
+  phone: '',
+  photo_url: '',
+};
 
 export const PickupSection = ({ data, onUpdate }: any) => {
   const { user } = useAuth();
   const { showNotification, confirm } = useNotification();
-  const [showModal, setShowModal] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [formData, setFormData] = useState({
-    full_name: '',
-    relation: 'Bobosi',
-    phone: '',
-    photo_url: ''
-  });
+  const [formData, setFormData] = useState(initialForm);
 
-  const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const resetForm = () => {
+    setFormData(initialForm);
+    setShowForm(false);
+  };
+
+  const handleAdd = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (!user?.childId) return;
-    
+
+    const fullName = formData.full_name.trim();
+    const phone = formData.phone.trim();
+
+    if (!fullName || !phone) {
+      showNotification("Ism-familiya va telefon raqamni kiriting", 'error');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      await apiClient.post(`/parent-portal/pickups`, {
+      await apiClient.post('/parent-portal/pickups', {
         ...formData,
-        child_id: user.childId
+        full_name: fullName,
+        phone,
+        child_id: user.childId,
       });
-      showNotification('Yangi vakil qo\'shildi', 'success');
-      setShowModal(false);
-      setFormData({ full_name: '', relation: 'Bobosi', phone: '', photo_url: '' });
-      if (onUpdate) onUpdate();
-    } catch (error) {
-      showNotification('Xatolik yuz berdi', 'error');
+      showNotification("Yangi vakil qo'shildi", 'success');
+      resetForm();
+      onUpdate?.();
+    } catch (error: any) {
+      showNotification(error?.response?.data?.error || 'Xatolik yuz berdi', 'error');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    const ok = await confirm('Ushbu vakilni o\'chirishni xohlaysizmi?');
+    const ok = await confirm("Ushbu vakilni o'chirishni xohlaysizmi?");
     if (!ok) return;
-    
+
     try {
       await apiClient.delete(`/parent-portal/pickups/${id}`);
-      showNotification('Vakil o\'chirildi', 'success');
-      if (onUpdate) onUpdate();
-    } catch (error) {
-      showNotification('O\'chirishda xatolik', 'error');
+      showNotification("Vakil o'chirildi", 'success');
+      onUpdate?.();
+    } catch (error: any) {
+      showNotification(error?.response?.data?.error || "O'chirishda xatolik", 'error');
     }
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6 md:space-y-8">
-       {/* High Security Header */}
-       <div className="bg-brand-depth p-5 md:p-8 rounded-[1.8rem] md:rounded-[2.5rem] text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-6 border border-white/5">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
-          <div className="relative z-10 flex items-center gap-4">
-             <div className="w-12 h-12 md:w-14 md:h-14 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 flex items-center justify-center shadow-lg shrink-0 group">
-                <ShieldCheck size={24} className="text-brand-primary group-hover:scale-110 transition-transform duration-500" />
-             </div>
-             <div className="text-left">
-                <h4 className="text-xl md:text-2xl font-black tracking-tight uppercase leading-tight italic">Xavfsiz Olib <br/> Ketish Tizimi</h4>
-                <p className="text-white/40 text-[8px] md:text-[9px] font-black uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                   <ShieldAlert size={12} className="text-emerald-500" /> Faqat ruxsat etilgan shaxslar
-                </p>
-             </div>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+      {showForm && (
+        <motion.form
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          onSubmit={handleAdd}
+          className="rounded-[1.35rem] border border-rose-100 bg-white p-4 shadow-sm shadow-rose-100/30 ring-1 ring-rose-50 md:p-5"
+        >
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+              <UserPlus size={20} />
+            </div>
+            <div>
+              <h5 className="text-base font-black uppercase tracking-tight text-slate-950">Yangi vakil</h5>
+              <p className="text-[9px] font-black uppercase tracking-widest text-rose-500">Ma'lumotlarni shu yerda kiriting</p>
+            </div>
           </div>
-          <button 
-            onClick={() => setShowModal(true)}
-            className="relative z-10 w-full md:w-auto px-8 py-4 bg-brand-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-brand-primary/20 hover:bg-brand-primary-dark transition-all flex items-center justify-center gap-2.5 active:scale-95 group"
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div className="space-y-2">
+              <label className="px-1 text-[9px] font-black uppercase tracking-widest text-slate-700">To'liq ism-familiya</label>
+              <input
+                required
+                type="text"
+                value={formData.full_name}
+                onChange={(event) => setFormData({ ...formData, full_name: event.target.value })}
+                placeholder="Ism va familiya"
+                className="h-12 w-full rounded-2xl border border-rose-100 bg-rose-50/60 px-4 text-sm font-bold text-slate-950 outline-none transition-all focus:border-rose-300 focus:bg-white focus:ring-4 focus:ring-rose-100/70"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="px-1 text-[9px] font-black uppercase tracking-widest text-slate-700">Bog'liqlik</label>
+              <select
+                value={formData.relation}
+                onChange={(event) => setFormData({ ...formData, relation: event.target.value })}
+                className="h-12 w-full appearance-none rounded-2xl border border-rose-100 bg-rose-50/60 px-4 text-sm font-bold text-slate-950 outline-none transition-all focus:border-rose-300 focus:bg-white focus:ring-4 focus:ring-rose-100/70"
+              >
+                {RELATIONS.map((relation) => <option key={relation} value={relation}>{relation}</option>)}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="px-1 text-[9px] font-black uppercase tracking-widest text-slate-700">Telefon</label>
+              <input
+                required
+                type="tel"
+                value={formData.phone}
+                onChange={(event) => setFormData({ ...formData, phone: event.target.value })}
+                placeholder="+998 -- --- -- --"
+                className="h-12 w-full rounded-2xl border border-rose-100 bg-rose-50/60 px-4 text-sm font-bold text-slate-950 outline-none transition-all focus:border-rose-300 focus:bg-white focus:ring-4 focus:ring-rose-100/70"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={resetForm}
+              disabled={isSaving}
+              className="rounded-2xl border border-rose-100 bg-white px-5 py-3 text-[10px] font-black uppercase tracking-widest text-rose-600 transition-all hover:bg-rose-50 disabled:opacity-50"
+            >
+              Bekor qilish
+            </button>
+            <button
+              disabled={isSaving}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 px-5 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-500/20 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50"
+            >
+              {isSaving ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <Save size={16} />}
+              Saqlash
+            </button>
+          </div>
+        </motion.form>
+      )}
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {data?.pickups?.map((v: any, idx: number) => (
+          <motion.div
+            key={v.id}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: idx * 0.06 }}
+            className="group relative flex flex-col items-center gap-5 overflow-hidden rounded-[1.35rem] border border-rose-100 bg-white p-4 text-center shadow-sm transition-all hover:border-rose-200 hover:shadow-md sm:flex-row sm:text-left md:p-5"
           >
-             <UserPlus size={16} /> Yangi vakil qo'shish
-          </button>
-       </div>
-
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-          {data?.pickups?.map((v:any, idx: number) => (
-             <motion.div 
-               key={v.id} 
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
-               transition={{ delay: idx * 0.1 }}
-               className="bg-white p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-brand-border shadow-sm flex flex-col sm:flex-row items-center gap-6 md:gap-8 text-center sm:text-left hover:border-brand-primary transition-all group relative overflow-hidden"
-             >
-                <div className="absolute top-0 right-0 p-8 opacity-[0.02] -rotate-12 group-hover:scale-110 transition-transform duration-1000">
-                   <UserCheck size={80} />
-                </div>
-
-                <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl md:rounded-3xl bg-slate-50 border-2 border-white shadow-lg flex items-center justify-center overflow-hidden shrink-0 relative z-10 group-hover:scale-105 transition-all">
-                   {v.photo_url ? (
-                      <img src={v.photo_url} alt={v.full_name} className="w-full h-full object-cover" />
-                   ) : (
-                      <div className="text-slate-200 flex flex-col items-center">
-                         <Contact size={40} className="opacity-20" />
-                         <p className="text-[7px] font-black mt-1 uppercase tracking-widest">Surat yo'q</p>
-                      </div>
-                   )}
-                </div>
-                
-                <div className="flex-1 space-y-3 md:space-y-4 relative z-10">
-                   <div className="space-y-0.5">
-                      <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                         <span className="px-2 py-0.5 bg-brand-primary/10 text-brand-primary text-[7px] md:text-[8px] font-black uppercase tracking-widest rounded-md border border-brand-primary/20">{v.relation}</span>
-                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                      </div>
-                      <p className="text-xl md:text-2xl font-black text-brand-depth tracking-tight leading-none group-hover:text-brand-primary transition-colors">{v.full_name}</p>
-                   </div>
-                   
-                   <div className="space-y-1.5">
-                      <div className="flex items-center justify-center sm:justify-start gap-2 text-xs md:text-sm font-black text-brand-depth">
-                         <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center text-brand-muted"><Smartphone size={14} /></div>
-                         {v.phone}
-                      </div>
-                      <div className="flex items-center justify-center sm:justify-start gap-2 text-[8px] md:text-[9px] font-bold text-brand-muted uppercase tracking-widest">
-                         <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center text-brand-muted"><ShieldCheck size={14} /></div>
-                         Ruxsat: 08:00 - 18:30
-                      </div>
-                   </div>
-
-                   <div className="pt-2 flex justify-center sm:justify-start">
-                      <button 
-                        onClick={() => handleDelete(v.id)}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-rose-50 text-rose-500 rounded-lg font-black text-[9px] uppercase tracking-widest border border-rose-100 hover:bg-rose-500 hover:text-white transition-all shadow-sm active:scale-95"
-                      >
-                         <Trash2 size={12} /> O'chirish
-                      </button>
-                   </div>
-                </div>
-             </motion.div>
-          ))}
-          {(!data?.pickups || data.pickups.length === 0) && (
-            <div className="lg:col-span-2 py-16 bg-white rounded-[2rem] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-center shadow-inner">
-               <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200 mb-4 shadow-sm">
-                  <UserCheck size={32} />
-               </div>
-               <h5 className="text-lg font-black text-brand-depth uppercase tracking-tight">Vakillar qo'shilmagan</h5>
-               <p className="text-xs text-brand-muted font-bold mt-1 uppercase tracking-widest px-8 max-w-sm">Ruxsat berilgan shaxslar ro'yxatini shakllantiring.</p>
+            <div className="absolute -bottom-4 -right-4 text-rose-500 opacity-[0.04] transition-transform duration-700 group-hover:scale-110">
+              <UserCheck size={110} />
             </div>
-          )}
-       </div>
 
-       {/* Security Notice */}
-       <div className="bg-amber-50 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-amber-100 flex items-start gap-4 shadow-sm">
-          <div className="w-10 h-10 md:w-12 md:h-12 bg-white text-amber-500 rounded-xl flex items-center justify-center shadow-sm shrink-0 border border-amber-100">
-             <Info size={24} />
-          </div>
-          <div className="space-y-0.5">
-             <p className="text-[9px] md:text-[10px] font-black text-amber-900 uppercase tracking-widest">Xavfsizlik ogohlantirishi</p>
-             <p className="text-[9px] md:text-[10px] font-bold text-amber-800/70 leading-relaxed uppercase tracking-widest">
-                Vakillarni qo'shishda hujjatlar to'g'riligiga ishonch hosil qiling. Bog'cha ma'muriyati tekshirish huquqini saqlab qoladi.
-             </p>
-          </div>
-       </div>
-
-       {/* Add Representative Modal */}
-       <AnimatePresence>
-          {showModal && (
-            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-               <motion.div 
-                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                 onClick={() => setShowModal(false)}
-                 className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-               />
-               <motion.div 
-                 initial={{ opacity: 0, scale: 0.9, y: 50 }}
-                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                 exit={{ opacity: 0, scale: 0.9, y: 50 }}
-                 className="relative w-full max-w-lg bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden"
-               >
-                  <div className="p-6 md:p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
-                     <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-brand-primary text-white rounded-xl flex items-center justify-center shadow-lg">
-                           <UserPlus size={20} />
-                        </div>
-                        <div>
-                           <h3 className="text-lg md:text-xl font-black text-brand-depth uppercase tracking-tight">Yangi vakil</h3>
-                           <p className="text-brand-muted text-[8px] font-black uppercase tracking-widest mt-1">Xavfsizlikni ta'minlang</p>
-                        </div>
-                     </div>
-                     <button onClick={() => setShowModal(false)} className="p-2 bg-white border border-slate-100 rounded-xl text-brand-muted hover:bg-rose-500 hover:text-white transition-all shadow-sm">
-                        <X size={20} />
-                     </button>
-                  </div>
-
-                  <form onSubmit={handleAdd} className="p-6 md:p-8 space-y-6">
-                     <div className="grid grid-cols-1 gap-6">
-                        <div className="space-y-2">
-                           <label className="text-[9px] font-black text-brand-depth uppercase tracking-widest px-2">To'liq ism-familiya</label>
-                           <input 
-                             required
-                             type="text" 
-                             value={formData.full_name}
-                             onChange={e => setFormData({...formData, full_name: e.target.value})}
-                             placeholder="Ism va familiya"
-                             className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none font-bold text-sm transition-all shadow-inner"
-                           />
-                        </div>
-
-                        <div className="space-y-2">
-                           <label className="text-[9px] font-black text-brand-depth uppercase tracking-widest px-2">Bog'liqlik</label>
-                           <select 
-                             value={formData.relation}
-                             onChange={e => setFormData({...formData, relation: e.target.value})}
-                             className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none font-bold text-sm transition-all appearance-none shadow-inner"
-                           >
-                              {RELATIONS.map(r => <option key={r} value={r}>{r}</option>)}
-                           </select>
-                        </div>
-
-                        <div className="space-y-2">
-                           <label className="text-[9px] font-black text-brand-depth uppercase tracking-widest px-2">Telefon</label>
-                           <input 
-                             required
-                             type="tel" 
-                             value={formData.phone}
-                             onChange={e => setFormData({...formData, phone: e.target.value})}
-                             placeholder="+998 -- --- -- --"
-                             className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none font-bold text-sm transition-all shadow-inner"
-                           />
-                        </div>
-                     </div>
-
-                     <div className="pt-2">
-                        <button 
-                          disabled={isSaving}
-                          className="w-full py-5 bg-brand-depth text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-xl hover:bg-brand-primary active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-                        >
-                           {isSaving ? (
-                              <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
-                           ) : (
-                              <>
-                                 <Save size={18} /> Saqlash
-                              </>
-                           )}
-                        </button>
-                     </div>
-                  </form>
-               </motion.div>
+            <div className="relative z-10 flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-rose-100 bg-rose-50 shadow-sm transition-all group-hover:scale-105">
+              {v.photo_url ? (
+                <img src={v.photo_url} alt={v.full_name} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex flex-col items-center text-rose-200">
+                  <Contact size={32} />
+                  <p className="mt-1 text-[7px] font-black uppercase tracking-widest">Surat yo'q</p>
+                </div>
+              )}
             </div>
-          )}
-       </AnimatePresence>
+
+            <div className="relative z-10 flex-1 space-y-3">
+              <div className="space-y-1">
+                <div className="mb-1 flex items-center justify-center gap-2 sm:justify-start">
+                  <span className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-rose-600">{v.relation}</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-pink-500" />
+                </div>
+                <p className="text-lg font-extrabold leading-tight tracking-tight text-slate-950 transition-colors group-hover:text-rose-600 md:text-xl">{v.full_name}</p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-800 sm:justify-start">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-500"><Smartphone size={14} /></div>
+                  {v.phone}
+                </div>
+                <div className="flex items-center justify-center gap-2 text-[8px] font-bold uppercase tracking-widest text-rose-500 sm:justify-start">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-500"><ShieldCheck size={14} /></div>
+                  Ruxsat: 08:00 - 18:30
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleDelete(v.id)}
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-[9px] font-black uppercase tracking-widest text-rose-600 transition-all hover:bg-rose-500 hover:text-white active:scale-95 sm:justify-start"
+              >
+                <Trash2 size={12} /> O'chirish
+              </button>
+            </div>
+          </motion.div>
+        ))}
+
+        {(!data?.pickups || data.pickups.length === 0) && (
+          <div className="relative overflow-hidden rounded-[1.35rem] border border-rose-100 bg-white p-5 shadow-sm lg:col-span-2">
+            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-rose-100/60" />
+            <div className="relative z-10 flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
+              <div className="flex flex-col items-center gap-4 md:flex-row">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+                  <UserCheck size={24} />
+                </div>
+                <div>
+                  <h5 className="text-base font-extrabold uppercase tracking-tight text-slate-950 md:text-lg">Yaqin qarindoshlarimni qo'shish</h5>
+                  <p className="mt-1 max-w-lg text-[10px] font-bold uppercase leading-relaxed tracking-[0.12em] text-slate-500">Farzandingizni olib ketishga ruxsat berilgan shaxslarni shu yerdan qo'shing.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowForm(true)}
+                className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-rose-500/20 transition-all hover:scale-[1.01] md:w-auto"
+              >
+                <UserPlus size={16} /> Vakil qo'shish
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-start gap-3 rounded-[1.35rem] border border-rose-100 bg-rose-50/70 p-4 shadow-sm">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-white text-rose-500">
+          <Info size={18} />
+        </div>
+        <div className="space-y-1">
+          <p className="text-[9px] font-black uppercase tracking-[0.14em] text-rose-900">Xavfsizlik ogohlantirishi</p>
+          <p className="text-[10px] font-bold uppercase leading-relaxed tracking-wide text-rose-800/70">
+            Vakillarni qo'shishda hujjatlar to'g'riligiga ishonch hosil qiling. Bog'cha ma'muriyati tekshirish huquqini saqlab qoladi.
+          </p>
+        </div>
+      </div>
     </motion.div>
   );
 };
-
-
-
-

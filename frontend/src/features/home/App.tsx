@@ -3,28 +3,37 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
-import { BarChart3, Map, Menu, TrendingDown, TrendingUp, ShoppingCart, ChefHat, Trophy, Shield, School } from 'lucide-react';
-import TaomnomaNazorati from './components/TaomnomaNazorati';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { BarChart3, Map, Menu, ShoppingCart, ChefHat, Trophy } from 'lucide-react';
+import '@/lib/i18n';
 import WelcomeScreen from './components/WelcomeScreen';
-import RetseptlarKitobi from './components/RetseptlarKitobi';
-import MahsulotSarfi from './components/MahsulotSarfi';
-import MTTReyting from './components/MTTReyting';
-import AdminLogin from './components/AdminLogin';
 
 // New Components
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
-import ViloyatStatistikasi from './components/dashboard/ViloyatStatistikasi';
-import TumanStatistikasi from './components/dashboard/TumanStatistikasi';
 import MTTDetailModal from './components/modals/MTTDetailModal';
 import Notification from './components/ui/Notification';
 
+const TaomnomaNazorati = lazy(() => import('./components/TaomnomaNazorati'));
+const RetseptlarKitobi = lazy(() => import('./components/RetseptlarKitobi'));
+const MahsulotSarfi = lazy(() => import('./components/MahsulotSarfi'));
+const MTTReyting = lazy(() => import('./components/MTTReyting'));
+const AdminLogin = lazy(() => import('./components/AdminLogin'));
+const ViloyatStatistikasi = lazy(() => import('./components/dashboard/ViloyatStatistikasi'));
+const TumanStatistikasi = lazy(() => import('./components/dashboard/TumanStatistikasi'));
+
+function RouteFallback() {
+  return (
+    <div className="flex min-h-[360px] items-center justify-center rounded-3xl border border-slate-100 bg-white/80 p-8 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" />
+    </div>
+  );
+}
+
 export default function App() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [isMobileMenuOpen, setIsMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -155,31 +164,33 @@ export default function App() {
 
       <main className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-10 relative">
         <div className={`relative z-10 rounded-[1.5rem] sm:rounded-[2rem] lg:rounded-[4rem] transition-all duration-700`}>
-          <Routes>
-            <Route path="/viloyat-statistikasi" element={
-              <ViloyatStatistikasi 
-                setSelectedMTTType={setSelectedMTTType}
-                CustomTooltip={CustomTooltip}
-              />
-            } />
-            <Route path="/tumanlar-statistikasi" element={
-              <TumanStatistikasi 
-                CustomTooltip={CustomTooltip}
-              />
-            } />
-            <Route path="/mahsulot-sarfi" element={<MahsulotSarfi />} />
-            <Route path="/mtt-reyting" element={<MTTReyting />} />
-            <Route path="/taomnoma-nazorati" element={<TaomnomaNazorati />} />
-            <Route path="/retseptlar-kitobi" element={<RetseptlarKitobi />} />
-            <Route path="/login" element={<AdminLogin />} />
-            <Route path="/portal-login" element={<Navigate to="/login" replace />} />
-            <Route path="/" element={<Navigate to="/viloyat-statistikasi" replace />} />
-            <Route path="*" element={
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center dark:bg-slate-900 dark:border-slate-800">
-                <p className="text-slate-600 dark:text-slate-300">{t('notFound')}</p>
-              </div>
-            } />
-          </Routes>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route path="/viloyat-statistikasi" element={
+                <ViloyatStatistikasi 
+                  setSelectedMTTType={setSelectedMTTType}
+                  CustomTooltip={CustomTooltip}
+                />
+              } />
+              <Route path="/tumanlar-statistikasi" element={
+                <TumanStatistikasi 
+                  CustomTooltip={CustomTooltip}
+                />
+              } />
+              <Route path="/mahsulot-sarfi" element={<MahsulotSarfi />} />
+              <Route path="/mtt-reyting" element={<MTTReyting />} />
+              <Route path="/taomnoma-nazorati" element={<TaomnomaNazorati />} />
+              <Route path="/retseptlar-kitobi" element={<RetseptlarKitobi />} />
+              <Route path="/login" element={<AdminLogin />} />
+              <Route path="/portal-login" element={<Navigate to="/login" replace />} />
+              <Route path="/" element={<Navigate to="/viloyat-statistikasi" replace />} />
+              <Route path="*" element={
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center dark:bg-slate-900 dark:border-slate-800">
+                  <p className="text-slate-600 dark:text-slate-300">{t('notFound')}</p>
+                </div>
+              } />
+            </Routes>
+          </Suspense>
         </div>
       </main>
       

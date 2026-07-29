@@ -39,4 +39,7 @@ export interface ChatContact {
   unreadCount: number;
   lastMessage?: string;
   isOnline: boolean;
+  lastSeenAt?: string | null;
+  statusLabel?: string;
+  hasSystemAccount?: boolean;
 }

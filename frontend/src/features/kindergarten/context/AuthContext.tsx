@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserRole } from '../types';
+import { apiClient } from '@/shared/api';
 
 interface User {
   id: string;
@@ -45,6 +46,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     localStorage.removeItem('auth_user');
   };
+
+  useEffect(() => {
+    const role = String(user?.role || '').toUpperCase();
+    if (!user?.id || !['OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR'].includes(role)) return;
+
+    const sendHeartbeat = () => {
+      apiClient.post('/auth/heartbeat', {
+        userId: user.id,
+        role,
+        kindergartenId: user.kindergarten_id,
+      }).catch(() => undefined);
+    };
+
+    sendHeartbeat();
+    const interval = window.setInterval(sendHeartbeat, 60_000);
+    return () => window.clearInterval(interval);
+  }, [user?.id, user?.role, user?.kindergarten_id]);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>

@@ -6,14 +6,15 @@ import {
   Send, 
   Check, 
   CheckCheck,
-  Lock,
   MessageCircle,
   ArrowLeft,
   Mic,
   X,
   Clock,
   Edit3,
-  Trash2
+  Trash2,
+  Home,
+  UserRoundCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNotification } from '../../../context/NotificationContext';
@@ -22,20 +23,9 @@ import { apiClient } from '@/shared/api';
 import { parentsApi } from '../../parents/api/parentsApi';
 import { ChatMessage, ChatContact } from '../../parents/types/parentPortal.types';
 
-const QUICK_TEMPLATES_LEGACY = [
-  { id: 'absent', text: 'Bugun bormaymiz', icon: 'Uy' },
-  { id: 'late', text: 'Biroz kechikamiz', icon: 'РІРЏВ°' },
-  { id: 'pickup', text: 'Farzandimni amakisi olib ketadi', icon: 'Avtomobil' },
-  { id: 'medicine', text: 'Dorisi bor edi', icon: 'СЂСџвЂ™Р‰' },
-  { id: 'thanks', text: 'Rahmat, ustoz!', icon: 'СЂСџв„ўРЏ' }
-];
-
 const QUICK_TEMPLATES = [
-  { id: 'absent', text: 'Bugun bormaymiz', icon: 'Uy' },
-  { id: 'late', text: 'Biroz kechikamiz', icon: 'Vaqt' },
-  { id: 'pickup', text: 'Farzandimni amakisi olib ketadi', icon: 'Avtomobil' },
-  { id: 'medicine', text: 'Dorisi bor edi', icon: 'Dori' },
-  { id: 'thanks', text: 'Rahmat, ustoz!', icon: 'OK' }
+  { id: 'absent', text: 'Bugun bormaymiz', icon: Home },
+  { id: 'late', text: 'Biroz kechikamiz', icon: Clock }
 ];
 
 const getAssetUrl = (url?: string | null) => {
@@ -51,6 +41,45 @@ const getMessageType = (file?: File) => {
   if (file.type.startsWith('video/')) return 'video';
   if (file.type.startsWith('audio/')) return 'audio';
   return 'file';
+};
+
+const getContactStatusLabel = (contact: ChatContact) => {
+  return contact.statusLabel || (contact.isOnline ? 'Online' : "Hali online bo'lmagan");
+};
+
+const getInitials = (name?: string) => {
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+  return (parts[0]?.[0] || 'T') + (parts[1]?.[0] || '');
+};
+
+const normalizeName = (value?: string) => String(value || '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+const UZ_MONTHS = [
+  'yanvar',
+  'fevral',
+  'mart',
+  'aprel',
+  'may',
+  'iyun',
+  'iyul',
+  'avgust',
+  'sentabr',
+  'oktabr',
+  'noyabr',
+  'dekabr'
+];
+
+const formatMessageTime = (value?: string | null) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  const day = date.getDate();
+  const month = UZ_MONTHS[date.getMonth()];
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+
+  return `${day} ${month}, ${hours}:${minutes}`;
 };
 
 const MessageBody = ({ msg }: { msg: ChatMessage }) => {
@@ -69,12 +98,12 @@ const MessageBody = ({ msg }: { msg: ChatMessage }) => {
           {msg.fileName || 'Faylni ochish'}
         </a>
       )}
-      {msg.text && <p className="text-[11px] md:text-sm font-bold leading-relaxed">{msg.text}</p>}
+      {msg.text && <p className="text-sm md:text-[15px] font-semibold leading-relaxed">{msg.text}</p>}
     </div>
   );
 };
 
-export const MessagesSection = () => {
+export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
   const [activeChat, setActiveChat] = useState<ChatContact | null>(null);
@@ -145,6 +174,19 @@ export const MessagesSection = () => {
     setEditingMessage(null);
     setChatMessage('');
   }, [activeChat?.id]);
+
+  const visibleContacts = contacts.filter((contact) => normalizeName(contact.name) !== normalizeName(childName));
+
+  useEffect(() => {
+    if (activeChat && !visibleContacts.some((contact) => String(contact.id) === String(activeChat.id))) {
+      setActiveChat(null);
+      return;
+    }
+
+    if (!activeChat && visibleContacts.length === 1) {
+      setActiveChat(visibleContacts[0]);
+    }
+  }, [contacts, childName, activeChat?.id]);
 
   const uploadChatFile = async (file: File) => {
     const formData = new FormData();
@@ -255,21 +297,29 @@ export const MessagesSection = () => {
   return (
     <div className="h-[500px] md:h-[600px] flex flex-col md:flex-row gap-4">
       {/* Contact List */}
-      <div className={`${activeChat && 'hidden md:flex'} w-full md:w-72 flex-col gap-3 transition-all duration-500`}>
-        <div className="bg-white p-3 md:p-5 rounded-[1.5rem] md:rounded-[2rem] border border-brand-border shadow-sm space-y-2">
-            <p className="text-[8px] md:text-[9px] font-black text-brand-muted uppercase tracking-widest px-1.5">Tarbiyachi</p>
-            <div className="space-y-1.5">
-            {contacts.map((contact) => (
+      <div className={`${activeChat && 'hidden md:flex'} w-full md:w-[360px] xl:w-[420px] flex-col gap-3 transition-all duration-500`}>
+        <div className="bg-white p-5 md:p-7 rounded-[1.5rem] md:rounded-[2rem] border border-brand-border shadow-sm space-y-4">
+            <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-wide px-1.5">Guruh rahbari</p>
+            <div className="space-y-2">
+            {visibleContacts.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-rose-100 bg-rose-50/40 p-4 text-center">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-rose-400">
+                    <UserRoundCheck size={18} />
+                  </div>
+                  <p className="text-[11px] font-extrabold text-brand-depth">Guruh rahbari biriktirilmagan</p>
+                  <p className="mt-1 text-[10px] font-semibold leading-relaxed text-brand-muted">Bog'cha administratori rahbarni guruhga biriktirgandan keyin chat ochiladi.</p>
+                </div>
+            ) : visibleContacts.map((contact) => (
                 <button 
                   key={contact.id}
                   onClick={() => setActiveChat(contact)}
-                  className={`w-full flex items-center gap-2.5 p-2.5 md:p-3.5 rounded-xl md:rounded-[1.2rem] transition-all text-left border ${
-                    activeChat?.id === contact.id ? 'bg-brand-primary/5 border-brand-primary' : 'bg-slate-50 border-slate-100 hover:border-brand-primary'
+                  className={`w-full flex min-h-[128px] items-center gap-5 p-5 rounded-[1.5rem] transition-all text-left border ${
+                    activeChat?.id === contact.id ? 'bg-brand-primary/10 border-brand-primary shadow-sm' : 'bg-slate-50 border-slate-100 hover:border-brand-primary hover:bg-white'
                   }`}
                 >
                     <div className="relative">
-                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center bg-white border border-brand-border text-brand-primary shrink-0">
-                        <User size={16} />
+                      <div className="w-[72px] h-[72px] rounded-[1.35rem] flex items-center justify-center bg-white border border-brand-border text-brand-primary shrink-0 text-xl font-extrabold uppercase shadow-sm">
+                        {getInitials(contact.name)}
                       </div>
                       {contact.unreadCount > 0 && (
                         <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white">
@@ -278,18 +328,15 @@ export const MessagesSection = () => {
                       )}
                     </div>
                     <div className="flex-1 overflow-hidden">
-                      <p className="text-[9px] md:text-[10px] font-black leading-none uppercase tracking-wide truncate">{contact.name}</p>
-                      <p className={`text-[7px] md:text-[8px] mt-0.5 font-bold uppercase tracking-widest ${contact.isOnline ? 'text-emerald-500' : 'text-slate-400'}`}>
-                        {contact.isOnline ? 'Onlayn' : 'Oflayn'}
+                      <p className="text-lg font-extrabold leading-tight text-brand-depth truncate">{contact.name}</p>
+                      <p className="mt-2 text-[12px] font-extrabold uppercase tracking-wide text-brand-primary">Guruh rahbari</p>
+                      <p className={`mt-1.5 text-[12px] font-bold tracking-wide ${contact.isOnline ? 'text-emerald-500' : 'text-rose-400'}`}>
+                        {getContactStatusLabel(contact)}
                       </p>
                     </div>
                 </button>
             ))}
             </div>
-        </div>
-        <div className="hidden md:flex bg-brand-ghost p-4 rounded-[2rem] border border-brand-border flex-1 flex-col items-center justify-center text-center space-y-3">
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-inner opacity-40"><Lock size={20} /></div>
-            <p className="text-[8px] font-black text-brand-muted uppercase leading-relaxed px-3 tracking-widest">Shifrlangan</p>
         </div>
       </div>
 
@@ -307,17 +354,18 @@ export const MessagesSection = () => {
           ) : (
             <motion.div key="chat-window" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col h-full">
               {/* Chat Header */}
-              <div className="p-3 md:p-5 border-b border-slate-50 flex items-center justify-between bg-white/80 backdrop-blur-md relative z-10">
+              <div className="p-3 md:p-5 border-b border-slate-100 flex items-center justify-between bg-white/90 backdrop-blur-md relative z-10">
                 <div className="flex items-center gap-2.5 md:gap-3.5">
                     <button onClick={() => setActiveChat(null)} className="md:hidden p-1.5 text-brand-muted hover:text-brand-primary"><ArrowLeft size={18} /></button>
-                    <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary border border-brand-primary/10">
-                      <User size={18} />
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-brand-primary/10 flex items-center justify-center text-brand-primary border border-brand-primary/10 text-[13px] font-extrabold uppercase">
+                      {getInitials(activeChat.name)}
                     </div>
                     <div>
-                      <h5 className="text-sm md:text-lg font-black text-brand-depth tracking-tight">{activeChat.name}</h5>
-                      <div className={`text-[7px] md:text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${activeChat.isOnline ? 'text-emerald-500' : 'text-slate-400'}`}>
-                          <div className={`w-1 h-1 rounded-full ${activeChat.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></div> 
-                          {activeChat.isOnline ? 'Tarmoqda' : 'Oflayn'}
+                      <p className="text-[9px] font-extrabold uppercase tracking-wide text-brand-primary">Guruh rahbari</p>
+                      <h5 className="text-base md:text-xl font-extrabold text-brand-depth tracking-tight">{activeChat.name}</h5>
+                      <div className={`text-[7px] md:text-[9px] font-black tracking-wide flex items-center gap-1 ${activeChat.isOnline ? 'text-emerald-500' : 'text-rose-400'}`}>
+                          <div className={`w-1.5 h-1.5 rounded-full ${activeChat.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-400'}`}></div> 
+                          {getContactStatusLabel(activeChat)}
                       </div>
                     </div>
                 </div>
@@ -359,10 +407,10 @@ export const MessagesSection = () => {
                               )}
                               <MessageBody msg={msg} />
                               <div className={`flex items-center justify-end gap-1 mt-1.5 ${msg.type === 'sent' ? 'text-white/60' : 'text-brand-muted'}`}>
-                                {msg.editedAt && !msg.isDeleted && <span className="text-[7px] md:text-[8px] font-black">tahrirlangan</span>}
-                                <span className="text-[7px] md:text-[8px] font-black">{msg.time}</span>
+                                {msg.editedAt && !msg.isDeleted && <span className="text-[9px] md:text-[10px] font-black">tahrirlangan</span>}
+                                <span className="text-[9px] md:text-[10px] font-black">{formatMessageTime(msg.time)}</span>
                                 {msg.type === 'sent' && (
-                                    msg.status === 'read' ? <CheckCheck size={8} /> : <Check size={8} />
+                                    msg.status === 'read' ? <CheckCheck size={10} /> : <Check size={10} />
                                 )}
                               </div>
                           </div>
@@ -374,16 +422,23 @@ export const MessagesSection = () => {
               </div>
 
               {/* Quick Templates */}
-              <div className="px-4 md:px-6 pb-1.5 overflow-x-auto flex gap-1.5 no-scrollbar relative z-10">
+              <div className="px-4 md:px-6 pb-4 relative z-10">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {QUICK_TEMPLATES.map((tpl) => (
                   <button
                     key={`tpl-${tpl.id}`}
                     onClick={() => handleSendMessage(tpl.text)}
-                    className="whitespace-nowrap bg-slate-50 hover:bg-brand-primary/10 border border-slate-100 hover:border-brand-primary px-2.5 py-1 rounded-full text-[9px] md:text-[10px] font-bold text-brand-depth transition-all flex items-center gap-1 shadow-sm"
+                    className="min-h-[58px] rounded-2xl border border-slate-100 bg-white px-3.5 py-3 text-left text-[12px] font-extrabold leading-snug text-brand-depth shadow-sm transition-all hover:border-brand-primary hover:bg-brand-primary/10"
                   >
-                    <span>{tpl.icon}</span> {tpl.text}
+                    <span className="flex h-full items-center gap-2.5">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-primary/10 text-brand-primary">
+                        <tpl.icon size={16} />
+                      </span>
+                      <span className="min-w-0 whitespace-normal leading-snug">{tpl.text}</span>
+                    </span>
                   </button>
                 ))}
+                </div>
               </div>
 
               {/* Input Area */}
@@ -417,7 +472,7 @@ export const MessagesSection = () => {
                 ) : (
                   <form 
                     onSubmit={(e) => { e.preventDefault(); handleSendMessage(chatMessage); }}
-                    className="flex items-center gap-2 md:gap-3 bg-slate-50 border border-transparent focus-within:border-brand-primary focus-within:bg-white rounded-xl md:rounded-[1.8rem] px-4 py-1.5 md:py-3 transition-all"
+                    className="flex items-center gap-2 md:gap-3 bg-white border border-brand-border focus-within:border-brand-primary rounded-2xl px-4 py-3 transition-all shadow-sm"
                   >
                       <label className="text-brand-muted hover:text-brand-primary transition-colors hidden md:block cursor-pointer">
                         <Paperclip size={18} />
@@ -428,13 +483,13 @@ export const MessagesSection = () => {
                         value={chatMessage}
                         onChange={(e) => setChatMessage(e.target.value)}
                         placeholder="Xabar..."
-                        className="flex-1 bg-transparent outline-none font-bold text-[11px] md:text-sm text-brand-depth py-1.5"
+                        className="flex-1 bg-transparent outline-none font-semibold text-sm md:text-[15px] text-brand-depth py-1.5"
                       />
                       <button type="button" onClick={startRecording} className="text-brand-muted hover:text-brand-primary transition-colors"><Mic size={18} /></button>
                       <button 
                         type="submit"
                         disabled={!chatMessage.trim()}
-                        className="w-8 h-8 md:w-10 md:h-10 bg-brand-primary text-white rounded-lg md:rounded-xl flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all shrink-0 disabled:opacity-50 disabled:scale-100"
+                        className="w-10 h-10 bg-brand-primary text-white rounded-xl flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all shrink-0 disabled:opacity-50 disabled:scale-100"
                       >
                         <Send size={14} />
                       </button>

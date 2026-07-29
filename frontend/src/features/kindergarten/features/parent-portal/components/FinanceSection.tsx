@@ -1,95 +1,216 @@
-﻿import React from 'react';
-import { Wallet, CreditCard, Receipt, Download, CheckCircle2, ClipboardList, Clock } from 'lucide-react';
+import React from 'react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  ClipboardList,
+  CreditCard,
+  Download,
+  FileText,
+  Receipt,
+  Wallet
+} from 'lucide-react';
 import { motion } from 'motion/react';
+import { useNotification } from '../../../context/NotificationContext';
+
+const formatAmount = (amount = 0) => `${Number(amount || 0).toLocaleString('uz-UZ')} UZS`;
+
+const formatDate = (value?: string) => {
+  if (!value) return 'Sana kiritilmagan';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString('uz-UZ', { day: '2-digit', month: 'short', year: 'numeric' });
+};
 
 export const FinanceSection = ({ data }: any) => {
-  const totalPaid = data?.payments?.reduce((sum: number, p: any) => sum + p.amount, 0) || 0;
+  const { showNotification } = useNotification();
+  const payments = Array.isArray(data?.payments) ? data.payments : [];
+  const totalPaid = payments.reduce((sum: number, p: any) => sum + Number(p.amount || 0), 0);
+  const latestPayment = payments[0];
+  const receiptCount = payments.length;
+  const currentInvoiceNumber = latestPayment?.invoice_number || latestPayment?.invoiceNo || (latestPayment?.id ? `INV-${String(latestPayment.id).slice(0, 8).toUpperCase()}` : 'INV tayyor emas');
+
+  const invoices = payments.map((payment: any, index: number) => ({
+    id: payment.invoice_number || payment.invoiceNo || `INV-${String(payment.id || index + 1).slice(0, 8).toUpperCase()}`,
+    date: payment.date || payment.created_at,
+    amount: Number(payment.amount || 0),
+    status: payment.status || 'To\'langan',
+    receiptId: payment.receipt_number || payment.receiptNo || `KV-${String(payment.id || index + 1).slice(0, 8).toUpperCase()}`
+  }));
+
+  const handlePaymentSoon = () => {
+    showNotification("Bog'cha to'lovini amalga oshirish imkoniyati tez orada qo'shiladi.", 'info');
+  };
 
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="space-y-4 md:space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-         {/* Balance Card */}
-         <div className="lg:col-span-2 bg-brand-depth p-5 md:p-8 rounded-[1.8rem] md:rounded-[2.5rem] text-white shadow-xl relative overflow-hidden border border-white/10">
-            <div className="absolute top-0 right-0 w-48 md:w-64 h-48 md:h-64 bg-brand-primary/20 rounded-full blur-[60px] md:blur-[80px] -mr-24 -mt-24"></div>
-            <div className="relative z-10 flex flex-col h-full justify-between gap-6 md:gap-8">
-               <div className="flex justify-between items-start">
-                  <div className="space-y-1.5">
-                     <p className="text-[8px] md:text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Hisob holati (Balans)</p>
-                     <h4 className="text-2xl md:text-4xl font-black tracking-tighter">0.00 <span className="text-sm md:text-base opacity-40 uppercase ml-1.5">UZS</span></h4>
-                  </div>
-                  <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center backdrop-blur-xl border bg-emerald-500/20 border-emerald-500/30 text-emerald-400">
-                     <CheckCircle2 size={20} />
-                  </div>
-               </div>
-               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 pt-4 md:pt-6 border-t border-white/5">
-                  <div>
-                     <p className="text-[7px] md:text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Umumiy to'lovlar</p>
-                     <p className="text-sm md:text-base font-black">{totalPaid.toLocaleString()} UZS</p>
-                  </div>
-                  <div>
-                     <p className="text-[7px] md:text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Joriy qarz</p>
-                     <p className="text-sm md:text-base font-black text-emerald-400">0 UZS</p>
-                  </div>
-                  <div className="hidden md:block">
-                     <p className="text-[7px] md:text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Keyingi hisob</p>
-                     <p className="text-sm md:text-base font-black">1-may, 2026</p>
-                  </div>
-               </div>
-            </div>
-         </div>
+    <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="space-y-5 pb-4">
+      <div className="relative overflow-hidden rounded-3xl border border-rose-100 bg-gradient-to-r from-white via-rose-50/70 to-pink-50/80 p-5 shadow-sm md:p-6">
+        <div className="absolute inset-y-0 left-0 w-1 bg-rose-500"></div>
+        <div className="pointer-events-none absolute -right-10 -bottom-12 h-36 w-36 rounded-full bg-pink-100/70 blur-2xl"></div>
+        <div className="pointer-events-none absolute right-8 top-6 h-24 w-24 rounded-full border border-rose-200/70"></div>
 
-         {/* Action Buttons */}
-         <div className="flex flex-row lg:flex-col gap-3 md:gap-4">
-            <div className="flex-1 bg-brand-primary p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] text-white shadow-lg flex flex-col justify-center items-center text-center group cursor-pointer hover:bg-brand-primary-dark transition-all active:scale-95 border-b-2 md:border-b-4 border-black/10">
-               <CreditCard size={24} className="mb-1.5 md:mb-2.5" />
-               <h5 className="text-xs md:text-sm font-black uppercase leading-tight">To'lov</h5>
+        <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-3xl border border-rose-100 bg-white text-rose-500 shadow-sm">
+              <Wallet size={26} />
             </div>
-            <div className="flex-1 bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-brand-border shadow-sm flex flex-col justify-center items-center text-center group cursor-pointer hover:border-brand-primary transition-all active:scale-95">
-               <Receipt size={24} className="text-brand-primary mb-1.5 md:mb-2.5" />
-               <h5 className="text-xs md:text-sm font-black text-brand-depth uppercase leading-tight">Invoys</h5>
+            <div className="min-w-0">
+              <p className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-3 py-1 text-[11px] font-bold text-rose-700">
+                <Receipt size={13} /> Bog'cha to'lovlari
+              </p>
+              <h4 className="text-[24px] font-extrabold leading-tight text-brand-depth md:text-[30px]">To'lov va invoyslar</h4>
+              <p className="mt-1 text-[13px] font-medium text-brand-muted md:text-sm">
+                Oylik invoyslar, oxirgi to'lovlar va kvitansiyalar shu yerda jamlanadi.
+              </p>
             </div>
-         </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:min-w-[280px]">
+            <div className="rounded-3xl border border-white/80 bg-white/85 px-4 py-3 shadow-sm backdrop-blur">
+              <p className="text-[11px] font-semibold text-brand-muted">Umumiy to'langan</p>
+              <p className="mt-1 text-lg font-extrabold text-brand-depth">{formatAmount(totalPaid)}</p>
+            </div>
+            <div className="rounded-3xl border border-white/80 bg-white/85 px-4 py-3 shadow-sm backdrop-blur">
+              <p className="text-[11px] font-semibold text-brand-muted">Kvitansiyalar</p>
+              <p className="mt-1 text-lg font-extrabold text-brand-depth">{receiptCount} ta</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Transactions Table */}
-      <div className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border overflow-hidden shadow-sm">
-         <div className="p-4 md:p-5 border-b border-slate-50 bg-slate-50/20">
-            <h5 className="font-black text-brand-depth uppercase text-[9px] md:text-[10px] tracking-widest flex items-center gap-2">
-               <ClipboardList size={16} className="text-brand-primary" /> To'lovlar Tarixi
-            </h5>
-         </div>
-         <div className="overflow-x-auto no-scrollbar">
-            <table className="w-full text-left min-w-[500px]">
-               <thead>
-                  <tr className="bg-slate-50/50 text-[8px] md:text-[9px] font-black text-brand-muted uppercase tracking-[0.15em] border-b border-brand-border">
-                     <th className="px-5 md:px-8 py-3 md:py-4">Operatsiya</th>
-                     <th className="px-5 md:px-8 py-3 md:py-4">Sana</th>
-                     <th className="px-5 md:px-8 py-3 md:py-4">Summa</th>
-                     <th className="px-5 md:px-8 py-3 md:py-4">Holat</th>
-                     <th className="px-5 md:px-8 py-3 md:py-4 text-right">Kvitansiya</th>
+      <button
+        type="button"
+        onClick={handlePaymentSoon}
+        className="group relative flex w-full items-center justify-between gap-4 overflow-hidden rounded-3xl border border-rose-100 bg-gradient-to-r from-rose-500 to-pink-500 p-5 text-left text-white shadow-xl shadow-rose-500/20 transition-all hover:scale-[1.005] active:scale-[0.995]"
+      >
+        <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent group-hover:animate-shimmer" />
+        <div className="relative z-10 flex min-w-0 items-center gap-4">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-3xl border border-white/20 bg-white/15">
+            <CreditCard size={23} />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-lg font-extrabold leading-tight">Bog'cha to'lovini amalga oshirish</span>
+            <span className="mt-1 block text-[13px] font-semibold text-white/75">Click, Payme yoki karta orqali to'lash imkoniyati tayyorlanmoqda.</span>
+          </span>
+        </div>
+        <span className="relative z-10 hidden rounded-full bg-white/15 px-4 py-2 text-[12px] font-bold text-white sm:inline-flex">
+          Tez orada
+        </span>
+      </button>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="rounded-3xl border border-brand-border bg-white p-5 shadow-sm">
+          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-rose-100 bg-rose-50 text-rose-600">
+            <FileText size={21} />
+          </div>
+          <p className="text-[12px] font-semibold text-brand-muted">Joriy invoys raqami</p>
+          <p className="mt-1 text-xl font-extrabold text-brand-depth">{currentInvoiceNumber}</p>
+          <p className="mt-2 text-[13px] font-medium leading-relaxed text-brand-muted">
+            Bog'cha tomonidan chiqarilgan oxirgi invoys yoki to'lov hujjati.
+          </p>
+        </div>
+
+        <div className="rounded-3xl border border-brand-border bg-white p-5 shadow-sm">
+          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-pink-100 bg-pink-50 text-pink-600">
+            <CreditCard size={21} />
+          </div>
+          <p className="text-[12px] font-semibold text-brand-muted">Oxirgi to'lov</p>
+          <p className="mt-1 text-xl font-extrabold text-brand-depth">{latestPayment ? formatAmount(latestPayment.amount) : 'To\'lov yo\'q'}</p>
+          <p className="mt-2 text-[13px] font-medium leading-relaxed text-brand-muted">
+            {latestPayment ? `${formatDate(latestPayment.date || latestPayment.created_at)} kuni qabul qilingan.` : 'Hozircha to\'lov qaydi topilmadi.'}
+          </p>
+        </div>
+
+        <div className="rounded-3xl border border-brand-border bg-white p-5 shadow-sm">
+          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-fuchsia-100 bg-fuchsia-50 text-fuchsia-600">
+            <CheckCircle2 size={21} />
+          </div>
+          <p className="text-[12px] font-semibold text-brand-muted">To'lov holati</p>
+          <p className="mt-1 text-xl font-extrabold text-brand-depth">{payments.length ? 'Faol' : 'Ma\'lumot yo\'q'}</p>
+          <p className="mt-2 text-[13px] font-medium leading-relaxed text-brand-muted">
+            To'lovlar kiritilganda invoys, summa va kvitansiya holati avtomatik ko'rinadi.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
+        <div className="overflow-hidden rounded-3xl border border-brand-border bg-white shadow-sm xl:col-span-8">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/60 p-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+                <ClipboardList size={19} />
+              </div>
+              <div>
+                <h5 className="text-lg font-extrabold text-brand-depth">Invoyslar ro'yxati</h5>
+                <p className="text-[12px] font-medium text-brand-muted">Bog'cha to'lov hujjatlari</p>
+              </div>
+            </div>
+          </div>
+
+          {invoices.length ? (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[640px] text-left">
+                <thead>
+                  <tr className="border-b border-brand-border bg-white text-[12px] font-bold text-brand-muted">
+                    <th className="px-5 py-4">Invoys</th>
+                    <th className="px-5 py-4">Sana</th>
+                    <th className="px-5 py-4">Summa</th>
+                    <th className="px-5 py-4">Holat</th>
+                    <th className="px-5 py-4 text-right">Kvitansiya</th>
                   </tr>
-               </thead>
-               <tbody className="divide-y divide-slate-50">
-                  {data?.payments?.map((p: any) => (
-                     <tr key={p.id} className="hover:bg-slate-50/50 transition-all group">
-                        <td className="px-5 md:px-8 py-4 md:py-5 font-mono text-[8px] md:text-[9px] font-black text-brand-primary">#{p.id.slice(0, 8)}</td>
-                        <td className="px-5 md:px-8 py-4 md:py-5 text-xs font-black text-brand-depth">{p.date}</td>
-                        <td className="px-5 md:px-8 py-4 md:py-5 text-sm md:text-base font-black text-brand-depth tracking-tight">{p.amount.toLocaleString()} UZS</td>
-                        <td className="px-5 md:px-8 py-4 md:py-5">
-                           <span className="px-2 py-0.5 bg-emerald-100 text-emerald-600 text-[7px] md:text-[8px] font-black uppercase rounded-md">To'langan</span>
-                        </td>
-                        <td className="px-5 md:px-8 py-4 md:py-5 text-right">
-                           <button className="p-2 md:p-3 bg-white text-brand-depth hover:bg-brand-primary hover:text-white rounded-lg md:rounded-xl transition-all shadow-sm border border-brand-border group-hover:scale-110">
-                              <Download size={14} />
-                           </button>
-                        </td>
-                     </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {invoices.map((invoice: any) => (
+                    <tr key={invoice.id} className="transition-colors hover:bg-rose-50/35">
+                      <td className="px-5 py-4 text-sm font-extrabold text-rose-600">{invoice.id}</td>
+                      <td className="px-5 py-4 text-sm font-bold text-brand-depth">{formatDate(invoice.date)}</td>
+                      <td className="px-5 py-4 text-sm font-extrabold text-brand-depth">{formatAmount(invoice.amount)}</td>
+                      <td className="px-5 py-4">
+                        <span className="inline-flex rounded-full bg-rose-50 px-3 py-1 text-[11px] font-bold text-rose-600">
+                          {invoice.status}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <button className="inline-flex items-center gap-2 rounded-2xl border border-brand-border bg-white px-3 py-2 text-[12px] font-bold text-brand-depth transition-all hover:border-rose-100 hover:bg-rose-50 hover:text-rose-600">
+                          <Download size={14} /> {invoice.receiptId}
+                        </button>
+                      </td>
+                    </tr>
                   ))}
-               </tbody>
-            </table>
-         </div>
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="flex min-h-[220px] flex-col items-center justify-center p-8 text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-50 text-slate-300">
+                <Receipt size={26} />
+              </div>
+              <h5 className="text-lg font-extrabold text-brand-depth">Invoyslar topilmadi</h5>
+              <p className="mt-1 max-w-md text-[13px] font-medium leading-relaxed text-brand-muted">
+                Bog'cha tomonidan invoys yoki to'lov qaydi kiritilgach, hujjatlar shu yerda ko'rinadi.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-4 xl:col-span-4">
+          <div className="rounded-3xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-amber-100 bg-white text-amber-600">
+              <AlertCircle size={21} />
+            </div>
+            <h5 className="text-lg font-extrabold text-brand-depth">Muhim ma'lumot</h5>
+            <p className="mt-2 text-[13px] font-semibold leading-relaxed text-amber-900/80">
+              Invoys raqami orqali bog'cha to'lovi aniqlanadi. To'lovdan so'ng kvitansiyani saqlab qo'ying.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-rose-100 bg-rose-50/70 p-5">
+            <h5 className="text-lg font-extrabold text-brand-depth">Kvitansiyalar</h5>
+            <p className="mt-2 text-[13px] font-medium leading-relaxed text-brand-muted">
+              Har bir tasdiqlangan to'lov uchun kvitansiya raqami shakllanadi. Keyingi bosqichda uni yuklab olish imkoniyati ulanadi.
+            </p>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
 };
-

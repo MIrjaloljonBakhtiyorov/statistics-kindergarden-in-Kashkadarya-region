@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -7,13 +7,13 @@ import {
   School,
   Sparkles,
   Bell,
-  Settings,
   ShieldCheck,
   ClipboardCheck,
   Database,
   Pill,
   Wallet,
   TrendingUp,
+  Globe2,
   X,
   LogOut
 } from 'lucide-react';
@@ -31,6 +31,7 @@ const menuItems = [
   { icon: Pill, label: "Dori-darmon zaxirasi", path: "medical-stock" },
   { icon: Wallet, label: "Moliyaviy statistika", path: "financial-stats" },
   { icon: TrendingUp, label: "Taomnoma statistikasi", path: "menu-stats" },
+  { icon: Globe2, label: "Bog'cha web sahifasi", path: "website-builder" },
   { icon: BarChart3, label: "Reyting va audit", path: "rating" },
   { icon: Sparkles, label: "AI xulosalar", path: "ai-insights" },
   { icon: Bell, label: "Alertlar", path: "alerts" },
@@ -45,6 +46,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const [alertCount, setAlertCount] = useState(0);
+  const menuRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -80,9 +82,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleMenuWheel = (event: React.WheelEvent<HTMLElement>) => {
+    const menu = menuRef.current;
+    if (!menu) return;
+
+    const maxScroll = menu.scrollHeight - menu.clientHeight;
+    if (maxScroll <= 0) return;
+
+    const nextScroll = Math.max(0, Math.min(maxScroll, menu.scrollTop + event.deltaY));
+    if (nextScroll !== menu.scrollTop) {
+      event.preventDefault();
+      menu.scrollTop = nextScroll;
+    }
+  };
+
   return (
     <aside className={clsx(
-      "w-72 h-screen bg-[#0b1120] text-slate-400 flex flex-col fixed left-0 top-0 z-[100] transition-transform duration-300 ease-in-out lg:translate-x-0",
+      "w-72 h-screen overflow-hidden border-r border-white/10 bg-[#0b1120] text-slate-400 flex flex-col fixed left-0 top-0 z-[100] transition-transform duration-300 ease-in-out lg:translate-x-0",
       isOpen ? "translate-x-0" : "-translate-x-full"
     )}>
 
@@ -106,58 +122,47 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-4 overflow-y-auto overflow-x-hidden custom-scrollbar">
-        <p className="text-[10px] font-black text-slate-600 tracking-[0.3em] uppercase px-3 mb-3">Main Monitor</p>
+      <div className="admin-sidebar-scroll-mask relative flex-1 min-h-0 overflow-hidden">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-7 bg-gradient-to-b from-[#0b1120] to-transparent" />
+        <nav ref={menuRef} onWheel={handleMenuWheel} className="admin-sidebar-menu absolute inset-y-0 left-0 overflow-hidden pb-6 pt-1">
+          <p className="text-[10px] font-black text-slate-600 tracking-[0.3em] uppercase px-3 mb-3">Main Monitor</p>
 
-        <div className="space-y-1">
-          {menuItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={getAdminPath(item.path)}
-              end={item.path === ""}
-              onClick={() => { if (window.innerWidth < 1024) onClose(); }}
-              className={({ isActive }) =>
-                clsx(
-                  "flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-200 text-[13px] font-semibold",
-                  isActive
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
-                    : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <item.icon size={18} className={isActive ? "text-white" : "text-slate-500"} />
-                  <span>{item.label}</span>
-                  {item.label === "Alertlar" && alertCount > 0 && (
-                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white">
-                      {alertCount > 99 ? '99+' : alertCount}
-                    </span>
-                  )}
-                </>
-              )}
-            </NavLink>
-          ))}
-        </div>
-      </nav>
+          <div className="space-y-1">
+            {menuItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={getAdminPath(item.path)}
+                end={item.path === ""}
+                onClick={() => { if (window.innerWidth < 1024) onClose(); }}
+                className={({ isActive }) =>
+                  clsx(
+                    "flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-200 text-[13px] font-semibold",
+                    isActive
+                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+                      : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                  )
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <item.icon size={18} className={isActive ? "text-white" : "text-slate-500"} />
+                    <span>{item.label}</span>
+                    {item.label === "Alertlar" && alertCount > 0 && (
+                      <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white">
+                        {alertCount > 99 ? '99+' : alertCount}
+                      </span>
+                    )}
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </div>
+        </nav>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-9 bg-gradient-to-t from-[#0b1120] to-transparent" />
+      </div>
 
       {/* Bottom */}
-      <div className="px-4 pb-6 pt-4 border-t border-white/5 space-y-2">
-        <NavLink
-          to="/admin/settings"
-          className={({ isActive }) =>
-            clsx(
-              "flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-200 text-[13px] font-semibold",
-              isActive
-                ? "bg-indigo-600 text-white"
-                : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
-            )
-          }
-        >
-          <Settings size={18} className="text-slate-500" />
-          <span>Sozlamalar</span>
-        </NavLink>
-
+      <div className="shrink-0 px-4 pb-6 pt-4 border-t border-white/5">
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-[13px] font-semibold text-rose-400 hover:bg-rose-500/10 transition-all duration-200"

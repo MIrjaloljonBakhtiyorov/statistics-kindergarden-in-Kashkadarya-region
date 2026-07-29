@@ -36,6 +36,146 @@ const toCost = (value) => {
   return Number.isFinite(numberValue) && numberValue >= 0 ? numberValue : 0;
 };
 
+const normalizeWebsiteSlug = (value) => {
+  const slug = String(value || '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/['`]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-+/g, '-');
+  return slug.slice(0, 64);
+};
+
+const websiteSlugFromKindergarten = (row) => {
+  const source = row?.username || row?.name || row?.system_id || 'mtt';
+  return normalizeWebsiteSlug(String(source).replace(/^mtt[_-]?/i, '').replace(/^kf[_-]?/i, '')) || `mtt-${row?.id || Date.now()}`;
+};
+
+const ensureKindergartenWebTables = async () => {
+  await run(`CREATE TABLE IF NOT EXISTS kindergarten_websites (
+    kindergarten_id TEXT PRIMARY KEY,
+    slug TEXT UNIQUE NOT NULL,
+    status TEXT DEFAULT 'draft',
+    hero_title TEXT,
+    hero_subtitle TEXT,
+    about TEXT,
+    address TEXT,
+    phone TEXT,
+    telegram TEXT,
+    email TEXT,
+    cover_image_url TEXT,
+    location_lat REAL,
+    location_lng REAL,
+    news_title TEXT,
+    news_subtitle TEXT,
+    groups_title TEXT,
+    groups_description TEXT,
+    groups_json TEXT DEFAULT '[]',
+    clubs_title TEXT,
+    clubs_description TEXT,
+    clubs_json TEXT DEFAULT '[]',
+    representatives_json TEXT DEFAULT '[]',
+    login_button_label TEXT,
+    login_button_url TEXT,
+    show_login_button BOOLEAN DEFAULT 1,
+    gallery_json TEXT DEFAULT '[]',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+  const websiteColumns = [
+    ['news_title', 'TEXT'],
+    ['location_lat', 'REAL'],
+    ['location_lng', 'REAL'],
+    ['news_subtitle', 'TEXT'],
+    ['groups_title', 'TEXT'],
+    ['groups_description', 'TEXT'],
+    ['groups_json', "TEXT DEFAULT '[]'"],
+    ['clubs_title', 'TEXT'],
+    ['clubs_description', 'TEXT'],
+    ['clubs_json', "TEXT DEFAULT '[]'"],
+    ['representatives_json', "TEXT DEFAULT '[]'"],
+    ['login_button_label', 'TEXT'],
+    ['login_button_url', 'TEXT'],
+    ['show_login_button', 'BOOLEAN DEFAULT 1'],
+  ];
+  for (const [column, definition] of websiteColumns) {
+    await run(`ALTER TABLE kindergarten_websites ADD COLUMN IF NOT EXISTS ${column} ${definition}`);
+  }
+  await run(`CREATE TABLE IF NOT EXISTS kindergarten_website_news (
+    id TEXT PRIMARY KEY,
+    kindergarten_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    summary TEXT,
+    body TEXT,
+    image_url TEXT,
+    status TEXT DEFAULT 'draft',
+    published_at TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+  await run('CREATE INDEX IF NOT EXISTS idx_kindergarten_websites_slug ON kindergarten_websites(slug)');
+  await run('CREATE INDEX IF NOT EXISTS idx_kindergarten_website_news_kindergarten ON kindergarten_website_news(kindergarten_id, created_at DESC)');
+};
+
+const parseJsonArray = (value) => {
+  try {
+    const parsed = JSON.parse(value || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const serializeWebsiteRow = (row) => ({
+  kindergartenId: row.kindergarten_id || row.kindergartenId || row.id,
+  kindergartenName: row.kindergarten_name || row.kindergartenName || row.name,
+  systemId: row.system_id || row.systemId,
+  district: row.district,
+  slug: row.slug || websiteSlugFromKindergarten(row),
+  status: row.website_status || row.status || 'draft',
+  heroTitle: row.hero_title || row.heroTitle || row.name || '',
+  heroSubtitle: row.hero_subtitle || row.heroSubtitle || '',
+  about: row.about || '',
+  address: row.website_address || row.address || '',
+  phone: row.website_phone || row.phone || '',
+  telegram: row.telegram || '',
+  email: row.website_email || row.email || '',
+  coverImageUrl: row.cover_image_url || row.coverImageUrl || '',
+  locationLat: row.location_lat ?? row.locationLat ?? row.lat ?? null,
+  locationLng: row.location_lng ?? row.locationLng ?? row.lng ?? null,
+  newsTitle: row.news_title || row.newsTitle || 'Yangiliklar',
+  newsSubtitle: row.news_subtitle || row.newsSubtitle || '',
+  groupsTitle: row.groups_title || row.groupsTitle || 'Bolalar guruhlari',
+  groupsDescription: row.groups_description || row.groupsDescription || '',
+  groups: parseJsonArray(row.groups_json || row.groupsJson),
+  clubsTitle: row.clubs_title || row.clubsTitle || "To'garaklar",
+  clubsDescription: row.clubs_description || row.clubsDescription || '',
+  clubs: parseJsonArray(row.clubs_json || row.clubsJson),
+  representatives: parseJsonArray(row.representatives_json || row.representativesJson),
+  loginButtonLabel: row.login_button_label || row.loginButtonLabel || 'Tizimga kirish',
+  loginButtonUrl: row.login_button_url || row.loginButtonUrl || '/login',
+  showLoginButton: row.show_login_button ?? row.showLoginButton ?? 1,
+  gallery: parseJsonArray(row.gallery_json || row.galleryJson),
+  updatedAt: row.website_updated_at || row.updated_at || row.updatedAt || null,
+  createdAt: row.website_created_at || row.created_at || row.createdAt || null,
+});
+
+const serializeWebsiteNewsRow = (row) => ({
+  id: row.id,
+  kindergartenId: row.kindergarten_id || row.kindergartenId,
+  kindergartenName: row.kindergarten_name || row.kindergartenName,
+  title: row.title || '',
+  summary: row.summary || '',
+  body: row.body || '',
+  imageUrl: row.image_url || row.imageUrl || '',
+  status: row.status || 'draft',
+  publishedAt: row.published_at || row.publishedAt || '',
+  createdAt: row.created_at || row.createdAt || null,
+  updatedAt: row.updated_at || row.updatedAt || null,
+});
+
 const ensureAdminWarehousePurchasesTable = async () => {
   await run(`CREATE TABLE IF NOT EXISTS admin_warehouse_purchases (
     id TEXT PRIMARY KEY,
@@ -1888,6 +2028,439 @@ const generateKindergartenCredentials = async (name) => {
 };
 
 const KindergartenController = {
+  getWebsites: async (_req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const rows = await all(`
+        SELECT
+          k.id,
+          k.system_id,
+          k.name,
+          k.username,
+          k.district,
+          k.address,
+          k.phone,
+          k.email,
+          k.lat,
+          k.lng,
+          w.slug,
+          w.status as website_status,
+          w.hero_title,
+          w.hero_subtitle,
+          w.about,
+          w.address as website_address,
+          w.phone as website_phone,
+          w.email as website_email,
+          w.telegram,
+          w.cover_image_url,
+          w.location_lat,
+          w.location_lng,
+          w.news_title,
+          w.news_subtitle,
+          w.groups_title,
+          w.groups_description,
+          w.groups_json,
+          w.clubs_title,
+          w.clubs_description,
+          w.clubs_json,
+          w.representatives_json,
+          w.login_button_label,
+          w.login_button_url,
+          w.show_login_button,
+          w.gallery_json,
+          w.updated_at as website_updated_at,
+          w.created_at as website_created_at,
+          COALESCE(news_counts.news_count, 0) as news_count
+        FROM kindergartens k
+        LEFT JOIN kindergarten_websites w ON CAST(w.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+        LEFT JOIN (
+          SELECT kindergarten_id, COUNT(*) as news_count
+          FROM kindergarten_website_news
+          GROUP BY kindergarten_id
+        ) news_counts ON CAST(news_counts.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+        ORDER BY k.district, k.name
+      `);
+      res.json(rows.map((row) => ({
+        ...serializeWebsiteRow(row),
+        newsCount: Number(row.news_count || row.newsCount || 0),
+      })));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  getWebsiteByKindergarten: async (req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const row = await get(`
+        SELECT
+          k.id,
+          k.system_id,
+          k.name,
+          k.username,
+          k.district,
+          k.address,
+          k.phone,
+          k.email,
+          k.lat,
+          k.lng,
+          w.slug,
+          w.status as website_status,
+          w.hero_title,
+          w.hero_subtitle,
+          w.about,
+          w.address as website_address,
+          w.phone as website_phone,
+          w.email as website_email,
+          w.telegram,
+          w.cover_image_url,
+          w.location_lat,
+          w.location_lng,
+          w.news_title,
+          w.news_subtitle,
+          w.groups_title,
+          w.groups_description,
+          w.groups_json,
+          w.clubs_title,
+          w.clubs_description,
+          w.clubs_json,
+          w.representatives_json,
+          w.login_button_label,
+          w.login_button_url,
+          w.show_login_button,
+          w.gallery_json,
+          w.updated_at as website_updated_at,
+          w.created_at as website_created_at
+        FROM kindergartens k
+        LEFT JOIN kindergarten_websites w ON CAST(w.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+        WHERE CAST(k.id AS TEXT) = CAST(? AS TEXT)
+      `, [req.params.kindergartenId]);
+      if (!row) return res.status(404).json({ error: "Bog'cha topilmadi" });
+      res.json(serializeWebsiteRow(row));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  saveWebsite: async (req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const kindergarten = await get('SELECT id, name, username, system_id, address, phone, email, lat, lng FROM kindergartens WHERE CAST(id AS TEXT) = CAST(? AS TEXT)', [req.params.kindergartenId]);
+      if (!kindergarten) return res.status(404).json({ error: "Bog'cha topilmadi" });
+
+      const slug = normalizeWebsiteSlug(req.body.slug) || websiteSlugFromKindergarten(kindergarten);
+      const status = ['published', 'draft'].includes(String(req.body.status || '').toLowerCase())
+        ? String(req.body.status).toLowerCase()
+        : 'draft';
+      const gallery = Array.isArray(req.body.gallery)
+        ? req.body.gallery.map((item) => String(item || '').trim()).filter(Boolean)
+        : [];
+
+      await run(`
+        INSERT INTO kindergarten_websites (
+          kindergarten_id, slug, status, hero_title, hero_subtitle, about,
+          address, phone, telegram, email, cover_image_url, location_lat, location_lng,
+          news_title, news_subtitle, groups_title, groups_description, groups_json,
+          clubs_title, clubs_description, clubs_json, representatives_json, login_button_label, login_button_url,
+          show_login_button, gallery_json, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT (kindergarten_id)
+        DO UPDATE SET
+          slug = EXCLUDED.slug,
+          status = EXCLUDED.status,
+          hero_title = EXCLUDED.hero_title,
+          hero_subtitle = EXCLUDED.hero_subtitle,
+          about = EXCLUDED.about,
+          address = EXCLUDED.address,
+          phone = EXCLUDED.phone,
+          telegram = EXCLUDED.telegram,
+          email = EXCLUDED.email,
+          cover_image_url = EXCLUDED.cover_image_url,
+          location_lat = EXCLUDED.location_lat,
+          location_lng = EXCLUDED.location_lng,
+          news_title = EXCLUDED.news_title,
+          news_subtitle = EXCLUDED.news_subtitle,
+          groups_title = EXCLUDED.groups_title,
+          groups_description = EXCLUDED.groups_description,
+          groups_json = EXCLUDED.groups_json,
+          clubs_title = EXCLUDED.clubs_title,
+          clubs_description = EXCLUDED.clubs_description,
+          clubs_json = EXCLUDED.clubs_json,
+          representatives_json = EXCLUDED.representatives_json,
+          login_button_label = EXCLUDED.login_button_label,
+          login_button_url = EXCLUDED.login_button_url,
+          show_login_button = EXCLUDED.show_login_button,
+          gallery_json = EXCLUDED.gallery_json,
+          updated_at = CURRENT_TIMESTAMP
+      `, [
+        String(kindergarten.id),
+        slug,
+        status,
+        String(req.body.heroTitle || kindergarten.name || '').trim(),
+        String(req.body.heroSubtitle || '').trim(),
+        String(req.body.about || '').trim(),
+        String(req.body.address || kindergarten.address || '').trim(),
+        String(req.body.phone || kindergarten.phone || '').trim(),
+        String(req.body.telegram || '').trim(),
+        String(req.body.email || kindergarten.email || '').trim(),
+        String(req.body.coverImageUrl || '').trim(),
+        req.body.locationLat === '' || req.body.locationLat == null ? (kindergarten.lat ?? null) : Number(req.body.locationLat),
+        req.body.locationLng === '' || req.body.locationLng == null ? (kindergarten.lng ?? null) : Number(req.body.locationLng),
+        String(req.body.newsTitle || 'Yangiliklar').trim(),
+        String(req.body.newsSubtitle || '').trim(),
+        String(req.body.groupsTitle || 'Bolalar guruhlari').trim(),
+        String(req.body.groupsDescription || '').trim(),
+        JSON.stringify(Array.isArray(req.body.groups) ? req.body.groups : []),
+        String(req.body.clubsTitle || "To'garaklar").trim(),
+        String(req.body.clubsDescription || '').trim(),
+        JSON.stringify(Array.isArray(req.body.clubs) ? req.body.clubs : []),
+        JSON.stringify(Array.isArray(req.body.representatives) ? req.body.representatives : []),
+        String(req.body.loginButtonLabel || 'Tizimga kirish').trim(),
+        String(req.body.loginButtonUrl || '/login').trim(),
+        req.body.showLoginButton === false || req.body.showLoginButton === 0 ? 0 : 1,
+        JSON.stringify(gallery),
+      ]);
+
+      const saved = await get(`
+        SELECT
+          k.id,
+          k.system_id,
+          k.name,
+          k.username,
+          k.district,
+          k.address,
+          k.phone,
+          k.email,
+          k.lat,
+          k.lng,
+          w.slug,
+          w.status as website_status,
+          w.hero_title,
+          w.hero_subtitle,
+          w.about,
+          w.address as website_address,
+          w.phone as website_phone,
+          w.email as website_email,
+          w.telegram,
+          w.cover_image_url,
+          w.location_lat,
+          w.location_lng,
+          w.news_title,
+          w.news_subtitle,
+          w.groups_title,
+          w.groups_description,
+          w.groups_json,
+          w.clubs_title,
+          w.clubs_description,
+          w.clubs_json,
+          w.representatives_json,
+          w.login_button_label,
+          w.login_button_url,
+          w.show_login_button,
+          w.gallery_json,
+          w.updated_at as website_updated_at,
+          w.created_at as website_created_at
+        FROM kindergartens k
+        JOIN kindergarten_websites w ON CAST(w.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+        WHERE CAST(k.id AS TEXT) = CAST(? AS TEXT)
+      `, [req.params.kindergartenId]);
+      res.json(serializeWebsiteRow(saved));
+    } catch (err) {
+      if (String(err.message || '').includes('duplicate') || String(err.message || '').includes('unique')) {
+        return res.status(409).json({ error: 'Bu subdomain boshqa bogʼchaga biriktirilgan' });
+      }
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  getWebsiteNews: async (req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const params = [];
+      let where = '';
+      if (req.params.kindergartenId) {
+        where = 'WHERE CAST(n.kindergarten_id AS TEXT) = CAST(? AS TEXT)';
+        params.push(req.params.kindergartenId);
+      }
+      const rows = await all(`
+        SELECT n.*, k.name as kindergarten_name
+        FROM kindergarten_website_news n
+        LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(n.kindergarten_id AS TEXT)
+        ${where}
+        ORDER BY COALESCE(n.published_at, CAST(n.created_at AS TEXT)) DESC
+        LIMIT 300
+      `, params);
+      res.json(rows.map(serializeWebsiteNewsRow));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  createWebsiteNews: async (req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const kindergarten = await get('SELECT id, name FROM kindergartens WHERE CAST(id AS TEXT) = CAST(? AS TEXT)', [req.params.kindergartenId]);
+      if (!kindergarten) return res.status(404).json({ error: "Bog'cha topilmadi" });
+
+      const title = String(req.body.title || '').trim();
+      if (!title) return res.status(400).json({ error: 'Yangilik sarlavhasi kiritilishi shart' });
+
+      const status = ['published', 'draft'].includes(String(req.body.status || '').toLowerCase())
+        ? String(req.body.status).toLowerCase()
+        : 'draft';
+      const id = crypto.randomUUID();
+      const publishedAt = status === 'published'
+        ? String(req.body.publishedAt || new Date().toISOString()).slice(0, 10)
+        : String(req.body.publishedAt || '').slice(0, 10) || null;
+
+      await run(`
+        INSERT INTO kindergarten_website_news (
+          id, kindergarten_id, title, summary, body, image_url, status, published_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `, [
+        id,
+        String(kindergarten.id),
+        title,
+        String(req.body.summary || '').trim(),
+        String(req.body.body || '').trim(),
+        String(req.body.imageUrl || '').trim(),
+        status,
+        publishedAt,
+      ]);
+
+      const row = await get(`
+        SELECT n.*, k.name as kindergarten_name
+        FROM kindergarten_website_news n
+        LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(n.kindergarten_id AS TEXT)
+        WHERE n.id = ?
+      `, [id]);
+      res.status(201).json(serializeWebsiteNewsRow(row));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  updateWebsiteNews: async (req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const current = await get('SELECT * FROM kindergarten_website_news WHERE id = ?', [req.params.newsId]);
+      if (!current) return res.status(404).json({ error: 'Yangilik topilmadi' });
+
+      const title = String(req.body.title ?? current.title ?? '').trim();
+      if (!title) return res.status(400).json({ error: 'Yangilik sarlavhasi kiritilishi shart' });
+
+      const status = ['published', 'draft'].includes(String(req.body.status ?? current.status ?? '').toLowerCase())
+        ? String(req.body.status ?? current.status).toLowerCase()
+        : 'draft';
+      const publishedAt = status === 'published'
+        ? String(req.body.publishedAt || current.published_at || new Date().toISOString()).slice(0, 10)
+        : String(req.body.publishedAt || current.published_at || '').slice(0, 10) || null;
+
+      await run(`
+        UPDATE kindergarten_website_news
+        SET title = ?,
+            summary = ?,
+            body = ?,
+            image_url = ?,
+            status = ?,
+            published_at = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `, [
+        title,
+        String(req.body.summary ?? current.summary ?? '').trim(),
+        String(req.body.body ?? current.body ?? '').trim(),
+        String(req.body.imageUrl ?? current.image_url ?? '').trim(),
+        status,
+        publishedAt,
+        req.params.newsId,
+      ]);
+
+      const row = await get(`
+        SELECT n.*, k.name as kindergarten_name
+        FROM kindergarten_website_news n
+        LEFT JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(n.kindergarten_id AS TEXT)
+        WHERE n.id = ?
+      `, [req.params.newsId]);
+      res.json(serializeWebsiteNewsRow(row));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  deleteWebsiteNews: async (req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const result = await run('DELETE FROM kindergarten_website_news WHERE id = ?', [req.params.newsId]);
+      if (!result.changes) return res.status(404).json({ error: 'Yangilik topilmadi' });
+      res.json({ id: req.params.newsId, deleted: true });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  getPublicWebsiteBySlug: async (req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const site = await get(`
+        SELECT
+          k.id,
+          k.system_id,
+          k.name,
+          k.username,
+          k.district,
+          k.address,
+          k.phone,
+          k.email,
+          k.lat,
+          k.lng,
+          w.slug,
+          w.status as website_status,
+          w.hero_title,
+          w.hero_subtitle,
+          w.about,
+          w.address as website_address,
+          w.phone as website_phone,
+          w.email as website_email,
+          w.telegram,
+          w.cover_image_url,
+          w.location_lat,
+          w.location_lng,
+          w.news_title,
+          w.news_subtitle,
+          w.groups_title,
+          w.groups_description,
+          w.groups_json,
+          w.clubs_title,
+          w.clubs_description,
+          w.clubs_json,
+          w.representatives_json,
+          w.login_button_label,
+          w.login_button_url,
+          w.show_login_button,
+          w.gallery_json,
+          w.updated_at as website_updated_at,
+          w.created_at as website_created_at
+        FROM kindergarten_websites w
+        JOIN kindergartens k ON CAST(k.id AS TEXT) = CAST(w.kindergarten_id AS TEXT)
+        WHERE lower(w.slug) = lower(?) AND w.status = 'published'
+      `, [normalizeWebsiteSlug(req.params.slug)]);
+      if (!site) return res.status(404).json({ error: 'Web sahifa topilmadi' });
+
+      const news = await all(`
+        SELECT *
+        FROM kindergarten_website_news
+        WHERE CAST(kindergarten_id AS TEXT) = CAST(? AS TEXT)
+          AND status = 'published'
+        ORDER BY COALESCE(published_at, CAST(created_at AS TEXT)) DESC
+        LIMIT 20
+      `, [site.id]);
+      res.json({ site: serializeWebsiteRow(site), news: news.map(serializeWebsiteNewsRow) });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
   getAll: (req, res) => {
     const today = normalizeDate(req.query.date);
     db.all(`

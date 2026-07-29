@@ -134,6 +134,7 @@ export const ensureTables = (() => {
           full_name TEXT,
           login TEXT UNIQUE NOT NULL,
           password_hash TEXT NOT NULL,
+          last_seen_at TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           UNIQUE(kindergarten_id, role)

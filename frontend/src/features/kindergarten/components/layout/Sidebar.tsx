@@ -12,6 +12,7 @@ import {
   Contact,
   Stethoscope,
   Camera,
+  Globe2,
   Loader2
 } from 'lucide-react';
 import { UserRole, NavItem } from '../../types';
@@ -99,6 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
     { id: 'STOREKEEPER', label: 'Omborchi', icon: Package },
     { id: 'INSPECTOR', label: "Organoleptik ko'rsatkichlar", icon: ShieldCheck },
     { id: 'LAB_CONTROLLER', label: 'Laboratoriya', icon: FlaskConical },
+    { id: 'WEBSITE', label: "Bog'cha web sayti", icon: Globe2 },
   ];
 
   const menuThemes: Record<string, { from: string; to: string; text: string; glow: string }> = {
@@ -108,6 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
     NURSE: { from: '#fdf2f8', to: '#fbcfe8', text: '#be185d', glow: 'rgba(219, 39, 119, 0.14)' },
     CHEF: { from: '#fffbeb', to: '#fde68a', text: '#b45309', glow: 'rgba(217, 119, 6, 0.16)' },
     STOREKEEPER: { from: '#ecfeff', to: '#a5f3fc', text: '#0e7490', glow: 'rgba(8, 145, 178, 0.15)' },
+    WEBSITE: { from: '#eef2ff', to: '#bfdbfe', text: '#1d4ed8', glow: 'rgba(37, 99, 235, 0.14)' },
     INSPECTOR: { from: '#f5f3ff', to: '#ddd6fe', text: '#6d28d9', glow: 'rgba(124, 58, 237, 0.15)' },
     LAB_CONTROLLER: { from: '#eef2ff', to: '#c7d2fe', text: '#4338ca', glow: 'rgba(79, 70, 229, 0.16)' },
   };
@@ -122,7 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
     : allMenuItems.filter(item => roleMenuAccess[user?.role as UserRole]?.includes(item.id) || item.id === user?.role);
 
   return (
-    <div className="w-full h-full bg-white flex flex-col border-r border-emerald-100 overflow-y-auto custom-scrollbar relative shadow-[8px_0_30px_rgba(6,78,59,0.04)]">
+    <div className="w-full h-full bg-white flex flex-col border-r border-emerald-100 overflow-hidden relative shadow-[8px_0_30px_rgba(6,78,59,0.04)]">
       {/* Mobile Close Button */}
       {onClose && (
         <button 
@@ -187,7 +190,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
         </div>
       </div>
 
-      <nav className="flex-1 mt-4 sm:mt-6 space-y-1 pb-6 sm:pb-10">
+      <nav className="flex-1 min-h-0 mt-4 sm:mt-6 space-y-1 overflow-y-auto overflow-x-hidden pb-6 sm:pb-10 custom-scrollbar">
         {menuItems.map((item) => {
           const theme = menuThemes[item.id] || menuThemes.OPERATOR;
           const isActive = activeRole === item.id;
@@ -215,20 +218,23 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRole, onRoleChange, onClose }) 
       </nav>
 
       {/* Footer info or version */}
-      <div className="p-4 sm:p-6 border-t border-slate-50 mt-auto shrink-0">
+      <div className="mt-auto shrink-0 border-t border-slate-50 p-3">
         <button 
           onClick={logout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-500 hover:bg-rose-50 transition-colors font-bold mb-4"
+          className="mb-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-rose-500 transition-colors hover:bg-rose-50"
         >
-          <LogOut size={18} />
-          <span className="text-sm">Chiqish</span>
+          <LogOut size={15} />
+          <span className="text-xs font-black">Chiqish</span>
         </button>
-        <div className="p-3 sm:p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-           <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest mb-1">Tizim holati</p>
-           <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-              <span className="text-[10px] font-bold text-brand-depth truncate">Onlayn - v2.4.0</span>
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-1.5">
+           <div className="min-w-0">
+              <p className="text-[7px] font-black uppercase tracking-widest text-brand-muted">Tizim holati</p>
+              <div className="flex items-center gap-1.5">
+                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.75)]"></div>
+                 <span className="truncate text-[8px] font-black text-brand-depth">Onlayn</span>
+              </div>
            </div>
+           <span className="shrink-0 rounded-md bg-white px-1.5 py-0.5 text-[8px] font-black text-emerald-700 shadow-sm">v1.1</span>
         </div>
       </div>
     </div>

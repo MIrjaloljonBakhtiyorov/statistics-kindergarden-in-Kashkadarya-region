@@ -1,28 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
-  Lock, 
   User, 
-  Bell,
-  Settings,
   LogOut,
   CheckCircle2,
-  AlertCircle,
   MessageSquare,
   Activity,
   MapPin,
   Calendar,
   UserCheck,
-  Target,
   Users,
   ShieldAlert,
   Wallet,
+  BadgeDollarSign,
   Star,
   Syringe,
   Apple,
   FileText,
-  Menu as MenuIcon,
-  X
+  RefreshCw,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { apiClient } from '@/shared/api';
@@ -41,9 +36,48 @@ import { MenuSection } from '../../features/parent-portal/components/MenuSection
 import { DocumentsSection } from '../../features/parent-portal/components/DocumentsSection';
 import { PickupSection } from '../../features/parent-portal/components/PickupSection';
 import { MessagesSection } from '../../features/parent-portal/components/MessagesSection';
+import { TariffsSection } from '../../features/parent-portal/components/TariffsSection';
 
 
-type SettingsTab = 'profile' | 'security' | 'menu' | 'medical' | 'messages' | 'finance' | 'attendance' | 'documents' | 'pickup' | 'progress' | 'vaccines';
+type SettingsTab = 'profile' | 'security' | 'menu' | 'medical' | 'messages' | 'finance' | 'tariffs' | 'attendance' | 'documents' | 'pickup' | 'progress' | 'vaccines';
+
+const tabToPath: Record<SettingsTab, string> = {
+  profile: 'profile',
+  security: 'safety',
+  finance: 'payment',
+  tariffs: 'tariffs',
+  attendance: 'attendance',
+  progress: 'achievements',
+  medical: 'health',
+  vaccines: 'vaccines',
+  menu: 'menu',
+  documents: 'documents',
+  pickup: 'pickup',
+  messages: 'messages'
+};
+
+const pathToTab: Record<string, SettingsTab> = Object.entries(tabToPath).reduce((acc, [tab, path]) => {
+  acc[path] = tab as SettingsTab;
+  return acc;
+}, {} as Record<string, SettingsTab>);
+
+const getParentPathParts = () => window.location.pathname.split('/').filter(Boolean);
+
+const getParentBasePath = () => {
+  const parts = getParentPathParts();
+  const parentIndex = parts.findIndex((part) => part.toLowerCase() === 'parent');
+  const baseParts = parentIndex >= 0 ? parts.slice(0, parentIndex + 1) : parts.slice(0, 3);
+  return `/${baseParts.join('/')}`;
+};
+
+const getParentTabFromPath = (): SettingsTab => {
+  const parts = getParentPathParts();
+  const parentIndex = parts.findIndex((part) => part.toLowerCase() === 'parent');
+  const slug = parentIndex >= 0 ? parts[parentIndex + 1] : undefined;
+  return slug && pathToTab[slug] ? pathToTab[slug] : 'profile';
+};
+
+const getParentTabPath = (tab: SettingsTab) => `${getParentBasePath()}/${tabToPath[tab]}`;
 
 const getAssetUrl = (value?: string) => {
   if (!value) return '';
@@ -53,25 +87,11 @@ const getAssetUrl = (value?: string) => {
   return `${origin}${value.startsWith('/') ? value : `/${value}`}`;
 };
 
-const getAttendancePercent = (records: any[] = []) => {
-  if (!records.length) return null;
-  const present = records.filter((item) => ['PRESENT', 'KELDI', 'EARLY', 'LATE'].includes(String(item.status || '').toUpperCase())).length;
-  return Math.round((present / records.length) * 100);
-};
-
-const getHealthLabel = (parentData: any, fullPortalData: any) => {
-  const latestHealth = fullPortalData?.health?.[0];
-  if (parentData?.allergies || latestHealth?.allergy) return 'Allergiya bor';
-  if (parentData?.medical_notes || latestHealth?.notes) return 'Nazoratda';
-  return "Ma'lumot yo'q";
-};
-
 const ParentView = () => {
   const { user, logout } = useAuth();
   const { showNotification } = useNotification();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => getParentTabFromPath());
   const [isSaving, setIsSaving] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const [parentData, setParentData] = useState<any>(null);
   const [fullPortalData, setFullPortalData] = useState<any>(null);
@@ -84,6 +104,22 @@ const ParentView = () => {
       setLoading(false);
     }
   }, [user]);
+
+  useEffect(() => {
+    const syncTabWithPath = () => {
+      const nextTab = getParentTabFromPath();
+      const nextPath = getParentTabPath(nextTab);
+      setActiveTab(nextTab);
+
+      if (window.location.pathname !== nextPath) {
+        window.history.replaceState(null, '', nextPath);
+      }
+    };
+
+    syncTabWithPath();
+    window.addEventListener('popstate', syncTabWithPath);
+    return () => window.removeEventListener('popstate', syncTabWithPath);
+  }, []);
 
   const fetchPortalData = async (childId: string) => {
     setLoading(true);
@@ -158,16 +194,17 @@ const ParentView = () => {
 
   const navItems: { id: SettingsTab; label: string; icon: any; color: string }[] = [
     { id: 'profile', label: 'Profil', icon: User, color: 'brand-primary' },
-    { id: 'security', label: 'Xavfsizlik', icon: ShieldCheck, color: 'blue-500' },
-    { id: 'finance', label: 'Moliya', icon: Wallet, color: 'emerald-500' },
+    { id: 'finance', label: "To'lovlar", icon: Wallet, color: 'rose-500' },
+    { id: 'tariffs', label: 'Tariflar', icon: BadgeDollarSign, color: 'brand-primary' },
     { id: 'attendance', label: 'Davomat', icon: Calendar, color: 'indigo-500' },
     { id: 'progress', label: 'Yutuqlar', icon: Star, color: 'amber-400' },
-    { id: 'medical', label: 'Salomatlik', icon: Activity, color: 'rose-500' },
-    { id: 'vaccines', label: 'Emlash', icon: Syringe, color: 'sky-500' },
-    { id: 'menu', label: 'Menyu', icon: Apple, color: 'orange-500' },
-    { id: 'documents', label: 'Hujjatlar', icon: FileText, color: 'slate-500' },
-    { id: 'pickup', label: 'Vakillar', icon: UserCheck, color: 'teal-500' },
     { id: 'messages', label: 'Xabarlar', icon: MessageSquare, color: 'brand-primary' },
+    { id: 'menu', label: 'Menyu', icon: Apple, color: 'orange-500' },
+    { id: 'vaccines', label: 'Emlash', icon: Syringe, color: 'sky-500' },
+    { id: 'medical', label: 'Salomatlik', icon: Activity, color: 'rose-500' },
+    { id: 'pickup', label: 'Vakillar', icon: UserCheck, color: 'teal-500' },
+    { id: 'documents', label: 'Hujjatlar', icon: FileText, color: 'slate-500' },
+    { id: 'security', label: 'Xavfsizlik', icon: ShieldCheck, color: 'blue-500' },
   ];
 
   const handleProfileUpdate = () => {
@@ -176,22 +213,29 @@ const ParentView = () => {
     }
   };
 
-  const childPhotoUrl = getAssetUrl(parentData?.photo_url);
-  const attendanceRate = getAttendancePercent(fullPortalData?.attendance || []);
-  const healthLabel = getHealthLabel(parentData, fullPortalData);
+  const handleTabChange = (tab: SettingsTab) => {
+    setActiveTab(tab);
+    const nextPath = getParentTabPath(tab);
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState(null, '', nextPath);
+    }
+  };
 
+  const childPhotoUrl = getAssetUrl(parentData?.photo_url);
+  const currentTariff = parentData?.tariff_name || parentData?.tariffName || fullPortalData?.tariff?.name || fullPortalData?.subscription?.plan_name || 'Bepul tarif';
   const renderTabContent = () => {
     const data = fullPortalData;
 
     switch (activeTab) {
       case 'profile': return <ProfileSection parentData={parentData} onUpdate={handleProfileUpdate} />;
       case 'finance': return <FinanceSection data={data} />;
+      case 'tariffs': return <TariffsSection />;
       case 'attendance': return <AttendanceSection data={data} childId={user.childId} onUpdate={handleProfileUpdate} />;
       case 'menu': return <MenuSection data={data} childId={user.childId} />;
-      case 'medical': return <MedicalSection parentData={parentData} />;
+      case 'medical': return <MedicalSection parentData={parentData} health={data?.health || []} />;
       case 'vaccines': return <VaccineSection data={data} />;
       case 'progress': return <ProgressSection data={data} />;
-      case 'messages': return <MessagesSection />;
+      case 'messages': return <MessagesSection childName={`${parentData?.first_name || ''} ${parentData?.last_name || ''}`.trim()} />;
       case 'documents': return <DocumentsSection data={data} childId={user.childId} onUpdate={handleProfileUpdate} />;
       case 'pickup': return <PickupSection data={data} onUpdate={handleProfileUpdate} />;
       case 'security':
@@ -208,85 +252,88 @@ const ParentView = () => {
   };
 
   return (
-    <div className="kg-page max-w-[1440px] mx-auto p-2 sm:p-3 md:p-5 lg:p-6 space-y-3 md:space-y-5 bg-slate-50/30 min-h-screen overflow-x-hidden">
-      {/* Header Profile Summary - Fully Responsive */}
-      <div className="relative p-3.5 sm:p-4 md:p-5 lg:p-6 bg-brand-depth rounded-2xl md:rounded-[1.5rem] text-white shadow-xl overflow-hidden group border border-white/5">
-        <div className="absolute top-0 right-0 w-48 md:w-[350px] h-48 md:h-[350px] bg-brand-primary/10 rounded-full blur-[60px] md:blur-[100px] -mr-16 -mt-16"></div>
-        
-        <div className="relative z-10 flex flex-col md:flex-row items-center gap-3 md:gap-5 text-center md:text-left">
-          <div className="order-first self-end md:order-last md:self-start md:ml-auto flex items-center gap-1.5 md:gap-2 shrink-0">
-             <button onClick={logout} className="p-2 bg-white/5 rounded-lg md:rounded-xl hover:bg-rose-500 transition-all border border-white/10 group"><LogOut size={16} /></button>
-          </div>
-
-          <div className="relative shrink-0">
-             <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl border-2 border-white/10 p-0.5 bg-white/5 shadow-xl flex items-center justify-center">
+    <div className="kg-page kg-parent-portal flex h-full max-w-[1440px] mx-auto p-2 sm:p-3 md:p-5 lg:p-6 gap-4 md:gap-6 bg-slate-50/30 overflow-hidden flex-col">
+      {/* Parent portal header */}
+      <div className="kg-parent-header relative flex-none overflow-hidden rounded-[24px] border border-rose-100/90 bg-white px-4 py-3 shadow-sm">
+        <div className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-rose-500"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-rose-50/35 via-white to-white"></div>
+        <div className="relative z-10 grid grid-cols-1 items-center gap-3 xl:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative mx-auto shrink-0 sm:mx-0">
+              <div className="flex h-[58px] w-[58px] items-center justify-center overflow-hidden rounded-[18px] border border-rose-100 bg-rose-50/70 shadow-sm">
                 {childPhotoUrl ? (
-                  <img src={childPhotoUrl} alt="Bola rasmi" className="w-full h-full rounded-[0.9rem] md:rounded-[1.15rem] object-cover" />
+                  <img src={childPhotoUrl} alt="Bola rasmi" className="h-full w-full object-cover" />
                 ) : (
-                  <>
-                    <User size={32} className="text-white/20 md:hidden" />
-                    <User size={48} className="text-white/20 hidden md:block" />
-                  </>
+                  <User size={28} className="text-rose-300" />
                 )}
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 md:w-7 md:h-7 bg-emerald-500 rounded-lg flex items-center justify-center border-2 border-brand-depth shadow-lg">
-                   <CheckCircle2 size={12} className="text-white md:w-4 md:h-4" />
-                </div>
-             </div>
+              </div>
+              <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-lg border-2 border-white bg-emerald-500 shadow-sm shadow-emerald-500/20">
+                <CheckCircle2 size={10} className="text-white" />
+              </div>
+            </div>
+
+            <div className="min-w-0 text-center sm:text-left">
+              <h2 className="text-[24px] font-extrabold leading-[1.08] text-brand-depth sm:text-[28px]">
+                {parentData?.first_name} {parentData?.last_name}
+              </h2>
+              <div className="mt-2 flex flex-wrap justify-center gap-2 text-[12px] font-bold text-brand-muted sm:justify-start">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-100 bg-white px-3 py-1 text-rose-600 shadow-sm">
+                  <Users size={14} className="shrink-0 text-rose-500" />
+                  {parentData?.childGroup || 'Guruh biriktirilmagan'}
+                </span>
+                <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full border border-slate-100 bg-white px-3 py-1 text-brand-muted shadow-sm">
+                  <MapPin size={14} className="shrink-0 text-rose-500" />
+                  <span className="break-words">{parentData?.kindergartenDistrict || parentData?.kindergartenAddress || "Manzil kiritilmagan"}</span>
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="flex-1 min-w-0 space-y-3">
-             <div className="space-y-1">
-                <div className="flex flex-wrap justify-center md:justify-start items-center gap-2">
-                   <h2 className="min-w-0 text-lg sm:text-xl md:text-2xl lg:text-3xl font-black tracking-tight uppercase leading-tight break-words">{parentData?.first_name} {parentData?.last_name}</h2>
-                   {parentData?.kindergartenName && (
-                     <div className="max-w-full px-2 py-0.5 bg-brand-primary/20 text-brand-primary text-[7px] md:text-[9px] font-black uppercase rounded-md tracking-wide md:tracking-widest border border-brand-primary/30 leading-tight break-words">
-                       {parentData.kindergartenName}
-                     </div>
-                   )}
-                </div>
-                <div className="flex flex-wrap justify-center md:justify-start items-center gap-2.5 md:gap-4 text-white/60">
-                   <p className="min-w-0 font-bold text-[9px] md:text-[10px] uppercase tracking-wide flex items-center gap-1.5 leading-tight">
-                      <Users size={14} className="text-brand-primary shrink-0" /> <span className="break-words">{parentData?.childGroup || 'Guruh biriktirilmagan'}</span>
-                   </p>
-                   <p className="min-w-0 font-bold text-[9px] md:text-[10px] uppercase tracking-wide flex items-center gap-1.5 leading-tight">
-                      <MapPin size={14} className="text-brand-primary shrink-0" /> <span className="break-words">{parentData?.kindergartenDistrict || parentData?.kindergartenAddress || "Manzil kiritilmagan"}</span>
-                   </p>
-                </div>
-             </div>
-
-             <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center md:justify-start sm:items-center sm:gap-3 pt-2.5 border-t border-white/5">
-                <div className="flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 p-2 sm:border-0 sm:bg-transparent sm:p-0">
-                   <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10"><Target size={14} className="text-brand-primary" /></div>
-                   <div className="text-left">
-                      <p className="text-[7px] font-black text-white/40 uppercase tracking-wide">Davomat</p>
-                      <p className="text-base font-black leading-none">{attendanceRate == null ? '--' : `${attendanceRate}%`}</p>
-                   </div>
-                </div>
-                <div className="flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 p-2 sm:border-0 sm:bg-transparent sm:p-0">
-                   <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10"><Activity size={14} className="text-emerald-400" /></div>
-                   <div className="text-left">
-                      <p className="text-[7px] font-black text-white/40 uppercase tracking-wide">Salomatlik</p>
-                      <p className="text-sm sm:text-base font-black leading-none break-words">{healthLabel}</p>
-                   </div>
-                </div>
-             </div>
+          <div className="grid w-full grid-cols-1 gap-1.5 rounded-[20px] border border-rose-100 bg-white/85 p-1.5 shadow-sm sm:grid-cols-[minmax(210px,1fr)_50px_108px] xl:w-[470px]">
+              <button
+                type="button"
+                onClick={() => handleTabChange('tariffs')}
+                className="group flex min-h-[54px] items-center gap-3 rounded-[16px] px-3 py-2 text-left transition-all hover:bg-rose-50"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] bg-rose-50 text-rose-500 ring-1 ring-rose-100">
+                  <BadgeDollarSign size={17} />
+                </span>
+                <span className="min-w-0">
+                  <span className="kg-parent-tariff-label block text-[10px] font-extrabold uppercase text-rose-500">Tarif</span>
+                  <span className="kg-parent-tariff-value mt-0.5 block truncate text-[16px] font-extrabold leading-tight text-brand-depth">{currentTariff}</span>
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTabChange('tariffs')}
+                title="Tarifni yangilash"
+                className="flex min-h-[54px] items-center justify-center rounded-[16px] text-rose-500 transition-all hover:bg-rose-50 hover:text-rose-600"
+              >
+                <RefreshCw size={19} />
+              </button>
+              <button
+                onClick={logout}
+                className="flex min-h-[54px] items-center justify-center gap-2 rounded-[16px] bg-rose-500 px-4 py-2.5 text-[12px] font-extrabold uppercase text-white shadow-sm shadow-rose-500/20 transition-all hover:bg-rose-600 hover:shadow-md hover:shadow-rose-500/25"
+              >
+                <LogOut size={17} /> Chiqish
+              </button>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-5">
+      <div className="kg-parent-layout grid flex-1 min-h-0 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] lg:grid-cols-12 lg:grid-rows-none gap-4 md:gap-6">
         {/* Navigation - Sidebar for Desktop, Horizontal Scroll for Mobile */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 lg:self-stretch lg:min-h-0 lg:h-full lg:overflow-hidden">
           {/* Mobile Menu Toggle */}
-          <div className="lg:hidden kg-scroll-x flex pb-3 gap-2 no-scrollbar scroll-smooth px-1">
+          <div className="lg:hidden kg-scroll-x flex gap-2 overflow-x-auto px-1 pb-2 no-scrollbar scroll-smooth">
             {navItems.map(item => (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-wide transition-all ${
+                onClick={() => handleTabChange(item.id)}
+                className={`shrink-0 flex items-center gap-2 rounded-2xl px-3.5 py-2.5 text-[9px] font-black uppercase tracking-wide transition-all ${
                   activeTab === item.id 
-                    ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/30 scale-105' 
-                    : 'bg-white text-brand-muted border border-brand-border'
+                    ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/20' 
+                    : 'border border-brand-border bg-white text-brand-muted hover:border-rose-100 hover:bg-rose-50 hover:text-rose-600'
                 }`}
               >
                 <item.icon size={14} />
@@ -296,46 +343,38 @@ const ParentView = () => {
           </div>
 
           {/* Desktop Sidebar */}
-          <div className="hidden lg:block bg-white p-4 rounded-[1.5rem] border border-brand-border shadow-sm space-y-1.5 sticky top-8">
-            <p className="text-[9px] font-black text-brand-depth uppercase tracking-[0.2em] px-5 py-3 border-b border-slate-50 mb-3">Navigatsiya</p>
+          <aside className="hidden lg:flex h-full min-h-0 rounded-3xl border border-brand-border bg-white p-3 shadow-sm overflow-hidden flex-col">
+            <div className="flex-none mb-3 border-b border-slate-100 px-3 pb-3 pt-2">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-muted">Portal bo'limlari</p>
+              <p className="mt-1 text-sm font-extrabold text-brand-depth">Ota-ona portali</p>
+            </div>
+            <div className="kg-parent-sidebar-menu flex-1 min-h-0 space-y-1 overflow-y-auto pr-1 custom-scrollbar">
             {navItems.map(item => (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 p-3 rounded-2xl font-black text-[11px] transition-all group text-left ${
+                onClick={() => handleTabChange(item.id)}
+                className={`relative w-full flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-[11px] font-black transition-all group ${
                   activeTab === item.id 
-                    ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20 translate-x-1' 
-                    : 'text-brand-muted hover:bg-slate-50 hover:text-brand-depth'
+                    ? 'bg-gradient-to-r from-rose-50 to-pink-50 text-brand-depth shadow-sm ring-1 ring-rose-100' 
+                    : 'text-brand-muted hover:bg-rose-50/70 hover:text-rose-600'
                 }`}
               >
-                <item.icon size={18} className={`shrink-0 ${activeTab === item.id ? 'text-white' : 'text-brand-muted group-hover:text-brand-primary'}`} />
-                <span className="uppercase tracking-wider truncate">{item.label}</span>
+                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                  activeTab === item.id ? 'bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm shadow-rose-500/20' : 'bg-slate-50 text-brand-muted group-hover:bg-rose-100 group-hover:text-rose-600'
+                }`}>
+                  <item.icon size={16} />
+                </span>
+                <span className="truncate uppercase tracking-[0.12em]">{item.label}</span>
+                {activeTab === item.id && <span className="ml-auto h-2 w-2 rounded-full bg-rose-500 shadow-sm shadow-rose-500/40"></span>}
               </button>
             ))}
-          </div>
+            </div>
+          </aside>
         </div>
 
         {/* Content Area */}
-        <div className="lg:col-span-9">
-          <div className="bg-white p-3.5 sm:p-4 md:p-5 lg:p-6 rounded-2xl md:rounded-[1.5rem] border border-brand-border shadow-sm min-h-0 relative overflow-hidden">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 md:mb-6 gap-3 text-left">
-               <div>
-                  <h1 className="text-lg sm:text-xl md:text-2xl font-black text-brand-depth tracking-tight uppercase leading-tight">{navItems.find(n => n.id === activeTab)?.label}</h1>
-                  <div className="text-brand-muted text-[7px] md:text-[9px] font-black mt-1.5 uppercase tracking-[0.14em] md:tracking-[0.25em] flex items-center justify-start gap-2">
-                     <div className="w-4 md:w-6 h-px bg-brand-primary/30"></div> Portal Xizmati
-                  </div>
-               </div>
-               <div className="flex gap-2.5">
-                  <div className="p-2.5 md:p-3 bg-brand-ghost rounded-xl md:rounded-2xl text-brand-muted border border-brand-border relative cursor-pointer hover:text-brand-primary transition-colors">
-                     <Bell size={18} className="md:w-5 md:h-5" />
-                     <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-rose-500 border-2 border-white rounded-full"></span>
-                  </div>
-                  <div className="p-2.5 md:p-3 bg-brand-ghost rounded-xl md:rounded-2xl text-brand-muted border border-brand-border cursor-pointer hover:text-brand-primary transition-colors">
-                     <Settings size={18} className="md:w-5 md:h-5" />
-                  </div>
-               </div>
-            </div>
-
+        <div className="kg-parent-content-column lg:col-span-9 min-h-0 h-full overflow-hidden">
+          <div className="kg-parent-content-panel bg-white p-3.5 sm:p-4 md:p-5 lg:p-6 rounded-3xl border border-brand-border shadow-sm h-full min-h-0 relative overflow-hidden flex flex-col">
             <AnimatePresence mode="wait">
               <motion.div 
                 key={activeTab} 
@@ -343,7 +382,7 @@ const ParentView = () => {
                 animate={{ opacity: 1, y: 0 }} 
                 exit={{ opacity: 0, y: -10 }} 
                 transition={{ duration: 0.3 }}
-                className="relative z-10"
+                className="kg-parent-content-scroll relative z-10 flex-1 min-h-0 h-full overflow-y-auto pr-1 custom-scrollbar"
               >
                 {renderTabContent()}
               </motion.div>

@@ -111,7 +111,7 @@ const getAssetUrl = (url?: string | null) => {
   if (!url) return '';
   if (url.startsWith('http') || url.startsWith('data:')) return url;
   const apiRoot = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/api\/?$/, '');
-  return `${apiRoot || 'http://localhost:5002'}${url}`;
+  return `${apiRoot || 'http://localhost:3001'}${url}`;
 };
 
 const emptyItemForm = {
@@ -504,7 +504,7 @@ const PharmacySection: React.FC = () => {
                 <div key={row.item_id} className="bg-slate-50 border border-brand-border rounded-xl p-4">
                   <p className="text-sm font-black text-brand-depth truncate">{row.item_name}</p>
                   <p className="text-[10px] font-bold text-brand-muted mt-2">
-                    Kirim: {row.in_quantity} {row.unit} В· Chiqim: {row.out_quantity} {row.unit} В· Yozuv: {row.entries}
+                    Kirim: {row.in_quantity} {row.unit} / Chiqim: {row.out_quantity} {row.unit} / Yozuv: {row.entries}
                   </p>
                 </div>
               ))}

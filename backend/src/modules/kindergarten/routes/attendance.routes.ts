@@ -103,13 +103,16 @@ attendanceRoutes.post("/attendance", async (req, res) => {
     const date = req.body?.date || new Date().toISOString().slice(0, 10);
     const attendanceData = req.body?.attendance_data || req.body?.attendanceData;
     const items = attendanceData && !Array.isArray(req.body)
-      ? Object.entries(attendanceData).map(([childId, value]: [string, any]) => ({
-          child_id: childId,
-          date,
-          status: value?.status,
-          reason: value?.reason,
-          arrival_time: value?.arrival_time || value?.arrivalTime,
-        }))
+      ? Object.entries(attendanceData).map(([childId, value]: [string, any]) => {
+          const isObjectValue = value && typeof value === 'object';
+          return {
+            child_id: childId,
+            date,
+            status: isObjectValue ? value.status : value,
+            reason: isObjectValue ? value.reason : req.body?.reason,
+            arrival_time: isObjectValue ? (value.arrival_time || value.arrivalTime) : req.body?.arrival_time,
+          };
+        })
       : (Array.isArray(req.body) ? req.body : [req.body]);
 
     for (const item of items) {

@@ -33,6 +33,7 @@ const ensureMessageColumns = (() => {
         run('ALTER TABLE messages ADD COLUMN IF NOT EXISTS edited_at TEXT').catch(() => undefined),
         run('ALTER TABLE messages ADD COLUMN IF NOT EXISTS deleted_at TEXT').catch(() => undefined),
         run('ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_deleted INTEGER DEFAULT 0').catch(() => undefined),
+        run('ALTER TABLE role_accounts ADD COLUMN IF NOT EXISTS last_seen_at TEXT').catch(() => undefined),
       ]).then(() => undefined);
     }
     return promise;
@@ -70,6 +71,45 @@ const mapMessage = (row: any, userIds: string[] | string = []) => {
     type: viewerIds.length > 0 && viewerIds.includes(String(row.sender_id)) ? 'sent' : 'received',
     senderRole: row.sender_role || 'parent',
   };
+};
+
+const ONLINE_WINDOW_MS = 2 * 60 * 1000;
+
+const formatLastSeenStatus = (lastSeenAt?: string | null, hasSystemAccount = false) => {
+  if (!lastSeenAt) {
+    return {
+      isOnline: false,
+      statusLabel: "Hali online bo'lmagan",
+      lastSeenAt: null,
+    };
+  }
+
+  const timestamp = new Date(lastSeenAt).getTime();
+  if (!Number.isFinite(timestamp)) {
+    return {
+      isOnline: false,
+      statusLabel: "Hali online bo'lmagan",
+      lastSeenAt: null,
+    };
+  }
+
+  const diffMs = Math.max(0, Date.now() - timestamp);
+  if (diffMs <= ONLINE_WINDOW_MS) {
+    return { isOnline: true, statusLabel: 'Online', lastSeenAt };
+  }
+
+  const minutes = Math.max(1, Math.floor(diffMs / 60_000));
+  if (minutes < 60) {
+    return { isOnline: false, statusLabel: `${minutes} daqiqa oldin online edi`, lastSeenAt };
+  }
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return { isOnline: false, statusLabel: `${hours} soat oldin online edi`, lastSeenAt };
+  }
+
+  const days = Math.floor(hours / 24);
+  return { isOnline: false, statusLabel: `${days} kun oldin online edi`, lastSeenAt };
 };
 
 messagesRoutes.get("/messages", async (req, res) => {
@@ -162,7 +202,7 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
     const parentId = String(req.query.parentId || '');
     const childId = String(req.query.childId || '');
     const child = await get<any>(`
-      SELECT c.id, c.group_id, g.teacher_id, g.teacher_name
+      SELECT c.id, c.first_name, c.last_name, c.group_id, g.teacher_id, g.teacher_name
       FROM children c
       LEFT JOIN groups g ON g.id = c.group_id AND g.kindergarten_id = c.kindergarten_id
       WHERE c.kindergarten_id = ? AND c.parent_account_id = ?
@@ -171,131 +211,138 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
     `, [kindergartenId, parentId, childId, childId]);
     const teacherId = child?.teacher_id || '';
     const teacherName = child?.teacher_name || '';
-    const roleContacts = await all(`
-      SELECT
-        ra.id,
-        COALESCE(NULLIF(ra.full_name, ''), ra.login) as full_name,
-        ra.role,
-        COALESCE(unread.unread_count, 0) as unread_count,
-        latest.text as last_message,
-        CASE
-          WHEN (? != '' AND ra.id = ?) THEN 0
-          WHEN (? != '' AND LOWER(COALESCE(ra.full_name, '')) = LOWER(?)) THEN 0
-          WHEN ra.role = 'TEACHER' THEN 1
-          ELSE 2
-        END as sort_priority
-      FROM role_accounts ra
-      LEFT JOIN (
-        SELECT sender_id, COUNT(*) as unread_count
-        FROM messages
-        WHERE kindergarten_id = ? AND receiver_id = ? AND status != 'read' AND COALESCE(is_deleted, 0) = 0
-        GROUP BY sender_id
-      ) unread ON unread.sender_id = ra.id
-      LEFT JOIN LATERAL (
-        SELECT text
-        FROM messages m
-        WHERE m.kindergarten_id = ra.kindergarten_id
-          AND ((m.sender_id = ra.id AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = ra.id))
-          AND COALESCE(m.is_deleted, 0) = 0
-        ORDER BY m.created_at DESC
-        LIMIT 1
-      ) latest ON true
-      WHERE ra.kindergarten_id = ? AND ra.role IN ('TEACHER', 'OPERATOR', 'DIRECTOR')
-      ORDER BY sort_priority, full_name
-    `, [teacherId, teacherId, teacherName, teacherName, kindergartenId, parentId, parentId, parentId, kindergartenId]);
+    const groupId = child?.group_id || '';
+    const childFullName = `${child?.first_name || ''} ${child?.last_name || ''}`.replace(/\s+/g, ' ').trim().toLowerCase();
 
-    const staffContacts = await all(`
+    const leaderCandidates = await all<any>(`
       SELECT
-        s.id,
-        s.full_name,
-        'TEACHER' as role,
-        COALESCE(unread.unread_count, 0) as unread_count,
-        latest.text as last_message,
-        CASE
-          WHEN (? != '' AND s.id = ?) THEN 0
-          WHEN (? != '' AND LOWER(COALESCE(s.full_name, '')) = LOWER(?)) THEN 0
-          ELSE 1
-        END as sort_priority
-      FROM staff s
-      LEFT JOIN (
-        SELECT sender_id, COUNT(*) as unread_count
-        FROM messages
-        WHERE kindergarten_id = ? AND receiver_id = ? AND status != 'read' AND COALESCE(is_deleted, 0) = 0
-        GROUP BY sender_id
-      ) unread ON unread.sender_id = s.id
-      LEFT JOIN LATERAL (
-        SELECT text
-        FROM messages m
-        WHERE m.kindergarten_id = s.kindergarten_id
-          AND ((m.sender_id = s.id AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = s.id))
-          AND COALESCE(m.is_deleted, 0) = 0
-        ORDER BY m.created_at DESC
-        LIMIT 1
-      ) latest ON true
-      WHERE s.kindergarten_id = ?
-        AND (
-          (? != '' AND s.id = ?)
-          OR (? != '' AND s.group_id = ?)
-          OR (? != '' AND LOWER(COALESCE(s.full_name, '')) = LOWER(?))
-          OR (? = '' AND ? = '' AND (
-            LOWER(COALESCE(s.position, '')) LIKE '%educator%'
-            OR LOWER(COALESCE(s.position, '')) LIKE '%tarbiyachi%'
-          ))
-        )
-      ORDER BY sort_priority, full_name
+        id,
+        full_name,
+        role,
+        last_seen_at,
+        source,
+        sort_priority
+      FROM (
+        SELECT
+          ra.id,
+          COALESCE(NULLIF(ra.full_name, ''), ra.login) as full_name,
+          'TEACHER' as role,
+          ra.last_seen_at,
+          'role_account' as source,
+          CASE
+            WHEN (? != '' AND ra.id = ?) THEN 0
+            WHEN (? != '' AND LOWER(COALESCE(ra.full_name, '')) = LOWER(?)) THEN 3
+            ELSE 4
+          END as sort_priority
+        FROM role_accounts ra
+        WHERE ra.kindergarten_id = ? AND ra.role = 'TEACHER'
+          AND (
+            (? != '' AND ra.id = ?)
+            OR (? != '' AND LOWER(COALESCE(ra.full_name, '')) = LOWER(?))
+          )
+
+        UNION ALL
+
+        SELECT
+          s.id,
+          s.full_name,
+          'TEACHER' as role,
+          NULL as last_seen_at,
+          'staff' as source,
+          CASE
+            WHEN (? != '' AND s.id = ?) THEN 0
+            WHEN (? != '' AND s.group_id = ?) THEN 1
+            WHEN (? != '' AND LOWER(COALESCE(s.full_name, '')) = LOWER(?)) THEN 3
+            ELSE 5
+          END as sort_priority
+        FROM staff s
+        WHERE s.kindergarten_id = ?
+          AND (
+            (? != '' AND s.id = ?)
+            OR (? != '' AND LOWER(COALESCE(s.full_name, '')) = LOWER(?))
+            OR (? != '' AND s.group_id = ?)
+          )
+      ) leader
+      ORDER BY sort_priority, source, full_name
+      LIMIT 1
     `, [
       teacherId, teacherId,
       teacherName, teacherName,
-      kindergartenId, parentId,
-      parentId, parentId,
       kindergartenId,
       teacherId, teacherId,
-      child?.group_id || '', child?.group_id || '',
       teacherName, teacherName,
-      teacherId, child?.group_id || '',
+      teacherId, teacherId,
+      teacherName, teacherName,
+      groupId, groupId,
+      kindergartenId,
+      teacherId, teacherId,
+      teacherName, teacherName,
+      groupId, groupId,
     ]);
 
-    const director = await get<any>(`
-      SELECT
-        CAST(k.id AS TEXT) as id,
-        COALESCE(NULLIF(k.directorname, ''), k.username, k.name) as full_name,
-        'DIRECTOR' as role,
-        COALESCE(unread.unread_count, 0) as unread_count,
-        latest.text as last_message
-      FROM kindergartens k
-      LEFT JOIN (
-        SELECT sender_id, COUNT(*) as unread_count
-        FROM messages
-        WHERE kindergarten_id = ? AND receiver_id = ? AND status != 'read' AND COALESCE(is_deleted, 0) = 0
-        GROUP BY sender_id
-      ) unread ON unread.sender_id = CAST(k.id AS TEXT)
-      LEFT JOIN LATERAL (
-        SELECT text
-        FROM messages m
-        WHERE m.kindergarten_id = CAST(k.id AS TEXT)
-          AND ((m.sender_id = CAST(k.id AS TEXT) AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = CAST(k.id AS TEXT)))
-          AND COALESCE(m.is_deleted, 0) = 0
-        ORDER BY m.created_at DESC
+    let leader = leaderCandidates[0];
+
+    if (leader && childFullName && String(leader.full_name || '').replace(/\s+/g, ' ').trim().toLowerCase() === childFullName) {
+      leader = undefined;
+    }
+
+    if (!leader && (teacherName || groupId) && (!childFullName || String(teacherName || '').replace(/\s+/g, ' ').trim().toLowerCase() !== childFullName)) {
+      leader = await get<any>(`
+        SELECT
+          ra.id,
+          COALESCE(NULLIF(?, ''), NULLIF(ra.full_name, ''), ra.login) as full_name,
+          'TEACHER' as role,
+          ra.last_seen_at,
+          'role_account' as source,
+          9 as sort_priority
+        FROM role_accounts ra
+        WHERE ra.kindergarten_id = ? AND ra.role = 'TEACHER'
+        ORDER BY ra.created_at DESC
         LIMIT 1
-      ) latest ON true
-      WHERE CAST(k.id AS TEXT) = ?
+      `, [teacherName, kindergartenId]).catch(() => undefined);
+    }
+
+    if (leader && childFullName && String(leader.full_name || teacherName || '').replace(/\s+/g, ' ').trim().toLowerCase() === childFullName) {
+      leader = undefined;
+    }
+
+    if (!leader) {
+      return res.json([]);
+    }
+
+    const unread = await get<any>(`
+      SELECT COUNT(*) as unread_count
+      FROM messages
+      WHERE kindergarten_id = ? AND sender_id = ? AND receiver_id = ?
+        AND status != 'read' AND COALESCE(is_deleted, 0) = 0
+    `, [kindergartenId, leader.id, parentId]);
+
+    const latest = await get<any>(`
+      SELECT text, created_at
+      FROM messages
+      WHERE kindergarten_id = ?
+        AND ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?))
+        AND COALESCE(is_deleted, 0) = 0
+      ORDER BY created_at DESC
       LIMIT 1
-    `, [kindergartenId, parentId, parentId, parentId, kindergartenId]).catch(() => undefined);
+    `, [kindergartenId, leader.id, parentId, parentId, leader.id]);
 
-    const contactsById = new Map<string, any>();
-    [...roleContacts, ...staffContacts, ...(director ? [director] : [])].forEach((row: any) => {
-      if (!row?.id || contactsById.has(String(row.id))) return;
-      contactsById.set(String(row.id), row);
-    });
+    const hasSystemAccount = leader.source === 'role_account';
+    const presence = formatLastSeenStatus(leader.last_seen_at || latest?.created_at, hasSystemAccount);
 
-    res.json(Array.from(contactsById.values()).map((row: any) => ({
-      id: String(row.id),
-      name: row.full_name,
-      role: row.role === 'TEACHER' ? 'teacher' : 'admin',
-      unreadCount: Number(row.unread_count || 0),
-      lastMessage: row.last_message || '',
-      isOnline: true,
-    })));
+    res.json([{
+      id: String(leader.id),
+      name: leader.full_name || teacherName,
+      role: 'teacher',
+      unreadCount: Number(unread?.unread_count || 0),
+      lastMessage: latest?.text || '',
+      isOnline: presence.isOnline,
+      lastSeenAt: presence.lastSeenAt,
+      statusLabel: presence.statusLabel,
+      hasSystemAccount,
+      isGroupLeader: true,
+      subtitle: 'Guruh rahbari',
+    }]);
   } catch (error: any) {
     console.error('Error loading message contacts:', error);
     res.status(500).json({ error: error.message });

@@ -24,6 +24,7 @@ const ROLES_INFO: Record<UserRole, { label: string, description: string }> = {
   NURSE: { label: 'Hamshira', description: 'Tibbiy nazorat' },
   INSPECTOR: { label: 'Inspektor', description: "Organoleptik ko'rsatkichlar" },
   PARENT: { label: 'Ota-ona', description: 'Ota-ona portali' },
+  WEBSITE: { label: "Bog'cha web sayti", description: 'Public web sahifa' },
   ADMIN: { label: 'Admin', description: 'Tizim admini' }
 };
 

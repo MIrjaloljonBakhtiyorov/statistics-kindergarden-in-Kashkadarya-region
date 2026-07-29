@@ -1,22 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import type { User } from 'firebase/auth';
 import { DashboardLayout } from './components/layout/DashboardLayout';
-import { Overview } from './pages/dashboard/Overview';
-import { Districts } from './pages/dashboard/Districts';
-import { NutritionMenu } from './pages/dashboard/NutritionMenu';
-import { AqlvoyChefMenu } from './pages/dashboard/AqlvoyChefMenu';
-import { RatingAudit } from './pages/dashboard/RatingAudit';
-import { WarehouseCommandCenter } from './pages/dashboard/WarehouseCommandCenter';
-import { MedicalStockReserve } from './pages/dashboard/MedicalStockReserve';
-import { MTTManagement } from './pages/dashboard/MTTManagement';
-import { KindergartenInspection } from './pages/dashboard/KindergartenInspection';
-import { AIInsights } from './pages/dashboard/AIInsights';
-import { FinancialAnalytics } from './pages/dashboard/FinancialAnalytics';
-import { MenuStatistics } from './pages/dashboard/MenuStatistics';
-import { Alerts } from './pages/dashboard/Alerts';
-import { Loader2, Settings, ShieldCheck } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Toaster } from 'sonner';
+
+const Overview = lazy(() => import('./pages/dashboard/Overview').then((module) => ({ default: module.Overview })));
+const Districts = lazy(() => import('./pages/dashboard/Districts').then((module) => ({ default: module.Districts })));
+const NutritionMenu = lazy(() => import('./pages/dashboard/NutritionMenu').then((module) => ({ default: module.NutritionMenu })));
+const AqlvoyChefMenu = lazy(() => import('./pages/dashboard/AqlvoyChefMenu').then((module) => ({ default: module.AqlvoyChefMenu })));
+const RatingAudit = lazy(() => import('./pages/dashboard/RatingAudit').then((module) => ({ default: module.RatingAudit })));
+const WarehouseCommandCenter = lazy(() => import('./pages/dashboard/WarehouseCommandCenter').then((module) => ({ default: module.WarehouseCommandCenter })));
+const MedicalStockReserve = lazy(() => import('./pages/dashboard/MedicalStockReserve').then((module) => ({ default: module.MedicalStockReserve })));
+const MTTManagement = lazy(() => import('./pages/dashboard/MTTManagement').then((module) => ({ default: module.MTTManagement })));
+const KindergartenInspection = lazy(() => import('./pages/dashboard/KindergartenInspection').then((module) => ({ default: module.KindergartenInspection })));
+const AIInsights = lazy(() => import('./pages/dashboard/AIInsights').then((module) => ({ default: module.AIInsights })));
+const FinancialAnalytics = lazy(() => import('./pages/dashboard/FinancialAnalytics').then((module) => ({ default: module.FinancialAnalytics })));
+const MenuStatistics = lazy(() => import('./pages/dashboard/MenuStatistics').then((module) => ({ default: module.MenuStatistics })));
+const KindergartenWebsiteBuilder = lazy(() => import('./pages/dashboard/KindergartenWebsiteBuilder').then((module) => ({ default: module.KindergartenWebsiteBuilder })));
+const WebsiteNewsManager = lazy(() => import('./pages/dashboard/WebsiteNewsManager').then((module) => ({ default: module.WebsiteNewsManager })));
+const Alerts = lazy(() => import('./pages/dashboard/Alerts').then((module) => ({ default: module.Alerts })));
+
+const RouteFallback = () => (
+  <div className="flex min-h-[420px] items-center justify-center">
+    <Loader2 className="animate-spin text-emerald-600" size={34} />
+  </div>
+);
 
 export default function App() {
   const [user, setUser] = useState<User | { email: string } | null>(null);
@@ -68,42 +77,28 @@ export default function App() {
     <>
       <Toaster position="top-center" richColors />
       <DashboardLayout>
-        <Routes>
-          <Route index element={<Overview />} />
-          <Route path="region/:regionSlug" element={<Overview />} />
-          <Route path="districts" element={<Districts />} />
-          <Route path="tuman-stats" element={<Districts />} />
-          <Route path="menu" element={<NutritionMenu />} />
-          <Route path="aqlvoy-chef-menu" element={<AqlvoyChefMenu />} />
-          <Route path="rating" element={<RatingAudit />} />
-          <Route path="kindergartens" element={<MTTManagement />} />
-          <Route path="kindergarten-inspection" element={<KindergartenInspection />} />
-          <Route path="ai-insights" element={<AIInsights />} />
-          <Route path="warehouse" element={<WarehouseCommandCenter />} />
-          <Route path="medical-stock" element={<MedicalStockReserve />} />
-          <Route path="financial-stats" element={<FinancialAnalytics />} />
-          <Route path="menu-stats" element={<MenuStatistics />} />
-          <Route path="alerts" element={<Alerts />} />
-          <Route path="settings" element={
-            <div className="p-8 max-w-4xl mx-auto">
-              <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Tizim sozlamalari</h2>
-                <p className="text-slate-500 mt-3 font-medium text-lg leading-relaxed">
-                  Ushbu bo'lim hozirda ishlab chiqilmoqda.
-                </p>
-                <div className="mt-8 flex gap-4">
-                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
-                    <Settings />
-                  </div>
-                  <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
-                    <ShieldCheck />
-                  </div>
-                </div>
-              </div>
-            </div>
-          } />
-          <Route path="*" element={<Navigate to="/admin" replace />} />
-        </Routes>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            <Route index element={<Overview />} />
+            <Route path="region/:regionSlug" element={<Overview />} />
+            <Route path="districts" element={<Districts />} />
+            <Route path="tuman-stats" element={<Districts />} />
+            <Route path="menu" element={<NutritionMenu />} />
+            <Route path="aqlvoy-chef-menu" element={<AqlvoyChefMenu />} />
+            <Route path="rating" element={<RatingAudit />} />
+            <Route path="kindergartens" element={<MTTManagement />} />
+            <Route path="kindergarten-inspection" element={<KindergartenInspection />} />
+            <Route path="ai-insights" element={<AIInsights />} />
+            <Route path="warehouse" element={<WarehouseCommandCenter />} />
+            <Route path="medical-stock" element={<MedicalStockReserve />} />
+            <Route path="financial-stats" element={<FinancialAnalytics />} />
+            <Route path="menu-stats" element={<MenuStatistics />} />
+            <Route path="website-builder" element={<KindergartenWebsiteBuilder />} />
+            <Route path="website-news" element={<WebsiteNewsManager />} />
+            <Route path="alerts" element={<Alerts />} />
+            <Route path="*" element={<Navigate to="/admin" replace />} />
+          </Routes>
+        </Suspense>
       </DashboardLayout>
     </>
   );

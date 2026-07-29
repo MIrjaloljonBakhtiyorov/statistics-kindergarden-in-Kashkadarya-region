@@ -1,236 +1,376 @@
-﻿import React, { useState } from 'react';
-import { FileText, ShieldCheck, Download, Clock, Plus, X, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { apiClient } from '@/shared/api';
+import React, { useMemo, useState } from 'react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Download,
+  ExternalLink,
+  FileText,
+  Plus,
+  ShieldCheck,
+  Trash2,
+  Upload,
+  X,
+} from 'lucide-react';
+import { motion } from 'motion/react';
+import { apiClient, API_BASE_URL } from '@/shared/api';
 import { useNotification } from '../../../context/NotificationContext';
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const ACCEPTED_FILE_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+const ACCEPTED_FILE_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.doc', '.docx'];
 
 const DOC_TYPES = [
-  { id: 'MEDICAL', label: 'Tibbiy ma\'lumotnoma' },
-  { id: 'ALLERGY', label: 'Allergiya haqida ma\'lumot' },
+  { id: 'MEDICAL', label: "Tibbiy ma'lumotnoma" },
+  { id: 'ALLERGY', label: "Allergiya haqida ma'lumot" },
   { id: 'PASSPORT', label: 'Guvohnoma nusxasi' },
-  { id: 'OTHER', label: 'Boshqa hujjatlar' }
+  { id: 'OTHER', label: 'Boshqa hujjat' },
 ];
+
+const DOC_TYPE_LABELS = DOC_TYPES.reduce<Record<string, string>>((acc, item) => {
+  acc[item.id] = item.label;
+  return acc;
+}, {});
+
+const initialDoc = {
+  title: '',
+  type: 'MEDICAL',
+  file: null as File | null,
+};
+
+const getAssetUrl = (value?: string) => {
+  if (!value) return '';
+  if (/^(https?:|data:|blob:)/.test(value)) return value;
+  const origin = API_BASE_URL.replace(/\/api\/?$/, '');
+  return `${origin}${value.startsWith('/') ? value : `/${value}`}`;
+};
+
+const formatDate = (value?: string) => {
+  if (!value) return 'Sana yoq';
+  const normalized = value.includes('T') ? value : value.replace(' ', 'T');
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return value.split(' ')[0] || value;
+  return new Intl.DateTimeFormat('uz-UZ', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+};
+
+const formatFileSize = (size?: number) => {
+  if (!size) return '';
+  if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
   const { showNotification } = useNotification();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [newDoc, setNewDoc] = useState({
-    title: '',
-    type: 'MEDICAL',
-    file: null as File | null,
-    fileUrl: ''
-  });
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [newDoc, setNewDoc] = useState(initialDoc);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setNewDoc({ ...newDoc, file });
+  const documents = useMemo(() => data?.documents || [], [data?.documents]);
+
+  const resetForm = () => {
+    setNewDoc(initialDoc);
+    setShowForm(false);
   };
 
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newDoc.file || !newDoc.title) {
-      showNotification("Iltimos, barcha maydonlarni to'ldiring", "error");
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      showNotification('Fayl hajmi 10MB dan oshmasligi kerak', 'error');
+      event.target.value = '';
+      return;
+    }
+
+    const fileName = file.name.toLowerCase();
+    const hasAcceptedExtension = ACCEPTED_FILE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
+    const hasAcceptedMime = file.type ? ACCEPTED_FILE_TYPES.includes(file.type) : true;
+
+    if (!hasAcceptedExtension || !hasAcceptedMime) {
+      showNotification('Faqat PDF, rasm yoki Word hujjat yuklash mumkin', 'error');
+      event.target.value = '';
+      return;
+    }
+
+    setNewDoc((prev) => ({ ...prev, file }));
+  };
+
+  const handleUpload = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const title = newDoc.title.trim();
+
+    if (!childId) {
+      showNotification("Bola ma'lumoti topilmadi", 'error');
+      return;
+    }
+
+    if (!title || !newDoc.file) {
+      showNotification("Hujjat nomi va faylni kiriting", 'error');
       return;
     }
 
     setIsUploading(true);
     try {
-      // 1. Upload file
       const formData = new FormData();
-      formData.append('image', newDoc.file); // Backend uses 'image' field for uploads
-      
-      const uploadRes = await apiClient.post(`/upload`, formData);
-      const fileUrl = uploadRes.data.url;
+      formData.append('image', newDoc.file);
 
-      // 2. Save document metadata
-      await apiClient.post(`/parent-portal/documents`, {
-        child_id: childId,
-        title: newDoc.title,
-        type: newDoc.type,
-        file_url: fileUrl
+      const uploadRes = await apiClient.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      showNotification("Hujjat muvaffaqiyatli yuklandi!", "success");
-      setIsModalOpen(false);
-      setNewDoc({ title: '', type: 'MEDICAL', file: null, fileUrl: '' });
-      if (onUpdate) onUpdate();
-    } catch (err) {
-      console.error(err);
-      showNotification("Hujjatni yuklashda xatolik", "error");
+      await apiClient.post('/parent-portal/documents', {
+        child_id: childId,
+        title,
+        type: newDoc.type,
+        file_url: uploadRes.data.url,
+      });
+
+      showNotification('Hujjat yuklandi', 'success');
+      resetForm();
+      onUpdate?.();
+    } catch (error: any) {
+      console.error(error);
+      showNotification(error?.response?.data?.error || 'Hujjatni yuklashda xatolik', 'error');
     } finally {
       setIsUploading(false);
     }
   };
 
+  const handleDelete = async (docId: string) => {
+    if (!window.confirm("Hujjatni o'chirishni tasdiqlaysizmi?")) return;
+
+    setDeletingId(docId);
+    try {
+      await apiClient.delete(`/parent-portal/documents/${docId}`);
+      showNotification("Hujjat o'chirildi", 'success');
+      onUpdate?.();
+    } catch (error: any) {
+      console.error(error);
+      showNotification(error?.response?.data?.error || "Hujjatni o'chirishda xatolik", 'error');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4 md:space-y-6">
-       <div className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border shadow-sm overflow-hidden">
-          <div className="p-5 md:p-7 border-b border-slate-50 flex flex-col md:flex-row items-center justify-between bg-slate-50/20 gap-4">
-             <div className="flex items-center gap-3.5 text-center md:text-left">
-                <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-brand-primary text-white flex items-center justify-center shadow-md border-2 border-white/20 shrink-0">
-                   <FileText size={24} />
-                </div>
-                <div>
-                   <h5 className="text-lg md:text-2xl font-black text-brand-depth tracking-tight uppercase leading-none">Hujjatlar</h5>
-                   <p className="text-[8px] md:text-[9px] font-black text-brand-muted uppercase tracking-widest mt-1 flex items-center justify-center md:justify-start gap-1.5">
-                      <ShieldCheck size={12} className="text-emerald-500" /> Maxfiy Arxiv
-                   </p>
-                </div>
-             </div>
-             <button 
-               onClick={() => setIsModalOpen(true)}
-               className="flex items-center gap-2 px-6 py-3 bg-brand-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-brand-primary/20 hover:scale-105 transition-all"
-             >
-                <Plus size={16} /> Hujjat yuklash
-             </button>
+      <div className="overflow-hidden rounded-[1.35rem] border border-rose-100 bg-white shadow-sm">
+        <div className="flex flex-col gap-4 border-b border-rose-100 bg-[linear-gradient(135deg,#fff_0%,#fff7fa_48%,#fff1f7_100%)] p-4 sm:p-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex min-w-0 items-center gap-3.5">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/20">
+              <FileText size={21} />
+            </div>
+            <div className="min-w-0">
+              <h5 className="text-lg font-black uppercase leading-tight tracking-tight text-slate-950 md:text-xl">Hujjatlar</h5>
+              <p className="mt-1 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.14em] text-rose-600">
+                <ShieldCheck size={12} /> Maxfiy arxiv
+              </p>
+            </div>
           </div>
-          <div className="divide-y divide-slate-100">
-             {data?.documents?.length > 0 ? data.documents.map((doc:any) => (
-                <div key={doc.id} className="p-4 md:p-6 flex flex-col md:flex-row items-center justify-between group hover:bg-slate-50/80 transition-all gap-4">
-                   <div className="flex items-center gap-3.5 text-center md:text-left">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white flex items-center justify-center text-brand-primary border border-slate-100 shadow-sm shrink-0">
-                         <FileText size={20} />
-                      </div>
-                      <div>
-                         <p className="font-bold md:font-black text-sm md:text-lg text-brand-depth tracking-tight group-hover:text-brand-primary transition-colors leading-none">{doc.title}</p>
-                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 mt-1.5">
-                            <span className="px-2 py-0.5 bg-slate-100 text-brand-muted text-[7px] md:text-[8px] font-black uppercase rounded-md border border-slate-200">{doc.type}</span>
-                            <div className="flex items-center gap-1 text-[7px] md:text-[8px] font-black text-brand-slate uppercase tracking-widest">
-                               <Clock size={10} className="text-brand-primary" /> {doc.created_at?.split(' ')[0]}
-                            </div>
-                         </div>
-                      </div>
-                   </div>
-                   <a 
-                     href={doc.file_url} 
-                     target="_blank" 
-                     rel="noopener noreferrer"
-                     className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-brand-depth text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-md hover:bg-brand-primary transition-all active:scale-95 shrink-0"
-                   >
-                      <Download size={14} /> 
-                      <span>Yuklab olish</span>
-                   </a>
+
+          <button
+            onClick={() => setShowForm((value) => !value)}
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-rose-500/20 transition-all hover:scale-[1.01] active:scale-95"
+          >
+            {showForm ? <X size={16} /> : <Plus size={16} />}
+            {showForm ? 'Yopish' : 'Hujjat yuklash'}
+          </button>
+        </div>
+
+        {showForm && (
+          <motion.form
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            onSubmit={handleUpload}
+            className="border-b border-rose-100 bg-[linear-gradient(180deg,#fff_0%,#fffafb_100%)] p-4 sm:p-5"
+          >
+            <div className="rounded-[1.15rem] border border-rose-100 bg-white p-4 shadow-sm shadow-rose-100/30">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+                  <Upload size={19} />
                 </div>
-             )) : (
-               <div className="p-10 md:p-16 text-center text-brand-muted font-black uppercase tracking-widest text-[9px]">Hujjatlar mavjud emas</div>
-             )}
+                <div className="min-w-0">
+                  <h3 className="text-base font-black uppercase tracking-tight text-slate-950">Yangi hujjat</h3>
+                  <p className="text-[9px] font-black uppercase tracking-[0.14em] text-rose-500">Yuklash shu menyuda amalga oshadi</p>
+                </div>
+              </div>
+
+              <div className="space-y-2.5">
+                <label className="ml-1 text-[9px] font-black uppercase tracking-widest text-slate-700">Hujjat turi</label>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                  {DOC_TYPES.map((type) => (
+                    <button
+                      key={type.id}
+                      type="button"
+                      onClick={() => setNewDoc((prev) => ({ ...prev, type: type.id }))}
+                      className={`min-h-11 rounded-2xl border px-3 py-2.5 text-left text-[9px] font-black uppercase tracking-[0.08em] transition-all ${
+                        newDoc.type === type.id
+                          ? 'border-rose-300 bg-rose-100 text-rose-700 shadow-sm shadow-rose-100'
+                          : 'border-rose-100 bg-white text-slate-500 hover:border-rose-200 hover:bg-rose-50'
+                      }`}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.9fr)]">
+                <div className="space-y-2.5">
+                  <label className="ml-1 text-[9px] font-black uppercase tracking-widest text-slate-700">Hujjat nomi</label>
+                  <input
+                    type="text"
+                    value={newDoc.title}
+                    onChange={(event) => setNewDoc((prev) => ({ ...prev, title: event.target.value }))}
+                    placeholder="Masalan: Tibbiy ko'rik varaqasi"
+                    className="h-12 w-full rounded-2xl border border-rose-100 bg-rose-50/50 px-4 text-sm font-bold text-slate-950 outline-none transition-all placeholder:text-slate-400 focus:border-rose-300 focus:bg-white focus:ring-4 focus:ring-rose-100/70"
+                  />
+                </div>
+
+                <div className="space-y-2.5">
+                  <label className="ml-1 text-[9px] font-black uppercase tracking-widest text-slate-700">Faylni tanlang</label>
+                  <label
+                    htmlFor="doc-file"
+                    className={`relative flex h-12 cursor-pointer items-center gap-3 rounded-2xl border px-3 transition-all ${
+                      newDoc.file ? 'border-pink-200 bg-pink-50/70' : 'border-rose-100 bg-rose-50/50 hover:border-rose-300 hover:bg-white'
+                    }`}
+                  >
+                    <input id="doc-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" onChange={handleFileChange} className="hidden" />
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${newDoc.file ? 'bg-pink-100 text-pink-600' : 'bg-white text-rose-500'}`}>
+                      {newDoc.file ? <CheckCircle2 size={18} /> : <Upload size={18} />}
+                    </div>
+                    <div className="min-w-0">
+                      {newDoc.file ? (
+                        <>
+                          <p className="truncate text-[11px] font-black uppercase text-slate-950">{newDoc.file.name}</p>
+                          <p className="mt-0.5 text-[8px] font-black uppercase tracking-widest text-pink-600">{formatFileSize(newDoc.file.size)} tayyor</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-[11px] font-black uppercase tracking-tight text-slate-950">Fayl tanlash</p>
+                          <p className="mt-0.5 text-[8px] font-black uppercase tracking-widest text-slate-500">PDF, rasm, Word - max 10MB</p>
+                        </>
+                      )}
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-rose-100 bg-rose-50/70 p-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-start gap-2.5">
+                  <AlertCircle size={17} className="mt-0.5 shrink-0 text-rose-500" />
+                  <p className="text-[9px] font-bold uppercase leading-relaxed tracking-wider text-rose-700">
+                    Yuklangan fayl faqat bog'cha tizimi va ota-ona portali ichida ko'rinadi.
+                  </p>
+                </div>
+
+                <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    disabled={isUploading}
+                    className="rounded-2xl border border-rose-100 bg-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-rose-600 transition-all hover:bg-rose-50 disabled:opacity-50"
+                  >
+                    Bekor qilish
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isUploading}
+                    className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-500/20 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50"
+                  >
+                    {isUploading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <Upload size={15} />}
+                    {isUploading ? 'Yuklanmoqda...' : 'Tasdiqlash'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.form>
+        )}
+
+        {documents.length > 0 ? (
+          <div className="divide-y divide-rose-100">
+            {documents.map((doc: any) => {
+              const fileUrl = getAssetUrl(doc.file_url);
+              return (
+                <article key={doc.id} className="group flex flex-col gap-4 p-4 transition-all hover:bg-rose-50/60 sm:p-5 md:flex-row md:items-center md:justify-between">
+                  <div className="flex min-w-0 items-start gap-3.5">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-rose-50 text-rose-600 shadow-sm">
+                      <FileText size={20} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="break-words text-sm font-black leading-snug text-slate-950 transition-colors group-hover:text-rose-600 md:text-base">
+                        {doc.title || 'Nomsiz hujjat'}
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-rose-600">
+                          {DOC_TYPE_LABELS[doc.type] || doc.type || 'Hujjat'}
+                        </span>
+                        <span className="rounded-lg bg-white px-2 py-1 text-[8px] font-black uppercase tracking-wider text-slate-500 ring-1 ring-rose-100">
+                          {formatDate(doc.created_at)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                    {fileUrl ? (
+                      <a
+                        href={fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-md shadow-rose-500/20 transition-all hover:scale-[1.01] active:scale-95"
+                      >
+                        <ExternalLink size={14} />
+                        Ochish
+                      </a>
+                    ) : null}
+                    {fileUrl ? (
+                      <a
+                        href={fileUrl}
+                        download
+                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-100 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-rose-600 transition-all hover:bg-rose-50 active:scale-95"
+                      >
+                        <Download size={14} />
+                        Yuklab olish
+                      </a>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(doc.id)}
+                      disabled={deletingId === doc.id}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-rose-600 transition-all hover:bg-rose-500 hover:text-white disabled:opacity-50"
+                    >
+                      <Trash2 size={14} />
+                      {deletingId === doc.id ? "O'chmoqda" : "O'chirish"}
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
           </div>
-       </div>
-
-       {/* Upload Modal */}
-       <AnimatePresence>
-          {isModalOpen && (
-             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                <motion.div 
-                  initial={{ opacity: 0 }} 
-                  animate={{ opacity: 1 }} 
-                  exit={{ opacity: 0 }}
-                  onClick={() => setIsModalOpen(false)}
-                  className="absolute inset-0 bg-black/20"
-                />
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                  className="relative w-full max-w-lg bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden"
-                >
-                   <div className="p-6 md:p-8 border-b border-slate-50 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                         <div className="w-10 h-10 bg-brand-primary/10 text-brand-primary rounded-xl flex items-center justify-center">
-                            <Upload size={20} />
-                         </div>
-                         <h3 className="text-lg md:text-xl font-black text-brand-depth uppercase tracking-tight">Yangi hujjat</h3>
-                      </div>
-                      <button onClick={() => setIsModalOpen(false)} className="p-1.5 hover:bg-slate-50 rounded-lg transition-colors"><X size={20} /></button>
-                   </div>
-
-                   <form onSubmit={handleUpload} className="p-6 md:p-8 space-y-6">
-                      <div className="space-y-3">
-                         <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest ml-1">Hujjat turi</label>
-                         <div className="grid grid-cols-2 gap-2.5">
-                            {DOC_TYPES.map(type => (
-                               <button
-                                 key={type.id}
-                                 type="button"
-                                 onClick={() => setNewDoc({...newDoc, type: type.id})}
-                                 className={`px-3 py-2.5 rounded-lg font-black text-[9px] uppercase tracking-wider transition-all border-2 ${
-                                   newDoc.type === type.id 
-                                     ? 'bg-brand-primary/10 border-brand-primary text-brand-primary shadow-sm' 
-                                     : 'bg-white border-slate-100 text-brand-muted hover:border-slate-200'
-                                 }`}
-                               >
-                                  {type.label}
-                               </button>
-                            ))}
-                         </div>
-                      </div>
-
-                      <div className="space-y-3">
-                         <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest ml-1">Hujjat nomi</label>
-                         <input 
-                           type="text"
-                           value={newDoc.title}
-                           onChange={(e) => setNewDoc({...newDoc, title: e.target.value})}
-                           placeholder="Masalan: Tibbiy ko'rik varaqasi"
-                           className="w-full bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl py-3 px-5 font-bold text-brand-depth outline-none transition-all text-sm"
-                         />
-                      </div>
-
-                      <div className="space-y-3">
-                         <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest ml-1">Faylni tanlang</label>
-                         <div 
-                           onClick={() => document.getElementById('doc-file')?.click()}
-                           className={`relative cursor-pointer group p-6 md:p-10 border-4 border-dashed rounded-[1.8rem] transition-all flex flex-col items-center text-center space-y-3 ${
-                              newDoc.file ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-100 bg-slate-50/50 hover:border-brand-primary/30'
-                           }`}
-                         >
-                            <input id="doc-file" type="file" onChange={handleFileChange} className="hidden" />
-                            {newDoc.file ? (
-                               <>
-                                  <div className="w-12 h-12 bg-emerald-100 text-emerald-500 rounded-xl flex items-center justify-center shadow-md"><CheckCircle2 size={24} /></div>
-                                  <div>
-                                     <p className="font-black text-brand-depth text-xs uppercase truncate max-w-[180px]">{newDoc.file.name}</p>
-                                     <p className="text-[8px] font-black text-emerald-600 uppercase mt-1 tracking-widest">Tayyor</p>
-                                  </div>
-                               </>
-                            ) : (
-                               <>
-                                  <div className="w-12 h-12 bg-white text-brand-muted rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform"><Upload size={24} /></div>
-                                  <div>
-                                     <p className="font-black text-brand-depth text-xs uppercase tracking-tight">Faylni tanlang</p>
-                                     <p className="text-[8px] font-black text-brand-muted uppercase mt-0.5 tracking-widest">Max 10MB</p>
-                                  </div>
-                               </>
-                            )}
-                         </div>
-                      </div>
-
-                      <div className="pt-2 flex flex-col gap-3">
-                         <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-center gap-2.5">
-                            <AlertCircle size={18} className="text-blue-500 shrink-0" />
-                            <p className="text-[8px] font-bold text-blue-700 uppercase leading-relaxed tracking-wider">
-                               Yuklangan hujjat avtomatik yuboriladi.
-                            </p>
-                         </div>
-                         <button 
-                           type="submit"
-                           disabled={isUploading}
-                           className="w-full py-5 bg-brand-depth text-white font-black rounded-xl md:rounded-2xl shadow-xl shadow-brand-depth/20 hover:bg-brand-primary active:scale-95 transition-all disabled:opacity-50 uppercase text-[10px] tracking-widest flex items-center justify-center gap-2"
-                         >
-                            {isUploading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Upload size={16} />}
-                            {isUploading ? 'Yuklanmoqda...' : 'Tasdiqlash'}
-                         </button>
-                      </div>
-                   </form>
-                </motion.div>
-             </div>
-          )}
-       </AnimatePresence>
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-3 p-10 text-center md:p-14">
+            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-rose-50 text-rose-300 ring-1 ring-rose-100">
+              <FileText size={30} />
+            </div>
+            <div>
+              <p className="text-sm font-black uppercase tracking-widest text-slate-950">Hujjatlar mavjud emas</p>
+              <p className="mt-1 text-xs font-bold text-slate-500">Tibbiy ma'lumotnoma, guvohnoma yoki boshqa fayllarni shu yerdan yuklang.</p>
+            </div>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 };
-
-

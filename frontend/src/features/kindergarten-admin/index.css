@@ -15,18 +15,71 @@
   }
 
   /* Custom Scrollbar for Sleek Interface */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(71 85 105 / 0.75) transparent;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    background: transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
+    min-height: 36px;
+    border-radius: 999px;
+    background: rgb(71 85 105 / 0.72);
   }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgb(99 102 241 / 0.86);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  .admin-sidebar-scroll-mask {
+    scrollbar-width: none;
+  }
+
+  .admin-sidebar-menu {
+    right: 0;
+    width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+    overflow: hidden;
+  }
+
+  .admin-sidebar-menu::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
+
+  .admin-sidebar-menu::-webkit-scrollbar-track,
+  .admin-sidebar-menu::-webkit-scrollbar-thumb,
+  .admin-sidebar-menu::-webkit-scrollbar-button,
+  .admin-sidebar-menu::-webkit-scrollbar-corner {
+    display: none !important;
+    background: transparent !important;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }

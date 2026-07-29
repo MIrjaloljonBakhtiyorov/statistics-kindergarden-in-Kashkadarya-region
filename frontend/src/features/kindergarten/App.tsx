@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { lazy, Suspense, useState, useEffect } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { useAuth } from './context/AuthContext';
 import './index.css';
@@ -12,21 +12,30 @@ import './index.css';
 import Sidebar from './components/layout/Sidebar';
 import TopBar from './components/layout/TopBar';
 
-// --- View Components ---
-import DirectorView from './components/views/DirectorView';
-import OperatorView from './components/views/OperatorView';
-import StorekeeperView from './components/views/StorekeeperView';
-import ChefView from './components/views/ChefView';
-import KitchenManagerView from './components/views/KitchenManagerView';
-import LabView from './components/views/LabView';
-import TeacherView from './components/views/TeacherView';
-import NurseView from './components/views/NurseView';
-import InspectorView from './components/views/InspectorView';
-import ParentView from './components/views/ParentView';
-
 // --- Types & Hooks ---
 import { UserRole } from './types';
 import { useGroups } from './features/groups/hooks/useGroups';
+
+const DirectorView = lazy(() => import('./components/views/DirectorView'));
+const OperatorView = lazy(() => import('./components/views/OperatorView'));
+const StorekeeperView = lazy(() => import('./components/views/StorekeeperView'));
+const ChefView = lazy(() => import('./components/views/ChefView'));
+const KitchenManagerView = lazy(() => import('./components/views/KitchenManagerView'));
+const LabView = lazy(() => import('./components/views/LabView'));
+const TeacherView = lazy(() => import('./components/views/TeacherView'));
+const NurseView = lazy(() => import('./components/views/NurseView'));
+const InspectorView = lazy(() => import('./components/views/InspectorView'));
+const ParentView = lazy(() => import('./components/views/ParentView'));
+const KindergartenWebsiteView = lazy(() => import('./components/views/KindergartenWebsiteView'));
+
+const ViewFallback = () => (
+  <div className="flex min-h-[360px] items-center justify-center rounded-lg border border-brand-line bg-white">
+    <div className="text-center">
+      <div className="mx-auto h-9 w-9 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" />
+      <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-brand-muted">Bo'lim yuklanmoqda</p>
+    </div>
+  </div>
+);
 
 const App: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -61,7 +70,7 @@ const App: React.FC = () => {
 
     if (user.role === 'PARENT' && currentRole !== 'PARENT') {
       setCurrentRole('PARENT');
-      window.history.replaceState(null, '', `/kindergarten/${currentKindergartenId}/parent`);
+      window.history.replaceState(null, '', `/kindergarten/${currentKindergartenId}/parent/profile`);
       return;
     }
 
@@ -107,6 +116,8 @@ const App: React.FC = () => {
         return <NurseView />;
       case 'INSPECTOR':
         return <InspectorView />;
+      case 'WEBSITE':
+        return <KindergartenWebsiteView />;
       case 'PARENT':
         return <ParentView />;
       default:
@@ -159,11 +170,13 @@ const App: React.FC = () => {
           />
         )}
         
-        <main className={`flex-1 overflow-y-auto ${isParent ? 'p-0 kg-parent-main' : 'p-3 sm:p-5 lg:p-8 xl:p-10'} custom-scrollbar`}>
-          <div className={`${isParent ? 'w-full' : 'max-w-[1600px] mx-auto w-full min-w-0'}`}>
+        <main className={`flex-1 ${isParent ? 'overflow-hidden p-0 kg-parent-main min-h-0' : 'overflow-y-auto p-3 sm:p-5 lg:p-8 xl:p-10 custom-scrollbar'}`}>
+          <div className={`${isParent ? 'w-full h-full min-h-0' : 'max-w-[1600px] mx-auto w-full min-w-0'}`}>
             <AnimatePresence mode="wait">
-              <div key={currentRole} className="min-w-0">
-                {renderCurrentView()}
+              <div key={currentRole} className={`min-w-0 ${isParent ? 'h-full min-h-0' : ''}`}>
+                <Suspense fallback={<ViewFallback />}>
+                  {renderCurrentView()}
+                </Suspense>
               </div>
             </AnimatePresence>
           </div>

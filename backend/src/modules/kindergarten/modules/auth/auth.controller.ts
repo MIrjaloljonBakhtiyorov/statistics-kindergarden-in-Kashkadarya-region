@@ -32,6 +32,17 @@ const run = (sql: string, params: any[] = []) =>
     });
   });
 
+const ensureRolePresenceColumn = () =>
+  run('ALTER TABLE role_accounts ADD COLUMN IF NOT EXISTS last_seen_at TEXT').catch(() => undefined);
+
+const touchRolePresence = async (roleAccountId: string, kindergartenId?: string | number) => {
+  await ensureRolePresenceColumn();
+  await run(
+    'UPDATE role_accounts SET last_seen_at = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND (? IS NULL OR kindergarten_id = ?)',
+    [new Date().toISOString(), roleAccountId, kindergartenId ?? null, kindergartenId ?? null]
+  ).catch(() => undefined);
+};
+
 const get = <T = any>(sql: string, params: any[] = []) =>
   new Promise<T | undefined>((resolve, reject) => {
     db.get<T>(sql, params, (err, row) => {
@@ -108,6 +119,8 @@ export class AuthController {
           const ok = await verifyPassword(password, roleUser.password_hash);
           if (!ok) return res.status(401).json({ error: 'Invalid login or password' });
 
+          await touchRolePresence(roleUser.id, roleUser.kindergarten_id);
+
           return res.json({
             id: roleUser.id,
             kindergarten_id: roleUser.kindergarten_id,
@@ -147,6 +160,23 @@ export class AuthController {
         kindergarten_id: user.kindergarten_id,
       });
     });
+  };
+
+  heartbeat = async (req: Request, res: Response) => {
+    try {
+      const userId = String(req.body.userId || req.body.id || '').trim();
+      const kindergartenId = req.body.kindergartenId ?? req.body.kindergarten_id ?? null;
+      const role = String(req.body.role || '').toUpperCase();
+
+      if (!userId || !['OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR'].includes(role)) {
+        return res.status(400).json({ error: "Foydalanuvchi ma'lumoti noto'g'ri" });
+      }
+
+      await touchRolePresence(userId, kindergartenId);
+      res.json({ success: true, lastSeenAt: new Date().toISOString() });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || 'Presence yangilanmadi' });
+    }
   };
 
   sendEmailCode = async (req: Request, res: Response) => {

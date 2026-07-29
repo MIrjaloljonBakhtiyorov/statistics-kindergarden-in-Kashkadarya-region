@@ -1,110 +1,222 @@
-﻿import React from 'react';
-import { Activity, Heart, ShieldAlert, FileText, Clipboard, Thermometer, Ruler, Weight, CheckCircle2 } from 'lucide-react';
+import React from 'react';
+import { Activity, AlertCircle, Calendar, Clipboard, FileText, HeartPulse, Ruler, ShieldAlert, Thermometer, Weight } from 'lucide-react';
 import { motion } from 'motion/react';
 
-export const MedicalSection = ({ parentData }: any) => (
-  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 md:space-y-8">
-     {/* Medical Overview Header */}
-     <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 md:p-8 rounded-[1.8rem] md:rounded-[2.5rem] text-white shadow-xl relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-64 md:w-80 h-64 md:h-80 bg-white/10 rounded-full blur-[60px] md:blur-[80px] -mr-32 -mt-32"></div>
-        
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-           <div className="space-y-3">
-              <div className="flex items-center justify-center md:justify-start gap-2.5">
-                 <div className="w-10 h-10 md:w-12 md:h-12 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 flex items-center justify-center">
-                    <Clipboard size={20} className="text-white" />
-                 </div>
-                 <div className="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest text-emerald-400">Tasdiqlangan</div>
-              </div>
-              <h4 className="text-xl md:text-3xl font-black tracking-tight uppercase leading-tight italic">Sog'liqni Saqlash <br/> Monitoringi</h4>
-              <p className="text-white/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest leading-relaxed max-w-xs">Farzandingizning rivojlanishi nazorat ostida.</p>
-           </div>
-           
-           <div className="bg-white/5 border border-white/10 p-5 md:p-7 rounded-[1.5rem] md:rounded-[2rem] backdrop-blur-xl shadow-inner min-w-[240px]">
-              <div className="flex items-center gap-3 mb-4">
-                 <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30"><CheckCircle2 size={20} /></div>
-                 <div>
-                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest leading-none mb-0.5">Holat</p>
-                    <p className="text-lg font-black uppercase tracking-tight">Sog'lom</p>
-                 </div>
-              </div>
-              <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                 <div className="h-full w-[95%] bg-gradient-to-r from-emerald-500 to-emerald-300"></div>
-              </div>
-              <p className="text-[8px] font-black text-white/30 uppercase mt-2.5 tracking-widest">Normal: 95%</p>
-           </div>
-        </div>
-     </div>
+type HealthRecord = {
+  id?: string | number;
+  date?: string;
+  height?: string | number | null;
+  weight?: string | number | null;
+  temperature?: string | number | null;
+  chest_circumference?: string | number | null;
+  weight_status?: string | null;
+  height_status?: string | null;
+  temperature_status?: string | null;
+  chest_circumference_status?: string | null;
+  notes?: string | null;
+  allergy?: string | null;
+  allergies?: string | null;
+  doctor_name?: string | null;
+  checkup_type?: string | null;
+  is_sick?: boolean | number | string;
+};
 
-     {/* Vitals Grid */}
-     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        {[
-           { label: 'Bo\'yi', val: parentData.height || '--', unit: 'cm', icon: Ruler, color: 'blue', desc: 'O\'sish' },
-           { label: 'Vazni', val: parentData.weight || '--', unit: 'kg', icon: Weight, color: 'rose', desc: 'Vazn' },
-           { label: 'Harorat', val: '36.6', unit: 'В°C', icon: Thermometer, color: 'emerald', desc: 'Holat' }
-        ].map((v, i) => (
-           <div key={i} className="bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-brand-border shadow-sm group hover:border-brand-primary transition-all relative overflow-hidden">
-              <div className="flex items-center justify-between mb-6">
-                 <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-${v.color}-50 text-${v.color}-500 flex items-center justify-center border border-${v.color}-100 shadow-sm transition-transform group-hover:scale-110`}>
-                    <v.icon size={24} />
-                 </div>
-                 <div className="text-right">
-                    <p className="text-[9px] font-black text-brand-muted uppercase tracking-widest mb-0.5">{v.label}</p>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{v.desc}</p>
-                 </div>
+const formatDate = (value?: string) => {
+  if (!value) return 'Sana kiritilmagan';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleDateString('uz-UZ', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const getFirstValue = (...values: Array<string | number | null | undefined>) => {
+  const match = values.find((value) => value !== undefined && value !== null && String(value).trim() !== '');
+  return match === undefined ? '--' : match;
+};
+
+const isHealthyNote = (value?: string | null) => {
+  const normalized = String(value || '').toLowerCase().replace(/[`\u2019]/g, "'");
+  return normalized.includes("sog'lom") || normalized.includes('soglom');
+};
+
+const isSickValue = (value: unknown) => value === true || value === 1 || value === '1' || String(value || '').toUpperCase() === 'TRUE';
+
+const hasMeasuredValue = (value: string | number | null | undefined) => value !== undefined && value !== null && String(value).trim() !== '';
+
+export const MedicalSection = ({ parentData, health = [] }: { parentData: any; health?: HealthRecord[] }) => {
+  const latest = health?.[0];
+  const allergies = getFirstValue(latest?.allergy, latest?.allergies, parentData?.allergies, '');
+  const notes = getFirstValue(latest?.notes, parentData?.medical_notes, '');
+  const hasAllergy = allergies !== '--' && String(allergies).trim() !== '';
+  const isUnderControl = Boolean(isSickValue(latest?.is_sick) || parentData?.status === 'SICK' || (notes !== '--' && !isHealthyNote(String(notes))));
+  const statusLabel = hasAllergy ? 'Allergiya bor' : isUnderControl ? 'Nazoratda' : "Sog'lom";
+  const statusText = hasAllergy
+    ? 'Allergiya va taqiqlar alohida kuzatuvda.'
+    : isUnderControl
+      ? "Shifokor qaydi bo'yicha nazorat davom etmoqda."
+      : 'Hozircha xavfli belgi qayd etilmagan.';
+
+  const vitals = [
+    {
+      label: "Bo'yi",
+      value: getFirstValue(latest?.height, parentData?.height),
+      unit: 'cm',
+      icon: Ruler,
+    },
+    {
+      label: 'Vazni',
+      value: getFirstValue(latest?.weight, parentData?.weight),
+      unit: 'kg',
+      icon: Weight,
+    },
+    {
+      label: 'Harorat',
+      value: getFirstValue(latest?.temperature, parentData?.temperature),
+      unit: 'C',
+      icon: Thermometer,
+    },
+    {
+      label: "Ko'krak qafasi",
+      value: getFirstValue(latest?.chest_circumference),
+      unit: 'cm',
+      icon: Activity,
+    },
+  ];
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 md:space-y-5">
+      <div className="relative overflow-hidden rounded-[1.35rem] border border-rose-100 bg-gradient-to-r from-rose-50 via-white to-pink-50 p-4 shadow-sm md:p-5">
+        <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-rose-500 to-pink-500"></div>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-3 pl-1">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-white text-rose-500 shadow-sm">
+              <HeartPulse size={23} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500">Salomatlik nazorati</p>
+              <h4 className="mt-1 text-xl font-extrabold uppercase leading-tight text-brand-depth md:text-2xl">Tibbiy kuzatuv</h4>
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-muted">Farzandingiz sog'ligi bo'yicha asosiy ma'lumotlar</p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-rose-100 bg-white/80 px-4 py-3 shadow-sm">
+            <p className="text-[8px] font-black uppercase tracking-[0.18em] text-brand-muted">Umumiy holat</p>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm shadow-rose-500/20">
+                <Activity size={16} />
+              </span>
+              <div>
+                <p className="text-sm font-extrabold uppercase leading-none text-brand-depth">{statusLabel}</p>
+                <p className="mt-1 text-[9px] font-bold uppercase tracking-wide text-brand-muted">{statusText}</p>
               </div>
-              
-              <p className="text-4xl md:text-5xl font-black text-brand-depth tracking-tighter leading-none">
-                 {v.val}<span className={`text-base md:text-lg text-${v.color}-500 ml-1.5 opacity-40 uppercase font-black`}>{v.unit}</span>
-              </p>
-           </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {vitals.map((item) => (
+          <div key={item.label} className="rounded-[1.15rem] border border-rose-100 bg-white p-4 shadow-sm transition-all hover:border-rose-200 hover:bg-rose-50/40">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-rose-100 bg-rose-50 text-rose-500">
+                <item.icon size={20} />
+              </div>
+              <p className="text-[9px] font-black uppercase tracking-[0.16em] text-brand-muted">{item.label}</p>
+            </div>
+            <p className="text-3xl font-extrabold leading-none text-brand-depth">
+              {item.value}
+              {item.value !== '--' && <span className="ml-1.5 text-sm font-black uppercase text-rose-500">{item.unit}</span>}
+            </p>
+          </div>
         ))}
-     </div>
-     
-     {/* Allergies */}
-     <div className="relative group">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-[2rem] md:rounded-[3rem] blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-        <div className="relative bg-white p-6 md:p-10 rounded-[1.8rem] md:rounded-[2.5rem] border border-brand-border shadow-xl flex flex-col md:flex-row items-center gap-8 md:gap-12">
-           <div className="w-16 h-16 md:w-24 md:h-24 bg-amber-50 text-amber-500 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center shadow-inner border-2 border-white shrink-0">
-              <ShieldAlert size={32} className="animate-pulse" />
-           </div>
-           <div className="space-y-3 md:space-y-4 flex-1 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-2">
-                 <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[8px] font-black uppercase tracking-widest rounded-full border border-amber-200">Critical Info</span>
-              </div>
-              <h5 className="text-xl md:text-2xl font-black text-brand-depth tracking-tight uppercase leading-none">Allergiya va Maxsus Taqiqlar</h5>
-              <div className="bg-slate-50 p-5 md:p-6 rounded-xl border border-brand-border relative overflow-hidden group/card">
-                 <p className="text-sm md:text-lg font-black text-amber-900 leading-relaxed uppercase tracking-tight relative z-10">
-                    {parentData.allergies || 'Tizimda hech qanday allergiya yoki taqiqlar qayd etilmagan'}
-                 </p>
-              </div>
-           </div>
-        </div>
-     </div>
+      </div>
 
-     {/* Medical Notes */}
-     <div className="bg-white rounded-[1.8rem] md:rounded-[2.5rem] border border-brand-border overflow-hidden shadow-sm">
-        <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col md:flex-row items-center justify-between bg-slate-50/20 gap-4">
-           <div className="flex items-center gap-4">
-              <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-brand-depth text-white flex items-center justify-center shadow-lg group">
-                 <FileText size={24} className="group-hover:rotate-[-10deg] transition-transform duration-500" />
-              </div>
-              <div className="text-left">
-                 <h5 className="text-xl md:text-2xl font-black text-brand-depth tracking-tight uppercase leading-none">Shifokor Jurnali</h5>
-                 <p className="text-[9px] font-black text-brand-muted uppercase tracking-[0.3em] mt-1 flex items-center gap-2">
-                    <Activity size={12} className="text-brand-primary" /> Oxirgi tekshiruv qaydlari
-                 </p>
-              </div>
-           </div>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <div className="rounded-[1.25rem] border border-rose-100 bg-white p-4 shadow-sm md:p-5">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-rose-50 text-rose-500">
+              <ShieldAlert size={21} />
+            </div>
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-[0.18em] text-rose-500">Muhim ma'lumot</p>
+              <h5 className="text-lg font-extrabold uppercase leading-tight text-brand-depth">Allergiya va taqiqlar</h5>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-rose-100 bg-rose-50/45 p-4">
+            <p className="text-sm font-bold leading-relaxed text-brand-depth">
+              {hasAllergy ? String(allergies) : 'Allergiya yoki maxsus taqiq qayd etilmagan.'}
+            </p>
+          </div>
         </div>
-        <div className="p-6 md:p-8">
-           <div className="relative p-6 md:p-10 bg-slate-50 rounded-2xl md:rounded-[2.5rem] border border-slate-100 min-h-[120px] flex items-center justify-center group/note">
-              <p className="text-xs md:text-lg font-bold text-brand-slate leading-loose italic text-center max-w-2xl relative z-10">
-                 "{parentData.medical_notes || 'Tizimda hozircha shifokor tomonidan kiritilgan qo\'shimcha qaydlar mavjud emas. Farzandingiz sog\'lig\'i doimiy nazoratda.'}"
-              </p>
-           </div>
-        </div>
-     </div>
-  </motion.div>
-);
 
+        <div className="rounded-[1.25rem] border border-rose-100 bg-white p-4 shadow-sm md:p-5">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-rose-50 text-rose-500">
+              <FileText size={21} />
+            </div>
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-[0.18em] text-rose-500">Shifokor qaydi</p>
+              <h5 className="text-lg font-extrabold uppercase leading-tight text-brand-depth">Oxirgi izoh</h5>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <p className="text-sm font-bold leading-relaxed text-brand-slate">
+              {notes !== '--' ? String(notes) : "Hozircha shifokor tomonidan qo'shimcha qayd kiritilmagan."}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-[1.25rem] border border-brand-border bg-white shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-slate-100 p-4 md:flex-row md:items-center md:justify-between md:p-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-depth text-white">
+              <Clipboard size={20} />
+            </div>
+            <div>
+              <h5 className="text-lg font-extrabold uppercase leading-tight text-brand-depth">Tekshiruv tarixi</h5>
+              <p className="text-[9px] font-black uppercase tracking-[0.16em] text-brand-muted">Oxirgi tibbiy kuzatuvlar</p>
+            </div>
+          </div>
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-rose-100 bg-rose-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.14em] text-rose-600">
+            <Calendar size={13} /> {latest ? formatDate(latest.date) : "Yozuv yo'q"}
+          </div>
+        </div>
+
+        <div className="divide-y divide-slate-100">
+          {health.length > 0 ? health.slice(0, 5).map((item, index) => (
+            <div key={item.id || `${item.date}-${index}`} className="flex flex-col gap-3 p-4 transition-all hover:bg-rose-50/35 md:flex-row md:items-center md:justify-between md:p-5">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-white text-rose-500">
+                  <HeartPulse size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-extrabold uppercase text-brand-depth">{isSickValue(item.is_sick) ? 'Kasallik qayd etildi' : item.checkup_type || 'Hamshira tekshiruvi'}</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-brand-muted">
+                    {formatDate(item.date)} {item.doctor_name ? `- ${item.doctor_name}` : ''}
+                  </p>
+                  {item.notes && <p className="mt-2 text-sm font-semibold leading-relaxed text-brand-slate">{item.notes}</p>}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 md:justify-end">
+                {hasMeasuredValue(item.height) && <span className="rounded-xl bg-rose-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-wide text-rose-600">Bo'yi {item.height} cm</span>}
+                {hasMeasuredValue(item.weight) && <span className="rounded-xl bg-rose-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-wide text-rose-600">Vazni {item.weight} kg</span>}
+                {hasMeasuredValue(item.temperature) && <span className="rounded-xl bg-rose-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-wide text-rose-600">Harorat {item.temperature} C</span>}
+                {hasMeasuredValue(item.chest_circumference) && <span className="rounded-xl bg-rose-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-wide text-rose-600">Ko'krak {item.chest_circumference} cm</span>}
+              </div>
+            </div>
+          )) : (
+            <div className="flex flex-col items-center justify-center gap-3 p-8 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-rose-100 bg-rose-50 text-rose-500">
+                <AlertCircle size={22} />
+              </div>
+              <div>
+                <p className="text-sm font-extrabold uppercase text-brand-depth">Tekshiruvlar kiritilmagan</p>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-brand-muted">Salomatlik yozuvlari bog'cha tomonidan qo'shilganda shu yerda ko'rinadi.</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+};

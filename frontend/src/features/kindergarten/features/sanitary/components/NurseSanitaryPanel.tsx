@@ -26,7 +26,7 @@ const getAssetUrl = (value?: string | null) => {
   if (!value) return '';
   if (value.startsWith('http') || value.startsWith('data:')) return value;
   const apiRoot = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/api\/?$/, '');
-  return `${apiRoot || 'http://localhost:5002'}${value}`;
+  return `${apiRoot || 'http://localhost:3001'}${value}`;
 };
 
 const todayIso = () => new Date().toISOString().slice(0, 10);

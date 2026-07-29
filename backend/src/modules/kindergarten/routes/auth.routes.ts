@@ -8,6 +8,7 @@ export const authRoutes = Router();
 
 authRoutes.post('/auth/login', authController.login);
 authRoutes.post('/auth/parent-login', authController.parentLogin);
+authRoutes.post('/auth/heartbeat', authController.heartbeat);
 authRoutes.post('/auth/send-email-code', authController.sendEmailCode);
 authRoutes.post('/auth/register-user', authController.registerUser);
 authRoutes.post('/auth/user-login', authController.userLogin);

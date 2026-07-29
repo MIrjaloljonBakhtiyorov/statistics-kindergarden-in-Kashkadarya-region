@@ -132,7 +132,7 @@ parentsRoutes.get("/parent-portal/full-data/:childId", async (req, res) => {
     const today = new Date().toISOString().slice(0, 10);
     const [attendance, health, documents, pickups, menu] = await Promise.all([
       all('SELECT * FROM attendance WHERE child_id = ? AND kindergarten_id = ? ORDER BY date DESC LIMIT 30', [req.params.childId, kindergartenId]),
-      all('SELECT * FROM health_checks WHERE child_id = ? AND kindergarten_id = ? ORDER BY date DESC LIMIT 20', [req.params.childId, kindergartenId]),
+      all('SELECT * FROM health_checks WHERE child_id = ? AND kindergarten_id = ? ORDER BY date DESC, created_at DESC LIMIT 20', [req.params.childId, kindergartenId]),
       all('SELECT * FROM parent_documents WHERE child_id = ? AND kindergarten_id = ? ORDER BY created_at DESC', [req.params.childId, kindergartenId]),
       all('SELECT * FROM pickup_people WHERE child_id = ? AND kindergarten_id = ? ORDER BY created_at DESC', [req.params.childId, kindergartenId]),
       all('SELECT * FROM menus WHERE kindergarten_id = ? AND date = ? ORDER BY meal_type', [kindergartenId, today]),
@@ -192,16 +192,38 @@ parentsRoutes.get("/parent-portal/menu/:childId/:date", async (req, res) => {
 parentsRoutes.post("/parent-portal/documents", async (req, res) => {
   try {
     const kindergartenId = await resolveKindergartenId(req);
+    const title = String(req.body.title || '').trim();
+    const type = String(req.body.type || 'OTHER').trim().toUpperCase();
+    const fileUrl = String(req.body.file_url || '').trim();
+
+    if (!req.body.child_id || !title || !fileUrl) {
+      return res.status(400).json({ error: "Hujjat nomi, bola va fayl ma'lumoti kerak" });
+    }
+
+    const child = await get<any>('SELECT id FROM children WHERE id = ? AND kindergarten_id = ?', [req.body.child_id, kindergartenId]);
+    if (!child) return res.status(404).json({ error: 'Child not found' });
+
     const id = crypto.randomUUID();
     await run('INSERT INTO parent_documents (id, kindergarten_id, child_id, title, type, file_url) VALUES (?, ?, ?, ?, ?, ?)', [
       id,
       kindergartenId,
       req.body.child_id,
-      req.body.title,
-      req.body.type,
-      req.body.file_url,
+      title,
+      type,
+      fileUrl,
     ]);
-    res.status(201).json({ id, ...req.body });
+    res.status(201).json({ id, child_id: req.body.child_id, title, type, file_url: fileUrl });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+parentsRoutes.delete("/parent-portal/documents/:id", async (req, res) => {
+  try {
+    const kindergartenId = await resolveKindergartenId(req);
+    const result = await run('DELETE FROM parent_documents WHERE id = ? AND kindergarten_id = ?', [req.params.id, kindergartenId]);
+    if (result.changes === 0) return res.status(404).json({ error: 'Document not found' });
+    res.json({ success: true });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

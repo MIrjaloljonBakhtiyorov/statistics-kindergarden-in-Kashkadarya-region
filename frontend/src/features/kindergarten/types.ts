@@ -11,6 +11,7 @@ export type UserRole =
   | 'NURSE'
   | 'PARENT'
   | 'INSPECTOR'
+  | 'WEBSITE'
   | 'ADMIN';
 
 export interface NavItem {
