@@ -1,6 +1,5 @@
 import React from 'react';
 import { Activity, AlertCircle, Calendar, Clipboard, FileText, HeartPulse, Ruler, ShieldAlert, Thermometer, Weight } from 'lucide-react';
-import { motion } from 'motion/react';
 
 type HealthRecord = {
   id?: string | number;
@@ -83,7 +82,7 @@ export const MedicalSection = ({ parentData, health = [] }: { parentData: any; h
   ];
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 md:space-y-5">
+    <div className="kg-parent-section space-y-4 md:space-y-5">
       <div className="relative overflow-hidden rounded-[1.35rem] border border-rose-100 bg-gradient-to-r from-rose-50 via-white to-pink-50 p-4 shadow-sm md:p-5">
         <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-rose-500 to-pink-500"></div>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -217,6 +216,6 @@ export const MedicalSection = ({ parentData, health = [] }: { parentData: any; h
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };

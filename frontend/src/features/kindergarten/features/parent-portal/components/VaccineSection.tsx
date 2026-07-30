@@ -1,6 +1,5 @@
 import React from 'react';
 import { AlertCircle, Calendar, CheckCircle, Clock, Info, ShieldCheck, Syringe } from 'lucide-react';
-import { motion } from 'motion/react';
 
 type VaccineRecord = {
   id?: string | number;
@@ -23,7 +22,7 @@ export const VaccineSection = ({ data }: any) => {
   const plannedCount = vaccinations.length - takenCount;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 md:space-y-5">
+    <div className="kg-parent-section space-y-4 md:space-y-5">
       <div className="relative overflow-hidden rounded-[1.35rem] border border-rose-100 bg-gradient-to-r from-rose-50 via-white to-pink-50 p-4 shadow-sm md:p-5">
         <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-rose-500 to-pink-500"></div>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -75,11 +74,8 @@ export const VaccineSection = ({ data }: any) => {
           {vaccinations.length > 0 ? vaccinations.map((item, index) => {
             const isTaken = item.status === 'TAKEN';
             return (
-              <motion.div
+              <div
                 key={item.id || `${item.vaccine_name}-${index}`}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.04 }}
                 className="flex flex-col gap-3 p-4 transition-all hover:bg-rose-50/35 md:flex-row md:items-center md:justify-between md:p-5"
               >
                 <div className="flex items-start gap-3">
@@ -89,11 +85,11 @@ export const VaccineSection = ({ data }: any) => {
                   <div>
                     <p className="text-sm font-extrabold uppercase text-brand-depth">{item.vaccine_name || 'Emlash nomi kiritilmagan'}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center gap-1.5 rounded-xl border border-slate-100 bg-white px-3 py-1.5 text-[9px] font-black uppercase tracking-wide text-brand-muted">
+                      <span className="inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-xl border border-slate-100 bg-white px-3 py-1.5 text-[9px] font-black uppercase tracking-wide text-brand-muted">
                         <Calendar size={12} className="text-rose-500" /> Reja: {formatDate(item.planned_date)}
                       </span>
                       {isTaken && (
-                        <span className="inline-flex items-center gap-1.5 rounded-xl border border-rose-100 bg-rose-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-wide text-rose-600">
+                        <span className="inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-xl border border-rose-100 bg-rose-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-wide text-rose-600">
                           <CheckCircle size={12} /> Olingan: {formatDate(item.taken_date)}
                         </span>
                       )}
@@ -104,7 +100,7 @@ export const VaccineSection = ({ data }: any) => {
                 <div className={`inline-flex w-fit items-center justify-center rounded-2xl px-4 py-2 text-[9px] font-black uppercase tracking-[0.14em] ${isTaken ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-sm shadow-rose-500/20' : 'bg-slate-100 text-brand-muted'}`}>
                   {isTaken ? 'Olingan' : 'Kutilmoqda'}
                 </div>
-              </motion.div>
+              </div>
             );
           }) : (
             <div className="flex flex-col items-center justify-center gap-3 p-8 text-center">
@@ -128,6 +124,6 @@ export const VaccineSection = ({ data }: any) => {
           Emlash ishlari tasdiqlangan grafik asosida olib boriladi. Savollar bo'lsa, bog'cha ma'muriyati bilan bog'laning.
         </p>
       </div>
-    </motion.div>
+    </div>
   );
 };

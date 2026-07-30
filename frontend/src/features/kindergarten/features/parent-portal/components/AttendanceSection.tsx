@@ -1,6 +1,5 @@
 ﻿import React, { useState } from 'react';
 import { Calendar, UserCheck, AlertCircle, Clock, ChevronRight, CheckCircle2, XCircle, Download, Save, History, TrendingUp, Sparkles } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { apiClient } from '@/shared/api';
 import { useNotification } from '../../../context/NotificationContext';
 
@@ -146,7 +145,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="kg-attendance-typography space-y-5 md:space-y-6">
+    <div className="kg-parent-section kg-attendance-typography space-y-4 sm:space-y-5 md:space-y-6">
       {/* Planning Section */}
       <div className="relative overflow-hidden rounded-3xl border border-rose-100 bg-white shadow-sm">
         <div className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-rose-500 via-pink-400 to-fuchsia-400"></div>
@@ -182,12 +181,8 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
                    </button>
                 </div>
 
-                <AnimatePresence mode="wait">
                    {tomorrowAttending === false && (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                      <div
                         className="space-y-2"
                       >
                          <div className="flex items-center gap-2 px-1 text-[11px] font-bold text-rose-600">
@@ -200,16 +195,15 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
                             className="w-full bg-white/90 border border-rose-100 focus:border-rose-300 rounded-2xl p-4 text-brand-depth font-semibold outline-none transition-all placeholder:text-brand-muted/60 text-sm shadow-sm"
                             rows={2}
                          />
-                      </motion.div>
+                      </div>
                    )}
-                </AnimatePresence>
 
                 <button 
                    onClick={handleSave}
                    disabled={isSaving}
                    className="w-full flex items-center justify-center gap-3 rounded-2xl bg-brand-depth px-5 py-4 text-[12px] font-extrabold text-white transition-all shadow-xl shadow-slate-200 hover:bg-rose-600 active:scale-95 disabled:opacity-50"
                  >
-                    {isSaving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={16} />}
+                    {isSaving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <Save size={16} />}
                     Rejani tasdiqlash
                  </button>
               </div>
@@ -248,7 +242,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-10 gap-2.5">
+        <div className="mt-5 grid grid-cols-4 gap-2.5 min-[380px]:grid-cols-5 sm:grid-cols-6 lg:grid-cols-10">
           {calendarDays.map((day) => (
             <div
               key={day.dateKey}
@@ -324,12 +318,9 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
                   <p className="mx-auto max-w-sm text-[12px] font-medium leading-relaxed text-brand-muted">Farzandingizning kelgan va kelmagan kunlari shu yerda tartibli ko'rinadi.</p>
                </div>
             ) : (
-              data?.attendance?.map((a:any, idx: number) => (
-                 <motion.div 
-                   key={a.id} 
-                   initial={{ opacity: 0, x: -10 }}
-                   animate={{ opacity: 1, x: 0 }}
-                   transition={{ delay: idx * 0.05 }}
+              data?.attendance?.map((a:any) => (
+                 <div
+                   key={a.id}
                    className="p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between hover:bg-rose-50/40 transition-all group gap-6"
                  >
                     <div className="flex items-center gap-5 md:gap-8 w-full sm:w-auto">
@@ -348,11 +339,11 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
                           )}
                        </div>
                     </div>
-                    
+
                     <div className="flex items-center justify-between w-full sm:w-auto gap-4">
                        <div className={`px-6 py-2.5 md:px-8 md:py-3 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-sm transition-all ${
-                          a.status === 'PRESENT' 
-                            ? 'bg-rose-50 text-rose-600 border border-rose-100' 
+                          a.status === 'PRESENT'
+                            ? 'bg-rose-50 text-rose-600 border border-rose-100'
                             : 'bg-pink-50 text-pink-600 border border-pink-100'
                        }`}>
                           {a.status === 'PRESENT' ? 'Tasdiqlangan' : 'Kelmagan'}
@@ -361,12 +352,12 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
                           <ChevronRight size={18} />
                        </div>
                     </div>
-                 </motion.div>
+                 </div>
               ))
             )}
          </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

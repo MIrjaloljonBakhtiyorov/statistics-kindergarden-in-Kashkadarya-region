@@ -11,8 +11,7 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import { motion } from 'motion/react';
-import { apiClient, API_BASE_URL } from '@/shared/api';
+import { apiClient, PARENT_PORTAL_API_BASE_URL } from '@/shared/api';
 import { useNotification } from '../../../context/NotificationContext';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -47,7 +46,7 @@ const initialDoc = {
 const getAssetUrl = (value?: string) => {
   if (!value) return '';
   if (/^(https?:|data:|blob:)/.test(value)) return value;
-  const origin = API_BASE_URL.replace(/\/api\/?$/, '');
+  const origin = PARENT_PORTAL_API_BASE_URL.replace(/\/api\/?$/, '');
   return `${origin}${value.startsWith('/') ? value : `/${value}`}`;
 };
 
@@ -164,7 +163,7 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4 md:space-y-6">
+    <div className="kg-parent-section space-y-4 md:space-y-6">
       <div className="overflow-hidden rounded-[1.35rem] border border-rose-100 bg-white shadow-sm">
         <div className="flex flex-col gap-4 border-b border-rose-100 bg-[linear-gradient(135deg,#fff_0%,#fff7fa_48%,#fff1f7_100%)] p-4 sm:p-5 md:flex-row md:items-center md:justify-between">
           <div className="flex min-w-0 items-center gap-3.5">
@@ -189,9 +188,7 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
         </div>
 
         {showForm && (
-          <motion.form
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
+          <form
             onSubmit={handleUpload}
             className="border-b border-rose-100 bg-[linear-gradient(180deg,#fff_0%,#fffafb_100%)] p-4 sm:p-5"
           >
@@ -289,13 +286,13 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
                     disabled={isUploading}
                     className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-500/20 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50"
                   >
-                    {isUploading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <Upload size={15} />}
+                    {isUploading ? <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white" /> : <Upload size={15} />}
                     {isUploading ? 'Yuklanmoqda...' : 'Tasdiqlash'}
                   </button>
                 </div>
               </div>
             </div>
-          </motion.form>
+          </form>
         )}
 
         {documents.length > 0 ? (
@@ -371,6 +368,6 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
           </div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 };

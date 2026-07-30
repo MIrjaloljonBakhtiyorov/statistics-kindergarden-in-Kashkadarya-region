@@ -9,7 +9,6 @@ import {
   Receipt,
   Wallet
 } from 'lucide-react';
-import { motion } from 'motion/react';
 import { useNotification } from '../../../context/NotificationContext';
 
 const formatAmount = (amount = 0) => `${Number(amount || 0).toLocaleString('uz-UZ')} UZS`;
@@ -42,7 +41,7 @@ export const FinanceSection = ({ data }: any) => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="space-y-5 pb-4">
+    <div className="kg-parent-section space-y-4 pb-4 sm:space-y-5">
       <div className="relative overflow-hidden rounded-3xl border border-rose-100 bg-gradient-to-r from-white via-rose-50/70 to-pink-50/80 p-5 shadow-sm md:p-6">
         <div className="absolute inset-y-0 left-0 w-1 bg-rose-500"></div>
         <div className="pointer-events-none absolute -right-10 -bottom-12 h-36 w-36 rounded-full bg-pink-100/70 blur-2xl"></div>
@@ -64,12 +63,12 @@ export const FinanceSection = ({ data }: any) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 sm:min-w-[280px]">
-            <div className="rounded-3xl border border-white/80 bg-white/85 px-4 py-3 shadow-sm backdrop-blur">
+          <div className="grid min-w-0 grid-cols-2 gap-2 sm:min-w-[280px]">
+            <div className="min-w-0 rounded-3xl border border-white/80 bg-white/85 px-3 py-3 shadow-sm backdrop-blur sm:px-4">
               <p className="text-[11px] font-semibold text-brand-muted">Umumiy to'langan</p>
-              <p className="mt-1 text-lg font-extrabold text-brand-depth">{formatAmount(totalPaid)}</p>
+              <p className="mt-1 break-words text-base font-extrabold leading-tight text-brand-depth sm:text-lg">{formatAmount(totalPaid)}</p>
             </div>
-            <div className="rounded-3xl border border-white/80 bg-white/85 px-4 py-3 shadow-sm backdrop-blur">
+            <div className="min-w-0 rounded-3xl border border-white/80 bg-white/85 px-3 py-3 shadow-sm backdrop-blur sm:px-4">
               <p className="text-[11px] font-semibold text-brand-muted">Kvitansiyalar</p>
               <p className="mt-1 text-lg font-extrabold text-brand-depth">{receiptCount} ta</p>
             </div>
@@ -148,7 +147,7 @@ export const FinanceSection = ({ data }: any) => {
 
           {invoices.length ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-left">
+              <table className="kg-finance-table w-full text-left">
                 <thead>
                   <tr className="border-b border-brand-border bg-white text-[12px] font-bold text-brand-muted">
                     <th className="px-5 py-4">Invoys</th>
@@ -161,15 +160,15 @@ export const FinanceSection = ({ data }: any) => {
                 <tbody className="divide-y divide-slate-100">
                   {invoices.map((invoice: any) => (
                     <tr key={invoice.id} className="transition-colors hover:bg-rose-50/35">
-                      <td className="px-5 py-4 text-sm font-extrabold text-rose-600">{invoice.id}</td>
-                      <td className="px-5 py-4 text-sm font-bold text-brand-depth">{formatDate(invoice.date)}</td>
-                      <td className="px-5 py-4 text-sm font-extrabold text-brand-depth">{formatAmount(invoice.amount)}</td>
-                      <td className="px-5 py-4">
+                      <td data-label="Invoys" className="px-5 py-4 text-sm font-extrabold text-rose-600">{invoice.id}</td>
+                      <td data-label="Sana" className="px-5 py-4 text-sm font-bold text-brand-depth">{formatDate(invoice.date)}</td>
+                      <td data-label="Summa" className="px-5 py-4 text-sm font-extrabold text-brand-depth">{formatAmount(invoice.amount)}</td>
+                      <td data-label="Holat" className="px-5 py-4">
                         <span className="inline-flex rounded-full bg-rose-50 px-3 py-1 text-[11px] font-bold text-rose-600">
                           {invoice.status}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-right">
+                      <td data-label="Kvitansiya" className="px-5 py-4 text-right">
                         <button className="inline-flex items-center gap-2 rounded-2xl border border-brand-border bg-white px-3 py-2 text-[12px] font-bold text-brand-depth transition-all hover:border-rose-100 hover:bg-rose-50 hover:text-rose-600">
                           <Download size={14} /> {invoice.receiptId}
                         </button>
@@ -211,6 +210,6 @@ export const FinanceSection = ({ data }: any) => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };

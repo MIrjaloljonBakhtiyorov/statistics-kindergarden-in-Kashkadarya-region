@@ -12,7 +12,7 @@
   --color-brand-muted: #64748B;
   --color-brand-ghost: #F8FAFC;
   --color-brand-border: #E2E8F0;
-  
+
   --font-sans: "Open Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-display: "Open Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -21,6 +21,7 @@
   html {
     font-size: 12pt;
   }
+
   body {
     @apply bg-brand-ghost text-brand-depth font-sans;
     font-size: 1rem;
@@ -62,7 +63,7 @@
 
 .kindergarten-shell main {
   background:
-    linear-gradient(120deg, rgba(255,255,255,0.74) 0%, rgba(236,253,245,0.52) 38%, rgba(239,246,255,0.72) 100%),
+    linear-gradient(120deg, rgba(255, 255, 255, 0.74) 0%, rgba(236, 253, 245, 0.52) 38%, rgba(239, 246, 255, 0.72) 100%),
     radial-gradient(circle at 20% 12%, rgba(251, 191, 36, 0.12), transparent 24rem),
     radial-gradient(circle at 92% 72%, rgba(45, 212, 191, 0.14), transparent 28rem);
 }
@@ -97,7 +98,7 @@ html.dark .kindergarten-shell {
 
 html.dark .kindergarten-shell main {
   background:
-    linear-gradient(120deg, rgba(255,255,255,0.74) 0%, rgba(236,253,245,0.52) 38%, rgba(239,246,255,0.72) 100%),
+    linear-gradient(120deg, rgba(255, 255, 255, 0.74) 0%, rgba(236, 253, 245, 0.52) 38%, rgba(239, 246, 255, 0.72) 100%),
     radial-gradient(circle at 20% 12%, rgba(251, 191, 36, 0.12), transparent 24rem),
     radial-gradient(circle at 92% 72%, rgba(45, 212, 191, 0.14), transparent 28rem) !important;
 }
@@ -264,7 +265,7 @@ html.dark .kindergarten-shell main {
 .kindergarten-shell input,
 .kindergarten-shell select,
 .kindergarten-shell textarea {
-  background-color: rgba(255,255,255,0.78) !important;
+  background-color: rgba(255, 255, 255, 0.78) !important;
   border-color: var(--kg-border) !important;
   color: var(--kg-text) !important;
   max-width: 100%;
@@ -287,10 +288,10 @@ html.dark .kindergarten-shell main {
 }
 
 .kindergarten-shell aside,
-.kindergarten-shell aside > div,
+.kindergarten-shell aside>div,
 .kindergarten-shell [class*="border-r"][class*="bg-white"] {
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(240,253,250,0.88) 50%, rgba(255,247,237,0.86) 100%) !important;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(240, 253, 250, 0.88) 50%, rgba(255, 247, 237, 0.86) 100%) !important;
 }
 
 .kindergarten-shell .kg-sidebar-nav-item {
@@ -323,7 +324,7 @@ html.dark .kindergarten-shell main {
   transition: opacity 220ms ease;
 }
 
-.kindergarten-shell .kg-sidebar-nav-item > * {
+.kindergarten-shell .kg-sidebar-nav-item>* {
   position: relative;
   z-index: 1;
 }
@@ -331,7 +332,7 @@ html.dark .kindergarten-shell main {
 .kindergarten-shell .kg-sidebar-nav-item:hover,
 .kindergarten-shell .kg-sidebar-nav-item.is-active {
   color: var(--kg-menu-text) !important;
-  border-color: rgba(255,255,255,0.72) !important;
+  border-color: rgba(255, 255, 255, 0.72) !important;
   box-shadow: 0 14px 30px var(--kg-menu-glow) !important;
   transform: translateX(3px);
 }
@@ -347,103 +348,103 @@ html.dark .kindergarten-shell main {
 
 .kindergarten-shell .kg-sidebar-icon {
   color: var(--kg-menu-text);
-  background: rgba(255,255,255,0.72);
-  border: 1px solid rgba(255,255,255,0.76);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-.kindergarten-shell .kg-page > .grid:first-child button {
+.kindergarten-shell .kg-page>.grid:first-child button {
   border-width: 1px;
-  border-color: rgba(255,255,255,0.72) !important;
+  border-color: rgba(255, 255, 255, 0.72) !important;
   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08) !important;
 }
 
-.kindergarten-shell .kg-page > .grid:first-child button:nth-child(1) {
+.kindergarten-shell .kg-page>.grid:first-child button:nth-child(1) {
   background: linear-gradient(135deg, #059669, #10b981) !important;
   color: #fff !important;
 }
 
-.kindergarten-shell .kg-page > .grid:first-child button:nth-child(2) {
+.kindergarten-shell .kg-page>.grid:first-child button:nth-child(2) {
   background: linear-gradient(135deg, #fff7ed, #fed7aa) !important;
   color: #9a3412 !important;
 }
 
-.kindergarten-shell .kg-page > .grid:first-child button:nth-child(3) {
+.kindergarten-shell .kg-page>.grid:first-child button:nth-child(3) {
   background: linear-gradient(135deg, #eff6ff, #bfdbfe) !important;
   color: #1d4ed8 !important;
 }
 
-.kindergarten-shell .kg-page > .grid:first-child button:nth-child(4) {
+.kindergarten-shell .kg-page>.grid:first-child button:nth-child(4) {
   background: linear-gradient(135deg, #f5f3ff, #ddd6fe) !important;
   color: #6d28d9 !important;
 }
 
-.kindergarten-shell .kg-page > .grid:first-child button:nth-child(5) {
+.kindergarten-shell .kg-page>.grid:first-child button:nth-child(5) {
   background: linear-gradient(135deg, #ecfeff, #a5f3fc) !important;
   color: #0e7490 !important;
 }
 
-.kindergarten-shell .kg-page > .grid:first-child button:nth-child(6) {
+.kindergarten-shell .kg-page>.grid:first-child button:nth-child(6) {
   background: linear-gradient(135deg, #fff1f2, #fecdd3) !important;
   color: #be123c !important;
 }
 
-.kindergarten-shell .kg-page > .grid:first-child button:nth-child(7) {
+.kindergarten-shell .kg-page>.grid:first-child button:nth-child(7) {
   background: linear-gradient(135deg, #f0fdf4, #bbf7d0) !important;
   color: #047857 !important;
 }
 
-.kindergarten-shell .kg-page > .grid:nth-of-type(2) > div,
-.kindergarten-shell .kg-page > div[class*="bg-white"],
+.kindergarten-shell .kg-page>.grid:nth-of-type(2)>div,
+.kindergarten-shell .kg-page>div[class*="bg-white"],
 .kindergarten-shell .kg-page .bg-white\/95 {
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.78)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.78)),
     radial-gradient(circle at 8% 0%, rgba(14, 165, 233, 0.10), transparent 16rem),
     radial-gradient(circle at 100% 100%, rgba(249, 115, 22, 0.10), transparent 18rem) !important;
   border-color: rgba(191, 219, 254, 0.86) !important;
 }
 
-.kindergarten-shell .kg-page > .grid:nth-of-type(2) > div:nth-child(1) {
+.kindergarten-shell .kg-page>.grid:nth-of-type(2)>div:nth-child(1) {
   border-left: 4px solid #0ea5e9 !important;
 }
 
-.kindergarten-shell .kg-page > .grid:nth-of-type(2) > div:nth-child(2) {
+.kindergarten-shell .kg-page>.grid:nth-of-type(2)>div:nth-child(2) {
   border-left: 4px solid #10b981 !important;
 }
 
-.kindergarten-shell .kg-page > .grid:nth-of-type(2) > div:nth-child(3) {
+.kindergarten-shell .kg-page>.grid:nth-of-type(2)>div:nth-child(3) {
   border-left: 4px solid #f43f5e !important;
 }
 
-.kindergarten-shell .kg-parent-portal > .grid:nth-of-type(2) > div {
+.kindergarten-shell .kg-parent-portal>.grid:nth-of-type(2)>div {
   border-left: 0 !important;
 }
 
-.kindergarten-shell .kg-parent-portal > .grid:nth-of-type(2) > div:first-child {
+.kindergarten-shell .kg-parent-portal>.grid:nth-of-type(2)>div:first-child {
   align-self: flex-start !important;
 }
 
-.kindergarten-shell .kg-parent-portal .kg-parent-layout > div {
+.kindergarten-shell .kg-parent-portal .kg-parent-layout>div {
   border-left: 0 !important;
 }
 
-.kindergarten-shell .kg-parent-portal .kg-parent-layout > div:first-child {
+.kindergarten-shell .kg-parent-portal .kg-parent-layout>div:first-child {
   align-self: flex-start !important;
 }
 
-.kindergarten-shell .kg-page.kg-parent-portal > .kg-parent-layout > div,
-.kindergarten-shell .kg-page.kg-parent-portal > .kg-parent-layout > div:nth-child(1),
-.kindergarten-shell .kg-page.kg-parent-portal > .kg-parent-layout > div:nth-child(2),
-.kindergarten-shell .kg-page.kg-parent-portal > .kg-parent-layout > div:nth-child(3) {
+.kindergarten-shell .kg-page.kg-parent-portal>.kg-parent-layout>div,
+.kindergarten-shell .kg-page.kg-parent-portal>.kg-parent-layout>div:nth-child(1),
+.kindergarten-shell .kg-page.kg-parent-portal>.kg-parent-layout>div:nth-child(2),
+.kindergarten-shell .kg-page.kg-parent-portal>.kg-parent-layout>div:nth-child(3) {
   border-left: 0 !important;
 }
 
-.kindergarten-shell .kg-page.kg-parent-portal > .kg-parent-layout {
+.kindergarten-shell .kg-page.kg-parent-portal>.kg-parent-layout {
   align-items: stretch !important;
 }
 
 .kindergarten-shell .kg-parent-portal aside,
-.kindergarten-shell .kg-parent-portal aside > div {
+.kindergarten-shell .kg-parent-portal aside>div {
   position: static !important;
   min-height: 0 !important;
 }
@@ -453,7 +454,7 @@ html.dark .kindergarten-shell main {
   overflow: hidden !important;
 }
 
-.kindergarten-shell .kg-parent-portal aside > div:not(.kg-parent-sidebar-menu) {
+.kindergarten-shell .kg-parent-portal aside>div:not(.kg-parent-sidebar-menu) {
   overflow: visible !important;
 }
 
@@ -465,8 +466,8 @@ html.dark .kindergarten-shell main {
 }
 
 .kindergarten-shell .kg-parent-main,
-.kindergarten-shell .kg-parent-main > div,
-.kindergarten-shell .kg-parent-main > div > div,
+.kindergarten-shell .kg-parent-main>div,
+.kindergarten-shell .kg-parent-main>div>div,
 .kindergarten-shell .kg-parent-portal,
 .kindergarten-shell .kg-parent-portal .kg-parent-layout,
 .kindergarten-shell .kg-parent-portal .kg-parent-content-column,
@@ -476,8 +477,8 @@ html.dark .kindergarten-shell main {
 }
 
 .kindergarten-shell .kg-parent-main,
-.kindergarten-shell .kg-parent-main > div,
-.kindergarten-shell .kg-parent-main > div > div,
+.kindergarten-shell .kg-parent-main>div,
+.kindergarten-shell .kg-parent-main>div>div,
 .kindergarten-shell .kg-parent-portal,
 .kindergarten-shell .kg-parent-portal .kg-parent-content-column,
 .kindergarten-shell .kg-parent-portal .kg-parent-content-panel {
@@ -485,7 +486,8 @@ html.dark .kindergarten-shell main {
 }
 
 .kindergarten-shell .kg-parent-portal .kg-parent-layout {
-  height: 100% !important;
+  flex: 1 1 0%;
+  height: auto !important;
 }
 
 .kindergarten-shell .kg-parent-portal .kg-parent-content-scroll {
@@ -495,6 +497,149 @@ html.dark .kindergarten-shell main {
   overflow-x: hidden !important;
   overscroll-behavior: contain;
   padding-bottom: 1rem;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-mobile-nav {
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 0.125rem;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-content-scroll>* {
+  min-width: 0;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-section,
+.kindergarten-shell .kg-parent-portal .kg-parent-section>* {
+  width: 100%;
+  min-width: 0;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-section :is(.flex, .grid) {
+  min-width: 0;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-section .grid > * {
+  min-width: 0;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-messages {
+  align-items: stretch;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-messages > * {
+  min-width: 0;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-messages > .kg-parent-chat-list {
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-messages > .kg-parent-chat-window {
+  flex: 1 1 auto;
+  width: auto;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .kindergarten-shell .kg-parent-portal .kg-parent-messages > .kg-parent-chat-list {
+    flex-basis: 20rem;
+    width: 20rem;
+    max-width: 20rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kindergarten-shell .kg-parent-portal .kg-parent-messages > .kg-parent-chat-list {
+    flex-basis: 21.25rem;
+    width: 21.25rem;
+    max-width: 21.25rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .kindergarten-shell .kg-parent-portal .kg-parent-messages > .kg-parent-chat-list {
+    flex-basis: 23.75rem;
+    width: 23.75rem;
+    max-width: 23.75rem;
+  }
+}
+
+.kindergarten-shell .kg-parent-portal .kg-finance-table {
+  min-width: 640px;
+}
+
+.kindergarten-shell .kg-parent-portal :is(input, textarea, select, button) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.kindergarten-shell .kg-parent-portal :is(h1, h2, h3, h4, h5, h6, p) {
+  overflow-wrap: anywhere;
+}
+
+.kindergarten-shell .kg-parent-portal,
+.kindergarten-shell .kg-parent-portal *,
+.kindergarten-shell .kg-parent-portal *::before,
+.kindergarten-shell .kg-parent-portal *::after,
+.kg-parent-modal-layer,
+.kg-parent-modal-layer *,
+.kg-parent-modal-layer *::before,
+.kg-parent-modal-layer *::after {
+  animation-duration: 0ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0ms !important;
+  transition-delay: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+.kindergarten-shell .kg-parent-portal [class*="animate-"],
+.kg-parent-modal-layer [class*="animate-"] {
+  animation: none !important;
+}
+
+@media (max-width: 1023px) {
+  .kindergarten-shell .kg-parent-main {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  .kindergarten-shell .kg-parent-main>div,
+  .kindergarten-shell .kg-parent-main>div>div,
+  .kindergarten-shell .kg-parent-portal,
+  .kindergarten-shell .kg-parent-portal .kg-parent-layout,
+  .kindergarten-shell .kg-parent-portal .kg-parent-content-column,
+  .kindergarten-shell .kg-parent-portal .kg-parent-content-panel,
+  .kindergarten-shell .kg-parent-portal .kg-parent-content-scroll {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .kindergarten-shell .kg-parent-portal {
+    min-height: 100% !important;
+  }
+
+  .kindergarten-shell .kg-parent-portal .kg-parent-layout {
+    flex: 0 0 auto !important;
+  }
+
+  .kindergarten-shell .kg-parent-portal .kg-parent-content-scroll {
+    min-height: 0 !important;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+.kg-parent-modal-layer {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  padding-right: max(0.5rem, env(safe-area-inset-right));
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  padding-left: max(0.5rem, env(safe-area-inset-left));
 }
 
 .kindergarten-shell .kg-page h3 svg,
@@ -659,7 +804,7 @@ html.dark .kindergarten-shell main {
   -webkit-overflow-scrolling: touch;
 }
 
-.kindergarten-shell .kg-scroll-x > table,
+.kindergarten-shell .kg-scroll-x>table,
 .kindergarten-shell table.kg-responsive-table {
   min-width: 760px;
 }
@@ -700,12 +845,98 @@ html.dark .kindergarten-shell main {
   .kindergarten-shell .tracking-widest {
     letter-spacing: 0.08em !important;
   }
+
+  .kindergarten-shell .kg-parent-portal {
+    --kg-parent-title-size: 1.35rem;
+    --kg-parent-section-size: 1rem;
+    --kg-parent-name-size: 1.15rem;
+    --kg-parent-body-size: 0.8125rem;
+    --kg-parent-small-size: 0.75rem;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  .kindergarten-shell .kg-parent-header h2 {
+    font-size: 1.25rem !important;
+  }
+
+  .kindergarten-shell .kg-parent-header .kg-parent-location {
+    width: min(100%, 16rem);
+  }
+
+  .kindergarten-shell .kg-parent-content-panel {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 0.125rem !important;
+  }
+
+  .kindergarten-shell .kg-parent-portal .kg-parent-content-scroll {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .kindergarten-shell .kg-parent-portal :is(input, textarea, select) {
+    font-size: 16px !important;
+  }
+
+  .kindergarten-shell .kg-parent-portal .kg-finance-table,
+  .kindergarten-shell .kg-parent-portal .kg-finance-table tbody,
+  .kindergarten-shell .kg-parent-portal .kg-finance-table tr,
+  .kindergarten-shell .kg-parent-portal .kg-finance-table td {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+  }
+
+  .kindergarten-shell .kg-parent-portal .kg-finance-table thead {
+    display: none;
+  }
+
+  .kindergarten-shell .kg-parent-portal .kg-finance-table tbody {
+    padding: 0.75rem;
+  }
+
+  .kindergarten-shell .kg-parent-portal .kg-finance-table tr {
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    border: 1px solid #ffe4e6;
+    border-radius: 1rem;
+    background: #fff;
+  }
+
+  .kindergarten-shell .kg-parent-portal .kg-finance-table tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .kindergarten-shell .kg-parent-portal .kg-finance-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0.875rem !important;
+    white-space: normal !important;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  .kindergarten-shell .kg-parent-portal .kg-finance-table td+td {
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .kindergarten-shell .kg-parent-portal .kg-finance-table td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    color: #64748b;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    text-align: left;
+  }
 }
 
 @layer utilities {
   .kg-parent-main.custom-scrollbar {
     scrollbar-width: none;
   }
+
   .kg-parent-main.custom-scrollbar::-webkit-scrollbar {
     width: 0;
     height: 0;
@@ -714,9 +945,11 @@ html.dark .kindergarten-shell main {
   .custom-scrollbar::-webkit-scrollbar {
     @apply w-1;
   }
+
   .custom-scrollbar::-webkit-scrollbar-track {
     @apply bg-transparent;
   }
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-emerald-300 rounded-full;
   }

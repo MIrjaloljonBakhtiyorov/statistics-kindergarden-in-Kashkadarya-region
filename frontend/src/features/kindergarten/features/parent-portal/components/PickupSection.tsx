@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ShieldCheck, UserCheck, Smartphone, Trash2, Contact, Save, UserPlus, Info, X } from 'lucide-react';
-import { motion } from 'motion/react';
 import { apiClient } from '@/shared/api';
 import { useAuth } from '../../../context/AuthContext';
 import { useNotification } from '../../../context/NotificationContext';
@@ -73,11 +72,9 @@ export const PickupSection = ({ data, onUpdate }: any) => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+    <div className="kg-parent-section space-y-4">
       {showForm && (
-        <motion.form
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
+        <form
           onSubmit={handleAdd}
           className="rounded-[1.35rem] border border-rose-100 bg-white p-4 shadow-sm shadow-rose-100/30 ring-1 ring-rose-50 md:p-5"
         >
@@ -141,20 +138,17 @@ export const PickupSection = ({ data, onUpdate }: any) => {
               disabled={isSaving}
               className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 px-5 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-500/20 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50"
             >
-              {isSaving ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <Save size={16} />}
+              {isSaving ? <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white" /> : <Save size={16} />}
               Saqlash
             </button>
           </div>
-        </motion.form>
+        </form>
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {data?.pickups?.map((v: any, idx: number) => (
-          <motion.div
+          <div
             key={v.id}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: idx * 0.06 }}
             className="group relative flex flex-col items-center gap-5 overflow-hidden rounded-[1.35rem] border border-rose-100 bg-white p-4 text-center shadow-sm transition-all hover:border-rose-200 hover:shadow-md sm:flex-row sm:text-left md:p-5"
           >
             <div className="absolute -bottom-4 -right-4 text-rose-500 opacity-[0.04] transition-transform duration-700 group-hover:scale-110">
@@ -172,7 +166,7 @@ export const PickupSection = ({ data, onUpdate }: any) => {
               )}
             </div>
 
-            <div className="relative z-10 flex-1 space-y-3">
+            <div className="relative z-10 min-w-0 flex-1 space-y-3">
               <div className="space-y-1">
                 <div className="mb-1 flex items-center justify-center gap-2 sm:justify-start">
                   <span className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-rose-600">{v.relation}</span>
@@ -182,9 +176,9 @@ export const PickupSection = ({ data, onUpdate }: any) => {
               </div>
 
               <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-800 sm:justify-start">
+                <div className="flex min-w-0 items-center justify-center gap-2 text-xs font-bold text-slate-800 sm:justify-start">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-500"><Smartphone size={14} /></div>
-                  {v.phone}
+                  <span className="min-w-0 break-all">{v.phone}</span>
                 </div>
                 <div className="flex items-center justify-center gap-2 text-[8px] font-bold uppercase tracking-widest text-rose-500 sm:justify-start">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-500"><ShieldCheck size={14} /></div>
@@ -199,7 +193,7 @@ export const PickupSection = ({ data, onUpdate }: any) => {
                 <Trash2 size={12} /> O'chirish
               </button>
             </div>
-          </motion.div>
+          </div>
         ))}
 
         {(!data?.pickups || data.pickups.length === 0) && (
@@ -237,6 +231,6 @@ export const PickupSection = ({ data, onUpdate }: any) => {
           </p>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };

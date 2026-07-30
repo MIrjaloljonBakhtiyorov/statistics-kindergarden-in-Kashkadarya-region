@@ -1,13 +1,12 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { User, MapPin, Smartphone, Briefcase, Fingerprint, Target, Edit2, Save, X, Camera, FileText, School, Users, CheckCircle2 } from 'lucide-react';
-import { motion } from 'motion/react';
-import { apiClient } from '@/shared/api';
+import { apiClient, PARENT_PORTAL_API_BASE_URL } from '@/shared/api';
 import { useNotification } from '../../../context/NotificationContext';
 
 const getAssetUrl = (value?: string) => {
   if (!value) return '';
   if (/^(https?:|data:|blob:)/.test(value)) return value;
-  const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+  const apiBase = PARENT_PORTAL_API_BASE_URL || '';
   const origin = apiBase.replace(/\/api\/?$/, '');
   return `${origin}${value.startsWith('/') ? value : `/${value}`}`;
 };
@@ -88,7 +87,7 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="kg-page kg-profile-typography space-y-5 pb-4">
+    <div className="kg-page kg-parent-section kg-profile-typography space-y-4 pb-4 sm:space-y-5">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 px-1">
          <div>
            <h3 className="text-[22px] md:text-[26px] font-extrabold text-brand-depth tracking-normal leading-[1.08]">Profil ma'lumotlari</h3>
@@ -114,7 +113,7 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
                disabled={loading}
                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-500 text-white rounded-2xl font-bold text-[12px] hover:bg-rose-600 shadow-lg shadow-rose-500/20 transition-all disabled:opacity-50"
              >
-               {loading ? <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Save size={12} />} 
+               {loading ? <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full"></div> : <Save size={12} />}
                Saqlash
              </button>
            </div>
@@ -151,7 +150,7 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
                       )}
                       {loading && (
                          <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-                            <div className="w-6 h-6 border-3 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-6 h-6 border-3 border-rose-500 border-t-transparent rounded-full"></div>
                          </div>
                       )}
                    </div>
@@ -161,7 +160,7 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
                       </div>
                    )}
                 </div>
-                <div className="relative min-w-0 flex-1 text-center sm:text-left">
+                <div className="relative w-full min-w-0 flex-1 text-center sm:text-left">
                    <p className="text-[12px] font-bold text-rose-500 mb-1">Bola profili</p>
                    <h5 className="text-[23px] md:text-[28px] font-extrabold text-brand-depth leading-[1.08] break-words">{parentData.first_name} {parentData.last_name}</h5>
                    <p className="text-[14px] md:text-[15px] font-semibold text-brand-muted mt-1.5 break-words">{parentData.childGroup || 'Guruh biriktirilmagan'}</p>
@@ -172,9 +171,9 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
                      <span className="inline-flex items-center gap-1.5 rounded-full border border-pink-100 bg-pink-50 px-3 py-1 text-[12px] font-bold text-pink-700">
                        <CheckCircle2 size={13} /> Faol profil
                      </span>
-                     <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-[12px] font-bold text-brand-muted">
-                       <School size={13} />
-                       <span className="truncate">{parentData.kindergartenName || 'Bog\'cha biriktirilgan'}</span>
+                     <span className="inline-flex w-full min-w-0 max-w-full items-center justify-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-[12px] font-bold text-brand-muted sm:w-auto sm:justify-start">
+                       <School size={13} className="shrink-0" />
+                       <span className="min-w-0 truncate">{parentData.kindergartenName || 'Bog\'cha biriktirilgan'}</span>
                      </span>
                    </div>
                 </div>
@@ -399,7 +398,7 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
           </div>
         </section>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   BadgeDollarSign,
   CheckCircle2,
@@ -12,7 +13,6 @@ import {
   Utensils,
   X
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 
 type Plan = {
   id: string;
@@ -245,39 +245,59 @@ const PaymentModal = ({ plan, onClose }: { plan: Plan; onClose: () => void }) =>
   const amount = `${plan.price} ${plan.period}`;
   const selectedProvider = providerConfig[method];
 
-  return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/25 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.94, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 30 }}
-        className="relative w-full max-w-xl overflow-hidden rounded-[1.6rem] border border-rose-100 bg-white shadow-2xl"
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="kg-parent-modal-layer fixed inset-0 z-[120] flex items-center justify-center overflow-y-auto overscroll-contain p-2 sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="parent-payment-modal-title"
+    >
+      <div
+        className="fixed inset-0 bg-black/25 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div
+        className="relative my-auto flex max-h-[calc(100dvh-1rem)] w-full max-w-xl flex-col overflow-hidden rounded-[1.35rem] border border-rose-100 bg-white shadow-2xl sm:max-h-[calc(100dvh-2rem)] sm:rounded-[1.6rem]"
       >
-        <div className="relative overflow-hidden border-b border-rose-100 bg-gradient-to-r from-rose-50 via-white to-pink-50 p-5 md:p-6">
+        <div className="relative flex-none overflow-hidden border-b border-rose-100 bg-gradient-to-r from-rose-50 via-white to-pink-50 p-4 sm:p-5 md:p-6">
           <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-rose-500 to-pink-500"></div>
           <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-rose-100 bg-white text-rose-500 shadow-sm">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-white text-rose-500 shadow-sm sm:h-12 sm:w-12">
               <plan.icon size={22} />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500">To'lovni tasdiqlash</p>
-              <h3 className="mt-1 text-xl font-extrabold uppercase leading-tight text-brand-depth">{plan.name} tarifi</h3>
+              <h3 id="parent-payment-modal-title" className="mt-1 text-lg font-extrabold uppercase leading-tight text-brand-depth sm:text-xl">{plan.name} tarifi</h3>
             </div>
           </div>
-          <button onClick={onClose} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-white text-brand-muted transition-colors hover:bg-rose-50 hover:text-rose-500">
+          <button autoFocus type="button" onClick={onClose} aria-label="To'lov oynasini yopish" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-white text-brand-muted transition-colors hover:bg-rose-50 hover:text-rose-500">
             <X size={18} />
           </button>
           </div>
         </div>
 
-        <div className="space-y-5 p-5 md:p-6">
+        <div className="min-h-0 space-y-4 overflow-y-auto p-4 sm:space-y-5 sm:p-5 md:p-6">
           <div className="rounded-2xl border border-rose-100 bg-rose-50/45 p-4">
-            <div className="flex items-center justify-between gap-4">
-            <div>
+            <div className="flex flex-col gap-3 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
+            <div className="min-w-0">
                 <p className="text-[9px] font-black uppercase tracking-[0.16em] text-brand-muted">Oylik to'lov</p>
-                <p className="mt-1 text-3xl font-extrabold leading-none text-brand-depth">{amount}</p>
+                <p className="mt-1 break-words text-2xl font-extrabold leading-none text-brand-depth sm:text-3xl">{amount}</p>
             </div>
               {plan.discount && <span className="rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-wide text-rose-600 shadow-sm">{plan.discount}</span>}
             </div>
@@ -286,12 +306,13 @@ const PaymentModal = ({ plan, onClose }: { plan: Plan; onClose: () => void }) =>
           {!isFree && (
             <div className="space-y-3">
               <p className="px-1 text-[10px] font-black uppercase tracking-[0.16em] text-brand-muted">To'lov usuli</p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                 {Object.keys(providerConfig).map((item) => (
                   <button
                     key={item}
+                    type="button"
                     onClick={() => setMethod(item)}
-                    className={`flex min-h-[96px] items-stretch justify-center overflow-hidden rounded-2xl border p-1.5 transition-all ${
+                    className={`flex min-h-[78px] items-stretch justify-center overflow-hidden rounded-2xl border p-1 transition-all sm:min-h-[96px] sm:p-1.5 ${
                       method === item ? 'border-rose-200 bg-rose-50 text-brand-depth shadow-sm' : 'border-brand-border bg-white text-brand-muted hover:border-rose-100 hover:bg-rose-50/50'
                     }`}
                   >
@@ -304,7 +325,7 @@ const PaymentModal = ({ plan, onClose }: { plan: Plan; onClose: () => void }) =>
 
           <button
             disabled={isFree}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 px-5 py-4 text-[12px] font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-rose-500/20 transition-all hover:from-rose-600 hover:to-pink-600 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-3 text-center text-[11px] font-extrabold uppercase leading-snug tracking-[0.12em] text-white shadow-lg shadow-rose-500/20 transition-all hover:from-rose-600 hover:to-pink-600 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:py-4 sm:text-[12px]"
           >
             <ProviderLogo type={method} compact />
             {isFree ? 'Bepul tarif faol' : `${selectedProvider.label} orqali to'lov qilish`}
@@ -314,8 +335,9 @@ const PaymentModal = ({ plan, onClose }: { plan: Plan; onClose: () => void }) =>
             To'lov provideri ulanishi bilan ushbu tugma real checkout sahifasiga yo'naltiradi.
           </p>
         </div>
-      </motion.div>
-    </div>
+      </div>
+    </div>,
+    document.body
   );
 };
 
@@ -323,8 +345,8 @@ export const TariffsSection = () => {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="kg-tariffs-typography space-y-5 md:space-y-6">
-      <div className="bg-white p-5 md:p-6 rounded-3xl border border-brand-border shadow-sm relative overflow-hidden">
+    <div className="kg-parent-section kg-tariffs-typography space-y-5 md:space-y-6">
+      <div className="relative overflow-hidden rounded-3xl border border-brand-border bg-white p-4 shadow-sm sm:p-5 md:p-6">
         <div className="absolute inset-y-0 left-0 w-1.5 bg-brand-primary"></div>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pl-1">
           <div className="flex items-center gap-4">
@@ -332,7 +354,7 @@ export const TariffsSection = () => {
               <BadgeDollarSign size={23} />
             </div>
             <div>
-              <h4 className="text-2xl md:text-[28px] font-extrabold leading-tight text-brand-depth">Dasturchi tomonidan taklif qilinadigan tariflar</h4>
+              <h4 className="text-xl font-extrabold leading-tight text-brand-depth sm:text-2xl md:text-[28px]">Dasturchi tomonidan taklif qilinadigan tariflar</h4>
               <p className="text-[13px] md:text-[15px] font-medium leading-relaxed text-brand-muted mt-1">Ota-onalar uchun qulay imkoniyatlar asosida tuzilgan paketlar.</p>
             </div>
           </div>
@@ -346,19 +368,19 @@ export const TariffsSection = () => {
             className={`relative bg-white rounded-3xl border shadow-sm overflow-hidden flex flex-col ${plan.recommended ? 'border-amber-300 ring-2 ring-amber-200/60' : toneClasses[plan.tone].border}`}
           >
             {plan.recommended && (
-              <div className="absolute right-4 top-3 max-w-[210px] rounded-full bg-amber-500 px-3.5 py-1.5 text-[10px] font-extrabold leading-tight text-white shadow-md shadow-amber-200 flex items-center justify-center gap-1.5">
+              <div className="mx-4 mt-4 flex max-w-[210px] items-center justify-center gap-1.5 self-end rounded-full bg-amber-500 px-3.5 py-1.5 text-[10px] font-extrabold leading-tight text-white shadow-md shadow-amber-200 sm:absolute sm:right-4 sm:top-3 sm:m-0">
                 <Crown size={12} className="shrink-0" /> Siz uchun eng mos va qulay tarif
               </div>
             )}
 
-            <div className="p-5 border-b border-slate-100">
+            <div className={`border-b border-slate-100 p-4 sm:p-5 ${plan.recommended ? 'sm:pt-16' : ''}`}>
               <div className="flex items-start gap-3">
                 <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 ${toneClasses[plan.tone].icon}`}>
                   <plan.icon size={23} />
                 </div>
                 <div className="min-w-0">
                   <h5 className={`text-2xl md:text-[26px] font-extrabold leading-none ${toneClasses[plan.tone].text}`}>{plan.name}</h5>
-                  <div className="mt-1 flex items-end gap-2">
+                  <div className="mt-1 flex flex-wrap items-end gap-2">
                     {plan.oldPrice && <span className="text-base font-bold text-brand-muted line-through">{plan.oldPrice}</span>}
                     <span className="text-[34px] font-extrabold leading-none text-brand-depth">{plan.price}</span>
                     <span className="mb-1 text-sm font-semibold text-brand-depth">{plan.period}</span>
@@ -435,9 +457,7 @@ export const TariffsSection = () => {
         </p>
       </div>
 
-      <AnimatePresence>
-        {selectedPlan && <PaymentModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />}
-      </AnimatePresence>
-    </motion.div>
+      {selectedPlan && <PaymentModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />}
+    </div>
   );
 };

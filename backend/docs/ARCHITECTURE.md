@@ -1,7 +1,8 @@
 # Raqamli MTT Architecture
 
-This project is organized as a modular monolith: one frontend app, one backend API,
-and one PostgreSQL database. The codebase has three product areas:
+This project is organized as a modular backend with one frontend app, one shared
+PostgreSQL database, and domain services that can still be mounted through the
+main API for compatibility. The codebase has three product areas:
 
 - Public statistics home page
 - Regional admin panel
@@ -13,7 +14,7 @@ and one PostgreSQL database. The codebase has three product areas:
 Browser
   -> React frontend
   -> shared API client
-  -> Express backend routes
+  -> Express backend routes or a domain microservice
   -> controller/service/repository
   -> PostgreSQL
 ```
@@ -53,10 +54,25 @@ backend/src/
   modules/
     admin/              Regional admin API
     kindergarten/       Kindergarten portal API
+    parents-portal/     Parent portal microservice API
 ```
 
 Kindergarten routes are split by domain in `backend/src/modules/kindergarten/routes`.
 Each endpoint is mounted from an explicit domain route module.
+
+The parent portal is separated into its own controller/service/repository module
+and can run as a standalone service:
+
+```bash
+cd backend
+pnpm run dev:parent-portal
+```
+
+Standalone parent portal endpoints are mounted under `/api` on
+`PARENT_PORTAL_PORT` (default `4002`). Set
+`VITE_PARENT_PORTAL_API_BASE_URL=http://localhost:4002/api` to route parent
+portal API calls directly to this service. The same routes are also mounted in
+the main backend so existing frontend API calls remain compatible.
 
 ## Database
 
@@ -103,4 +119,4 @@ PostreSql
 ### API 
 Typescript 
 ### Express.js
-express.js, node.js, typescript.js 
+express.js, node.js, typescript.js

@@ -4,6 +4,7 @@ dotenv.config();
 
 export const env = {
   port: Number(process.env.PORT || 4001),
+  parentPortalPort: Number(process.env.PARENT_PORTAL_PORT || 4002),
   databaseUrl: process.env.DATABASE_URL,
   smtp: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',

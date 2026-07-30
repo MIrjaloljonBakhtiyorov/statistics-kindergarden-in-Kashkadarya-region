@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Apple, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock, Droplets, Flame, Leaf, Soup, Target, Wheat, Zap } from 'lucide-react';
-import { motion } from 'motion/react';
-import { apiClient } from '@/shared/api';
+import { apiClient, PARENT_PORTAL_API_BASE_URL } from '@/shared/api';
 
 const MEAL_LABELS: Record<string, string> = {
   BREAKFAST: 'Nonushta',
@@ -67,7 +66,7 @@ const formatDateKey = (date: Date) => {
 const getAssetUrl = (value?: string) => {
   if (!value) return '';
   if (/^(https?:|data:|blob:)/.test(value)) return value;
-  const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+  const apiBase = PARENT_PORTAL_API_BASE_URL || '';
   const origin = apiBase.replace(/\/api\/?$/, '');
   return `${origin}${value.startsWith('/') ? value : `/${value}`}`;
 };
@@ -168,7 +167,7 @@ export const MenuSection = ({ data: initialData, childId }: any) => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 md:space-y-5">
+    <div className="kg-parent-section space-y-4 md:space-y-5">
       <div className="relative overflow-hidden rounded-[1.35rem] border border-rose-100 bg-white p-4 shadow-sm md:p-5">
         <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-rose-500 to-pink-500"></div>
         <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-rose-500 via-pink-400 to-transparent opacity-60"></div>
@@ -220,7 +219,7 @@ export const MenuSection = ({ data: initialData, childId }: any) => {
 
       {loading ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] border border-rose-100 bg-white p-10 text-center shadow-sm">
-          <div className="h-10 w-10 rounded-full border-4 border-rose-500 border-t-transparent animate-spin"></div>
+          <div className="h-10 w-10 rounded-full border-4 border-rose-500 border-t-transparent"></div>
           <p className="text-[10px] font-black uppercase tracking-[0.16em] text-rose-600">Yuklanmoqda...</p>
         </div>
       ) : sortedMenu.length > 0 ? (
@@ -297,7 +296,7 @@ export const MenuSection = ({ data: initialData, childId }: any) => {
           ))}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -306,10 +305,7 @@ const MenuCard = ({ item, idx }: { item: any; idx: number }) => {
   const isDiet = item.diet_type === 'DIETARY';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: idx * 0.04 }}
+    <div
       className="overflow-hidden rounded-[1.25rem] border border-brand-border bg-white shadow-sm transition-all hover:border-rose-200 hover:bg-rose-50/25"
     >
       <div className="grid grid-cols-1 sm:grid-cols-[170px_minmax(0,1fr)]">
@@ -360,7 +356,7 @@ const MenuCard = ({ item, idx }: { item: any; idx: number }) => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

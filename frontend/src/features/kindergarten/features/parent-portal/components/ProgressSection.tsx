@@ -1,6 +1,5 @@
 import React from 'react';
 import { Award, Calendar, FileText, MessageSquare, Sparkles, Star, TrendingUp } from 'lucide-react';
-import { motion } from 'motion/react';
 
 const formatDate = (value?: string) => {
   if (!value) return 'Sana kiritilmagan';
@@ -17,7 +16,7 @@ export const ProgressSection = ({ data }: any) => {
   const topRating = progress.length ? Math.max(...progress.map((item: any) => Number(item.rating || 0))) : 0;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="kg-progress-typography space-y-4 md:space-y-5">
+    <div className="kg-parent-section kg-progress-typography space-y-4 md:space-y-5">
       <div className="relative overflow-hidden rounded-[1.35rem] border border-rose-100 bg-gradient-to-r from-rose-50 via-white to-pink-50 p-4 shadow-sm md:p-5">
         <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-rose-500 to-pink-500"></div>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -43,11 +42,8 @@ export const ProgressSection = ({ data }: any) => {
       {progress.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           {progress.map((item: any, idx: number) => (
-            <motion.div
+            <div
               key={item.id || idx}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.04 }}
               className="flex min-h-[210px] flex-col rounded-[1.25rem] border border-rose-100 bg-white p-4 shadow-sm transition-all hover:border-rose-200 hover:bg-rose-50/25 md:p-5"
             >
               <div className="flex items-start justify-between gap-4">
@@ -89,7 +85,7 @@ export const ProgressSection = ({ data }: any) => {
                   {item.comment || "Izoh kiritilmagan."}
                 </p>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       ) : (
@@ -118,7 +114,7 @@ export const ProgressSection = ({ data }: any) => {
           Hisobotni ko'rish
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

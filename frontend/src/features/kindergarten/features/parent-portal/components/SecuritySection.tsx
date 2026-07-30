@@ -11,7 +11,6 @@ import {
   Sparkles,
   User
 } from 'lucide-react';
-import { motion } from 'motion/react';
 
 export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdate }: any) => {
   const [showNewPass, setShowNewPass] = useState(false);
@@ -29,7 +28,7 @@ export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdat
   const strengthColor = ['bg-slate-200', 'bg-rose-400', 'bg-pink-400', 'bg-fuchsia-500'];
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 pb-4">
+    <div className="kg-parent-section space-y-4 pb-4 sm:space-y-5">
       <div className="relative overflow-hidden rounded-3xl border border-rose-100 bg-gradient-to-r from-white via-rose-50/70 to-pink-50/80 p-5 shadow-sm md:p-6">
         <div className="absolute inset-y-0 left-0 w-1 bg-rose-500"></div>
         <div className="pointer-events-none absolute right-8 top-5 h-24 w-24 rounded-full border border-rose-200/70"></div>
@@ -184,7 +183,7 @@ export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdat
           >
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent group-hover:animate-shimmer" />
             {isSaving ? (
-              <div className="h-5 w-5 animate-spin rounded-full border-4 border-white/30 border-t-white" />
+              <div className="h-5 w-5 rounded-full border-4 border-white/30 border-t-white" />
             ) : (
               <>
                 <Save size={19} className="transition-transform group-hover:rotate-12" />
@@ -194,6 +193,6 @@ export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdat
           </button>
         </div>
       </form>
-    </motion.div>
+    </div>
   );
 };

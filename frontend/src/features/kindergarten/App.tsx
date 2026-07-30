@@ -37,22 +37,34 @@ const ViewFallback = () => (
   </div>
 );
 
+const getRouteState = () => {
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  return {
+    kindergartenId: parts.length >= 2 ? parts[1] : null,
+    role: parts.length >= 3 ? (parts[2].toUpperCase() as UserRole) : 'DIRECTOR',
+  };
+};
+
 const App: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { groups } = useGroups();
 
   // URL dan kindergartenId va rolni aniqlash
-  const [currentKindergartenId, setCurrentKindergartenId] = useState<string | null>(null);
-  const [currentRole, setCurrentRole] = useState<UserRole>('DIRECTOR');
+  const [currentKindergartenId, setCurrentKindergartenId] = useState<string | null>(() => getRouteState().kindergartenId);
+  const [currentRole, setCurrentRole] = useState<UserRole>(() => getRouteState().role);
 
   useEffect(() => {
-    const path = window.location.pathname;
-    // /kindergarten/:id/:role
-    const parts = path.split('/').filter(Boolean);
-    if (parts.length >= 3) {
-      setCurrentKindergartenId(parts[1]);
-      setCurrentRole(parts[2].toUpperCase() as UserRole);
+    const syncRouteState = () => {
+      const nextRoute = getRouteState();
+      setCurrentKindergartenId(nextRoute.kindergartenId);
+      setCurrentRole(nextRoute.role);
+    };
+
+    syncRouteState();
+    window.addEventListener('popstate', syncRouteState);
+    return () => {
+      window.removeEventListener('popstate', syncRouteState);
     }
   }, []);
 

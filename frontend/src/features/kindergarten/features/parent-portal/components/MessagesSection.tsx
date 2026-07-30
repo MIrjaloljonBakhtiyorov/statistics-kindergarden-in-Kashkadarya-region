@@ -16,10 +16,9 @@ import {
   Home,
   UserRoundCheck
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { useNotification } from '../../../context/NotificationContext';
 import { useAuth } from '../../../context/AuthContext';
-import { apiClient } from '@/shared/api';
+import { apiClient, PARENT_PORTAL_API_BASE_URL } from '@/shared/api';
 import { parentsApi } from '../../parents/api/parentsApi';
 import { ChatMessage, ChatContact } from '../../parents/types/parentPortal.types';
 
@@ -31,7 +30,7 @@ const QUICK_TEMPLATES = [
 const getAssetUrl = (url?: string | null) => {
   if (!url) return '';
   if (url.startsWith('http') || url.startsWith('data:')) return url;
-  const apiRoot = String(apiClient.defaults.baseURL || '').replace(/\/api\/?$/, '');
+  const apiRoot = String(PARENT_PORTAL_API_BASE_URL || apiClient.defaults.baseURL || '').replace(/\/api\/?$/, '');
   return `${apiRoot}${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
@@ -119,7 +118,7 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
   const audioChunksRef = useRef<Blob[]>([]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
   };
 
   useEffect(() => {
@@ -295,10 +294,10 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
   };
 
   return (
-    <div className="h-[500px] md:h-[600px] flex flex-col md:flex-row gap-4">
+    <div className="kg-parent-section kg-parent-messages flex h-full min-h-[500px] min-w-0 flex-col gap-3 md:min-h-0 md:flex-row md:gap-4">
       {/* Contact List */}
-      <div className={`${activeChat && 'hidden md:flex'} w-full md:w-[360px] xl:w-[420px] flex-col gap-3 transition-all duration-500`}>
-        <div className="bg-white p-5 md:p-7 rounded-[1.5rem] md:rounded-[2rem] border border-brand-border shadow-sm space-y-4">
+      <div className={`${activeChat ? 'hidden md:flex' : 'flex'} kg-parent-chat-list min-w-0 w-full md:w-[320px] lg:w-[340px] xl:w-[380px] flex-col gap-3`}>
+        <div className="space-y-3 rounded-[1.5rem] border border-brand-border bg-white p-4 shadow-sm sm:p-5 md:space-y-4 md:rounded-[2rem] md:p-6">
             <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-wide px-1.5">Guruh rahbari</p>
             <div className="space-y-2">
             {visibleContacts.length === 0 ? (
@@ -313,12 +312,12 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
                 <button 
                   key={contact.id}
                   onClick={() => setActiveChat(contact)}
-                  className={`w-full flex min-h-[128px] items-center gap-5 p-5 rounded-[1.5rem] transition-all text-left border ${
+                  className={`flex min-h-[104px] w-full items-center gap-3 rounded-[1.25rem] border p-3.5 text-left transition-all sm:gap-4 sm:p-4 md:min-h-[118px] md:rounded-[1.5rem] ${
                     activeChat?.id === contact.id ? 'bg-brand-primary/10 border-brand-primary shadow-sm' : 'bg-slate-50 border-slate-100 hover:border-brand-primary hover:bg-white'
                   }`}
                 >
                     <div className="relative">
-                      <div className="w-[72px] h-[72px] rounded-[1.35rem] flex items-center justify-center bg-white border border-brand-border text-brand-primary shrink-0 text-xl font-extrabold uppercase shadow-sm">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.15rem] border border-brand-border bg-white text-lg font-extrabold uppercase text-brand-primary shadow-sm sm:h-16 sm:w-16 md:h-[68px] md:w-[68px] md:rounded-[1.35rem] md:text-xl">
                         {getInitials(contact.name)}
                       </div>
                       {contact.unreadCount > 0 && (
@@ -341,18 +340,17 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
       </div>
 
       {/* Main Chat Window */}
-      <div className={`${!activeChat && 'hidden md:flex'} flex-1 bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl flex flex-col relative overflow-hidden transition-all duration-500`}>
-        <AnimatePresence mode="wait">
+      <div className={`${activeChat ? 'flex' : 'hidden md:flex'} kg-parent-chat-window relative min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[1.5rem] border border-slate-100 bg-white shadow-xl md:rounded-[2rem] xl:rounded-[2.5rem]`}>
           {!activeChat ? (
-            <motion.div key="placeholder" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="flex-1 flex flex-col items-center justify-center text-center p-8">
+            <div key="placeholder" className="flex-1 flex flex-col items-center justify-center text-center p-8">
               <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-brand-ghost flex items-center justify-center border-2 border-slate-50 mb-4">
                 <MessageCircle size={32} className="text-slate-300" />
               </div>
               <h4 className="text-lg md:text-xl font-black text-brand-depth">Xabar yuborish</h4>
               <p className="text-xs text-brand-muted mt-1.5 max-w-[200px]">Suhbatni boshlash uchun tarbiyachini tanlang.</p>
-            </motion.div>
+            </div>
           ) : (
-            <motion.div key="chat-window" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col h-full">
+            <div key="chat-window" className="flex h-full min-h-0 flex-1 flex-col">
               {/* Chat Header */}
               <div className="p-3 md:p-5 border-b border-slate-100 flex items-center justify-between bg-white/90 backdrop-blur-md relative z-10">
                 <div className="flex items-center gap-2.5 md:gap-3.5">
@@ -364,7 +362,7 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
                       <p className="text-[9px] font-extrabold uppercase tracking-wide text-brand-primary">Guruh rahbari</p>
                       <h5 className="text-base md:text-xl font-extrabold text-brand-depth tracking-tight">{activeChat.name}</h5>
                       <div className={`text-[7px] md:text-[9px] font-black tracking-wide flex items-center gap-1 ${activeChat.isOnline ? 'text-emerald-500' : 'text-rose-400'}`}>
-                          <div className={`w-1.5 h-1.5 rounded-full ${activeChat.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-400'}`}></div> 
+                          <div className={`w-1.5 h-1.5 rounded-full ${activeChat.isOnline ? 'bg-emerald-500' : 'bg-rose-400'}`}></div>
                           {getContactStatusLabel(activeChat)}
                       </div>
                     </div>
@@ -373,20 +371,20 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
               </div>
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-3 md:space-y-4 relative z-10 custom-scrollbar">
+              <div className="relative z-10 min-h-0 flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-3 md:space-y-4 custom-scrollbar">
                 {isLoading ? (
                   <div className="flex justify-center items-center h-full">
-                    <div className="w-6 h-6 border-3 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-6 h-6 border-3 border-brand-primary border-t-transparent rounded-full"></div>
                   </div>
                 ) : (
                   <>
                     {messages.map((msg) => (
                         <div key={`msg-${msg.id}`} className={`flex ${msg.type === 'sent' ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[85%] md:max-w-[80%] p-3 md:p-4 rounded-xl md:rounded-[1.5rem] shadow-sm relative group ${
+                          <div className={`max-w-[88%] break-words p-3 md:max-w-[80%] md:p-4 rounded-xl md:rounded-[1.5rem] shadow-sm relative group ${
                               msg.type === 'sent' ? 'bg-brand-primary text-white rounded-tr-none' : 'bg-slate-50 text-brand-depth rounded-tl-none border border-slate-100'
                           }`}>
                               {msg.type === 'sent' && !msg.isDeleted && (
-                                <div className="absolute -left-16 top-2 hidden group-hover:flex items-center gap-1">
+                                <div className="absolute -top-4 right-1 flex items-center gap-1 md:-left-16 md:right-auto md:top-2 md:hidden md:group-hover:flex">
                                   <button
                                     type="button"
                                     onClick={() => handleEditMessage(msg)}
@@ -422,13 +420,13 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
               </div>
 
               {/* Quick Templates */}
-              <div className="px-4 md:px-6 pb-4 relative z-10">
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div className="relative z-10 px-3 pb-3 sm:px-4 md:px-6 md:pb-4">
+                <div className="no-scrollbar flex snap-x gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0">
                 {QUICK_TEMPLATES.map((tpl) => (
                   <button
                     key={`tpl-${tpl.id}`}
                     onClick={() => handleSendMessage(tpl.text)}
-                    className="min-h-[58px] rounded-2xl border border-slate-100 bg-white px-3.5 py-3 text-left text-[12px] font-extrabold leading-snug text-brand-depth shadow-sm transition-all hover:border-brand-primary hover:bg-brand-primary/10"
+                    className="min-h-[54px] min-w-[220px] snap-start rounded-2xl border border-slate-100 bg-white px-3.5 py-3 text-left text-[11px] font-extrabold leading-snug text-brand-depth shadow-sm transition-all hover:border-brand-primary hover:bg-brand-primary/10 sm:min-w-0 sm:text-[12px]"
                   >
                     <span className="flex h-full items-center gap-2.5">
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-primary/10 text-brand-primary">
@@ -463,8 +461,8 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
                   </div>
                 )}
                 {isRecording ? (
-                  <div className="flex items-center gap-3 bg-red-50 border border-red-100 rounded-xl md:rounded-[1.8rem] px-4 py-1.5 md:py-3 transition-all">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
+                  <div className="flex items-center gap-3 bg-red-50 border border-red-100 rounded-xl md:rounded-[1.8rem] px-4 py-1.5 md:py-3">
+                    <div className="w-2 h-2 bg-red-500 rounded-full" />
                     <span className="flex-1 font-black text-red-500 text-xs tracking-widest">{formatTime(recordingTime)}</span>
                     <button onClick={() => setIsRecording(false)} className="text-slate-400 hover:text-red-500"><X size={18} /></button>
                     <button onClick={stopRecording} className="w-8 h-8 md:w-10 md:h-10 bg-red-500 text-white rounded-lg md:rounded-xl flex items-center justify-center shadow-md"><Send size={14} /></button>
@@ -472,7 +470,7 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
                 ) : (
                   <form 
                     onSubmit={(e) => { e.preventDefault(); handleSendMessage(chatMessage); }}
-                    className="flex items-center gap-2 md:gap-3 bg-white border border-brand-border focus-within:border-brand-primary rounded-2xl px-4 py-3 transition-all shadow-sm"
+                    className="flex min-w-0 items-center gap-2 rounded-2xl border border-brand-border bg-white px-3 py-2.5 shadow-sm transition-all focus-within:border-brand-primary sm:px-4 sm:py-3 md:gap-3"
                   >
                       <label className="text-brand-muted hover:text-brand-primary transition-colors hidden md:block cursor-pointer">
                         <Paperclip size={18} />
@@ -483,7 +481,7 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
                         value={chatMessage}
                         onChange={(e) => setChatMessage(e.target.value)}
                         placeholder="Xabar..."
-                        className="flex-1 bg-transparent outline-none font-semibold text-sm md:text-[15px] text-brand-depth py-1.5"
+                        className="min-w-0 flex-1 bg-transparent py-1.5 text-sm font-semibold text-brand-depth outline-none md:text-[15px]"
                       />
                       <button type="button" onClick={startRecording} className="text-brand-muted hover:text-brand-primary transition-colors"><Mic size={18} /></button>
                       <button 
@@ -496,9 +494,8 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
                   </form>
                 )}
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
       </div>
     </div>
   );
