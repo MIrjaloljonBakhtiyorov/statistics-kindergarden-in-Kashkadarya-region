@@ -179,13 +179,12 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
   useEffect(() => {
     if (activeChat && !visibleContacts.some((contact) => String(contact.id) === String(activeChat.id))) {
       setActiveChat(null);
-      return;
-    }
-
-    if (!activeChat && visibleContacts.length === 1) {
-      setActiveChat(visibleContacts[0]);
     }
   }, [contacts, childName, activeChat?.id]);
+
+  const handleOpenChat = (contact: ChatContact) => {
+    setActiveChat(contact);
+  };
 
   const uploadChatFile = async (file: File) => {
     const formData = new FormData();
@@ -296,7 +295,7 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
   return (
     <div className="kg-parent-section kg-parent-messages flex h-full min-h-[500px] min-w-0 flex-col gap-3 md:min-h-0 md:flex-row md:gap-4">
       {/* Contact List */}
-      <div className={`${activeChat ? 'hidden md:flex' : 'flex'} kg-parent-chat-list min-w-0 w-full md:w-[320px] lg:w-[340px] xl:w-[380px] flex-col gap-3`}>
+      <div className={`${activeChat ? 'hidden' : 'flex'} kg-parent-chat-list min-w-0 w-full md:w-[320px] lg:w-[340px] xl:w-[380px] flex-col gap-3`}>
         <div className="space-y-3 rounded-[1.5rem] border border-brand-border bg-white p-4 shadow-sm sm:p-5 md:space-y-4 md:rounded-[2rem] md:p-6">
             <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-wide px-1.5">Guruh rahbari</p>
             <div className="space-y-2">
@@ -311,7 +310,7 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
             ) : visibleContacts.map((contact) => (
                 <button 
                   key={contact.id}
-                  onClick={() => setActiveChat(contact)}
+                  onClick={() => handleOpenChat(contact)}
                   className={`flex min-h-[104px] w-full items-center gap-3 rounded-[1.25rem] border p-3.5 text-left transition-all sm:gap-4 sm:p-4 md:min-h-[118px] md:rounded-[1.5rem] ${
                     activeChat?.id === contact.id ? 'bg-brand-primary/10 border-brand-primary shadow-sm' : 'bg-slate-50 border-slate-100 hover:border-brand-primary hover:bg-white'
                   }`}
@@ -340,7 +339,7 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
       </div>
 
       {/* Main Chat Window */}
-      <div className={`${activeChat ? 'flex' : 'hidden md:flex'} kg-parent-chat-window relative min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[1.5rem] border border-slate-100 bg-white shadow-xl md:rounded-[2rem] xl:rounded-[2.5rem]`}>
+      <div className={`${activeChat ? 'flex' : 'hidden'} kg-parent-chat-window relative min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[1.35rem] border border-brand-border bg-white shadow-sm md:rounded-[1.75rem]`}>
           {!activeChat ? (
             <div key="placeholder" className="flex-1 flex flex-col items-center justify-center text-center p-8">
               <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-brand-ghost flex items-center justify-center border-2 border-slate-50 mb-4">
@@ -350,28 +349,28 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
               <p className="text-xs text-brand-muted mt-1.5 max-w-[200px]">Suhbatni boshlash uchun tarbiyachini tanlang.</p>
             </div>
           ) : (
-            <div key="chat-window" className="flex h-full min-h-0 flex-1 flex-col">
+            <div key="chat-window" className="kg-parent-chat-inner flex h-full min-h-0 flex-1 flex-col bg-gradient-to-b from-white via-white to-slate-50/70">
               {/* Chat Header */}
-              <div className="p-3 md:p-5 border-b border-slate-100 flex items-center justify-between bg-white/90 backdrop-blur-md relative z-10">
-                <div className="flex items-center gap-2.5 md:gap-3.5">
-                    <button onClick={() => setActiveChat(null)} className="md:hidden p-1.5 text-brand-muted hover:text-brand-primary"><ArrowLeft size={18} /></button>
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-brand-primary/10 flex items-center justify-center text-brand-primary border border-brand-primary/10 text-[13px] font-extrabold uppercase">
+              <div className="relative z-10 flex items-center justify-between border-b border-brand-border bg-white px-4 py-3.5 sm:px-5 md:px-6 md:py-4">
+                <div className="flex min-w-0 items-center gap-3 md:gap-3.5">
+                    <button onClick={() => setActiveChat(null)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-brand-border bg-white text-brand-muted hover:text-brand-primary md:hidden"><ArrowLeft size={18} /></button>
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50 to-pink-50 text-[14px] font-extrabold uppercase text-rose-600 shadow-sm shadow-rose-100/60 md:h-14 md:w-14 md:text-base">
                       {getInitials(activeChat.name)}
                     </div>
-                    <div>
-                      <p className="text-[9px] font-extrabold uppercase tracking-wide text-brand-primary">Guruh rahbari</p>
-                      <h5 className="text-base md:text-xl font-extrabold text-brand-depth tracking-tight">{activeChat.name}</h5>
-                      <div className={`text-[7px] md:text-[9px] font-black tracking-wide flex items-center gap-1 ${activeChat.isOnline ? 'text-emerald-500' : 'text-rose-400'}`}>
-                          <div className={`w-1.5 h-1.5 rounded-full ${activeChat.isOnline ? 'bg-emerald-500' : 'bg-rose-400'}`}></div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-extrabold uppercase text-rose-500">Guruh rahbari</p>
+                      <h5 className="truncate text-lg font-extrabold leading-tight text-brand-depth md:text-xl">{activeChat.name}</h5>
+                      <div className={`mt-1 flex items-center gap-1.5 text-[10px] font-extrabold ${activeChat.isOnline ? 'text-emerald-600' : 'text-rose-500'}`}>
+                          <div className={`h-2 w-2 rounded-full ${activeChat.isOnline ? 'bg-emerald-500' : 'bg-rose-400'}`}></div>
                           {getContactStatusLabel(activeChat)}
                       </div>
                     </div>
                 </div>
-                <button className="p-1.5 text-brand-muted hover:text-brand-primary transition-colors"><MoreVertical size={18} /></button>
+                <button className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-brand-muted hover:bg-slate-50 hover:text-brand-primary"><MoreVertical size={18} /></button>
               </div>
 
               {/* Messages Area */}
-              <div className="relative z-10 min-h-0 flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-3 md:space-y-4 custom-scrollbar">
+              <div className="kg-parent-chat-messages relative z-10 min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-5 md:px-6 lg:px-8 lg:py-6 space-y-2.5 md:space-y-3 custom-scrollbar">
                 {isLoading ? (
                   <div className="flex justify-center items-center h-full">
                     <div className="w-6 h-6 border-3 border-brand-primary border-t-transparent rounded-full"></div>
@@ -380,8 +379,8 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
                   <>
                     {messages.map((msg) => (
                         <div key={`msg-${msg.id}`} className={`flex ${msg.type === 'sent' ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[88%] break-words p-3 md:max-w-[80%] md:p-4 rounded-xl md:rounded-[1.5rem] shadow-sm relative group ${
-                              msg.type === 'sent' ? 'bg-brand-primary text-white rounded-tr-none' : 'bg-slate-50 text-brand-depth rounded-tl-none border border-slate-100'
+                          <div className={`relative max-w-[86%] break-words px-4 py-3 shadow-sm md:max-w-[72%] md:px-4.5 md:py-3.5 group ${
+                              msg.type === 'sent' ? 'rounded-2xl rounded-tr-md bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-md shadow-rose-100' : 'rounded-2xl rounded-tl-md border border-rose-100 bg-white text-brand-depth shadow-rose-50'
                           }`}>
                               {msg.type === 'sent' && !msg.isDeleted && (
                                 <div className="absolute -top-4 right-1 flex items-center gap-1 md:-left-16 md:right-auto md:top-2 md:hidden md:group-hover:flex">
@@ -404,7 +403,7 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
                                 </div>
                               )}
                               <MessageBody msg={msg} />
-                              <div className={`flex items-center justify-end gap-1 mt-1.5 ${msg.type === 'sent' ? 'text-white/60' : 'text-brand-muted'}`}>
+                              <div className={`mt-1.5 flex items-center justify-end gap-1 ${msg.type === 'sent' ? 'text-white/70' : 'text-brand-muted'}`}>
                                 {msg.editedAt && !msg.isDeleted && <span className="text-[9px] md:text-[10px] font-black">tahrirlangan</span>}
                                 <span className="text-[9px] md:text-[10px] font-black">{formatMessageTime(msg.time)}</span>
                                 {msg.type === 'sent' && (
@@ -420,16 +419,16 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
               </div>
 
               {/* Quick Templates */}
-              <div className="relative z-10 px-3 pb-3 sm:px-4 md:px-6 md:pb-4">
-                <div className="no-scrollbar flex snap-x gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0">
+              <div className="relative z-10 border-t border-brand-border bg-white/90 px-4 py-3 sm:px-5 md:px-6">
+                <div className="no-scrollbar flex snap-x gap-2 overflow-x-auto sm:grid sm:grid-cols-2 sm:overflow-visible">
                 {QUICK_TEMPLATES.map((tpl) => (
                   <button
                     key={`tpl-${tpl.id}`}
                     onClick={() => handleSendMessage(tpl.text)}
-                    className="min-h-[54px] min-w-[220px] snap-start rounded-2xl border border-slate-100 bg-white px-3.5 py-3 text-left text-[11px] font-extrabold leading-snug text-brand-depth shadow-sm transition-all hover:border-brand-primary hover:bg-brand-primary/10 sm:min-w-0 sm:text-[12px]"
+                    className="min-h-[48px] min-w-[210px] snap-start rounded-2xl border border-rose-100 bg-gradient-to-br from-white to-rose-50/55 px-3.5 py-2.5 text-left text-[11px] font-extrabold leading-snug text-brand-depth shadow-sm shadow-rose-50 hover:border-rose-200 hover:bg-rose-50 sm:min-w-0 sm:text-[12px]"
                   >
                     <span className="flex h-full items-center gap-2.5">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-primary/10 text-brand-primary">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-rose-100 bg-white text-rose-500">
                         <tpl.icon size={16} />
                       </span>
                       <span className="min-w-0 whitespace-normal leading-snug">{tpl.text}</span>
@@ -440,7 +439,7 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
               </div>
 
               {/* Input Area */}
-              <div className="p-3 md:p-5 lg:p-6 border-t border-slate-50 bg-white/80 backdrop-blur-md relative z-10">
+              <div className="relative z-10 border-t border-brand-border bg-white px-4 py-3.5 sm:px-5 md:px-6 md:py-4">
                 {editingMessage && (
                   <div className="mb-2 flex items-center justify-between rounded-2xl border border-brand-primary/20 bg-brand-primary/5 px-4 py-2">
                     <div className="min-w-0">
@@ -468,11 +467,11 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
                     <button onClick={stopRecording} className="w-8 h-8 md:w-10 md:h-10 bg-red-500 text-white rounded-lg md:rounded-xl flex items-center justify-center shadow-md"><Send size={14} /></button>
                   </div>
                 ) : (
-                  <form 
+                  <form
                     onSubmit={(e) => { e.preventDefault(); handleSendMessage(chatMessage); }}
-                    className="flex min-w-0 items-center gap-2 rounded-2xl border border-brand-border bg-white px-3 py-2.5 shadow-sm transition-all focus-within:border-brand-primary sm:px-4 sm:py-3 md:gap-3"
+                    className="flex min-w-0 items-center gap-2 rounded-2xl border border-rose-100 bg-gradient-to-br from-white to-rose-50/35 px-3 py-2.5 shadow-sm shadow-rose-50 focus-within:border-rose-300 sm:px-4 sm:py-3 md:gap-3"
                   >
-                      <label className="text-brand-muted hover:text-brand-primary transition-colors hidden md:block cursor-pointer">
+                      <label className="hidden cursor-pointer text-brand-muted hover:text-rose-500 md:block">
                         <Paperclip size={18} />
                         <input type="file" accept="image/*,video/*,audio/*" className="hidden" onChange={handleFileChange} />
                       </label>
@@ -483,11 +482,11 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
                         placeholder="Xabar..."
                         className="min-w-0 flex-1 bg-transparent py-1.5 text-sm font-semibold text-brand-depth outline-none md:text-[15px]"
                       />
-                      <button type="button" onClick={startRecording} className="text-brand-muted hover:text-brand-primary transition-colors"><Mic size={18} /></button>
-                      <button 
+                      <button type="button" onClick={startRecording} className="text-brand-muted hover:text-rose-500"><Mic size={18} /></button>
+                      <button
                         type="submit"
                         disabled={!chatMessage.trim()}
-                        className="w-10 h-10 bg-brand-primary text-white rounded-xl flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all shrink-0 disabled:opacity-50 disabled:scale-100"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 text-white shadow-sm shadow-rose-200 hover:from-rose-500 hover:to-pink-600 disabled:opacity-50"
                       >
                         <Send size={14} />
                       </button>
