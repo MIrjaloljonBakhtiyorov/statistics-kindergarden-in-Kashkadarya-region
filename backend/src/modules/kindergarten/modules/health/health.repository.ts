@@ -1,6 +1,5 @@
 import { db } from '../../db.js';
 import crypto from 'crypto';
-import { OperationsRepository } from '../operations/operations.repository.js';
 
 const HEALTH_METRIC_STATUSES = ['NORMAL', 'WATCH', 'NOT_CHECKED'];
 

@@ -1,5 +1,5 @@
 import cors from 'cors';
-import express from 'express';
+import express, { type ErrorRequestHandler } from 'express';
 
 import { schemaReady } from '../../db/schema.js';
 import { authRoutes } from '../kindergarten/routes/auth.routes.js';
@@ -9,18 +9,22 @@ import { parentsRoutes } from './parentPortal.routes.js';
 
 export { schemaReady };
 
+const jsonErrorHandler: ErrorRequestHandler = (err, _req, res, next) => {
+  if (err instanceof SyntaxError && 'body' in err) {
+    res.status(400).json({ error: "JSON formati noto'g'ri" });
+    return;
+  }
+
+  next(err);
+};
+
 export const createParentPortalApp = () => {
   const app = express();
 
   app.disable('x-powered-by');
   app.use(cors());
   app.use(express.json({ limit: '10mb' }));
-  app.use((err: any, _req: express.Request, res: express.Response, next: express.NextFunction) => {
-    if (err instanceof SyntaxError && 'body' in err) {
-      return res.status(400).json({ error: "JSON formati noto'g'ri" });
-    }
-    return next(err);
-  });
+  app.use(jsonErrorHandler);
   app.use('/uploads', express.static(uploadsDir, {
     etag: true,
     immutable: true,

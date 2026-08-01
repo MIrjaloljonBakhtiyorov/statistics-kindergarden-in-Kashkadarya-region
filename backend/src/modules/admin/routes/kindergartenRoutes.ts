@@ -1,6 +1,8 @@
-import express from 'express';
-const router = express.Router();
+import { Router } from 'express';
+
 import KindergartenController from '../controllers/kindergartenController.js';
+
+const router = Router();
 
 router.get('/', KindergartenController.getAll);
 router.get('/menus/all', KindergartenController.getMenus);
