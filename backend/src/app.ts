@@ -1,11 +1,13 @@
 import cors from 'cors';
 import express from 'express';
 
-import './db/schema.js';
+import { schemaReady } from './db/schema.js';
 import kindergartenAdminRoutes from './modules/admin/routes/kindergartenRoutes.js';
 import KindergartenController from './modules/admin/controllers/kindergartenController.js';
 import kindergartenSystemRoutes from './modules/kindergarten/routes/kindergartenRoutes.js';
 import { handleUploadResponse, upload, uploadsDir } from './modules/shared/upload.js';
+
+export { schemaReady };
 
 export const createApp = () => {
   const app = express();

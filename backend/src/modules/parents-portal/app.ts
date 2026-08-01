@@ -1,11 +1,13 @@
 import cors from 'cors';
 import express from 'express';
 
-import '../../db/schema.js';
+import { schemaReady } from '../../db/schema.js';
 import { authRoutes } from '../kindergarten/routes/auth.routes.js';
 import { messagesRoutes } from '../kindergarten/routes/messages.routes.js';
 import { handleUploadResponse, upload, uploadsDir } from '../shared/upload.js';
 import { parentsRoutes } from './parentPortal.routes.js';
+
+export { schemaReady };
 
 export const createParentPortalApp = () => {
   const app = express();

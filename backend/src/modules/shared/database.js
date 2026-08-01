@@ -116,6 +116,11 @@ const pool = new Pool({
   idleTimeoutMillis: Number(process.env.PG_IDLE_TIMEOUT_MS || 30000),
   connectionTimeoutMillis: Number(process.env.PG_CONNECTION_TIMEOUT_MS || 5000),
 });
+
+pool.on('error', (error) => {
+  console.error('PostgreSQL idle client error:', error.message);
+});
+
 let activeQueue = null;
 
 const rawQuery = async (sql, params = []) => {

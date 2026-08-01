@@ -1,3 +1,3 @@
-// Central schema entrypoint. SQL migration files live in this folder; the
-// runtime initializer keeps existing databases compatible during deploys.
-import './initializeSchema.js';
+// Central schema entrypoint. The runtime initializer is the single schema
+// migration path used by the application during startup.
+export { schemaReady } from './initializeSchema.js';

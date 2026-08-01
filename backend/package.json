@@ -7,8 +7,7 @@
     "start:parent-portal": "node dist/modules/parents-portal/server.js",
     "dev": "tsx --watch src/index.ts",
     "dev:parent-portal": "tsx --watch src/modules/parents-portal/server.ts",
-    "build": "tsc",
-    "migrate": "tsx src/db/migrate.ts"
+    "build": "tsc"
   },
   "dependencies": {
     "@types/nodemailer": "^8.0.1",

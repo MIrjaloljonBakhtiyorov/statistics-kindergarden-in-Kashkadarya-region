@@ -1,25 +1,10 @@
 ﻿import { Router } from 'express';
 import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
 import { resolveKindergartenId } from '../requestContext.js';
-import { assertLoginAvailable } from '../../shared/loginUniqueness.js';
 import {
   all,
   get,
   run,
-  ensureTables,
-  parseJson,
-  toPositiveNumber,
-  normalizeIsoDate,
-  isHealthCheckDue,
-  normalizeArchiveMonths,
-  getArchiveCutoffDate,
-  getKindergartenChildCount,
-  ensureMedicalInventoryDefaults,
-  getMedicalItemStock,
-  decorateMedicalItems,
-  logOperation,
-  resolveMedicalOutDetails,
   resolveChatUserId,
 } from './routeSupport.js';
 
@@ -75,7 +60,7 @@ const mapMessage = (row: any, userIds: string[] | string = []) => {
 
 const ONLINE_WINDOW_MS = 2 * 60 * 1000;
 
-const formatLastSeenStatus = (lastSeenAt?: string | null, hasSystemAccount = false) => {
+const formatLastSeenStatus = (lastSeenAt?: string | null) => {
   if (!lastSeenAt) {
     return {
       isOnline: false,
@@ -328,7 +313,7 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
     `, [kindergartenId, leader.id, parentId, parentId, leader.id]);
 
     const hasSystemAccount = leader.source === 'role_account';
-    const presence = formatLastSeenStatus(leader.last_seen_at || latest?.created_at, hasSystemAccount);
+    const presence = formatLastSeenStatus(leader.last_seen_at || latest?.created_at);
 
     res.json([{
       id: String(leader.id),

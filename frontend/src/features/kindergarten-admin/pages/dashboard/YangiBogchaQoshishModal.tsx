@@ -94,13 +94,8 @@ const STEPS = [
   { id: 8, title: "Ko'rib chiqish", icon: Settings },
 ];
 
-const REGIONS = [
-    "Qoraqalpog'iston Respublikasi",
-    "Andijon viloyati", "Buxoro viloyati", "Farg'ona viloyati", "Jizzax viloyati",
-    "Xorazm viloyati", "Namangan viloyati", "Navoiy viloyati", "Qashqadaryo viloyati",
-    "Samarqand viloyati", "Sirdaryo viloyati", "Surxondaryo viloyati", "Toshkent viloyati",
-    "Toshkent shahri"
-];
+const QASHQADARYO_REGION = "Qashqadaryo viloyati";
+const REGIONS = [QASHQADARYO_REGION];
 
 const DISTRICT_OPTIONS_BY_REGION: Record<string, string[]> = {
     "Andijon viloyati": [
@@ -131,7 +126,7 @@ const DISTRICT_OPTIONS_BY_REGION: Record<string, string[]> = {
     "Qashqadaryo viloyati": [
         "Chiroqchi tumani", "Dehqonobod tumani", "G'uzor tumani", "Kasbi tumani",
         "Kitob tumani", "Koson tumani", "Ko'kdala tumani", "Mirishkor tumani",
-        "Muborak tumani", "Nishon tumani", "Qamashi tumani", "Shahrisabz tumani",
+        "Muborak tumani", "Nishon tumani", "Qamashi tumani", "Qarshi tumani", "Shahrisabz tumani",
         "Yakkabog' tumani",
         "Qarshi shahri", "Shahrisabz shahri", "Kitob shahri", "Koson shahri",
         "Muborak shahri", "Yakkabog' shahri"
@@ -212,6 +207,43 @@ const DISTRICT_OPTIONS_BY_REGION: Record<string, string[]> = {
     ]
 };
 
+const QASHQADARYO_DISTRICTS = DISTRICT_OPTIONS_BY_REGION[QASHQADARYO_REGION];
+const EMPTY_MAHALLA_OPTIONS: string[] = [];
+
+const MAHALLA_OPTIONS_BY_DISTRICT: Record<string, string[]> = {
+    "Qarshi shahri": [],
+    "Qarshi tumani": [],
+    "Shahrisabz shahri": [],
+    "Shahrisabz tumani": [],
+    "Kitob tumani": [],
+    "Kitob shahri": [],
+    "Koson tumani": [],
+    "Koson shahri": [],
+    "Muborak tumani": [],
+    "Muborak shahri": [],
+    "G'uzor tumani": [
+        "Gulshan MFY", "Eskibog' MFY", "Chaqar MFY", "Jarariq MFY", "Yakkadaraxt MFY",
+        "Yonqishloq MFY", "Guliston MFY", "Do'ltali MFY", "Toshguzar MFY", "Chugurtma MFY",
+        "Fayziobod MFY", "Mevazor MFY", "Do'stlik MFY", "Navro'z MFY", "Sherali MFY",
+        "Dashtobod MFY", "Yangihayot MFY", "Pachkamar MFY", "Omon ota MFY", "Xalkabod MFY",
+        "Yangiobod MFY", "Batosh MFY", "Mo'minobod MFY", "Apardi MFY", "Bo'ston MFY",
+        "Xumdon MFY", "Avg'onbog' MFY", "Yarg'unchi MFY", "Mustaqillik MFY", "Chanoq MFY",
+        "Zarbdor MFY", "Qovchin MFY", "Sovlig'ar MFY", "Shakarbuloq MFY", "Yangikent MFY",
+        "Sovbog' MFY", "Tinchlik MFY", "A.Temur MFY", "Mehnatobod MFY", "Cho'michli MFY",
+        "Tengdosh MFY", "Qorako'l MFY", "Jonbuloq MFY", "Eshonquduq MFY", "Buyuk karvon MFY",
+        "Paxtazor MFY", "Xo'jaguzar MFY",
+    ],
+    "Nishon tumani": [],
+    "Dehqonobod tumani": [],
+    "Qamashi tumani": [],
+    "Chiroqchi tumani": [],
+    "Kasbi tumani": [],
+    "Mirishkor tumani": [],
+    "Yakkabog' tumani": [],
+    "Yakkabog' shahri": [],
+    "Ko'kdala tumani": [],
+};
+
 const WORK_HOUR_OPTIONS = [
   { label: '4 soatlik', value: 4 },
   { label: '9-10.5 soatlik', value: 9.5 },
@@ -223,7 +255,7 @@ const CREATE_DEFAULT_VALUES = {
   name: '',
   type: '',
   workHours: '',
-  region: '',
+  region: QASHQADARYO_REGION,
   district: '',
   mahalla: '',
   licenseFile: '',
@@ -337,7 +369,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
     defaultValues: initialData ? {
         ...initialData,
         nurseCount: Number(initialData.nurseCount || 0),
-        region: initialData.region || 'Qashqadaryo viloyati',
+        region: QASHQADARYO_REGION,
         mahalla: initialData.mahalla || '',
         workHours: [9, 10.5].includes(Number(initialData.workHours)) ? 9.5 : Number(initialData.workHours || 9.5),
         brokerageDocumentFile: initialData.brokerageDocumentFile || '',
@@ -356,13 +388,36 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
   }, [isEdit, reset]);
 
   const allValues = watch();
-  const districtOptions = DISTRICT_OPTIONS_BY_REGION[allValues.region] || null;
+  const districtOptions = QASHQADARYO_DISTRICTS;
+  const mahallaOptions = MAHALLA_OPTIONS_BY_DISTRICT[allValues.district] || EMPTY_MAHALLA_OPTIONS;
+  const previousDistrictRef = React.useRef(allValues.district);
 
   useEffect(() => {
     if (districtOptions && allValues.district && !districtOptions.includes(allValues.district)) {
       setValue('district', '', { shouldDirty: true, shouldValidate: true });
     }
   }, [allValues.district, districtOptions, setValue]);
+
+  useEffect(() => {
+    if (allValues.region !== QASHQADARYO_REGION) {
+      setValue('region', QASHQADARYO_REGION, { shouldDirty: true, shouldValidate: true });
+    }
+  }, [allValues.region, setValue]);
+
+  useEffect(() => {
+    if (previousDistrictRef.current !== allValues.district) {
+      previousDistrictRef.current = allValues.district;
+      if (allValues.mahalla) {
+        setValue('mahalla', '', { shouldDirty: true, shouldValidate: true });
+      }
+    }
+  }, [allValues.district, allValues.mahalla, setValue]);
+
+  useEffect(() => {
+    if (mahallaOptions.length > 0 && allValues.mahalla && !mahallaOptions.includes(allValues.mahalla)) {
+      setValue('mahalla', '', { shouldDirty: true, shouldValidate: true });
+    }
+  }, [allValues.mahalla, mahallaOptions, setValue]);
 
   const credentialPreview = useMemo(() => ({
     systemId: initialData?.system_id || "Saqlanganda yaratiladi",
@@ -433,6 +488,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
         const nurseCount = Number(data.nurseCount || 0);
         const payload = {
             ...data,
+            region: QASHQADARYO_REGION,
             nurseCount,
             hasNurse: Boolean(data.hasNurse || nurseCount > 0),
             hasDietMenu: false,
@@ -568,14 +624,20 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                             <FormField name="id_auto" label="Bog'cha ID" placeholder={credentialPreview.systemId} disabled />
                             <FormField name="type" label="Turi *" options={[{label: 'Davlat', value: 'Public'}, {label: 'Xususiy', value: 'Private'}, {label: 'Oilaviy', value: 'Home'}]} />
                             <FormField name="workHours" label="Ish vaqti turi *" options={WORK_HOUR_OPTIONS} />
-                            <FormField name="region" label="Viloyat / respublika / shahar *" options={REGIONS} />
+                            <FormField name="region" label="Viloyat *" options={REGIONS} />
                             <FormField
                               name="district"
                               label="Tuman / shahar *"
-                              placeholder="Masalan: Yunusobod tumani"
+                              placeholder="Masalan: Qarshi tumani"
                               options={districtOptions}
                             />
-                            <FormField name="mahalla" label="Mahalla *" placeholder="Masalan: Mustaqillik MFY" />
+                            <FormField
+                              name="mahalla"
+                              label="Mahalla *"
+                              placeholder={allValues.district ? "Masalan: Mustaqillik MFY" : "Avval tuman/shaharni tanlang"}
+                              options={mahallaOptions.length > 0 ? mahallaOptions : null}
+                              disabled={!allValues.district}
+                            />
                             <div className="md:col-span-2"><FormField name="address" label="Manzil *" isTextArea /></div>
                         </>)}
 

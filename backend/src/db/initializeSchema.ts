@@ -1,7 +1,35 @@
 // @ts-nocheck
 import db from '../modules/shared/database.js';
 
-const initializeSchema = () => {
+const SCHEMA_INIT_LOCK_ID = 742001;
+
+const initializeSchema = () => new Promise<void>(async (resolve, reject) => {
+    let lockClient: any;
+
+    try {
+      lockClient = await db.pool.connect();
+      await lockClient.query('SELECT pg_advisory_lock($1)', [SCHEMA_INIT_LOCK_ID]);
+    } catch (error) {
+      lockClient?.release?.();
+      reject(error);
+      return;
+    }
+
+    const finish = async (err?: Error | null) => {
+      try {
+        if (lockClient) {
+          await lockClient.query('SELECT pg_advisory_unlock($1)', [SCHEMA_INIT_LOCK_ID]);
+        }
+      } catch (unlockError) {
+        console.error('Database schema lock release failed:', unlockError?.message || unlockError);
+      } finally {
+        lockClient?.release?.();
+      }
+
+      if (err) reject(err);
+      else resolve();
+    };
+
     db.serialize(() => {
       const addColumn = (table, column, definition) => {
         const statement = db.dialect === 'postgres'
@@ -727,7 +755,7 @@ const initializeSchema = () => {
       ensureCascadeForeignKey('pickup_people', 'pickup_people_child_id_fkey', 'child_id', 'children');
       ensureCascadeForeignKey('kindergarten_settings', 'kindergarten_settings_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
 
-      // Lightweight migrations for databases created with older schemas.
+      // Compatibility upgrades for databases created with older schemas.
       addColumn('parents', 'workplace', 'TEXT');
       addColumn('parents', 'passport_no', 'TEXT');
       addColumn('parents', 'role', 'TEXT');
@@ -822,9 +850,13 @@ const initializeSchema = () => {
       addColumn('messages', 'is_deleted', 'INTEGER DEFAULT 0');
       addColumn('role_accounts', 'last_seen_at', 'TEXT');
       addColumn('users', 'updated_at', 'DATETIME');
-    });
-};
 
-initializeSchema();
+      db.run('SELECT 1', (err) => {
+        finish(err);
+      });
+    });
+});
+
+export const schemaReady = initializeSchema();
 
 export default db;

@@ -461,6 +461,14 @@ const hashPasswordForStorage = async (value) => {
 };
 
 const DEFAULT_KINDERGARTEN_PASSWORD = 'USER1234';
+const QASHQADARYO_REGION = 'Qashqadaryo viloyati';
+const QASHQADARYO_DISTRICTS = new Set([
+  'Chiroqchi tumani', 'Dehqonobod tumani', "G'uzor tumani", 'Kasbi tumani',
+  'Kitob tumani', 'Koson tumani', "Ko'kdala tumani", 'Mirishkor tumani',
+  'Muborak tumani', 'Nishon tumani', 'Qamashi tumani', 'Qarshi tumani', 'Shahrisabz tumani',
+  "Yakkabog' tumani", 'Qarshi shahri', 'Shahrisabz shahri', 'Kitob shahri',
+  'Koson shahri', 'Muborak shahri', "Yakkabog' shahri",
+]);
 
 const publicKindergartenRow = (row) => {
   if (!row) return row;
@@ -3819,6 +3827,12 @@ const KindergartenController = {
     const data = { ...req.body };
     let credentials;
     let plainPassword;
+    const district = String(data.district || '').trim();
+
+    if (!QASHQADARYO_DISTRICTS.has(district)) {
+      return res.status(400).json({ error: 'Faqat Qashqadaryo viloyati tuman/shaharlari tanlanadi' });
+    }
+    data.district = district;
 
     try {
       credentials = await generateKindergartenCredentials(data.name);
@@ -3845,7 +3859,7 @@ const KindergartenController = {
       const nurseCount = toCount(data.nurseCount);
       const workHours = normalizeWorkHours(data.workHours);
       const params = [
-        data.system_id, data.name, data.type, workHours, data.region || 'Qashqadaryo viloyati', data.district, data.mahalla || null, data.licenseFile || null,
+        data.system_id, data.name, data.type, workHours, QASHQADARYO_REGION, data.district, data.mahalla || null, data.licenseFile || null,
         data.brokerageDocumentFile || null,
         data.commissionOrder || null, data.commissionApprovedDate || null, data.commissionValidUntil || null,
         data.directorName, data.directorBirthYear || null, data.directorPhoto || null, data.phone, data.address, data.email,
@@ -3899,6 +3913,12 @@ const KindergartenController = {
 
   update: async (req, res) => {
     const data = { ...req.body };
+    const district = String(data.district || '').trim();
+
+    if (!QASHQADARYO_DISTRICTS.has(district)) {
+      return res.status(400).json({ error: 'Faqat Qashqadaryo viloyati tuman/shaharlari tanlanadi' });
+    }
+    data.district = district;
 
     try {
       const current = await get('SELECT system_id, username, password FROM kindergartens WHERE id = ?', [req.params.id]);
@@ -3927,7 +3947,7 @@ const KindergartenController = {
     const nurseCount = toCount(data.nurseCount);
     const workHours = normalizeWorkHours(data.workHours);
     db.run(sql, [
-      data.system_id, data.name, data.type, workHours, data.region || 'Qashqadaryo viloyati', data.district, data.mahalla || null, data.licenseFile || null,
+      data.system_id, data.name, data.type, workHours, QASHQADARYO_REGION, data.district, data.mahalla || null, data.licenseFile || null,
       data.brokerageDocumentFile || null,
       data.commissionOrder || null, data.commissionApprovedDate || null, data.commissionValidUntil || null,
       data.directorName, data.directorBirthYear || null, data.directorPhoto || null, data.phone, data.address, data.email,
