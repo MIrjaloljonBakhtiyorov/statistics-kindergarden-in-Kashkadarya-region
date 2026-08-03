@@ -75,10 +75,10 @@ export const WebsiteSectionItemsEditor = ({
               </button>
             </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-              <Field label="Nomi" value={item.name} onChange={(value) => updateItem(index, 'name', value)} placeholder={namePlaceholder} />
-              <Field label={countLabel} value={item.count} onChange={(value) => updateItem(index, 'count', value)} placeholder={countPlaceholder} />
-              <Field label="Ish kunlari" value={item.days} onChange={(value) => updateItem(index, 'days', value)} placeholder="Dushanba - Juma" />
-              <Field label={paymentLabel} value={item.payment} onChange={(value) => updateItem(index, 'payment', value)} placeholder={paymentPlaceholder} />
+              <Field label="Nomi" value={item.name || ''} onChange={(value) => updateItem(index, 'name', value)} placeholder={namePlaceholder} />
+              <Field label={countLabel} value={item.count || ''} onChange={(value) => updateItem(index, 'count', value)} placeholder={countPlaceholder} />
+              <Field label="Ish kunlari" value={item.days || ''} onChange={(value) => updateItem(index, 'days', value)} placeholder="Dushanba - Juma" />
+              <Field label={paymentLabel} value={item.payment || ''} onChange={(value) => updateItem(index, 'payment', value)} placeholder={paymentPlaceholder} />
             </div>
           </div>
         ))}
@@ -97,7 +97,7 @@ const Field = ({ label, value, onChange, placeholder }: { label: string; value: 
   <label>
     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</span>
     <input
-      value={value}
+      value={value || ''}
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
       className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-emerald-300"

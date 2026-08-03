@@ -84,6 +84,64 @@ const emptyForm: WebsiteForm = {
   gallery: [],
 };
 
+const asText = (value: unknown, fallback = '') => String(value ?? fallback);
+const asArray = <T,>(value: unknown): T[] => Array.isArray(value) ? value : [];
+const asWebsiteStatus = (value: unknown): WebsiteForm['status'] =>
+  value === 'published' ? 'published' : 'draft';
+
+const normalizeSectionItems = (value: unknown): WebsiteSectionItem[] =>
+  asArray<Partial<WebsiteSectionItem>>(value).map((item, index) => ({
+    id: item.id || `section-${index}`,
+    name: asText(item.name),
+    count: asText(item.count),
+    workHours: item.workHours == null ? undefined : asText(item.workHours),
+    days: asText(item.days),
+    payment: asText(item.payment),
+    description: item.description == null ? undefined : asText(item.description),
+  }));
+
+const normalizeRepresentatives = (value: unknown): WebsiteRepresentative[] =>
+  asArray<Partial<WebsiteRepresentative>>(value).map((item, index) => ({
+    id: item.id || `representative-${index}`,
+    fullName: asText(item.fullName),
+    role: asText(item.role),
+    phone: asText(item.phone),
+    imageUrl: asText(item.imageUrl),
+    description: asText(item.description),
+  }));
+
+const normalizeWebsiteForm = (value: Partial<WebsiteForm> = {}): WebsiteForm => ({
+  ...emptyForm,
+  ...value,
+  kindergartenId: asText(value.kindergartenId),
+  kindergartenName: asText(value.kindergartenName),
+  slug: asText(value.slug),
+  status: asWebsiteStatus(value.status),
+  heroTitle: asText(value.heroTitle),
+  heroSubtitle: asText(value.heroSubtitle),
+  about: asText(value.about),
+  address: asText(value.address),
+  phone: asText(value.phone),
+  telegram: asText(value.telegram),
+  email: asText(value.email),
+  coverImageUrl: asText(value.coverImageUrl),
+  locationLat: value.locationLat ?? null,
+  locationLng: value.locationLng ?? null,
+  newsTitle: asText(value.newsTitle, emptyForm.newsTitle),
+  newsSubtitle: asText(value.newsSubtitle),
+  groupsTitle: asText(value.groupsTitle, emptyForm.groupsTitle),
+  groupsDescription: asText(value.groupsDescription),
+  groups: normalizeSectionItems(value.groups),
+  clubsTitle: asText(value.clubsTitle, emptyForm.clubsTitle),
+  clubsDescription: asText(value.clubsDescription),
+  clubs: normalizeSectionItems(value.clubs),
+  representatives: normalizeRepresentatives(value.representatives),
+  loginButtonLabel: asText(value.loginButtonLabel, emptyForm.loginButtonLabel),
+  loginButtonUrl: asText(value.loginButtonUrl, emptyForm.loginButtonUrl),
+  showLoginButton: value.showLoginButton ?? emptyForm.showLoginButton,
+  gallery: asArray<unknown>(value.gallery).map((item) => asText(item)).filter(Boolean),
+});
+
 const emptyNewsForm: WebsiteNewsForm = {
   kindergartenId: '',
   title: '',
@@ -131,7 +189,7 @@ const KindergartenWebsiteView: React.FC = () => {
     ])
       .then(([res, newsRows]) => {
         if (!mounted) return;
-        setForm({ ...emptyForm, ...res.data });
+        setForm(normalizeWebsiteForm(res.data));
         setNews(Array.isArray(newsRows) ? newsRows : []);
         setNewsForm({ ...emptyNewsForm, kindergartenId });
       })
@@ -266,9 +324,10 @@ const KindergartenWebsiteView: React.FC = () => {
         ).slice(0, 16),
       };
       const res = await apiClient.put(`/kindergartens/websites/${kindergartenId}`, payload);
-      setForm({ ...emptyForm, ...res.data });
+      const normalizedSaved = normalizeWebsiteForm(res.data);
+      setForm(normalizedSaved);
       if (openedWindow) {
-        openedWindow.location.href = `/site/${res.data?.slug || payload.slug}?kindergartenId=${kindergartenId}`;
+        openedWindow.location.href = `/site/${normalizedSaved.slug || payload.slug}?kindergartenId=${kindergartenId}`;
       }
       showNotification(
         action === 'publish'

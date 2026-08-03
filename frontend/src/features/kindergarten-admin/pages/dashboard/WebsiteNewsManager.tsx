@@ -38,6 +38,40 @@ const emptyForm: NewsForm = {
   publishedAt: today,
 };
 
+const asText = (value: unknown, fallback = '') => String(value ?? fallback);
+const asNewsStatus = (value: unknown): NewsRow['status'] =>
+  value === 'published' ? 'published' : 'draft';
+
+const normalizeWebsiteRow = (value: Partial<WebsiteRow> = {}): WebsiteRow => ({
+  kindergartenId: asText(value.kindergartenId),
+  kindergartenName: asText(value.kindergartenName),
+  district: value.district == null ? undefined : asText(value.district),
+  slug: value.slug == null ? undefined : asText(value.slug),
+});
+
+const normalizeNewsRow = (value: Partial<NewsRow> = {}): NewsRow => ({
+  id: asText(value.id),
+  kindergartenId: asText(value.kindergartenId),
+  kindergartenName: value.kindergartenName == null ? undefined : asText(value.kindergartenName),
+  title: asText(value.title),
+  summary: asText(value.summary),
+  body: asText(value.body),
+  imageUrl: asText(value.imageUrl),
+  status: asNewsStatus(value.status),
+  publishedAt: asText(value.publishedAt),
+  createdAt: value.createdAt == null ? undefined : asText(value.createdAt),
+});
+
+const newsFormFromRow = (value: Partial<NewsRow> = {}, kindergartenId = ''): NewsForm => ({
+  kindergartenId: asText(value.kindergartenId, kindergartenId),
+  title: asText(value.title),
+  summary: asText(value.summary),
+  body: asText(value.body),
+  imageUrl: asText(value.imageUrl),
+  status: asNewsStatus(value.status),
+  publishedAt: asText(value.publishedAt, today) || today,
+});
+
 export const WebsiteNewsManager = () => {
   const [websites, setWebsites] = useState<WebsiteRow[]>([]);
   const [news, setNews] = useState<NewsRow[]>([]);
@@ -68,9 +102,9 @@ export const WebsiteNewsManager = () => {
         kindergartenApi.websites.getAll(),
         kindergartenApi.websiteNews.getAll(),
       ]);
-      const siteData = Array.isArray(websiteRows) ? websiteRows : [];
+      const siteData = Array.isArray(websiteRows) ? websiteRows.map((row) => normalizeWebsiteRow(row)) : [];
       setWebsites(siteData);
-      setNews(Array.isArray(newsRows) ? newsRows : []);
+      setNews(Array.isArray(newsRows) ? newsRows.map((row) => normalizeNewsRow(row)) : []);
       const first = siteData[0];
       if (first && !selectedKindergartenId) {
         setSelectedKindergartenId(String(first.kindergartenId));
@@ -98,17 +132,10 @@ export const WebsiteNewsManager = () => {
   };
 
   const editNews = (item: NewsRow) => {
-    setEditingId(item.id);
-    setSelectedKindergartenId(String(item.kindergartenId));
-    setForm({
-      kindergartenId: String(item.kindergartenId),
-      title: item.title || '',
-      summary: item.summary || '',
-      body: item.body || '',
-      imageUrl: item.imageUrl || '',
-      status: item.status || 'draft',
-      publishedAt: item.publishedAt || today,
-    });
+    const normalizedItem = normalizeNewsRow(item);
+    setEditingId(normalizedItem.id);
+    setSelectedKindergartenId(normalizedItem.kindergartenId);
+    setForm(newsFormFromRow(normalizedItem));
   };
 
   const saveNews = async () => {
@@ -126,9 +153,10 @@ export const WebsiteNewsManager = () => {
       const saved = editingId
         ? await kindergartenApi.websiteNews.update(editingId, form)
         : await kindergartenApi.websiteNews.create(form.kindergartenId, form);
+      const normalizedSaved = normalizeNewsRow(saved);
       setNews((items) => {
-        if (editingId) return items.map((item) => item.id === editingId ? saved : item);
-        return [saved, ...items];
+        if (editingId) return items.map((item) => item.id === editingId ? normalizedSaved : item);
+        return [normalizedSaved, ...items];
       });
       resetForm(form.kindergartenId);
       toast.success(editingId ? 'Yangilik yangilandi' : 'Yangilik qo\'shildi');

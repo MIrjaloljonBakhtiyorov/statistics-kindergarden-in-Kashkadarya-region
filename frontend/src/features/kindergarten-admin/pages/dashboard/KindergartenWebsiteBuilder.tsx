@@ -73,6 +73,67 @@ const emptyWebsite: WebsiteRow = {
   gallery: [],
 };
 
+const asText = (value: unknown, fallback = '') => String(value ?? fallback);
+const asArray = <T,>(value: unknown): T[] => Array.isArray(value) ? value : [];
+const asWebsiteStatus = (value: unknown): WebsiteRow['status'] =>
+  value === 'published' ? 'published' : 'draft';
+
+const normalizeSectionItems = (value: unknown): WebsiteSectionItem[] =>
+  asArray<Partial<WebsiteSectionItem>>(value).map((item, index) => ({
+    id: item.id || `section-${index}`,
+    name: asText(item.name),
+    count: asText(item.count),
+    workHours: item.workHours == null ? undefined : asText(item.workHours),
+    days: asText(item.days),
+    payment: asText(item.payment),
+    description: item.description == null ? undefined : asText(item.description),
+  }));
+
+const normalizeRepresentatives = (value: unknown): WebsiteRepresentative[] =>
+  asArray<Partial<WebsiteRepresentative>>(value).map((item, index) => ({
+    id: item.id || `representative-${index}`,
+    fullName: asText(item.fullName),
+    role: asText(item.role),
+    phone: asText(item.phone),
+    imageUrl: asText(item.imageUrl),
+    description: asText(item.description),
+  }));
+
+const normalizeWebsite = (value: Partial<WebsiteRow> = {}): WebsiteRow => ({
+  ...emptyWebsite,
+  ...value,
+  kindergartenId: asText(value.kindergartenId),
+  kindergartenName: asText(value.kindergartenName),
+  systemId: value.systemId == null ? undefined : asText(value.systemId),
+  district: value.district == null ? undefined : asText(value.district),
+  slug: asText(value.slug),
+  status: asWebsiteStatus(value.status),
+  heroTitle: asText(value.heroTitle),
+  heroSubtitle: asText(value.heroSubtitle),
+  about: asText(value.about),
+  address: asText(value.address),
+  phone: asText(value.phone),
+  telegram: asText(value.telegram),
+  email: asText(value.email),
+  coverImageUrl: asText(value.coverImageUrl),
+  locationLat: value.locationLat ?? null,
+  locationLng: value.locationLng ?? null,
+  newsTitle: asText(value.newsTitle, emptyWebsite.newsTitle),
+  newsSubtitle: asText(value.newsSubtitle),
+  groupsTitle: asText(value.groupsTitle, emptyWebsite.groupsTitle),
+  groupsDescription: asText(value.groupsDescription),
+  groups: normalizeSectionItems(value.groups),
+  clubsTitle: asText(value.clubsTitle, emptyWebsite.clubsTitle),
+  clubsDescription: asText(value.clubsDescription),
+  clubs: normalizeSectionItems(value.clubs),
+  representatives: normalizeRepresentatives(value.representatives),
+  loginButtonLabel: asText(value.loginButtonLabel, emptyWebsite.loginButtonLabel),
+  loginButtonUrl: asText(value.loginButtonUrl, emptyWebsite.loginButtonUrl),
+  showLoginButton: value.showLoginButton ?? emptyWebsite.showLoginButton,
+  gallery: asArray<unknown>(value.gallery).map((item) => asText(item)).filter(Boolean),
+  newsCount: Number(value.newsCount || 0),
+});
+
 const normalizeSlug = (value: string) => value
   .toLowerCase()
   .normalize('NFKD')
@@ -109,7 +170,7 @@ export const KindergartenWebsiteBuilder = () => {
     kindergartenApi.websites.getAll()
       .then((rows: WebsiteRow[]) => {
         if (!mounted) return;
-        const data = Array.isArray(rows) ? rows : [];
+        const data = Array.isArray(rows) ? rows.map((row) => normalizeWebsite(row)) : [];
         setWebsites(data);
         const first = data[0];
         if (first) {
@@ -126,7 +187,7 @@ export const KindergartenWebsiteBuilder = () => {
 
   const selectWebsite = (item: WebsiteRow) => {
     setSelectedId(String(item.kindergartenId));
-    setForm({ ...emptyWebsite, ...item });
+    setForm(normalizeWebsite(item));
   };
 
   const updateField = <K extends keyof WebsiteRow>(key: K, value: WebsiteRow[K]) => {
@@ -173,10 +234,11 @@ export const KindergartenWebsiteBuilder = () => {
         ).slice(0, 16),
       };
       const saved = await kindergartenApi.websites.save(selectedId, payload);
-      setForm(saved);
-      setWebsites((items) => items.map((item) => String(item.kindergartenId) === String(selectedId) ? { ...item, ...saved } : item));
+      const normalizedSaved = normalizeWebsite(saved);
+      setForm(normalizedSaved);
+      setWebsites((items) => items.map((item) => String(item.kindergartenId) === String(selectedId) ? { ...item, ...normalizedSaved } : item));
       if (openedWindow) {
-        openedWindow.location.href = `/site/${saved.slug || payload.slug}?kindergartenId=${selectedId}`;
+        openedWindow.location.href = `/site/${normalizedSaved.slug || payload.slug}?kindergartenId=${selectedId}`;
       }
       toast.success(
         action === 'publish'

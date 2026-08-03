@@ -146,13 +146,13 @@ export const WebsiteRepresentativesEditor = ({
                 </div>
 
                 <div className="grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-2">
-                  <Field label="F.I.Sh" value={item.fullName} onChange={(value) => updateItem(index, 'fullName', value)} placeholder="Masalan: Abdullayeva Dilnoza" />
-                  <Field label="Lavozim" value={item.role} onChange={(value) => updateItem(index, 'role', value)} placeholder="Direktor, oshpaz, guruh rahbari..." />
-                  <Field label="Telefon" value={item.phone} onChange={(value) => updateItem(index, 'phone', value)} placeholder="+998 ..." />
+                  <Field label="F.I.Sh" value={item.fullName || ''} onChange={(value) => updateItem(index, 'fullName', value)} placeholder="Masalan: Abdullayeva Dilnoza" />
+                  <Field label="Lavozim" value={item.role || ''} onChange={(value) => updateItem(index, 'role', value)} placeholder="Direktor, oshpaz, guruh rahbari..." />
+                  <Field label="Telefon" value={item.phone || ''} onChange={(value) => updateItem(index, 'phone', value)} placeholder="+998 ..." />
                   <label className="lg:col-span-2">
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Qisqa ma'lumot</span>
                     <textarea
-                      value={item.description}
+                      value={item.description || ''}
                       onChange={(event) => updateItem(index, 'description', event.target.value)}
                       rows={4}
                       className="mt-2 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold leading-6 outline-none focus:border-emerald-300"
@@ -179,7 +179,7 @@ const Field = ({ label, value, onChange, placeholder }: { label: string; value: 
   <label>
     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</span>
     <input
-      value={value}
+      value={value || ''}
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
       className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-emerald-300"

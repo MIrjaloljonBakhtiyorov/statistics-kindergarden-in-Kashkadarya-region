@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { CheckCircle2, AlertCircle, Info, X, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
