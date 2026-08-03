@@ -1,16 +1,20 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useNotification } from '../../context/NotificationContext';
 import { apiClient } from '@/shared/api';
 import { 
   Users, AlertTriangle, ShieldCheck, HeartPulse, Activity, 
   ArrowLeft, Search, Filter, Eye, Edit3, PlusCircle,
   Thermometer, Scale, Ruler, FileText, Calendar, Clock,
-  Stethoscope, ChevronLeft, ChevronRight, AlertCircle, Plus, History, Pill
+  Stethoscope, ChevronLeft, ChevronRight, AlertCircle, Plus, History, Pill,
+  MessageCircle, Send, UserRound, XCircle, Check, CheckCheck, Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import PharmacySection from '../../features/pharmacy/components/PharmacySection';
 import StaffHealthSection from '../../features/health/components/StaffHealthSection';
 import NurseSanitaryPanel from '../../features/sanitary/components/NurseSanitaryPanel';
+import { useAuth } from '../../context/AuthContext';
+import { parentsApi } from '../../features/parents/api/parentsApi';
+import { ChatMessage, DirectorChatContact } from '../../features/parents/types/parentPortal.types';
 
 const metricStatusOptions = [
   { value: 'NORMAL', label: "Me'yorda" },
@@ -28,6 +32,41 @@ const metricStatusClass = (value?: string | null) => {
   return 'text-brand-muted bg-slate-50 border-brand-border';
 };
 
+const getChatAssetUrl = (url?: string | null) => {
+  if (!url) return '';
+  if (url.startsWith('http') || url.startsWith('data:')) return url;
+  const apiRoot = String(apiClient.defaults.baseURL || '').replace(/\/api\/?$/, '');
+  return `${apiRoot}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
+const formatChatTime = (value?: string | null) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+};
+
+const ChatMessageBody = ({ msg }: { msg: ChatMessage }) => {
+  const url = getChatAssetUrl(msg.fileUrl);
+  if (msg.isDeleted) {
+    return <p className="text-sm font-bold italic opacity-70">Xabar o'chirildi</p>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {msg.messageType === 'image' && url && <img src={url} alt={msg.fileName || 'Rasm'} className="max-h-64 rounded-2xl object-cover" />}
+      {msg.messageType === 'video' && url && <video src={url} controls className="max-h-64 rounded-2xl" />}
+      {msg.messageType === 'audio' && url && <audio src={url} controls className="w-64 max-w-full" />}
+      {msg.messageType === 'file' && url && (
+        <a href={url} target="_blank" rel="noreferrer" className="block underline font-black">
+          {msg.fileName || 'Faylni ochish'}
+        </a>
+      )}
+      {msg.text && <p className="text-sm font-bold leading-relaxed">{msg.text}</p>}
+    </div>
+  );
+};
+
 const NurseView: React.FC = () => {
   const { showNotification } = useNotification();
   
@@ -40,11 +79,12 @@ const NurseView: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   // UI States
-  const [activeSection, setActiveSection] = useState<'HEALTH' | 'PHARMACY' | 'SANITARY'>('HEALTH');
+  const [activeSection, setActiveSection] = useState<'HEALTH' | 'PHARMACY' | 'SANITARY' | 'MESSAGES'>('HEALTH');
   const [healthScope, setHealthScope] = useState<'CHILDREN' | 'STAFF'>('CHILDREN');
   const [viewMode, setViewMode] = useState<'DASHBOARD' | 'GROUP' | 'PROFILE'>('DASHBOARD');
   const [selectedGroup, setSelectedGroup] = useState<any | null>(null);
   const [selectedChild, setSelectedChild] = useState<any | null>(null);
+  const [nurseUnreadCount, setNurseUnreadCount] = useState(0);
   
   // Modal States
   const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
@@ -70,6 +110,21 @@ const NurseView: React.FC = () => {
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  const loadNurseUnreadCount = useCallback(async () => {
+    try {
+      const data = await parentsApi.getRoleContacts('nurse');
+      setNurseUnreadCount(data.reduce((sum, contact) => sum + Number(contact.unreadCount || 0), 0));
+    } catch {
+      setNurseUnreadCount(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadNurseUnreadCount();
+    const interval = window.setInterval(loadNurseUnreadCount, 10000);
+    return () => window.clearInterval(interval);
+  }, [loadNurseUnreadCount]);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -281,12 +336,29 @@ const NurseView: React.FC = () => {
         >
           <ShieldCheck size={16} /> Sanitariya
         </button>
+        <button
+          onClick={() => setActiveSection('MESSAGES')}
+          className={`relative flex items-center justify-center gap-2 px-5 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${
+            activeSection === 'MESSAGES'
+              ? 'bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/20'
+              : 'bg-white text-brand-slate border-brand-border hover:text-brand-primary'
+          }`}
+        >
+          <MessageCircle size={16} /> Xabarlar
+          {nurseUnreadCount > 0 && (
+            <span className="absolute -right-1.5 -top-1.5 flex h-6 min-w-6 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-black text-white ring-2 ring-white">
+              {nurseUnreadCount}
+            </span>
+          )}
+        </button>
       </div>
 
       {activeSection === 'PHARMACY' ? (
         <PharmacySection />
       ) : activeSection === 'SANITARY' ? (
         <NurseSanitaryPanel />
+      ) : activeSection === 'MESSAGES' ? (
+        <NurseMessagesPanel onUnreadCountChange={setNurseUnreadCount} />
       ) : (
         <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
@@ -929,6 +1001,356 @@ const NurseView: React.FC = () => {
       )}
 
     </div>
+  );
+};
+
+const NurseMessagesPanel = ({ onUnreadCountChange }: { onUnreadCountChange?: (count: number) => void }) => {
+  const { user } = useAuth();
+  const { showNotification } = useNotification();
+  const [contacts, setContacts] = useState<DirectorChatContact[]>([]);
+  const [activeContact, setActiveContact] = useState<DirectorChatContact | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [chatMessage, setChatMessage] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isContactsLoading, setIsContactsLoading] = useState(true);
+  const [isMessagesLoading, setIsMessagesLoading] = useState(false);
+  const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const kindergartenId = String(user?.kindergarten_id || window.location.pathname.split('/').filter(Boolean)[1] || user?.id || '');
+  const nurseId = kindergartenId ? `role_nurse_${kindergartenId}` : '';
+
+  const filteredContacts = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return contacts;
+    return contacts.filter((contact) =>
+      [contact.name, contact.childName, contact.childGroup, contact.login]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(query))
+    );
+  }, [contacts, searchTerm]);
+
+  const loadContacts = useCallback(async () => {
+    try {
+      const data = await parentsApi.getRoleContacts('nurse');
+      setContacts(data);
+      onUnreadCountChange?.(data.reduce((sum, contact) => sum + Number(contact.unreadCount || 0), 0));
+      setActiveContact((current) => {
+        if (!current) return current;
+        return data.find((contact) => String(contact.id) === String(current.id)) || current;
+      });
+    } catch (error) {
+      console.error('Failed to load nurse contacts:', error);
+      setContacts([]);
+      onUnreadCountChange?.(0);
+    } finally {
+      setIsContactsLoading(false);
+    }
+  }, [onUnreadCountChange]);
+
+  const loadMessages = useCallback(async () => {
+    if (!nurseId || !activeContact) {
+      setMessages([]);
+      return;
+    }
+
+    setIsMessagesLoading(true);
+    try {
+      const data = await parentsApi.getMessages(nurseId, activeContact.id, {
+        userRole: 'nurse',
+        contactRole: 'parent',
+      });
+      setMessages(data);
+
+      if (activeContact.unreadCount > 0) {
+        await parentsApi.markAsRead(nurseId, activeContact.id, {
+          userRole: 'nurse',
+          contactRole: 'parent',
+        });
+        loadContacts();
+      }
+    } catch (error) {
+      console.error('Failed to load nurse messages:', error);
+      setMessages([]);
+    } finally {
+      setIsMessagesLoading(false);
+    }
+  }, [activeContact, nurseId, loadContacts]);
+
+  useEffect(() => {
+    loadContacts();
+    const interval = window.setInterval(loadContacts, 10000);
+    return () => window.clearInterval(interval);
+  }, [loadContacts]);
+
+  useEffect(() => {
+    if (activeContact) loadMessages();
+  }, [activeContact, loadMessages]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  useEffect(() => {
+    setEditingMessage(null);
+    setChatMessage('');
+  }, [activeContact?.id]);
+
+  const handleSendMessage = async (event?: React.FormEvent) => {
+    if (event) event.preventDefault();
+    const text = chatMessage.trim();
+    if (!text || !activeContact || !nurseId) return;
+
+    setChatMessage('');
+    try {
+      if (editingMessage) {
+        const updatedMessage = await parentsApi.editMessage(editingMessage.id, {
+          userId: nurseId,
+          userRole: 'nurse',
+          text,
+        });
+        setMessages((prev) => prev.map((msg) => String(msg.id) === String(updatedMessage.id) ? { ...updatedMessage, type: 'sent' } : msg));
+        setEditingMessage(null);
+        showNotification('Xabar tahrirlandi', 'success');
+        loadContacts();
+        return;
+      }
+
+      await parentsApi.sendMessage({
+        senderId: nurseId,
+        receiverId: activeContact.id,
+        text,
+        senderRole: 'nurse',
+        receiverRole: 'parent',
+        messageType: 'text',
+      });
+      await loadMessages();
+      loadContacts();
+      showNotification('Xabar ota-onaga yuborildi', 'success');
+    } catch (error) {
+      showNotification('Xabar yuborishda xatolik', 'error');
+      setChatMessage(text);
+    }
+  };
+
+  const handleEditMessage = (msg: ChatMessage) => {
+    if (msg.isDeleted) return;
+    setEditingMessage(msg);
+    setChatMessage(msg.text || '');
+  };
+
+  const handleDeleteMessage = async (msg: ChatMessage) => {
+    if (!nurseId) return;
+    try {
+      const deletedMessage = await parentsApi.deleteMessage(msg.id, { userId: nurseId, userRole: 'nurse' });
+      setMessages((prev) => prev.map((item) => String(item.id) === String(msg.id) ? { ...deletedMessage, type: 'sent' } : item));
+      if (editingMessage && String(editingMessage.id) === String(msg.id)) {
+        setEditingMessage(null);
+        setChatMessage('');
+      }
+      loadContacts();
+      showNotification("Xabar o'chirildi", 'success');
+    } catch {
+      showNotification("Xabarni o'chirishda xatolik", 'error');
+    }
+  };
+
+  return (
+    <section className="overflow-hidden rounded-[1.5rem] border border-emerald-100 bg-white shadow-[0_20px_52px_rgba(16,185,129,0.09)]">
+      <div className="flex flex-col gap-3 border-b border-emerald-100 bg-gradient-to-r from-emerald-50 via-white to-sky-50 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/20">
+            <MessageCircle size={22} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[9px] font-black uppercase tracking-widest text-emerald-600">Ota-onalar bilan aloqa</p>
+            <h4 className="truncate text-lg font-black text-brand-depth sm:text-xl">Hamshira xabarlari</h4>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="rounded-full border border-emerald-100 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-brand-muted">
+            {contacts.length} suhbat
+          </div>
+          {contacts.reduce((sum, contact) => sum + Number(contact.unreadCount || 0), 0) > 0 && (
+            <div className="rounded-full bg-rose-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-500/20">
+              {contacts.reduce((sum, contact) => sum + Number(contact.unreadCount || 0), 0)} yangi
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex h-[640px] min-h-0 flex-col lg:flex-row">
+        <aside className={`${activeContact ? 'hidden lg:flex' : 'flex'} min-h-0 w-full flex-col border-r border-emerald-50 bg-slate-50/55 lg:w-[360px]`}>
+          <div className="border-b border-emerald-50 p-4">
+            <label className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-white px-4 py-3 text-brand-muted shadow-sm">
+              <Search size={17} />
+              <input
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Ota-ona yoki bola qidirish..."
+                className="min-w-0 flex-1 bg-transparent text-xs font-bold text-brand-depth outline-none"
+              />
+            </label>
+          </div>
+          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3 custom-scrollbar">
+            {isContactsLoading ? (
+              <div className="p-8 text-center text-[10px] font-black uppercase tracking-widest text-brand-muted">Yuklanmoqda...</div>
+            ) : filteredContacts.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center">
+                <p className="text-[10px] font-black uppercase tracking-widest text-brand-muted">Ota-ona suhbati topilmadi</p>
+              </div>
+            ) : (
+              filteredContacts.map((contact) => (
+                <button
+                  key={contact.id}
+                  onClick={() => setActiveContact(contact)}
+                  className={`w-full rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:border-emerald-500 ${
+                    activeContact?.id === contact.id ? 'border-emerald-500 bg-white shadow-md' : 'border-slate-100 bg-white/85'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative shrink-0">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-600">
+                        <UserRound size={20} />
+                      </div>
+                      {contact.unreadCount > 0 && (
+                        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-black text-white ring-2 ring-white">
+                          {contact.unreadCount}
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="truncate text-xs font-black uppercase tracking-wide text-brand-depth">{contact.name}</p>
+                        <div className="flex shrink-0 flex-col items-end gap-1">
+                          {contact.lastMessageAt && <span className="text-[9px] font-black text-brand-muted">{formatChatTime(contact.lastMessageAt)}</span>}
+                          {contact.unreadCount > 0 && (
+                            <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[9px] font-black uppercase text-white">
+                              {contact.unreadCount} yangi
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="mt-1 truncate text-[10px] font-bold text-emerald-600">{contact.childName || 'Bola biriktirilmagan'}</p>
+                      <p className="mt-1 truncate text-[10px] font-semibold text-brand-muted">{contact.lastMessage || contact.childGroup || contact.login || 'Xabar yozish mumkin'}</p>
+                    </div>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </aside>
+
+        <div className={`${activeContact ? 'flex' : 'hidden lg:flex'} min-h-0 flex-1 flex-col bg-white`}>
+          {!activeContact ? (
+            <div className="flex flex-1 flex-col items-center justify-center p-10 text-center">
+              <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-slate-50 text-slate-300">
+                <MessageCircle size={40} />
+              </div>
+              <h5 className="text-lg font-black uppercase text-brand-depth">Suhbat tanlang</h5>
+              <p className="mt-2 max-w-sm text-sm font-semibold text-brand-muted">Ota-onadan kelgan tibbiy xabarlarni ko'rish yoki javob yozish uchun chap ro'yxatdan suhbatni oching.</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between gap-3 border-b border-emerald-50 px-5 py-4">
+                <div className="flex min-w-0 items-center gap-3">
+                  <button onClick={() => setActiveContact(null)} className="lg:hidden rounded-xl p-2 text-brand-muted hover:bg-slate-50 hover:text-emerald-600">
+                    <ArrowLeft size={20} />
+                  </button>
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                    <UserRound size={20} />
+                  </div>
+                  <div className="min-w-0">
+                    <h5 className="truncate text-base font-black text-brand-depth">{activeContact.name}</h5>
+                    <p className="truncate text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                      {activeContact.childName || activeContact.login || 'Ota-ona'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-gradient-to-b from-slate-50/55 to-white p-4 sm:p-6 custom-scrollbar">
+                {isMessagesLoading ? (
+                  <div className="flex h-full items-center justify-center">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
+                  </div>
+                ) : messages.length === 0 ? (
+                  <div className="flex h-full flex-col items-center justify-center text-center">
+                    <MessageCircle size={42} className="text-slate-300" />
+                    <p className="mt-3 max-w-xs text-sm font-bold text-brand-muted">Hali xabar yo'q. Birinchi xabarni hamshira nomidan yuborishingiz mumkin.</p>
+                  </div>
+                ) : (
+                  messages.map((msg) => {
+                    const isSent = msg.type === 'sent';
+                    return (
+                      <div key={msg.id} className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`group relative max-w-[82%] rounded-3xl px-4 py-3 shadow-sm ${
+                          isSent ? 'rounded-tr-md bg-emerald-600 text-white' : 'rounded-tl-md border border-slate-100 bg-white text-brand-depth'
+                        }`}>
+                          {isSent && !msg.isDeleted && (
+                            <div className="absolute -left-20 top-2 hidden items-center gap-1 rounded-full border border-slate-100 bg-white p-1 shadow-sm group-hover:flex">
+                              <button onClick={() => handleEditMessage(msg)} className="rounded-full p-1.5 text-slate-500 hover:bg-slate-50 hover:text-emerald-600" title="Tahrirlash">
+                                <Edit3 size={13} />
+                              </button>
+                              <button onClick={() => handleDeleteMessage(msg)} className="rounded-full p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-500" title="O'chirish">
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          )}
+                          <ChatMessageBody msg={msg} />
+                          <div className={`mt-2 flex items-center justify-end gap-1 text-[9px] font-black ${isSent ? 'text-white/75' : 'text-brand-muted'}`}>
+                            <span>{formatChatTime(msg.time)}</span>
+                            {isSent && (msg.status === 'read' ? <CheckCheck size={12} /> : <Check size={12} />)}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              <div className="border-t border-emerald-50 bg-white p-4">
+                {editingMessage && (
+                  <div className="mb-3 flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3">
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-emerald-600">Xabar tahrirlanmoqda</p>
+                      <p className="truncate text-xs font-bold text-brand-depth">{editingMessage.text}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingMessage(null);
+                        setChatMessage('');
+                      }}
+                      className="shrink-0 text-brand-muted hover:text-rose-500"
+                      title="Bekor qilish"
+                    >
+                      <XCircle size={18} />
+                    </button>
+                  </div>
+                )}
+                <form onSubmit={handleSendMessage} className="flex items-center gap-3 rounded-3xl border-2 border-slate-100 bg-slate-50 px-4 py-3 transition-all focus-within:border-emerald-500 focus-within:bg-white">
+                  <input
+                    value={chatMessage}
+                    onChange={(event) => setChatMessage(event.target.value)}
+                    placeholder="Ota-onaga tibbiy xabar yozish..."
+                    className="min-w-0 flex-1 bg-transparent py-2 text-sm font-bold text-brand-depth outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!chatMessage.trim()}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 transition-all hover:scale-105 disabled:opacity-45"
+                    title={editingMessage ? 'Saqlash' : 'Yuborish'}
+                  >
+                    <Send size={18} />
+                  </button>
+                </form>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </section>
   );
 };
 
