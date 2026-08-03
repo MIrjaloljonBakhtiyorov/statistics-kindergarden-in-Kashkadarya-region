@@ -349,7 +349,7 @@ export const Districts = () => {
         const current = byMahalla.get(key) || {
           name: key,
           code: known?.code || getKindergartenMahallaCode(kg),
-          kindergartens: [],
+          kindergartens: [] as any[],
           totalChildren: 0,
           attendance: 0,
         };

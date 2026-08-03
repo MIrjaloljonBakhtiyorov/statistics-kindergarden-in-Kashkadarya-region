@@ -165,7 +165,13 @@ const MessageBody = ({ msg }: { msg: ChatMessage }) => {
   );
 };
 
-export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
+export const MessagesSection = ({
+  childName = '',
+  onUnreadCountChange,
+}: {
+  childName?: string;
+  onUnreadCountChange?: (count: number) => void;
+}) => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
   const [activeChat, setActiveChat] = useState<ChatContact | null>(null);
@@ -206,11 +212,13 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
     try {
       const data = await parentsApi.getContacts(user.id, (user as any)?.childId);
       setContacts(data);
+      onUnreadCountChange?.(data.reduce((sum, contact) => sum + Number(contact.unreadCount || 0), 0));
     } catch (error) {
       console.error('Failed to load chat contacts:', error);
       setContacts([]);
+      onUnreadCountChange?.(0);
     }
-  }, [user]);
+  }, [user, onUnreadCountChange]);
 
   const loadMessages = useCallback(async () => {
     if (!user?.id || !activeChat) return;

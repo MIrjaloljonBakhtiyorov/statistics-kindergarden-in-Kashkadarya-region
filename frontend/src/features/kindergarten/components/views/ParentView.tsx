@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { 
   ShieldCheck, 
   User, 
@@ -29,6 +29,7 @@ import {
 import { apiClient, PARENT_PORTAL_API_BASE_URL } from '@/shared/api';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
+import { parentsApi } from '../../features/parents/api/parentsApi';
 
 // Import Section Components
 import { ProfileSection } from '../../features/parent-portal/components/ProfileSection';
@@ -124,6 +125,7 @@ const ParentView = () => {
   const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = useState<SettingsTab>(() => getParentTabFromPath());
   const [isSaving, setIsSaving] = useState(false);
+  const [messagesUnreadCount, setMessagesUnreadCount] = useState(0);
   const mobileNavRef = useRef<HTMLElement>(null);
   
   const [parentData, setParentData] = useState<any>(null);
@@ -164,6 +166,26 @@ const ParentView = () => {
     const maxLeft = Math.max(0, nav.scrollWidth - nav.clientWidth);
     nav.scrollTo({ left: Math.min(Math.max(0, centeredLeft), maxLeft), behavior: 'auto' });
   }, [activeTab]);
+
+  const loadMessagesUnreadCount = useCallback(async () => {
+    if (!user?.id) {
+      setMessagesUnreadCount(0);
+      return;
+    }
+
+    try {
+      const contacts = await parentsApi.getContacts(user.id, (user as any)?.childId);
+      setMessagesUnreadCount(contacts.reduce((sum, contact) => sum + Number(contact.unreadCount || 0), 0));
+    } catch {
+      setMessagesUnreadCount(0);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadMessagesUnreadCount();
+    const interval = window.setInterval(loadMessagesUnreadCount, 10000);
+    return () => window.clearInterval(interval);
+  }, [loadMessagesUnreadCount]);
 
   const fetchPortalData = async (childId: string) => {
     setLoading(true);
@@ -346,10 +368,15 @@ const ParentView = () => {
             icon={Megaphone}
           />
         );
-      case 'messages': return <MessagesSection childName={`${parentData?.first_name || ''} ${parentData?.last_name || ''}`.trim()} />;
+      case 'messages': return (
+        <MessagesSection
+          childName={`${parentData?.first_name || ''} ${parentData?.last_name || ''}`.trim()}
+          onUnreadCountChange={setMessagesUnreadCount}
+        />
+      );
       case 'documents': return <DocumentsSection data={data} childId={user.childId} onUpdate={handleProfileUpdate} />;
       case 'pickup': return <PickupSection data={data} onUpdate={handleProfileUpdate} />;
-      case 'loginHistory': return <LoginHistorySection childId={user.childId} />;
+      case 'loginHistory': return <LoginHistorySection childId={user.childId || ''} />;
       case 'security':
         return (
           <SecuritySection 
@@ -447,7 +474,7 @@ const ParentView = () => {
                 key={item.id}
                 data-parent-tab={item.id}
                 onClick={() => handleTabChange(item.id)}
-                className={`flex min-h-11 shrink-0 snap-start items-center gap-2 rounded-2xl px-3.5 py-2.5 text-[9px] font-black uppercase tracking-wide transition-all ${
+                className={`relative flex min-h-11 shrink-0 snap-start items-center gap-2 rounded-2xl px-3.5 py-2.5 text-[9px] font-black uppercase tracking-wide transition-all ${
                   activeTab === item.id 
                     ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/20' 
                     : 'border border-brand-border bg-white text-brand-muted hover:border-rose-100 hover:bg-rose-50 hover:text-rose-600'
@@ -455,6 +482,11 @@ const ParentView = () => {
               >
                 <item.icon size={14} />
                 <span>{item.label}</span>
+                {item.id === 'messages' && messagesUnreadCount > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-black text-white ring-2 ring-white">
+                    {messagesUnreadCount}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
@@ -482,7 +514,13 @@ const ParentView = () => {
                   <item.icon size={16} />
                 </span>
                 <span className="truncate uppercase tracking-[0.12em]">{item.label}</span>
-                {activeTab === item.id && <span className="ml-auto h-2 w-2 rounded-full bg-rose-500 shadow-sm shadow-rose-500/40"></span>}
+                {item.id === 'messages' && messagesUnreadCount > 0 ? (
+                  <span className="ml-auto rounded-full bg-rose-500 px-2 py-0.5 text-[9px] font-black leading-none text-white shadow-sm shadow-rose-500/30">
+                    {messagesUnreadCount}
+                  </span>
+                ) : (
+                  activeTab === item.id && <span className="ml-auto h-2 w-2 rounded-full bg-rose-500 shadow-sm shadow-rose-500/40"></span>
+                )}
               </button>
             ))}
             </div>
