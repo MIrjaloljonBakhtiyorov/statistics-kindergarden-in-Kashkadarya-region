@@ -67,6 +67,7 @@ const postgresColumnAliases = {
   commissionorder: 'commissionOrder',
   commissionapproveddate: 'commissionApprovedDate',
   commissionvaliduntil: 'commissionValidUntil',
+  mahallacode: 'mahallaCode',
   workhours: 'workHours',
   currentchildren: 'currentChildren',
   techstaff: 'techStaff',

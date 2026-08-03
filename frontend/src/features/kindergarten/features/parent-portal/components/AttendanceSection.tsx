@@ -1,5 +1,5 @@
-﻿import React, { useState } from 'react';
-import { Calendar, UserCheck, AlertCircle, Clock, ChevronRight, CheckCircle2, XCircle, Download, Save, History, TrendingUp, Sparkles } from 'lucide-react';
+﻿import React, { useEffect, useState } from 'react';
+import { Calendar, UserCheck, AlertCircle, CheckCircle2, XCircle, Save, TrendingUp, Sparkles } from 'lucide-react';
 import { apiClient } from '@/shared/api';
 import { useNotification } from '../../../context/NotificationContext';
 
@@ -22,6 +22,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
   tomorrow.setDate(today.getDate() + 1);
   const todayKey = formatDateKey(today);
   const tomorrowKey = formatDateKey(tomorrow);
+  const isTomorrowWeekend = [0, 6].includes(tomorrow.getDay());
   const monthNames = [
     'yanvar',
     'fevral',
@@ -38,6 +39,30 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
   ];
   const currentMonthLabel = `${today.getFullYear()} yilning ${monthNames[today.getMonth()]} oyi`;
   const attendanceByDate = new Map((data?.attendance || []).map((item: any) => [item.date, item]));
+  const tomorrowRecord: any = attendanceByDate.get(tomorrowKey);
+
+  useEffect(() => {
+    if (isTomorrowWeekend) {
+      setTomorrowAttending(null);
+      setReason('');
+      return;
+    }
+
+    if (tomorrowRecord?.status === 'ABSENT') {
+      setTomorrowAttending(false);
+      setReason(tomorrowRecord?.reason || '');
+      return;
+    }
+
+    setTomorrowAttending(true);
+    setReason('');
+  }, [isTomorrowWeekend, tomorrowKey, tomorrowRecord?.status, tomorrowRecord?.reason]);
+
+  const isWeekendDateKey = (dateKey?: string) => {
+    if (!dateKey) return false;
+    const date = new Date(`${dateKey}T00:00:00`);
+    return [0, 6].includes(date.getDay());
+  };
 
   const calendarDays = Array.from({ length: 30 }, (_, index) => {
     const date = new Date();
@@ -45,8 +70,11 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
     const dateKey = formatDateKey(date);
     const record: any = attendanceByDate.get(dateKey);
     const isPastDay = dateKey < todayKey;
+    const isWeekend = [0, 6].includes(date.getDay());
     const status =
-      dateKey === tomorrowKey && tomorrowAttending !== null
+      isWeekend
+        ? 'weekend'
+        : dateKey === tomorrowKey && tomorrowAttending !== null
         ? (tomorrowAttending ? 'present' : 'absent')
         : record?.status === 'PRESENT'
           ? 'present'
@@ -60,6 +88,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
       date,
       dateKey,
       status,
+      isWeekend,
       day: date.getDate(),
       weekday: date.toLocaleDateString('uz-UZ', { weekday: 'short' }),
       label: dateKey === todayKey ? 'Bugun' : dateKey === tomorrowKey ? 'Ertaga' : ''
@@ -69,18 +98,21 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
   const calendarTone: Record<string, string> = {
     present: 'border-emerald-500 bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-emerald-200',
     absent: 'border-rose-500 bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-rose-200',
-    pending: 'border-amber-400 bg-gradient-to-br from-amber-300 to-yellow-500 text-amber-950 shadow-amber-200',
-    pastPending: 'border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-100 text-amber-800 shadow-amber-100'
+    weekend: 'border-yellow-400 bg-gradient-to-br from-yellow-300 via-amber-300 to-orange-300 text-amber-950 shadow-yellow-200',
+    pending: 'border-slate-200 bg-white text-slate-500 shadow-slate-50',
+    pastPending: 'border-slate-200 bg-white text-slate-500 shadow-slate-50'
   };
 
   const calendarDot: Record<string, string> = {
     present: 'bg-white ring-2 ring-white/40',
     absent: 'bg-white ring-2 ring-white/40',
-    pending: 'bg-amber-950 ring-2 ring-white/40',
-    pastPending: 'bg-amber-400 ring-2 ring-white/80'
+    weekend: 'bg-orange-500 ring-2 ring-white/80',
+    pending: 'bg-slate-300 ring-2 ring-slate-100',
+    pastPending: 'bg-slate-300 ring-2 ring-slate-100'
   };
 
   const getCalendarStatusLabel = (day: { label: string; status: string }) => {
+    if (day.status === 'weekend') return 'Dam olish';
     if (day.status === 'pending' || day.status === 'pastPending') return 'Belgilanmagan';
     if (day.label) return day.label;
     return day.status === 'present' ? 'Boradi' : 'Bormaydi';
@@ -89,7 +121,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
   const stats = [
     {
       label: 'Kelgan kunlar',
-      val: data?.attendance?.filter((a:any) => a.status === 'PRESENT').length || 0,
+      val: data?.attendance?.filter((a:any) => !isWeekendDateKey(a.date) && a.status === 'PRESENT').length || 0,
       icon: UserCheck,
       desc: 'Jami davomat',
       tone: {
@@ -101,7 +133,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
     },
     {
       label: 'Kelmagan kunlar',
-      val: data?.attendance?.filter((a:any) => a.status !== 'PRESENT').length || 0,
+      val: data?.attendance?.filter((a:any) => !isWeekendDateKey(a.date) && a.status === 'ABSENT').length || 0,
       icon: XCircle,
       desc: 'Sababli/Sababsiz',
       tone: {
@@ -114,6 +146,11 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
   ];
 
   const handleSave = async () => {
+    if (isTomorrowWeekend) {
+      showNotification("Shanba va yakshanba dam olish kuni, davomat belgilanmaydi.", "info");
+      return;
+    }
+
     if (tomorrowAttending === null) {
       showNotification("Avval ertangi kun uchun boradi yoki yo'q holatini belgilang.", "info");
       return;
@@ -161,30 +198,54 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
                       <Sparkles size={13} /> Ertangi reja
                     </span>
                  </div>
-                 <h4 className="text-2xl md:text-[34px] font-extrabold tracking-tight leading-tight text-brand-depth">Ertaga farzandingiz bog'chaga boradimi?</h4>
-                 <p className="text-[13px] md:text-[15px] font-medium leading-relaxed text-brand-muted max-w-md">Ertangi kun holatini oldindan belgilang. Tarbiyachi guruh rejasini aniqroq tayyorlaydi.</p>
+                 <h4 className="text-2xl md:text-[34px] font-extrabold tracking-tight leading-tight text-brand-depth">
+                   {isTomorrowWeekend ? 'Ertaga dam olish kuni' : "Ertaga farzandingiz bog'chaga boradimi?"}
+                 </h4>
+                 <p className="text-[13px] md:text-[15px] font-medium leading-relaxed text-brand-muted max-w-md">
+                   {isTomorrowWeekend
+                     ? 'Shanba va yakshanba kunlari davomat belgilanmaydi.'
+                     : "Ertangi kun holati belgilanmagan bo'lsa, avtomatik ravishda boradi holati tanlanadi."}
+                 </p>
               </div>
               
               <div className="w-full lg:w-[360px] space-y-4">
-                <div className="flex bg-white/80 p-1.5 rounded-2xl border border-rose-100 shadow-sm backdrop-blur-xl">
-                   <button 
-                     onClick={() => setTomorrowAttending(true)}
-                     className={`flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-extrabold text-[12px] transition-all duration-300 ${tomorrowAttending ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-200/70' : 'text-brand-muted hover:bg-rose-50 hover:text-rose-600'}`}
-                   >
-                      <CheckCircle2 size={16} /> Boradi
-                   </button>
-                   <button 
-                     onClick={() => setTomorrowAttending(false)}
-                     className={`flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-extrabold text-[12px] transition-all duration-300 ${tomorrowAttending === false ? 'bg-brand-depth text-white shadow-lg shadow-slate-200' : 'text-brand-muted hover:bg-rose-50 hover:text-rose-600'}`}
-                   >
-                      <XCircle size={16} /> Yo'q
-                   </button>
-                </div>
+                {isTomorrowWeekend ? (
+                  <div className="rounded-3xl border border-amber-200 bg-gradient-to-br from-white to-amber-50 p-5 text-amber-700 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-200 bg-amber-100 text-amber-600">
+                        <Calendar size={22} />
+                      </div>
+                      <div>
+                        <p className="text-[12px] font-extrabold uppercase">Dam olish kuni</p>
+                        <p className="mt-1 text-[13px] font-bold text-amber-800/80">Keladi yoki kelmaydi belgilanmaydi.</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex bg-white/80 p-1.5 rounded-2xl border border-rose-100 shadow-sm backdrop-blur-xl">
+                       <button 
+                         onClick={() => setTomorrowAttending(true)}
+                         className={`flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-extrabold text-[12px] transition-all duration-300 ${tomorrowAttending ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-200/70' : 'text-brand-muted hover:bg-rose-50 hover:text-rose-600'}`}
+                       >
+                          <CheckCircle2 size={16} /> Boradi
+                       </button>
+                       <button 
+                         onClick={() => setTomorrowAttending(false)}
+                         className={`flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-extrabold text-[12px] transition-all duration-300 ${tomorrowAttending === false ? 'bg-brand-depth text-white shadow-lg shadow-slate-200' : 'text-brand-muted hover:bg-rose-50 hover:text-rose-600'}`}
+                       >
+                          <XCircle size={16} /> Yo'q
+                       </button>
+                    </div>
 
-                   {tomorrowAttending === false && (
-                      <div
-                        className="space-y-2"
-                      >
+                    {tomorrowAttending === true && !tomorrowRecord?.status && (
+                      <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-[11px] font-extrabold text-emerald-700">
+                        Boradi holati avtomatik tanlandi.
+                      </div>
+                    )}
+
+                    {tomorrowAttending === false && (
+                      <div className="space-y-2">
                          <div className="flex items-center gap-2 px-1 text-[11px] font-bold text-rose-600">
                            <AlertCircle size={14} /> Kelmaslik sababini yozing
                          </div>
@@ -196,19 +257,50 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
                             rows={2}
                          />
                       </div>
-                   )}
+                    )}
 
-                <button 
-                   onClick={handleSave}
-                   disabled={isSaving}
-                   className="w-full flex items-center justify-center gap-3 rounded-2xl bg-brand-depth px-5 py-4 text-[12px] font-extrabold text-white transition-all shadow-xl shadow-slate-200 hover:bg-rose-600 active:scale-95 disabled:opacity-50"
-                 >
-                    {isSaving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <Save size={16} />}
-                    Rejani tasdiqlash
-                 </button>
+                    <button 
+                       onClick={handleSave}
+                       disabled={isSaving}
+                       className="w-full flex items-center justify-center gap-3 rounded-2xl bg-brand-depth px-5 py-4 text-[12px] font-extrabold text-white transition-all shadow-xl shadow-slate-200 hover:bg-rose-600 active:scale-95 disabled:opacity-50"
+                     >
+                        {isSaving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <Save size={16} />}
+                        Rejani tasdiqlash
+                     </button>
+                  </>
+                )}
               </div>
            </div>
         </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        {stats.map((stat, i) => (
+          <div key={i} className="bg-white p-5 md:p-6 rounded-3xl border border-rose-100 shadow-sm group hover:shadow-lg hover:shadow-rose-100/70 transition-all relative overflow-hidden">
+             <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${stat.tone.accent}`}></div>
+             <div className="absolute -right-10 -bottom-14 h-36 w-36 rounded-[2rem] bg-rose-50 rotate-12"></div>
+             <div className="flex items-center justify-between mb-6">
+                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl border flex items-center justify-center transition-transform group-hover:scale-105 ${stat.tone.icon}`}>
+                   <stat.icon size={24} />
+                </div>
+                <div className="text-right">
+                   <p className="text-[12px] font-extrabold text-brand-depth mb-0.5">{stat.label}</p>
+                   <p className="text-[11px] font-medium text-brand-muted">{stat.desc}</p>
+                </div>
+             </div>
+
+             <div className="relative flex items-end justify-between">
+                <p className="text-4xl md:text-[54px] font-extrabold text-brand-depth tracking-tight leading-none">
+                   {stat.val}<span className={`text-base md:text-lg ml-1.5 font-extrabold ${stat.tone.text}`}>kun</span>
+                </p>
+                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${stat.tone.soft}`}>
+                   <TrendingUp size={12} />
+                   <span className="text-[10px] font-extrabold">Normal</span>
+                </div>
+             </div>
+          </div>
+        ))}
       </div>
 
       {/* 30 Day Calendar */}
@@ -232,7 +324,8 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
             {[
               { label: 'Boradi', className: 'bg-emerald-500' },
               { label: "Bormaydi", className: 'bg-rose-500' },
-              { label: 'Belgilanmagan', className: 'bg-amber-400' }
+              { label: 'Dam olish', className: 'bg-amber-400' },
+              { label: 'Belgilanmagan', className: 'bg-slate-400' }
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-2 rounded-full border border-rose-100 bg-white px-3 py-1.5 shadow-sm">
                 <span className={`h-2.5 w-2.5 rounded-full ${item.className}`}></span>
@@ -246,117 +339,19 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
           {calendarDays.map((day) => (
             <div
               key={day.dateKey}
-              className={`min-h-[86px] rounded-2xl border p-2.5 text-center shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${calendarTone[day.status]}`}
+              className={`min-h-[82px] rounded-2xl border p-2.5 text-center shadow-sm transition-all hover:border-rose-200 hover:shadow-md ${calendarTone[day.status]}`}
             >
               <div className="flex items-center justify-between">
                 <span className={`h-2.5 w-2.5 rounded-full ${calendarDot[day.status]}`}></span>
-                <span className="text-[10px] font-extrabold capitalize opacity-85">{day.weekday}</span>
+                <span className="text-[10px] font-extrabold capitalize opacity-75">{day.weekday}</span>
               </div>
               <p className="mt-2 text-2xl font-extrabold leading-none">{day.day}</p>
-              <p className="mt-1 h-4 truncate text-[10px] font-extrabold">{getCalendarStatusLabel(day)}</p>
+              <p className="mt-1 h-4 truncate text-[9px] font-extrabold opacity-90">{getCalendarStatusLabel(day)}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        {stats.map((stat, i) => (
-          <div key={i} className="bg-white p-5 md:p-6 rounded-3xl border border-rose-100 shadow-sm group hover:shadow-lg hover:shadow-rose-100/70 transition-all relative overflow-hidden">
-             <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${stat.tone.accent}`}></div>
-             <div className="absolute -right-10 -bottom-14 h-36 w-36 rounded-[2rem] bg-rose-50 rotate-12"></div>
-             <div className="flex items-center justify-between mb-6">
-                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl border flex items-center justify-center transition-transform group-hover:scale-105 ${stat.tone.icon}`}>
-                   <stat.icon size={24} />
-                </div>
-                <div className="text-right">
-                   <p className="text-[12px] font-extrabold text-brand-depth mb-0.5">{stat.label}</p>
-                   <p className="text-[11px] font-medium text-brand-muted">{stat.desc}</p>
-                </div>
-             </div>
-             
-             <div className="relative flex items-end justify-between">
-                <p className="text-4xl md:text-[54px] font-extrabold text-brand-depth tracking-tight leading-none">
-                   {stat.val}<span className={`text-base md:text-lg ml-1.5 font-extrabold ${stat.tone.text}`}>kun</span>
-                </p>
-                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${stat.tone.soft}`}>
-                   <TrendingUp size={12} />
-                   <span className="text-[10px] font-extrabold">Normal</span>
-                </div>
-             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* History List */}
-      <div className="bg-white rounded-3xl border border-rose-100 overflow-hidden shadow-sm">
-         <div className="p-5 md:p-6 border-b border-rose-100 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-white via-rose-50/60 to-pink-50/70 gap-4">
-            <div className="flex items-center gap-4">
-               <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-500 text-white flex items-center justify-center shadow-lg shadow-rose-200 group">
-                  <History size={24} className="group-hover:rotate-[-45deg] transition-transform duration-500" />
-               </div>
-               <div>
-                  <h5 className="text-xl md:text-2xl font-extrabold text-brand-depth tracking-tight leading-none">Davomat jurnali</h5>
-                  <p className="text-[12px] font-semibold text-brand-muted mt-1.5 flex items-center gap-2">
-                     <Clock size={12} className="text-rose-500" /> Oxirgi 30 kunlik yozuvlar
-                  </p>
-               </div>
-            </div>
-            <button className="flex items-center gap-2.5 px-5 py-3 bg-white text-brand-depth rounded-2xl font-extrabold text-[12px] hover:bg-rose-600 hover:text-white transition-all border border-rose-100 shadow-sm">
-               <Download size={16} />
-               <span>Excel Hisobot</span>
-            </button>
-         </div>
-
-         <div className="divide-y divide-slate-50">
-            {data?.attendance?.length === 0 ? (
-               <div className="p-14 md:p-16 text-center space-y-3">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-rose-100 bg-rose-50 text-rose-300">
-                    <Calendar size={34} />
-                  </div>
-                  <p className="text-brand-depth text-sm font-extrabold">Davomat yozuvlari hali mavjud emas</p>
-                  <p className="mx-auto max-w-sm text-[12px] font-medium leading-relaxed text-brand-muted">Farzandingizning kelgan va kelmagan kunlari shu yerda tartibli ko'rinadi.</p>
-               </div>
-            ) : (
-              data?.attendance?.map((a:any) => (
-                 <div
-                   key={a.id}
-                   className="p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between hover:bg-rose-50/40 transition-all group gap-6"
-                 >
-                    <div className="flex items-center gap-5 md:gap-8 w-full sm:w-auto">
-                       <div className="text-center bg-white w-16 h-16 md:w-[72px] md:h-[72px] rounded-2xl flex flex-col items-center justify-center border border-rose-100 shadow-md shadow-rose-50 group-hover:scale-105 transition-transform">
-                          <p className="text-[10px] font-extrabold text-rose-500">Kun</p>
-                          <p className="text-2xl md:text-3xl font-extrabold text-brand-depth leading-none tracking-tight">{a.date.split('-')[2]}</p>
-                       </div>
-                       <div className="space-y-1 text-left">
-                          <p className="text-base md:text-xl font-extrabold text-brand-depth tracking-tight">Bog'chaga {a.status === 'PRESENT' ? 'keldi' : 'kelmadi'}</p>
-                          <div className="flex items-center gap-2">
-                             <div className={`w-1.5 h-1.5 rounded-full ${a.status === 'PRESENT' ? 'bg-rose-500' : 'bg-pink-500'}`}></div>
-                             <p className="text-[12px] font-semibold text-brand-muted">{a.date}</p>
-                          </div>
-                          {a.reason && (
-                             <p className="text-[11px] font-semibold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-100 mt-1.5">Sabab: {a.reason}</p>
-                          )}
-                       </div>
-                    </div>
-
-                    <div className="flex items-center justify-between w-full sm:w-auto gap-4">
-                       <div className={`px-6 py-2.5 md:px-8 md:py-3 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-sm transition-all ${
-                          a.status === 'PRESENT'
-                            ? 'bg-rose-50 text-rose-600 border border-rose-100'
-                            : 'bg-pink-50 text-pink-600 border border-pink-100'
-                       }`}>
-                          {a.status === 'PRESENT' ? 'Tasdiqlangan' : 'Kelmagan'}
-                       </div>
-                       <div className="p-2 md:p-2.5 text-brand-muted hover:text-rose-600 transition-colors cursor-pointer bg-rose-50 rounded-lg">
-                          <ChevronRight size={18} />
-                       </div>
-                    </div>
-                 </div>
-              ))
-            )}
-         </div>
-      </div>
     </div>
   );
 };

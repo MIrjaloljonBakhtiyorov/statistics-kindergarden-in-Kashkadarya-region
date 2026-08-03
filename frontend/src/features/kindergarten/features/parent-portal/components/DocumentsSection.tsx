@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   AlertCircle,
+  AlertTriangle,
   CheckCircle2,
   Download,
   ExternalLink,
@@ -73,6 +74,7 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
   const [showForm, setShowForm] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [newDoc, setNewDoc] = useState(initialDoc);
 
   const documents = useMemo(() => data?.documents || [], [data?.documents]);
@@ -146,13 +148,14 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
     }
   };
 
-  const handleDelete = async (docId: string) => {
-    if (!window.confirm("Hujjatni o'chirishni tasdiqlaysizmi?")) return;
+  const handleDelete = async () => {
+    if (!deleteTarget?.id) return;
 
-    setDeletingId(docId);
+    setDeletingId(deleteTarget.id);
     try {
-      await apiClient.delete(`/parent-portal/documents/${docId}`);
+      await apiClient.delete(`/parent-portal/documents/${deleteTarget.id}`);
       showNotification("Hujjat o'chirildi", 'success');
+      setDeleteTarget(null);
       onUpdate?.();
     } catch (error: any) {
       console.error(error);
@@ -344,7 +347,7 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
                     ) : null}
                     <button
                       type="button"
-                      onClick={() => handleDelete(doc.id)}
+                      onClick={() => setDeleteTarget(doc)}
                       disabled={deletingId === doc.id}
                       className="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-rose-600 transition-all hover:bg-rose-500 hover:text-white disabled:opacity-50"
                     >
@@ -368,6 +371,62 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
           </div>
         )}
       </div>
+
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[220] flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md overflow-hidden rounded-[1.5rem] border border-rose-100 bg-white shadow-2xl shadow-rose-950/10">
+            <div className="border-b border-rose-100 bg-gradient-to-br from-white via-rose-50 to-pink-50 p-5">
+              <div className="flex items-start gap-3.5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-white text-rose-500 shadow-sm">
+                  <AlertTriangle size={23} />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-lg font-black leading-tight text-slate-950">Hujjatni o'chirish</h4>
+                  <p className="mt-1 text-[12px] font-semibold leading-relaxed text-slate-500">
+                    Ushbu amal bajarilgandan keyin hujjat ro'yxatdan olib tashlanadi.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-5">
+              <div className="rounded-2xl border border-rose-100 bg-rose-50/60 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">Tanlangan hujjat</p>
+                <p className="mt-1 break-words text-sm font-black text-slate-950">
+                  {deleteTarget.title || 'Nomsiz hujjat'}
+                </p>
+                <p className="mt-2 text-[11px] font-bold text-slate-500">
+                  {DOC_TYPE_LABELS[deleteTarget.type] || deleteTarget.type || 'Hujjat'} - {formatDate(deleteTarget.created_at)}
+                </p>
+              </div>
+
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(null)}
+                  disabled={deletingId === deleteTarget.id}
+                  className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-slate-700 transition-all hover:bg-slate-100 disabled:opacity-50"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deletingId === deleteTarget.id}
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-rose-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-500/20 transition-all hover:bg-rose-600 disabled:opacity-50"
+                >
+                  {deletingId === deleteTarget.id ? (
+                    <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white" />
+                  ) : (
+                    <Trash2 size={15} />
+                  )}
+                  O'chirish
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

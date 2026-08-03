@@ -11,6 +11,7 @@ import {
 import { clsx } from 'clsx';
 import { toast } from 'sonner';
 import { apiClient, kindergartenApi } from '@/shared/api';
+import { getMahallaByName, getMahallasByDistrict } from '../../data/qashqadaryoMahallas';
 
 // --- VALIDATION SCHEMA ---
 const requiredEnum = <T extends [string, ...string[]]>(values: T, message: string) =>
@@ -33,6 +34,7 @@ const formSchema = z.object({
     region: z.string().min(1, "Viloyatni tanlang"),
     district: z.string().min(1, "Tuman/shaharni kiriting"),
     mahalla: z.string().min(2, "Mahalla nomini kiriting"),
+    mahallaCode: z.string().optional(),
     licenseFile: z.string().optional(),
     brokerageDocumentFile: z.string().optional(),
     commissionOrder: z.string().optional(),
@@ -208,41 +210,6 @@ const DISTRICT_OPTIONS_BY_REGION: Record<string, string[]> = {
 };
 
 const QASHQADARYO_DISTRICTS = DISTRICT_OPTIONS_BY_REGION[QASHQADARYO_REGION];
-const EMPTY_MAHALLA_OPTIONS: string[] = [];
-
-const MAHALLA_OPTIONS_BY_DISTRICT: Record<string, string[]> = {
-    "Qarshi shahri": [],
-    "Qarshi tumani": [],
-    "Shahrisabz shahri": [],
-    "Shahrisabz tumani": [],
-    "Kitob tumani": [],
-    "Kitob shahri": [],
-    "Koson tumani": [],
-    "Koson shahri": [],
-    "Muborak tumani": [],
-    "Muborak shahri": [],
-    "G'uzor tumani": [
-        "Gulshan MFY", "Eskibog' MFY", "Chaqar MFY", "Jarariq MFY", "Yakkadaraxt MFY",
-        "Yonqishloq MFY", "Guliston MFY", "Do'ltali MFY", "Toshguzar MFY", "Chugurtma MFY",
-        "Fayziobod MFY", "Mevazor MFY", "Do'stlik MFY", "Navro'z MFY", "Sherali MFY",
-        "Dashtobod MFY", "Yangihayot MFY", "Pachkamar MFY", "Omon ota MFY", "Xalkabod MFY",
-        "Yangiobod MFY", "Batosh MFY", "Mo'minobod MFY", "Apardi MFY", "Bo'ston MFY",
-        "Xumdon MFY", "Avg'onbog' MFY", "Yarg'unchi MFY", "Mustaqillik MFY", "Chanoq MFY",
-        "Zarbdor MFY", "Qovchin MFY", "Sovlig'ar MFY", "Shakarbuloq MFY", "Yangikent MFY",
-        "Sovbog' MFY", "Tinchlik MFY", "A.Temur MFY", "Mehnatobod MFY", "Cho'michli MFY",
-        "Tengdosh MFY", "Qorako'l MFY", "Jonbuloq MFY", "Eshonquduq MFY", "Buyuk karvon MFY",
-        "Paxtazor MFY", "Xo'jaguzar MFY",
-    ],
-    "Nishon tumani": [],
-    "Dehqonobod tumani": [],
-    "Qamashi tumani": [],
-    "Chiroqchi tumani": [],
-    "Kasbi tumani": [],
-    "Mirishkor tumani": [],
-    "Yakkabog' tumani": [],
-    "Yakkabog' shahri": [],
-    "Ko'kdala tumani": [],
-};
 
 const WORK_HOUR_OPTIONS = [
   { label: '4 soatlik', value: 4 },
@@ -258,6 +225,7 @@ const CREATE_DEFAULT_VALUES = {
   region: QASHQADARYO_REGION,
   district: '',
   mahalla: '',
+  mahallaCode: '',
   licenseFile: '',
   brokerageDocumentFile: '',
   commissionOrder: '',
@@ -314,7 +282,7 @@ const toAbsoluteAssetUrl = (url: string) => {
 };
 
 // --- REUSABLE COMPONENTS ---
-const FormField = ({ name, label, placeholder, type = "text", options = null, isTextArea = false, disabled = false }: any) => {
+const FormField = ({ name, label, placeholder, type = "text", options = null, isTextArea = false, disabled = false, readOnly = false }: any) => {
   const { register, formState: { errors, touchedFields } } = useFormContext();
   const error = errors[name];
   const isValid = touchedFields[name] && !error;
@@ -333,7 +301,7 @@ const FormField = ({ name, label, placeholder, type = "text", options = null, is
         ) : isTextArea ? (
             <textarea {...register(name)} placeholder={placeholder} className="w-full p-4 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 outline-none font-bold text-sm min-h-[100px]" />
         ) : (
-          <input {...register(name)} type={type} disabled={disabled} placeholder={placeholder} className={clsx("w-full p-4 rounded-2xl border-2 transition-all outline-none font-bold text-sm", disabled ? "bg-slate-50 text-slate-400" : error ? "border-rose-500 bg-rose-50" : isValid ? "border-emerald-500 bg-emerald-50" : "border-slate-100 focus:border-indigo-500")} />
+          <input {...register(name)} type={type} disabled={disabled} readOnly={readOnly} placeholder={placeholder} className={clsx("w-full p-4 rounded-2xl border-2 transition-all outline-none font-bold text-sm", disabled ? "bg-slate-50 text-slate-400" : readOnly ? "bg-slate-50 text-slate-700 border-slate-100" : error ? "border-rose-500 bg-rose-50" : isValid ? "border-emerald-500 bg-emerald-50" : "border-slate-100 focus:border-indigo-500")} />
         )}
         {error && <AlertCircle size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-rose-500" />}
       </div>
@@ -371,6 +339,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
         nurseCount: Number(initialData.nurseCount || 0),
         region: QASHQADARYO_REGION,
         mahalla: initialData.mahalla || '',
+        mahallaCode: initialData.mahallaCode || initialData.mahalla_code || '',
         workHours: [9, 10.5].includes(Number(initialData.workHours)) ? 9.5 : Number(initialData.workHours || 9.5),
         brokerageDocumentFile: initialData.brokerageDocumentFile || '',
         commissionOrder: initialData.commissionOrder || '',
@@ -389,7 +358,12 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
 
   const allValues = watch();
   const districtOptions = QASHQADARYO_DISTRICTS;
-  const mahallaOptions = MAHALLA_OPTIONS_BY_DISTRICT[allValues.district] || EMPTY_MAHALLA_OPTIONS;
+  const mahallaOptions = getMahallasByDistrict(allValues.district);
+  const mahallaSelectOptions = mahallaOptions.map((item) => ({
+    label: item.code ? `${item.code} - ${item.name}` : item.name,
+    value: item.name,
+  }));
+  const selectedMahalla = getMahallaByName(allValues.district, allValues.mahalla);
   const previousDistrictRef = React.useRef(allValues.district);
 
   useEffect(() => {
@@ -410,14 +384,24 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
       if (allValues.mahalla) {
         setValue('mahalla', '', { shouldDirty: true, shouldValidate: true });
       }
+      if (allValues.mahallaCode) {
+        setValue('mahallaCode', '', { shouldDirty: true, shouldValidate: true });
+      }
     }
-  }, [allValues.district, allValues.mahalla, setValue]);
+  }, [allValues.district, allValues.mahalla, allValues.mahallaCode, setValue]);
 
   useEffect(() => {
-    if (mahallaOptions.length > 0 && allValues.mahalla && !mahallaOptions.includes(allValues.mahalla)) {
+    if (mahallaOptions.length > 0 && allValues.mahalla && !selectedMahalla) {
       setValue('mahalla', '', { shouldDirty: true, shouldValidate: true });
     }
-  }, [allValues.mahalla, mahallaOptions, setValue]);
+  }, [allValues.mahalla, mahallaOptions, selectedMahalla, setValue]);
+
+  useEffect(() => {
+    const nextCode = selectedMahalla?.code || '';
+    if (allValues.mahallaCode !== nextCode) {
+      setValue('mahallaCode', nextCode, { shouldDirty: true, shouldValidate: false });
+    }
+  }, [allValues.mahallaCode, selectedMahalla, setValue]);
 
   const credentialPreview = useMemo(() => ({
     systemId: initialData?.system_id || "Saqlanganda yaratiladi",
@@ -486,9 +470,11 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
   const onSubmit = async (data: any) => {
     try {
         const nurseCount = Number(data.nurseCount || 0);
+        const selectedMahallaData = getMahallaByName(data.district, data.mahalla);
         const payload = {
             ...data,
             region: QASHQADARYO_REGION,
+            mahallaCode: selectedMahallaData?.code || data.mahallaCode || '',
             nurseCount,
             hasNurse: Boolean(data.hasNurse || nurseCount > 0),
             hasDietMenu: false,
@@ -528,7 +514,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
 
   const getStepByField = (field: string) => {
     const fieldSteps: Record<string, number> = {
-      name: 1, type: 1, workHours: 1, region: 1, district: 1, mahalla: 1, address: 1,
+      name: 1, type: 1, workHours: 1, region: 1, district: 1, mahalla: 1, mahallaCode: 1, address: 1,
       directorName: 2, phone: 2, email: 2, position: 2,
       directorBirthYear: 2, directorPhoto: 2,
       capacity: 3, currentChildren: 3, groups: 3, age13: 3, age37: 3,
@@ -635,9 +621,10 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                               name="mahalla"
                               label="Mahalla *"
                               placeholder={allValues.district ? "Masalan: Mustaqillik MFY" : "Avval tuman/shaharni tanlang"}
-                              options={mahallaOptions.length > 0 ? mahallaOptions : null}
+                              options={mahallaSelectOptions.length > 0 ? mahallaSelectOptions : null}
                               disabled={!allValues.district}
                             />
+                            <FormField name="mahallaCode" label="Mahalla kodi" placeholder="Mahalla tanlanganda avtomatik" readOnly />
                             <div className="md:col-span-2"><FormField name="address" label="Manzil *" isTextArea /></div>
                         </>)}
 
@@ -709,7 +696,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                         {step === 8 && (
                             <div className="md:col-span-2 space-y-6 sm:space-y-8 pb-6 sm:pb-10">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-                                    <SummaryCard icon={Building2} title="Asosiy" data={{'Nomi': allValues.name, 'Turi': allValues.type, 'Viloyat': allValues.region, 'Tuman': allValues.district, 'Mahalla': allValues.mahalla}} />
+                                    <SummaryCard icon={Building2} title="Asosiy" data={{'Nomi': allValues.name, 'Turi': allValues.type, 'Viloyat': allValues.region, 'Tuman': allValues.district, 'Mahalla': allValues.mahalla, 'Mahalla kodi': allValues.mahallaCode || 'Kiritilmagan'}} />
                                     <SummaryCard icon={FileText} title="Hujjatlar" data={{'Brokerlash': allValues.brokerageDocumentFile ? 'Yuklangan' : "Yo'q", 'Buyruq': allValues.commissionOrder || 'Kiritilmagan', 'Tasdiqlangan kuni': allValues.commissionApprovedDate || 'Kiritilmagan', 'Muddat': allValues.commissionValidUntil || 'Kiritilmagan'}} />
                                     <SummaryCard icon={UserRound} title="Rahbar" data={{'F.I.O': allValues.directorName, 'Yili': allValues.directorBirthYear, 'Login': credentialPreview.username}} />
                                     <SummaryCard icon={Baby} title="Sig'im" data={{'Soni': allValues.capacity, 'Bolalar': allValues.currentChildren}} />

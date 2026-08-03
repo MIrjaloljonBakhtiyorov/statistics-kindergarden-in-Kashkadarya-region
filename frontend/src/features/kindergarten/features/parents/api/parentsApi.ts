@@ -34,6 +34,7 @@ export const parentsApi = {
     receiverId: string;
     text: string;
     senderRole: string;
+    receiverRole?: string;
     messageType?: 'text' | 'image' | 'video' | 'audio' | 'file';
     fileUrl?: string | null;
     fileName?: string | null;

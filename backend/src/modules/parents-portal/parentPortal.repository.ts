@@ -59,6 +59,13 @@ export class ParentPortalRepository {
     ]);
   }
 
+  getParentAccount(id: string, kindergartenId: string) {
+    return get<{ id: string; login: string; password_hash: string }>(
+      'SELECT id, login, password_hash FROM parent_accounts WHERE id = ? AND kindergarten_id = ?',
+      [id, kindergartenId]
+    );
+  }
+
   async deleteParentAccount(id: string, kindergartenId: string) {
     await run('UPDATE children SET parent_account_id = NULL WHERE parent_account_id = ? AND kindergarten_id = ?', [id, kindergartenId]);
     return run('DELETE FROM parent_accounts WHERE id = ? AND kindergarten_id = ?', [id, kindergartenId]);
@@ -83,6 +90,26 @@ export class ParentPortalRepository {
     return all('SELECT * FROM attendance WHERE child_id = ? AND kindergarten_id = ? ORDER BY date DESC LIMIT 30', [childId, kindergartenId]);
   }
 
+  getParentLoginHistory(childId: string, kindergartenId: string, limit: number, offset: number) {
+    return all(`
+      SELECT ple.*
+      FROM parent_login_events ple
+      INNER JOIN children c ON c.parent_account_id = ple.parent_account_id
+      WHERE c.id = ? AND c.kindergarten_id = ? AND ple.kindergarten_id = ?
+      ORDER BY ple.created_at DESC
+      LIMIT ? OFFSET ?
+    `, [childId, kindergartenId, kindergartenId, limit, offset]);
+  }
+
+  countParentLoginHistory(childId: string, kindergartenId: string) {
+    return get<{ count: number }>(`
+      SELECT COUNT(*) as count
+      FROM parent_login_events ple
+      INNER JOIN children c ON c.parent_account_id = ple.parent_account_id
+      WHERE c.id = ? AND c.kindergarten_id = ? AND ple.kindergarten_id = ?
+    `, [childId, kindergartenId, kindergartenId]);
+  }
+
   getHealth(childId: string, kindergartenId: string) {
     return all('SELECT * FROM health_checks WHERE child_id = ? AND kindergarten_id = ? ORDER BY date DESC, created_at DESC LIMIT 20', [childId, kindergartenId]);
   }
@@ -93,6 +120,10 @@ export class ParentPortalRepository {
 
   getPickups(childId: string, kindergartenId: string) {
     return all('SELECT * FROM pickup_people WHERE child_id = ? AND kindergarten_id = ? ORDER BY created_at DESC', [childId, kindergartenId]);
+  }
+
+  countPickups(childId: string, kindergartenId: string) {
+    return get<{ count: number }>('SELECT COUNT(*) as count FROM pickup_people WHERE child_id = ? AND kindergarten_id = ?', [childId, kindergartenId]);
   }
 
   getMenu(kindergartenId: string, date: string) {

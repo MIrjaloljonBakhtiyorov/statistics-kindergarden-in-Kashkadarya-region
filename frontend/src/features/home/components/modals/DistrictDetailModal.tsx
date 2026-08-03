@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import {
   X, School, Users, Baby, CheckCircle2,
-  MapPin, LayoutGrid, Target, Zap, AlertCircle,
+  MapPin, LayoutGrid, Target, Zap, AlertCircle, Building2,
 } from 'lucide-react';
 
 type DistrictTypeRow = { name: string; count: number; children: number };
@@ -14,6 +14,26 @@ type DistrictDetails = {
   coveragePercentage: number;
   types: DistrictTypeRow[];
 };
+type KindergartenPreview = {
+  name?: string;
+  type?: string;
+  systemId?: string;
+  system_id?: string;
+  currentChildren?: number | string;
+  current_children?: number | string;
+  children?: number | string;
+  capacity?: number | string;
+  status?: string;
+  address?: string;
+};
+type DistrictMahalla = {
+  name: string;
+  code?: string;
+  count: number;
+  children: number;
+  capacity: number;
+  kindergartens: KindergartenPreview[];
+};
 
 interface DistrictDetailModalProps {
   district: any;
@@ -21,10 +41,21 @@ interface DistrictDetailModalProps {
 }
 
 const TYPE_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#0ea5e9'];
+const toNumber = (value: unknown) => {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? numberValue : 0;
+};
 
 const DistrictDetailModal: React.FC<DistrictDetailModalProps> = ({ district, onClose }) => {
   const { t } = useTranslation();
-  const hasDetails = !!district?.details;
+  const mahallas: DistrictMahalla[] = useMemo(
+    () => Array.isArray(district?.mahallas) ? district.mahallas : [],
+    [district]
+  );
+  const [selectedMahallaName, setSelectedMahallaName] = useState('');
+  const selectedMahalla = mahallas.find((mahalla) => mahalla.name === selectedMahallaName) || mahallas[0];
+  const hasMahallas = mahallas.length > 0;
+  const hasDetails = !!district?.details || hasMahallas;
   const details: DistrictDetails = district?.details || {
     totalChildren3to7: 0,
     totalMTT: district?.count || 0,
@@ -35,6 +66,11 @@ const DistrictDetailModal: React.FC<DistrictDetailModalProps> = ({ district, onC
   const isCity = district?.name?.includes('sh.');
   const accentColor = isCity ? '#6366f1' : '#10b981';
   const coverage = details.coveragePercentage;
+
+  useEffect(() => {
+    const firstMahalla = mahallas.find((mahalla) => mahalla.count > 0) || mahallas[0];
+    setSelectedMahallaName(firstMahalla?.name || '');
+  }, [district?.name, district?.fullName, mahallas]);
 
   return (
     <AnimatePresence>
@@ -62,7 +98,7 @@ const DistrictDetailModal: React.FC<DistrictDetailModalProps> = ({ district, onC
             }}
           >
             <div style={{
-              width: '100%', maxWidth: 900, height: '80vh', maxHeight: 680,
+              width: '100%', maxWidth: 1120, height: '84vh', maxHeight: 760,
               display: 'flex', borderRadius: 28, overflow: 'hidden', position: 'relative',
               boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06) inset',
               pointerEvents: 'auto',
@@ -116,7 +152,7 @@ const DistrictDetailModal: React.FC<DistrictDetailModalProps> = ({ district, onC
                     {district.name}
                   </h2>
                   <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
-                    {isCity ? t('modal.cityStats') : t('modal.districtStats')}
+                    {district.fullName || (isCity ? t('modal.cityStats') : t('modal.districtStats'))}
                   </p>
 
                   {/* big metrics */}
@@ -201,6 +237,7 @@ const DistrictDetailModal: React.FC<DistrictDetailModalProps> = ({ district, onC
                       </div>
 
                       {/* MTT types */}
+                      {details.types.length > 0 && (
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                           <div style={{ width: 28, height: 28, borderRadius: 8, background: '#fffbeb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -239,6 +276,128 @@ const DistrictDetailModal: React.FC<DistrictDetailModalProps> = ({ district, onC
                           })}
                         </div>
                       </div>
+                      )}
+
+                      {hasMahallas && (
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <div style={{ width: 28, height: 28, borderRadius: 8, background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <MapPin style={{ width: 14, height: 14, color: '#10b981' }} />
+                              </div>
+                              <h4 style={{ fontSize: 12, fontWeight: 900, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Mahallalar kesimi</h4>
+                            </div>
+                            <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 900, color: '#10b981', background: '#ecfdf5', border: '1px solid #bbf7d0', borderRadius: 999, padding: '6px 10px' }}>
+                              {mahallas.length} mahalla
+                            </span>
+                          </div>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(210px, 0.9fr) minmax(260px, 1.4fr)', gap: 14, alignItems: 'start' }}>
+                            <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 10, maxHeight: 360, overflowY: 'auto' }} className="custom-scrollbar">
+                              {mahallas.map((mahalla, index) => {
+                                const active = selectedMahalla?.name === mahalla.name;
+                                return (
+                                  <button
+                                    key={`${mahalla.code || mahalla.name}-${index}`}
+                                    onClick={() => setSelectedMahallaName(mahalla.name)}
+                                    style={{
+                                      width: '100%',
+                                      display: 'grid',
+                                      gridTemplateColumns: '1fr auto',
+                                      alignItems: 'center',
+                                      gap: 8,
+                                      textAlign: 'left',
+                                      border: `1px solid ${active ? '#6366f1' : 'transparent'}`,
+                                      background: active ? '#eef2ff' : '#fff',
+                                      borderRadius: 12,
+                                      padding: '10px 11px',
+                                      cursor: 'pointer',
+                                      marginBottom: 6,
+                                    }}
+                                  >
+                                    <span style={{ minWidth: 0 }}>
+                                      <span style={{ display: 'block', fontSize: 11, fontWeight: 900, color: active ? '#3730a3' : '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        {mahalla.name}
+                                      </span>
+                                      {mahalla.code && (
+                                        <span style={{ display: 'block', fontSize: 9, fontWeight: 800, color: '#94a3b8', marginTop: 2 }}>
+                                          {mahalla.code}
+                                        </span>
+                                      )}
+                                    </span>
+                                    <span style={{ display: 'inline-flex', minWidth: 30, height: 24, alignItems: 'center', justifyContent: 'center', borderRadius: 999, background: active ? '#6366f1' : '#f1f5f9', color: active ? '#fff' : '#64748b', fontSize: 11, fontWeight: 900 }}>
+                                      {mahalla.count}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, overflow: 'hidden' }}>
+                              <div style={{ padding: '16px 18px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                                <div style={{ minWidth: 0 }}>
+                                  <p style={{ fontSize: 15, fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {selectedMahalla?.name || 'Mahalla tanlanmagan'}
+                                  </p>
+                                  <p style={{ fontSize: 10, fontWeight: 800, color: '#94a3b8', marginTop: 3 }}>
+                                    {selectedMahalla?.code ? `${selectedMahalla.code} kodi` : 'Mahalla kodi kiritilmagan'}
+                                  </p>
+                                </div>
+                                <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                                  <span style={{ borderRadius: 10, background: '#f8fafc', border: '1px solid #e2e8f0', padding: '8px 10px', fontSize: 11, fontWeight: 900, color: '#0f172a' }}>
+                                    {selectedMahalla?.count || 0} MTT
+                                  </span>
+                                  <span style={{ borderRadius: 10, background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '8px 10px', fontSize: 11, fontWeight: 900, color: '#15803d' }}>
+                                    {(selectedMahalla?.children || 0).toLocaleString()} bola
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div style={{ padding: 12, maxHeight: 286, overflowY: 'auto' }} className="custom-scrollbar">
+                                {selectedMahalla?.kindergartens?.length ? (
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                    {selectedMahalla.kindergartens.map((kg, index) => {
+                                      const children = toNumber(kg.currentChildren ?? kg.current_children ?? kg.children);
+                                      const capacity = toNumber(kg.capacity);
+                                      return (
+                                        <div
+                                          key={`${kg.systemId || kg.system_id || kg.name || 'mtt'}-${index}`}
+                                          style={{ border: '1px solid #f1f5f9', borderRadius: 12, padding: '12px 13px', display: 'grid', gridTemplateColumns: '1fr auto', gap: 10, alignItems: 'center' }}
+                                        >
+                                          <div style={{ minWidth: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+                                            <div style={{ width: 34, height: 34, borderRadius: 10, background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                              <Building2 style={{ width: 16, height: 16, color: '#6366f1' }} />
+                                            </div>
+                                            <div style={{ minWidth: 0 }}>
+                                              <p style={{ fontSize: 12, fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {kg.name || "Nomi kiritilmagan bog'cha"}
+                                              </p>
+                                              <p style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {kg.type || 'Turi kiritilmagan'}{kg.address ? ` · ${kg.address}` : ''}
+                                              </p>
+                                            </div>
+                                          </div>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                                            <span style={{ fontSize: 11, fontWeight: 900, color: '#0f172a' }}>{children}</span>
+                                            <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8' }}>/ {capacity || '-'}</span>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                ) : (
+                                  <div style={{ minHeight: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, textAlign: 'center' }}>
+                                    <div style={{ width: 44, height: 44, borderRadius: 14, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                      <School style={{ width: 22, height: 22, color: '#cbd5e1' }} />
+                                    </div>
+                                    <p style={{ fontSize: 12, fontWeight: 900, color: '#475569' }}>Bu mahallada bog'cha hali kiritilmagan</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 16 }}>

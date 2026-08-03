@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import {
+  Archive,
   BadgeCheck,
   Building2,
   CalendarDays,
@@ -12,6 +13,7 @@ import {
   Loader2,
   MapPin,
   Phone,
+  Plus,
   Search,
   ShieldCheck,
   School,
@@ -141,6 +143,7 @@ export const KindergartenInspection = () => {
   const [overallStatus, setOverallStatus] = useState('needs_attention');
   const [inspector, setInspector] = useState(emptyInspector);
   const [checks, setChecks] = useState(initialChecks);
+  const [activeMode, setActiveMode] = useState<'new' | 'archive'>('new');
 
   const loadKindergartens = async () => {
     try {
@@ -275,6 +278,7 @@ export const KindergartenInspection = () => {
       setOverallStatus('needs_attention');
       setChecks(initialChecks());
       await loadInspections(archiveMonth);
+      setActiveMode('archive');
       toast.success('Bogcha inspeksiyasi saqlandi');
     } catch (error: any) {
       toast.error(error?.response?.data?.error || 'Inspeksiyani saqlashda xatolik yuz berdi');
@@ -321,6 +325,36 @@ export const KindergartenInspection = () => {
         </div>
       </div>
 
+      <div className="rounded-xl border border-slate-100 bg-white p-2 shadow-sm">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setActiveMode('new')}
+            className={`flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs font-black uppercase tracking-widest transition-all ${
+              activeMode === 'new'
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+            }`}
+          >
+            <Plus className="h-4 w-4" />
+            Yangi inspeksiya
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveMode('archive')}
+            className={`flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs font-black uppercase tracking-widest transition-all ${
+              activeMode === 'archive'
+                ? 'bg-slate-950 text-white shadow-lg shadow-slate-900/15'
+                : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+            }`}
+          >
+            <Archive className="h-4 w-4" />
+            Mavjud inspeksiyalar
+          </button>
+        </div>
+      </div>
+
+      {activeMode === 'new' && (
       <div className="grid grid-cols-1 xl:grid-cols-[0.9fr_1.4fr] gap-4">
         <section className="space-y-3">
           <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
@@ -563,7 +597,9 @@ export const KindergartenInspection = () => {
           </div>
         </section>
       </div>
+      )}
 
+      {activeMode === 'archive' && (
       <section className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
           <div>
@@ -668,6 +704,7 @@ export const KindergartenInspection = () => {
           )}
         </div>
       </section>
+      )}
     </div>
   );
 };

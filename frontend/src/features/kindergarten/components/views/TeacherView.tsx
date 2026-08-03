@@ -90,6 +90,7 @@ const TeacherView: React.FC<TeacherViewProps> = ({ groups: initialGroups }) => {
   const { groups, refetch: refetchGroups } = useGroups();
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'attendance' | 'messages'>('attendance');
+  const [attendanceMode, setAttendanceMode] = useState<'count' | 'children'>('count');
   const { showNotification } = useNotification();
   
   const [todayStats, setTodayStats] = useState({
@@ -250,22 +251,49 @@ const TeacherView: React.FC<TeacherViewProps> = ({ groups: initialGroups }) => {
         </div>
       </div>
 
-      <AttendanceCountEntry
-        groupData={groupData}
-        onSaved={() => {
-          fetchTodayStats();
-          refetchGroups();
-        }}
-      />
-
       {activeTab === 'attendance' ? (
-        <GroupAttendanceView 
-          groupData={groupData} 
-          onSaved={() => {
-            fetchTodayStats();
-            refetchGroups();
-          }}
-        />
+        <>
+          <div className="flex flex-wrap gap-2 rounded-2xl border border-brand-border bg-white p-2 shadow-sm">
+            <button
+              onClick={() => setAttendanceMode('count')}
+              className={`flex-1 min-w-[160px] rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${
+                attendanceMode === 'count'
+                  ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20'
+                  : 'bg-slate-50 text-brand-muted hover:bg-slate-100'
+              }`}
+            >
+              Sonda kiritish
+            </button>
+            <button
+              onClick={() => setAttendanceMode('children')}
+              className={`flex-1 min-w-[160px] rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${
+                attendanceMode === 'children'
+                  ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20'
+                  : 'bg-slate-50 text-brand-muted hover:bg-slate-100'
+              }`}
+            >
+              Bola bo'yicha
+            </button>
+          </div>
+
+          {attendanceMode === 'count' ? (
+            <AttendanceCountEntry
+              groupData={groupData}
+              onSaved={() => {
+                fetchTodayStats();
+                refetchGroups();
+              }}
+            />
+          ) : (
+            <GroupAttendanceView
+              groupData={groupData}
+              onSaved={() => {
+                fetchTodayStats();
+                refetchGroups();
+              }}
+            />
+          )}
+        </>
       ) : (
         <TeacherMessagesView groupData={groupData} />
       )}
@@ -1000,14 +1028,23 @@ const GroupAttendanceView = ({ groupData, onSaved }: { groupData: any, onSaved: 
         setIsLoading(true);
         const today = new Date().toISOString().split('T')[0];
         const res = await apiClient.get(`/attendance/${groupData.id}/${today}`);
+        const rows: any[] = Array.isArray(res.data) ? res.data : Object.values(res.data || {});
+        const rowsByChildId = new Map(
+          rows.map((row: any) => [String(row.child_id || row.childId), row])
+        );
         
         const initialAttendance = (groupData.children || []).reduce((acc: any, child: any) => {
-          const existing = res.data[child.id];
+          const existing = rowsByChildId.get(String(child.id));
+          const existingStatus = String(existing?.status || '').toUpperCase();
           let status: AttendanceStatus | null = null;
           
-          if (existing?.status === 'present') {
+          if (existingStatus === 'EARLY') {
+            status = 'early';
+          } else if (existingStatus === 'LATE') {
+            status = 'late';
+          } else if (['PRESENT', 'KELDI'].includes(existingStatus)) {
             status = existing.arrival_time && existing.arrival_time <= ATTENDANCE_CUTOFF_TIME ? 'early' : 'late';
-          } else if (existing?.status === 'absent' || existing?.status === 'sick') {
+          } else if (['ABSENT', 'KELMADI', 'SICK'].includes(existingStatus)) {
             status = 'absent';
           }
 

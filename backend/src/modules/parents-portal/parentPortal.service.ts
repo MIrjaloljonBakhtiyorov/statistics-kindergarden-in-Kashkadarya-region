@@ -5,6 +5,15 @@ import { assertLoginAvailable } from '../shared/loginUniqueness.js';
 import { ParentPortalError } from './parentPortal.errors.js';
 import { ParentPortalRepository } from './parentPortal.repository.js';
 
+const PASSWORD_POLICY_RE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+const MAX_PICKUP_PEOPLE = 10;
+
+const verifyStoredPassword = async (password: string, storedPassword: string) => {
+  if (!storedPassword) return false;
+  if (!storedPassword.startsWith('$2')) return password === storedPassword;
+  return bcrypt.compare(password, storedPassword);
+};
+
 export class ParentPortalService {
   private repository = new ParentPortalRepository();
 
@@ -29,12 +38,33 @@ export class ParentPortalService {
 
   async updateParentAccount(id: string, kindergartenId: string, body: any) {
     const updates: Record<string, any> = {};
+    const nextPassword = String(body.password || '').trim();
+    const resetRole = String(body.updatedByRole || '').toUpperCase();
+    const isPrivilegedPasswordReset = ['ADMIN', 'OPERATOR'].includes(resetRole);
 
     if (body.login) {
       updates.login = await assertLoginAvailable(sharedDb, body.login, { excludeParentAccountId: id });
     }
-    if (body.password) {
-      updates.password_hash = await bcrypt.hash(body.password, 10);
+    if (nextPassword) {
+      const oldPassword = String(body.oldPassword || body.currentPassword || '');
+      if (!isPrivilegedPasswordReset && !oldPassword) {
+        throw new ParentPortalError('Eski parolni kiriting', 400);
+      }
+      if (!isPrivilegedPasswordReset && !PASSWORD_POLICY_RE.test(nextPassword)) {
+        throw new ParentPortalError('Yangi parol kamida 8 ta belgi, katta harf, kichik harf, son va maxsus belgidan iborat boʼlishi kerak', 400);
+      }
+
+      const account = await this.repository.getParentAccount(id, kindergartenId);
+      if (!account) throw new ParentPortalError('Parent account not found', 404);
+
+      if (!isPrivilegedPasswordReset) {
+        const oldPasswordOk = await verifyStoredPassword(oldPassword, account.password_hash);
+        if (!oldPasswordOk) {
+          throw new ParentPortalError("Eski parol noto'g'ri", 401);
+        }
+      }
+
+      updates.password_hash = await bcrypt.hash(nextPassword, 10);
     }
 
     if (Object.keys(updates).length === 0) return { success: true };
@@ -66,6 +96,31 @@ export class ParentPortalService {
     ]);
 
     return { attendance, health, documents, pickups, menu, finance: [], progress: [], vaccines: [] };
+  }
+
+  async getParentLoginHistory(childId: string, kindergartenId: string, query: any) {
+    const child = await this.repository.getChildById(childId, kindergartenId);
+    if (!child) throw new ParentPortalError('Child not found', 404);
+
+    const page = Math.max(1, Number.parseInt(String(query.page || '1'), 10) || 1);
+    const limit = Math.min(10, Math.max(1, Number.parseInt(String(query.limit || '10'), 10) || 10));
+    const offset = (page - 1) * limit;
+    const [rows, totalRow] = await Promise.all([
+      this.repository.getParentLoginHistory(childId, kindergartenId, limit, offset),
+      this.repository.countParentLoginHistory(childId, kindergartenId),
+    ]);
+    const total = Number(totalRow?.count || 0);
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+
+    return {
+      items: rows,
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1,
+    };
   }
 
   async updateProfile(childId: string, kindergartenId: string, body: any) {
@@ -117,6 +172,25 @@ export class ParentPortalService {
   }
 
   async createPickup(kindergartenId: string, body: any) {
+    const childId = String(body.child_id || '').trim();
+    const fullName = String(body.full_name || '').trim();
+    const phone = String(body.phone || '').trim();
+
+    if (!childId || !fullName || !phone) {
+      throw new ParentPortalError("Vakil ismi, telefoni va bola ma'lumoti kerak", 400);
+    }
+
+    const child = await this.repository.getChildById(childId, kindergartenId);
+    if (!child) throw new ParentPortalError('Child not found', 404);
+
+    const existing = await this.repository.countPickups(childId, kindergartenId);
+    if (Number(existing?.count || 0) >= MAX_PICKUP_PEOPLE) {
+      throw new ParentPortalError(`Ko'pi bilan ${MAX_PICKUP_PEOPLE} ta vakil qo'shish mumkin`, 400);
+    }
+
+    body.child_id = childId;
+    body.full_name = fullName;
+    body.phone = phone;
     return this.repository.createPickup(kindergartenId, body);
   }
 

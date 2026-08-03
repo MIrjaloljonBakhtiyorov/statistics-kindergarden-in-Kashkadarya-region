@@ -20,17 +20,17 @@ export const get = <T = any>(sql: string, params: any[] = []) => new Promise<T |
 export const resolveChatUserId = async (kindergartenId: string, userId: string, role?: string) => {
   const normalizedRole = String(role || '').toUpperCase();
   const isKindergartenAccount = String(userId) === String(kindergartenId);
-  if (!isKindergartenAccount && !['TEACHER', 'DIRECTOR'].includes(normalizedRole)) return userId;
+  if (!isKindergartenAccount || !['TEACHER', 'NURSE'].includes(normalizedRole)) return userId;
 
-  const teacher = await get<{ id: string }>(
+  const roleAccount = await get<{ id: string }>(
     `SELECT id FROM role_accounts
-     WHERE kindergarten_id = ? AND role = 'TEACHER'
+     WHERE kindergarten_id = ? AND role = ?
      ORDER BY created_at DESC
      LIMIT 1`,
-    [kindergartenId]
+    [kindergartenId, normalizedRole]
   ).catch(() => undefined);
 
-  return teacher?.id || userId;
+  return roleAccount?.id || userId;
 };
 
 export const ensureTables = (() => {

@@ -63,6 +63,14 @@ export class ParentPortalController {
     }
   };
 
+  getParentLoginHistory = async (req: Request, res: Response) => {
+    try {
+      res.json(await this.service.getParentLoginHistory(routeParam(req, 'childId'), await resolveKindergartenId(req), req.query));
+    } catch (error: any) {
+      sendError(res, error);
+    }
+  };
+
   updateProfile = async (req: Request, res: Response) => {
     try {
       res.json(await this.service.updateProfile(routeParam(req, 'childId'), await resolveKindergartenId(req), req.body));

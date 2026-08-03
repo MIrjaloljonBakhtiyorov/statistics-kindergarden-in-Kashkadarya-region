@@ -16,12 +16,16 @@ const initialForm = {
   photo_url: '',
 };
 
+const MAX_PICKUPS = 10;
+
 export const PickupSection = ({ data, onUpdate }: any) => {
   const { user } = useAuth();
   const { showNotification, confirm } = useNotification();
   const [showForm, setShowForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState(initialForm);
+  const pickups = data?.pickups || [];
+  const canAddPickup = pickups.length < MAX_PICKUPS;
 
   const resetForm = () => {
     setFormData(initialForm);
@@ -34,6 +38,11 @@ export const PickupSection = ({ data, onUpdate }: any) => {
 
     const fullName = formData.full_name.trim();
     const phone = formData.phone.trim();
+
+    if (!canAddPickup) {
+      showNotification(`Ko'pi bilan ${MAX_PICKUPS} ta vakil qo'shish mumkin`, 'error');
+      return;
+    }
 
     if (!fullName || !phone) {
       showNotification("Ism-familiya va telefon raqamni kiriting", 'error');
@@ -73,6 +82,36 @@ export const PickupSection = ({ data, onUpdate }: any) => {
 
   return (
     <div className="kg-parent-section space-y-4">
+      <div className="flex flex-col gap-3 rounded-[1.35rem] border border-rose-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between md:p-5">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+            <UserCheck size={22} />
+          </div>
+          <div className="min-w-0">
+            <h5 className="text-base font-black uppercase tracking-tight text-slate-950 md:text-lg">Vakillar</h5>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
+              {pickups.length}/{MAX_PICKUPS} ta vakil kiritilgan
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => canAddPickup && setShowForm((value) => !value)}
+          disabled={!canAddPickup}
+          className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-rose-500/20 transition-all hover:scale-[1.01] disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none sm:w-auto"
+        >
+          {showForm ? <X size={16} /> : <UserPlus size={16} />}
+          {canAddPickup ? (showForm ? 'Yopish' : "Vakil qo'shish") : 'Limit tugadi'}
+        </button>
+      </div>
+
+      {!canAddPickup && (
+        <div className="rounded-[1.15rem] border border-amber-100 bg-amber-50/70 p-4 text-[10px] font-black uppercase leading-relaxed tracking-wide text-amber-800">
+          10 ta vakil limiti to'ldi. Yangi vakil qo'shish uchun avval eski vakillardan birini o'chiring.
+        </div>
+      )}
+
       {showForm && (
         <form
           onSubmit={handleAdd}
@@ -146,7 +185,7 @@ export const PickupSection = ({ data, onUpdate }: any) => {
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {data?.pickups?.map((v: any, idx: number) => (
+        {pickups.map((v: any, idx: number) => (
           <div
             key={v.id}
             className="group relative flex flex-col items-center gap-5 overflow-hidden rounded-[1.35rem] border border-rose-100 bg-white p-4 text-center shadow-sm transition-all hover:border-rose-200 hover:shadow-md sm:flex-row sm:text-left md:p-5"
@@ -196,7 +235,7 @@ export const PickupSection = ({ data, onUpdate }: any) => {
           </div>
         ))}
 
-        {(!data?.pickups || data.pickups.length === 0) && (
+        {pickups.length === 0 && (
           <div className="relative overflow-hidden rounded-[1.35rem] border border-rose-100 bg-white p-5 shadow-sm lg:col-span-2">
             <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-rose-100/60" />
             <div className="relative z-10 flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
@@ -209,12 +248,6 @@ export const PickupSection = ({ data, onUpdate }: any) => {
                   <p className="mt-1 max-w-lg text-[10px] font-bold uppercase leading-relaxed tracking-[0.12em] text-slate-500">Farzandingizni olib ketishga ruxsat berilgan shaxslarni shu yerdan qo'shing.</p>
                 </div>
               </div>
-              <button
-                onClick={() => setShowForm(true)}
-                className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-rose-500/20 transition-all hover:scale-[1.01] md:w-auto"
-              >
-                <UserPlus size={16} /> Vakil qo'shish
-              </button>
             </div>
           </div>
         )}

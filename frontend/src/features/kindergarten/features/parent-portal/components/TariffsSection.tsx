@@ -354,7 +354,7 @@ export const TariffsSection = () => {
               <BadgeDollarSign size={23} />
             </div>
             <div>
-              <h4 className="text-xl font-extrabold leading-tight text-brand-depth sm:text-2xl md:text-[28px]">Dasturchi tomonidan taklif qilinadigan tariflar</h4>
+              <h4 className="text-xl font-extrabold leading-tight text-brand-depth sm:text-2xl md:text-[28px]">Biz taklif qiladigan xizmatlar</h4>
               <p className="text-[13px] md:text-[15px] font-medium leading-relaxed text-brand-muted mt-1">Ota-onalar uchun qulay imkoniyatlar asosida tuzilgan paketlar.</p>
             </div>
           </div>

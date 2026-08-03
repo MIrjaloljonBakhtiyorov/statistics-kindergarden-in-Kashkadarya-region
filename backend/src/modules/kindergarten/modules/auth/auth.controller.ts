@@ -43,6 +43,88 @@ const touchRolePresence = async (roleAccountId: string, kindergartenId?: string 
   ).catch(() => undefined);
 };
 
+const pickClientIp = (req: Request) => {
+  const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0]?.trim();
+  const realIp = String(req.headers['x-real-ip'] || '').trim();
+  return forwarded || realIp || req.socket.remoteAddress || '';
+};
+
+const normalizeIp = (value: string) => value.replace(/^::ffff:/, '').replace(/^::1$/, '127.0.0.1');
+
+const isLocalIp = (ip: string) =>
+  !ip ||
+  ip === '127.0.0.1' ||
+  ip === 'localhost' ||
+  ip.startsWith('10.') ||
+  ip.startsWith('192.168.') ||
+  /^172\.(1[6-9]|2\d|3[0-1])\./.test(ip);
+
+const parseUserAgent = (userAgent: string) => {
+  const ua = userAgent || '';
+  const lower = ua.toLowerCase();
+
+  const deviceType = /ipad|tablet/.test(lower)
+    ? 'Planshet'
+    : /mobile|iphone|android/.test(lower)
+      ? 'Telefon'
+      : 'Kompyuter';
+
+  const os = /windows/.test(lower)
+    ? 'Windows'
+    : /iphone|ipad|ios/.test(lower)
+      ? 'iOS'
+      : /android/.test(lower)
+        ? 'Android'
+        : /mac os|macintosh/.test(lower)
+          ? 'macOS'
+          : /linux/.test(lower)
+            ? 'Linux'
+            : 'Aniqlanmagan';
+
+  const browser = /edg\//.test(lower)
+    ? 'Microsoft Edge'
+    : /opr\//.test(lower) || /opera/.test(lower)
+      ? 'Opera'
+      : /chrome|chromium/.test(lower)
+        ? 'Chrome'
+        : /firefox/.test(lower)
+          ? 'Firefox'
+          : /safari/.test(lower)
+            ? 'Safari'
+            : 'Aniqlanmagan';
+
+  return { deviceType, os, browser };
+};
+
+const logParentLoginEvent = async (req: Request, user: any) => {
+  const ipAddress = normalizeIp(pickClientIp(req));
+  const userAgent = String(req.headers['user-agent'] || '').slice(0, 1000);
+  const parsed = parseUserAgent(userAgent);
+  const locationLabel = isLocalIp(ipAddress) ? 'Mahalliy tarmoq' : ipAddress || 'Aniqlanmagan';
+
+  await run(
+    `INSERT INTO parent_login_events (
+      id, parent_account_id, kindergarten_id, child_id, ip_address, user_agent,
+      device_type, browser, os, location_label, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      crypto.randomUUID(),
+      user.id,
+      user.kindergarten_id,
+      user.child_id || null,
+      ipAddress,
+      userAgent,
+      parsed.deviceType,
+      parsed.browser,
+      parsed.os,
+      locationLabel,
+      new Date().toISOString(),
+    ]
+  ).catch((error) => {
+    console.error('Parent login event was not saved:', error.message);
+  });
+};
+
 const get = <T = any>(sql: string, params: any[] = []) =>
   new Promise<T | undefined>((resolve, reject) => {
     db.get<T>(sql, params, (err, row) => {
@@ -150,6 +232,8 @@ export class AuthController {
 
       const ok = await bcrypt.compare(password, user.password_hash);
       if (!ok) return res.status(401).json({ error: 'Invalid login or password' });
+
+      await logParentLoginEvent(req, user);
 
       res.json({
         id: user.id,

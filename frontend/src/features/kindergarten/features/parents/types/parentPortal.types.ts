@@ -29,13 +29,15 @@ export interface ChatMessage {
   isDeleted?: boolean;
   status: 'sent' | 'delivered' | 'read';
   type: 'sent' | 'received';
-  senderRole: 'parent' | 'teacher' | 'admin';
+  senderRole: 'parent' | 'teacher' | 'admin' | 'director' | 'nurse';
 }
 
 export interface ChatContact {
   id: string;
   name: string;
-  role: 'teacher' | 'admin';
+  role: 'teacher' | 'admin' | 'director' | 'nurse';
+  title?: string;
+  subtitle?: string;
   unreadCount: number;
   lastMessage?: string;
   isOnline: boolean;

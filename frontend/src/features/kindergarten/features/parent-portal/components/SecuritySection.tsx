@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import {
   AlertCircle,
+  CheckCircle2,
+  Circle,
   Eye,
   EyeOff,
   Key,
@@ -9,23 +11,70 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  WandSparkles,
   User
 } from 'lucide-react';
 
 export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdate }: any) => {
+  const [showOldPass, setShowOldPass] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
 
+  const passwordChecks = [
+    { label: 'Kamida 8 ta belgi', valid: credentials.newPassword.length >= 8 },
+    { label: 'Katta harf', valid: /[A-Z]/.test(credentials.newPassword) },
+    { label: 'Kichik harf', valid: /[a-z]/.test(credentials.newPassword) },
+    { label: 'Son', valid: /\d/.test(credentials.newPassword) },
+    { label: 'Maxsus belgi', valid: /[^A-Za-z0-9]/.test(credentials.newPassword) },
+  ];
+  const passedChecks = passwordChecks.filter((item) => item.valid).length;
   const passwordStrength = credentials.newPassword.length === 0
     ? 0
-    : credentials.newPassword.length < 6
+    : passedChecks <= 2
       ? 1
-      : credentials.newPassword.length < 10
+      : passedChecks < 5
         ? 2
         : 3;
 
   const strengthLabel = ['Bo\'sh', 'Zaif', 'Yaxshi', 'Kuchli'];
-  const strengthColor = ['bg-slate-200', 'bg-rose-400', 'bg-pink-400', 'bg-fuchsia-500'];
+  const strengthBadgeClass = [
+    'border-slate-200 bg-slate-100 text-slate-500',
+    'border-rose-100 bg-rose-50 text-rose-600',
+    'border-amber-100 bg-amber-50 text-amber-700',
+    'border-emerald-100 bg-emerald-50 text-emerald-700',
+  ];
+  const strengthBarClass = passwordStrength === 3
+    ? 'from-emerald-400 to-teal-500'
+    : passwordStrength === 2
+      ? 'from-amber-400 to-orange-400'
+      : passwordStrength === 1
+        ? 'from-rose-400 to-pink-500'
+        : 'from-slate-200 to-slate-200';
+  const passwordStrengthPercent = Math.round((passedChecks / passwordChecks.length) * 100);
+
+  const createStrongPassword = () => {
+    const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const lower = 'abcdefghijkmnopqrstuvwxyz';
+    const numbers = '23456789';
+    const special = '!@#$%&*?';
+    const allChars = upper + lower + numbers + special;
+    const pick = (chars: string) => chars[Math.floor(Math.random() * chars.length)];
+    const password = [
+      pick(upper),
+      pick(lower),
+      pick(numbers),
+      pick(special),
+      ...Array.from({ length: 8 }, () => pick(allChars)),
+    ].sort(() => Math.random() - 0.5).join('');
+
+    setCredentials({
+      ...credentials,
+      newPassword: password,
+      confirmPassword: password,
+    });
+    setShowNewPass(true);
+    setShowConfirmPass(true);
+  };
 
   return (
     <div className="kg-parent-section space-y-4 pb-4 sm:space-y-5">
@@ -71,19 +120,48 @@ export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdat
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <label className="text-[12px] font-bold text-brand-depth">Login / username</label>
                   <span className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-[11px] font-bold text-rose-600">
-                    Tizimga kirish uchun
+                    Doimiy login
                   </span>
                 </div>
                 <div className="relative group">
-                  <div className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-2xl border border-rose-100 bg-rose-50 text-rose-500 transition-all group-focus-within:bg-rose-100">
+                  <div className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-2xl border border-rose-100 bg-rose-50 text-rose-500">
                     <User size={18} />
                   </div>
                   <input
                     type="text"
                     value={credentials.login}
-                    onChange={(e) => setCredentials({ ...credentials, login: e.target.value })}
-                    className="w-full rounded-3xl border border-brand-border bg-slate-50 py-4 pl-16 pr-5 text-[16px] font-bold text-brand-depth outline-none transition-all focus:border-rose-300 focus:bg-white focus:ring-4 focus:ring-rose-100"
+                    readOnly
+                    aria-readonly="true"
+                    className="w-full cursor-not-allowed rounded-3xl border border-brand-border bg-slate-100 py-4 pl-16 pr-5 text-[16px] font-bold text-brand-depth outline-none"
                   />
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-amber-100 bg-gradient-to-br from-amber-50/70 to-white p-4">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <label className="text-[12px] font-bold text-brand-depth">Eski parol</label>
+                  <span className="rounded-full border border-amber-100 bg-white px-3 py-1 text-[11px] font-bold text-amber-700">
+                    Parolni tasdiqlash uchun
+                  </span>
+                </div>
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-2xl border border-amber-100 bg-white text-amber-600 transition-all group-focus-within:bg-amber-50">
+                    <Key size={18} />
+                  </div>
+                  <input
+                    type={showOldPass ? 'text' : 'password'}
+                    value={credentials.oldPassword}
+                    onChange={(e) => setCredentials({ ...credentials, oldPassword: e.target.value })}
+                    placeholder="Eski parolni kiriting"
+                    className="w-full rounded-3xl border border-amber-100 bg-white py-4 pl-16 pr-14 text-[16px] font-bold text-brand-depth outline-none transition-all placeholder:text-slate-400 focus:border-amber-300 focus:ring-4 focus:ring-amber-100"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOldPass(!showOldPass)}
+                    className="absolute right-4 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-2xl text-brand-muted transition-colors hover:bg-amber-50 hover:text-amber-600"
+                  >
+                    {showOldPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
 
@@ -135,20 +213,66 @@ export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdat
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-slate-100 bg-slate-50 p-4">
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[12px] font-bold text-brand-depth">Parol kuchi</p>
-                    <p className="mt-0.5 text-[12px] font-medium text-brand-muted">Kamida 6 ta belgi tavsiya etiladi.</p>
+              <div className="overflow-hidden rounded-3xl border border-rose-100 bg-gradient-to-br from-white via-slate-50 to-rose-50/60 p-4 shadow-sm">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-white text-rose-500 shadow-sm">
+                      <ShieldCheck size={21} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-extrabold text-brand-depth">Kuchli parol yaratish</p>
+                      <p className="mt-1 max-w-xl text-[12px] font-semibold leading-relaxed text-brand-muted">
+                        Parolda 8+ belgi, katta/kichik harf, son va maxsus belgi qatnashishi kerak.
+                      </p>
+                    </div>
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${passwordStrength === 0 ? 'bg-slate-100 text-slate-500' : 'bg-rose-50 text-rose-600'}`}>
-                    {strengthLabel[passwordStrength]}
-                  </span>
+
+                  <button
+                    type="button"
+                    onClick={createStrongPassword}
+                    className="flex min-h-[42px] shrink-0 items-center justify-center gap-2 rounded-2xl border border-rose-100 bg-white px-4 text-[11px] font-extrabold uppercase tracking-wide text-rose-600 shadow-sm transition-all hover:border-rose-200 hover:bg-rose-50"
+                  >
+                    <WandSparkles size={16} />
+                    Generatsiya
+                  </button>
                 </div>
-                <div className="grid h-2 grid-cols-3 gap-2">
-                  <div className={`rounded-full transition-all duration-500 ${passwordStrength >= 1 ? strengthColor[1] : 'bg-slate-200'}`} />
-                  <div className={`rounded-full transition-all duration-500 ${passwordStrength >= 2 ? strengthColor[2] : 'bg-slate-200'}`} />
-                  <div className={`rounded-full transition-all duration-500 ${passwordStrength >= 3 ? strengthColor[3] : 'bg-slate-200'}`} />
+
+                <div className="mt-4 rounded-3xl border border-white bg-white/85 p-3.5 shadow-sm">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-[12px] font-extrabold text-brand-depth">Parol kuchi</p>
+                      <p className="mt-0.5 text-[11px] font-bold text-brand-muted">{passedChecks}/5 talab bajarildi</p>
+                    </div>
+                    <span className={`rounded-full border px-3 py-1 text-[11px] font-extrabold ${strengthBadgeClass[passwordStrength]}`}>
+                      {strengthLabel[passwordStrength]}
+                    </span>
+                  </div>
+
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className={`h-full rounded-full bg-gradient-to-r ${strengthBarClass} transition-all duration-500`}
+                      style={{ width: `${passwordStrengthPercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {passwordChecks.map((item) => {
+                    const Icon = item.valid ? CheckCircle2 : Circle;
+                    return (
+                      <div
+                        key={item.label}
+                        className={`flex min-h-[44px] items-center gap-2.5 rounded-2xl border px-3 text-[11px] font-extrabold transition-all ${
+                          item.valid
+                            ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
+                            : 'border-slate-100 bg-white text-slate-500'
+                        }`}
+                      >
+                        <Icon size={15} className="shrink-0" />
+                        <span className="min-w-0">{item.label}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -162,7 +286,7 @@ export const SecuritySection = ({ credentials, setCredentials, isSaving, onUpdat
             </div>
             <h5 className="text-lg font-extrabold leading-tight text-brand-depth">Muhim eslatma</h5>
             <p className="mt-2 text-[13px] font-semibold leading-relaxed text-amber-900/80">
-              Login o'zgartirilsa, keyingi kirishda aynan yangi login ishlatiladi. Yangi parolni eslab qoling va uni boshqa odamlar bilan ulashmang.
+              Login / username doimiy qoladi. Yangi parolni eslab qoling va uni boshqa odamlar bilan ulashmang.
             </p>
           </div>
 

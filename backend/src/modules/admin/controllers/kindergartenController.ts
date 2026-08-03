@@ -3848,18 +3848,18 @@ const KindergartenController = {
       db.run("BEGIN TRANSACTION");
 
       const sql = `INSERT INTO kindergartens (
-        system_id, name, type, workHours, region, district, mahalla, licenseFile, brokerageDocumentFile, commissionOrder, commissionApprovedDate, commissionValidUntil, directorName, directorBirthYear, directorPhoto, phone, address, email,
+        system_id, name, type, workHours, region, district, mahalla, mahallaCode, licenseFile, brokerageDocumentFile, commissionOrder, commissionApprovedDate, commissionValidUntil, directorName, directorBirthYear, directorPhoto, phone, address, email,
         position, capacity, currentChildren, groups, age13, age37, educators,
         cooks, techStaff, nurseCount, hasNurse, mealType, sanitation, water, kitchenEq,
         hasKitchen, hasAllergyMenu, hasDietMenu, hasWarehouse, warehouseManager,
         avgConsumption, financeType, budget,
         lat, lng, username, password, status, rating, aiMonitoring, threshold
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
       const nurseCount = toCount(data.nurseCount);
       const workHours = normalizeWorkHours(data.workHours);
       const params = [
-        data.system_id, data.name, data.type, workHours, QASHQADARYO_REGION, data.district, data.mahalla || null, data.licenseFile || null,
+        data.system_id, data.name, data.type, workHours, QASHQADARYO_REGION, data.district, data.mahalla || null, data.mahallaCode || data.mahalla_code || null, data.licenseFile || null,
         data.brokerageDocumentFile || null,
         data.commissionOrder || null, data.commissionApprovedDate || null, data.commissionValidUntil || null,
         data.directorName, data.directorBirthYear || null, data.directorPhoto || null, data.phone, data.address, data.email,
@@ -3936,7 +3936,7 @@ const KindergartenController = {
     }
 
     const sql = `UPDATE kindergartens SET 
-      system_id = ?, name = ?, type = ?, workHours = ?, region = ?, district = ?, mahalla = ?, licenseFile = ?, brokerageDocumentFile = ?, commissionOrder = ?, commissionApprovedDate = ?, commissionValidUntil = ?, directorName = ?, directorBirthYear = ?, directorPhoto = ?, phone = ?, address = ?, email = ?,
+      system_id = ?, name = ?, type = ?, workHours = ?, region = ?, district = ?, mahalla = ?, mahallaCode = ?, licenseFile = ?, brokerageDocumentFile = ?, commissionOrder = ?, commissionApprovedDate = ?, commissionValidUntil = ?, directorName = ?, directorBirthYear = ?, directorPhoto = ?, phone = ?, address = ?, email = ?,
       position = ?, capacity = ?, currentChildren = ?, groups = ?, age13 = ?, age37 = ?, educators = ?,
       cooks = ?, techStaff = ?, nurseCount = ?, hasNurse = ?, mealType = ?, sanitation = ?, water = ?, kitchenEq = ?,
       hasKitchen = ?, hasAllergyMenu = ?, hasDietMenu = ?, hasWarehouse = ?, warehouseManager = ?,
@@ -3947,7 +3947,7 @@ const KindergartenController = {
     const nurseCount = toCount(data.nurseCount);
     const workHours = normalizeWorkHours(data.workHours);
     db.run(sql, [
-      data.system_id, data.name, data.type, workHours, QASHQADARYO_REGION, data.district, data.mahalla || null, data.licenseFile || null,
+      data.system_id, data.name, data.type, workHours, QASHQADARYO_REGION, data.district, data.mahalla || null, data.mahallaCode || data.mahalla_code || null, data.licenseFile || null,
       data.brokerageDocumentFile || null,
       data.commissionOrder || null, data.commissionApprovedDate || null, data.commissionValidUntil || null,
       data.directorName, data.directorBirthYear || null, data.directorPhoto || null, data.phone, data.address, data.email,

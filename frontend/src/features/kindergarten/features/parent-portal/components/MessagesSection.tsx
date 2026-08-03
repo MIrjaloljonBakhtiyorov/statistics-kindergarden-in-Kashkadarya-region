@@ -14,7 +14,10 @@ import {
   Edit3,
   Trash2,
   Home,
-  UserRoundCheck
+  UserRoundCheck,
+  ShieldCheck,
+  Stethoscope,
+  GraduationCap
 } from 'lucide-react';
 import { useNotification } from '../../../context/NotificationContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -46,9 +49,69 @@ const getContactStatusLabel = (contact: ChatContact) => {
   return contact.statusLabel || (contact.isOnline ? 'Online' : "Hali online bo'lmagan");
 };
 
+const getCompactContactStatusLabel = (contact: ChatContact) => {
+  const status = getContactStatusLabel(contact);
+  if (status === "Hali online bo'lmagan") return 'Offline';
+  if (status === 'Xabar yuborish mumkin') return 'Chat ochiq';
+  return status;
+};
+
 const getInitials = (name?: string) => {
   const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
   return (parts[0]?.[0] || 'T') + (parts[1]?.[0] || '');
+};
+
+const contactRoleMeta = {
+  director: {
+    label: 'MTT direktori',
+    description: 'Bogʼcha boshqaruvi',
+    icon: ShieldCheck,
+    tone: 'rose',
+  },
+  nurse: {
+    label: 'Hamshira',
+    description: 'Tibbiy nazorat',
+    icon: Stethoscope,
+    tone: 'sky',
+  },
+  teacher: {
+    label: 'Guruh tarbiyachisi',
+    description: 'Guruh rahbari',
+    icon: GraduationCap,
+    tone: 'emerald',
+  },
+  admin: {
+    label: 'Administrator',
+    description: 'Bogʼcha administratori',
+    icon: UserRoundCheck,
+    tone: 'slate',
+  },
+} as const;
+
+const getContactMeta = (contact?: ChatContact | null) => {
+  const role = String(contact?.role || 'teacher') as keyof typeof contactRoleMeta;
+  return contactRoleMeta[role] || contactRoleMeta.teacher;
+};
+
+const getContactToneClass = (tone: string, active = false) => {
+  if (tone === 'sky') return active ? 'border-sky-200 bg-sky-50 shadow-sm ring-2 ring-sky-100' : 'border-slate-100 bg-white hover:border-sky-200 hover:bg-sky-50/45';
+  if (tone === 'emerald') return active ? 'border-emerald-200 bg-emerald-50 shadow-sm ring-2 ring-emerald-100' : 'border-slate-100 bg-white hover:border-emerald-200 hover:bg-emerald-50/45';
+  if (tone === 'slate') return active ? 'border-slate-300 bg-slate-100 shadow-sm ring-2 ring-slate-100' : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50';
+  return active ? 'border-rose-200 bg-rose-50 shadow-sm ring-2 ring-rose-100' : 'border-slate-100 bg-white hover:border-rose-200 hover:bg-rose-50/45';
+};
+
+const getContactIconClass = (tone: string) => {
+  if (tone === 'sky') return 'border-sky-100 bg-sky-50 text-sky-600 shadow-sky-50';
+  if (tone === 'emerald') return 'border-emerald-100 bg-emerald-50 text-emerald-600 shadow-emerald-50';
+  if (tone === 'slate') return 'border-slate-100 bg-slate-50 text-slate-600 shadow-slate-50';
+  return 'border-rose-100 bg-rose-50 text-rose-600 shadow-rose-50';
+};
+
+const getContactRoleBadgeClass = (tone: string) => {
+  if (tone === 'sky') return 'bg-sky-50 text-sky-700 ring-sky-100';
+  if (tone === 'emerald') return 'bg-emerald-50 text-emerald-700 ring-emerald-100';
+  if (tone === 'slate') return 'bg-slate-50 text-slate-700 ring-slate-100';
+  return 'bg-rose-50 text-rose-700 ring-rose-100';
 };
 
 const normalizeName = (value?: string) => String(value || '').toLowerCase().replace(/\s+/g, ' ').trim();
@@ -153,10 +216,16 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
     if (!user?.id || !activeChat) return;
     setIsLoading(true);
     try {
-      const data = await parentsApi.getMessages(user.id, activeChat.id);
+      const data = await parentsApi.getMessages(user.id, activeChat.id, {
+        userRole: 'parent',
+        contactRole: activeChat.role,
+      });
       setMessages(data);
       if (activeChat.unreadCount > 0) {
-        await parentsApi.markAsRead(user.id, activeChat.id);
+        await parentsApi.markAsRead(user.id, activeChat.id, {
+          userRole: 'parent',
+          contactRole: activeChat.role,
+        });
         loadContacts();
       }
     } catch (error) {
@@ -217,6 +286,7 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
         receiverId: activeChat.id,
         text,
         senderRole: 'parent',
+        receiverRole: activeChat.role,
         messageType: file ? getMessageType(file) as any : 'text',
         fileUrl,
         fileName: file?.name || null,
@@ -295,58 +365,84 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
   return (
     <div className="kg-parent-section kg-parent-messages flex h-full min-h-[500px] min-w-0 flex-col gap-3 md:min-h-0 md:flex-row md:gap-4">
       {/* Contact List */}
-      <div className={`${activeChat ? 'hidden' : 'flex'} kg-parent-chat-list min-w-0 w-full md:w-[320px] lg:w-[340px] xl:w-[380px] flex-col gap-3`}>
-        <div className="space-y-3 rounded-[1.5rem] border border-brand-border bg-white p-4 shadow-sm sm:p-5 md:space-y-4 md:rounded-[2rem] md:p-6">
-            <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-wide px-1.5">Guruh rahbari</p>
+      <div className={`${activeChat ? 'hidden md:flex' : 'flex'} kg-parent-chat-list min-w-0 w-full md:w-[320px] lg:w-[340px] xl:w-[380px] flex-col gap-3`}>
+        <div className="space-y-3 rounded-[1.5rem] border border-brand-border bg-white/95 p-3.5 shadow-sm shadow-slate-200/60 sm:p-4 md:rounded-[1.6rem]">
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-gradient-to-br from-white to-slate-50 px-3.5 py-3">
+              <div className="min-w-0">
+                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-brand-depth">Kontaktlar</p>
+                <p className="mt-1 text-[10px] font-bold leading-relaxed text-brand-muted">Kimga yozishni tanlang</p>
+              </div>
+              <span className="shrink-0 rounded-full bg-brand-primary/10 px-2.5 py-1 text-[10px] font-black text-brand-primary">
+                {visibleContacts.length} ta
+              </span>
+            </div>
             <div className="space-y-2">
             {visibleContacts.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-rose-100 bg-rose-50/40 p-4 text-center">
                   <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-rose-400">
                     <UserRoundCheck size={18} />
                   </div>
-                  <p className="text-[11px] font-extrabold text-brand-depth">Guruh rahbari biriktirilmagan</p>
-                  <p className="mt-1 text-[10px] font-semibold leading-relaxed text-brand-muted">Bog'cha administratori rahbarni guruhga biriktirgandan keyin chat ochiladi.</p>
+                  <p className="text-[11px] font-extrabold text-brand-depth">Kontaktlar topilmadi</p>
+                  <p className="mt-1 text-[10px] font-semibold leading-relaxed text-brand-muted">Bog'cha administratori xodim profillarini biriktirgandan keyin chat ochiladi.</p>
                 </div>
-            ) : visibleContacts.map((contact) => (
+            ) : visibleContacts.map((contact) => {
+              const meta = getContactMeta(contact);
+              const Icon = meta.icon;
+              const roleLabel = contact.title || meta.label;
+              const subtitle = contact.subtitle || meta.description;
+
+              return (
                 <button 
                   key={contact.id}
                   onClick={() => handleOpenChat(contact)}
-                  className={`flex min-h-[104px] w-full items-center gap-3 rounded-[1.25rem] border p-3.5 text-left transition-all sm:gap-4 sm:p-4 md:min-h-[118px] md:rounded-[1.5rem] ${
-                    activeChat?.id === contact.id ? 'bg-brand-primary/10 border-brand-primary shadow-sm' : 'bg-slate-50 border-slate-100 hover:border-brand-primary hover:bg-white'
-                  }`}
+                  className={`relative flex min-h-[86px] w-full items-center gap-3 overflow-hidden rounded-[1.15rem] border p-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:p-3.5 md:min-h-[94px] md:rounded-[1.25rem] ${getContactToneClass(meta.tone, activeChat?.id === contact.id)}`}
                 >
-                    <div className="relative">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.15rem] border border-brand-border bg-white text-lg font-extrabold uppercase text-brand-primary shadow-sm sm:h-16 sm:w-16 md:h-[68px] md:w-[68px] md:rounded-[1.35rem] md:text-xl">
-                        {getInitials(contact.name)}
+                    {activeChat?.id === contact.id && (
+                      <div className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-brand-primary" />
+                    )}
+                    <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-white/55" />
+                    <div className="relative shrink-0">
+                      <div className={`flex h-11 w-11 items-center justify-center rounded-2xl border text-base font-extrabold uppercase shadow-sm md:h-12 md:w-12 ${getContactIconClass(meta.tone)}`}>
+                        <Icon size={19} />
                       </div>
                       {contact.unreadCount > 0 && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-white">
+                        <div className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-rose-500 px-1 text-[8px] font-black text-white">
                           {contact.unreadCount}
                         </div>
                       )}
                     </div>
-                    <div className="flex-1 overflow-hidden">
-                      <p className="text-lg font-extrabold leading-tight text-brand-depth truncate">{contact.name}</p>
-                      <p className="mt-2 text-[12px] font-extrabold uppercase tracking-wide text-brand-primary">Guruh rahbari</p>
-                      <p className={`mt-1.5 text-[12px] font-bold tracking-wide ${contact.isOnline ? 'text-emerald-500' : 'text-rose-400'}`}>
-                        {getContactStatusLabel(contact)}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex min-w-0 items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate text-[15px] font-black leading-tight text-brand-depth md:text-base">{contact.name}</p>
+                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                            <span className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.08em] ring-1 ${getContactRoleBadgeClass(meta.tone)}`}>
+                              {roleLabel}
+                            </span>
+                          </div>
+                        </div>
+                        <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ring-4 ${contact.isOnline ? 'bg-emerald-500 ring-emerald-100' : 'bg-rose-400 ring-rose-100'}`} />
+                      </div>
+                      <p className="mt-2 truncate text-[10px] font-semibold text-brand-muted">
+                        {contact.lastMessage || `${subtitle} - ${getCompactContactStatusLabel(contact)}`}
                       </p>
                     </div>
                 </button>
-            ))}
+              );
+            })}
             </div>
         </div>
       </div>
 
       {/* Main Chat Window */}
-      <div className={`${activeChat ? 'flex' : 'hidden'} kg-parent-chat-window relative min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[1.35rem] border border-brand-border bg-white shadow-sm md:rounded-[1.75rem]`}>
+      <div className={`${activeChat ? 'flex' : 'hidden md:flex'} kg-parent-chat-window relative min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[1.35rem] border border-brand-border bg-white shadow-sm md:rounded-[1.75rem]`}>
           {!activeChat ? (
             <div key="placeholder" className="flex-1 flex flex-col items-center justify-center text-center p-8">
               <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-brand-ghost flex items-center justify-center border-2 border-slate-50 mb-4">
                 <MessageCircle size={32} className="text-slate-300" />
               </div>
               <h4 className="text-lg md:text-xl font-black text-brand-depth">Xabar yuborish</h4>
-              <p className="text-xs text-brand-muted mt-1.5 max-w-[200px]">Suhbatni boshlash uchun tarbiyachini tanlang.</p>
+              <p className="text-xs text-brand-muted mt-1.5 max-w-[240px]">Suhbatni boshlash uchun direktor, hamshira yoki tarbiyachini tanlang.</p>
             </div>
           ) : (
             <div key="chat-window" className="kg-parent-chat-inner flex h-full min-h-0 flex-1 flex-col bg-gradient-to-b from-white via-white to-slate-50/70">
@@ -354,11 +450,11 @@ export const MessagesSection = ({ childName = '' }: { childName?: string }) => {
               <div className="relative z-10 flex items-center justify-between border-b border-brand-border bg-white px-4 py-3.5 sm:px-5 md:px-6 md:py-4">
                 <div className="flex min-w-0 items-center gap-3 md:gap-3.5">
                     <button onClick={() => setActiveChat(null)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-brand-border bg-white text-brand-muted hover:text-brand-primary md:hidden"><ArrowLeft size={18} /></button>
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50 to-pink-50 text-[14px] font-extrabold uppercase text-rose-600 shadow-sm shadow-rose-100/60 md:h-14 md:w-14 md:text-base">
-                      {getInitials(activeChat.name)}
+                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-[14px] font-extrabold uppercase shadow-sm md:h-14 md:w-14 md:text-base ${getContactIconClass(getContactMeta(activeChat).tone)}`}>
+                      {React.createElement(getContactMeta(activeChat).icon, { size: 22 })}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[10px] font-extrabold uppercase text-rose-500">Guruh rahbari</p>
+                      <p className="text-[10px] font-extrabold uppercase text-rose-500">{activeChat.title || getContactMeta(activeChat).label}</p>
                       <h5 className="truncate text-lg font-extrabold leading-tight text-brand-depth md:text-xl">{activeChat.name}</h5>
                       <div className={`mt-1 flex items-center gap-1.5 text-[10px] font-extrabold ${activeChat.isOnline ? 'text-emerald-600' : 'text-rose-500'}`}>
                           <div className={`h-2 w-2 rounded-full ${activeChat.isOnline ? 'bg-emerald-500' : 'bg-rose-400'}`}></div>

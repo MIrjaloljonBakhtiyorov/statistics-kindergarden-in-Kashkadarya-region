@@ -57,6 +57,7 @@ const initializeSchema = () => new Promise<void>(async (resolve, reject) => {
         region TEXT,
         district TEXT,
         mahalla TEXT,
+        mahallaCode TEXT,
         licenseFile TEXT,
         brokerageDocumentFile TEXT,
         commissionOrder TEXT,
@@ -275,6 +276,23 @@ const initializeSchema = () => new Promise<void>(async (resolve, reject) => {
         age_category TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (kindergarten_id) REFERENCES kindergartens(id)
+      )`);
+
+      db.run(`CREATE TABLE IF NOT EXISTS parent_login_events (
+        id TEXT PRIMARY KEY,
+        parent_account_id TEXT NOT NULL,
+        kindergarten_id INTEGER,
+        child_id TEXT,
+        ip_address TEXT,
+        user_agent TEXT,
+        device_type TEXT,
+        browser TEXT,
+        os TEXT,
+        location_label TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (parent_account_id) REFERENCES parent_accounts(id),
+        FOREIGN KEY (kindergarten_id) REFERENCES kindergartens(id),
+        FOREIGN KEY (child_id) REFERENCES children(id)
       )`);
 
       // 5. Inventory / Products
@@ -690,6 +708,8 @@ const initializeSchema = () => new Promise<void>(async (resolve, reject) => {
       createIndex('idx_children_group_kindergarten', 'children', 'group_id, kindergarten_id');
       createIndex('idx_parents_kindergarten_id', 'parents', 'kindergarten_id');
       createIndex('idx_parent_accounts_kindergarten_id', 'parent_accounts', 'kindergarten_id');
+      createIndex('idx_parent_login_events_account_created', 'parent_login_events', 'parent_account_id, created_at DESC');
+      createIndex('idx_parent_login_events_child_created', 'parent_login_events', 'child_id, created_at DESC');
       createIndex('idx_groups_kindergarten_id', 'groups', 'kindergarten_id');
       createIndex('idx_staff_kindergarten_id', 'staff', 'kindergarten_id');
       createIndex('idx_attendance_kindergarten_date', 'attendance', 'kindergarten_id, date');
@@ -724,6 +744,9 @@ const initializeSchema = () => new Promise<void>(async (resolve, reject) => {
 
       ensureCascadeForeignKey('parents', 'parents_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
       ensureCascadeForeignKey('parent_accounts', 'parent_accounts_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('parent_login_events', 'parent_login_events_parent_account_id_fkey', 'parent_account_id', 'parent_accounts');
+      ensureCascadeForeignKey('parent_login_events', 'parent_login_events_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('parent_login_events', 'parent_login_events_child_id_fkey', 'child_id', 'children');
       ensureCascadeForeignKey('groups', 'groups_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
       ensureCascadeForeignKey('staff', 'staff_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
       ensureCascadeForeignKey('children', 'children_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
@@ -808,6 +831,7 @@ const initializeSchema = () => new Promise<void>(async (resolve, reject) => {
       addColumn('attendance', 'arrival_time', 'TEXT');
       addColumn('kindergartens', 'region', 'TEXT');
       addColumn('kindergartens', 'mahalla', 'TEXT');
+      addColumn('kindergartens', 'mahallaCode', 'TEXT');
       addColumn('kindergartens', 'workHours', 'REAL DEFAULT 9.5');
       addColumn('kindergartens', 'hasNurse', 'BOOLEAN DEFAULT 0');
       addColumn('kindergartens', 'nurseCount', 'INTEGER DEFAULT 0');

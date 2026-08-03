@@ -87,10 +87,10 @@ const attendanceBreakdownOf = (kg: any) => {
 };
 
 const KpiCard = ({ kpi }: { kpi: any }) => (
-  <div className="bg-white border border-slate-100 rounded-xl p-3 flex flex-col gap-2 shadow-sm relative overflow-hidden min-h-[88px]">
+  <div className="bg-white border border-slate-100 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-sm relative overflow-hidden min-h-[116px]">
     <div className="flex justify-between items-start">
       <div className={clsx(
-        "w-8 h-8 rounded-lg flex items-center justify-center",
+        "w-10 h-10 rounded-xl flex items-center justify-center shadow-sm",
         kpi.color === "indigo" && "bg-indigo-50 text-indigo-500",
         kpi.color === "emerald" && "bg-emerald-50 text-emerald-500",
         kpi.color === "amber" && "bg-amber-50 text-amber-500",
@@ -100,23 +100,23 @@ const KpiCard = ({ kpi }: { kpi: any }) => (
         kpi.color === "blue" && "bg-blue-50 text-blue-500",
         kpi.color === "teal" && "bg-teal-50 text-teal-500",
       )}>
-        <kpi.icon size={16} />
+        <kpi.icon size={19} />
       </div>
       <span className={clsx(
-        "text-[9px] font-bold flex items-center gap-1",
+        "text-[11px] font-black flex items-center gap-1",
         kpi.trend > 0 ? "text-emerald-500" : kpi.trend < 0 ? "text-rose-500" : "text-slate-400"
       )}>
-        {kpi.trend > 0 ? <TrendingUp size={10} /> : kpi.trend < 0 ? <TrendingDown size={10} /> : null}
+        {kpi.trend > 0 ? <TrendingUp size={12} /> : kpi.trend < 0 ? <TrendingDown size={12} /> : null}
         {kpi.trend > 0 ? "+" : ""}{kpi.trend}%
       </span>
     </div>
     <div>
-      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{kpi.title}</p>
-      <h3 className="text-lg font-black text-slate-900 tracking-tight leading-none">{kpi.val}</h3>
+      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5">{kpi.title}</p>
+      <h3 className="text-2xl font-black text-slate-950 tracking-tight leading-none">{kpi.val}</h3>
     </div>
     {/* subtle bg icon */}
-    <div className="absolute -bottom-2 -right-2 opacity-5">
-      <kpi.icon size={48} />
+    <div className="absolute -bottom-4 -right-3 opacity-[0.05]">
+      <kpi.icon size={72} />
     </div>
   </div>
 );
@@ -233,22 +233,22 @@ export const Overview = () => {
   }, [selectedRegionKindergartens]);
 
   return (
-    <div className="space-y-4 pb-12 bg-[#f4f6fb] min-h-screen">
+    <div className="space-y-5 pb-12 bg-[#f4f6fb] min-h-screen">
 
       {/* Page Header */}
-      <div className="bg-white border border-slate-100 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+      <div className="bg-white border border-slate-100 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div>
-          <h1 className="text-lg font-black text-slate-900 tracking-tight">Viloyat statistikasi</h1>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
+          <h1 className="text-2xl font-black text-slate-950 tracking-tight">Viloyat statistikasi</h1>
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">
             {selectedRegion.name} bo'yicha monitoring
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setStatsType('Viloyat kesimi')} className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition-all">
-            <Filter size={12} /> Filtr
+          <button onClick={() => setStatsType('Viloyat kesimi')} className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
+            <Filter size={14} /> Filtr
           </button>
-          <button onClick={() => setStatsType('Live Report')} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 rounded-lg text-[10px] font-bold text-white hover:bg-indigo-700 transition-all shadow-md shadow-indigo-600/20">
-            <Activity size={12} /> Live Report
+          <button onClick={() => setStatsType('Live Report')} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded-xl text-xs font-bold text-white hover:bg-indigo-700 transition-all shadow-md shadow-indigo-600/20">
+            <Activity size={14} /> Live Report
           </button>
         </div>
       </div>
@@ -270,24 +270,24 @@ export const Overview = () => {
       )}
 
       {/* KPI Row 1 */}
-      <div className={clsx("grid grid-cols-2 xl:grid-cols-4 gap-2.5", !isQashqadaryoRegion && "hidden")}>
+      <div className={clsx("grid grid-cols-2 xl:grid-cols-4 gap-4", !isQashqadaryoRegion && "hidden")}>
         {stats.kpiRow1.map((kpi, i) => <KpiCard key={i} kpi={kpi} />)}
       </div>
 
       {/* KPI Row 2 */}
-      <div className={clsx("grid grid-cols-2 xl:grid-cols-4 gap-2.5", !isQashqadaryoRegion && "hidden")}>
+      <div className={clsx("grid grid-cols-2 xl:grid-cols-4 gap-4", !isQashqadaryoRegion && "hidden")}>
         {stats.kpiRow2.map((kpi, i) => <KpiCard key={i} kpi={kpi} />)}
       </div>
 
       {/* Charts */}
       <div className={clsx("grid grid-cols-1 lg:grid-cols-12 gap-4", !isQashqadaryoRegion && "hidden")}>
-        <div className="lg:col-span-8 bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
-          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="lg:col-span-8 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tuman kesimida kunlik bolalar davomati</p>
-              <p className="mt-0.5 text-[10px] font-bold text-slate-400">Jami bolalar va bugungi 09:30 chegarasi bo'yicha kelish holati</p>
+              <p className="text-sm font-black text-slate-700 uppercase tracking-widest">Tuman kesimida kunlik bolalar davomati</p>
+              <p className="mt-1 text-xs font-bold text-slate-400">Jami bolalar va bugungi 09:30 chegarasi bo'yicha kelish holati</p>
             </div>
-            <div className="flex flex-wrap gap-1.5 text-[9px] font-black uppercase tracking-widest text-slate-500">
+            <div className="flex flex-wrap gap-2 text-[11px] font-black uppercase tracking-wider text-slate-500">
               <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-slate-300" /> Jami</span>
               <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500" /> 09:30 gacha</span>
               <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-amber-400" /> Keyin</span>
@@ -301,14 +301,14 @@ export const Overview = () => {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis
                     dataKey="name"
-                    fontSize={9}
+                    fontSize={11}
                     fontWeight={700}
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: '#94a3b8' }}
                   />
                   <YAxis
-                    fontSize={9}
+                    fontSize={11}
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: '#94a3b8' }}
@@ -336,8 +336,8 @@ export const Overview = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-4 bg-white border border-slate-100 rounded-xl p-4 shadow-sm flex flex-col">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Bog'cha turlari</p>
+        <div className="lg:col-span-4 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col">
+          <p className="text-sm font-black text-slate-700 uppercase tracking-widest mb-4">Bog'cha turlari</p>
           <div className="flex-1 flex items-center justify-center">
             <div className="w-full min-w-0">
               <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0}>
@@ -371,46 +371,46 @@ export const Overview = () => {
       <div className={clsx("grid grid-cols-1 lg:grid-cols-12 gap-4", !isQashqadaryoRegion && "hidden")}>
 
         <div className="lg:col-span-8 space-y-4">
-          <div className="bg-indigo-700 rounded-xl p-4 text-white">
-            <div className="flex items-center gap-2 mb-2">
-              <Zap size={15} className="text-yellow-300" />
-              <h3 className="font-black text-sm">AI Chuqur Analitika</h3>
+          <div className="bg-indigo-700 rounded-2xl p-5 text-white shadow-sm">
+            <div className="flex items-center gap-2 mb-2.5">
+              <Zap size={17} className="text-yellow-300" />
+              <h3 className="font-black text-lg">AI Chuqur Analitika</h3>
             </div>
-            <p className="text-xs text-indigo-200 leading-relaxed italic">
+            <p className="text-sm text-indigo-100 leading-relaxed italic">
               "Viloyat statistikasi real bazaga kiritilgan bog'chalar ma'lumotlari asosida shakllanadi. Davomat ma'lumotlari kiritilmaguncha tegishli ko'rsatkichlar 0 bo'ladi."
             </p>
           </div>
 
-          <div className="bg-white border border-slate-100 rounded-xl p-3 shadow-sm">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Eng past davomat - TOP 5</p>
-            <div className="space-y-1.5">
+          <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
+            <p className="text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Eng past davomat - TOP 5</p>
+            <div className="space-y-2">
               {stats.bottomDistricts.length === 0 && (
                 <div className="py-6 text-center text-xs font-black text-slate-400 uppercase tracking-widest">
                   Ma'lumot yo'q
                 </div>
               )}
               {stats.bottomDistricts.map((item: any, i: number) => (
-                <div key={i} className="flex items-center gap-2.5 py-2 border-b border-slate-50 last:border-0">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center text-[10px] font-black text-indigo-500">
+                <div key={i} className="flex items-center gap-3 py-2.5 border-b border-slate-50 last:border-0">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-xs font-black text-indigo-500">
                     #{i + 1}
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs font-black text-slate-900">{item.name}</p>
-                    <p className="text-[10px] font-bold text-slate-400 flex items-center gap-1 mt-0.5">
-                      <MapPin size={9} /> {item.hudud}
+                    <p className="text-sm font-black text-slate-900">{item.name}</p>
+                    <p className="text-xs font-bold text-slate-400 flex items-center gap-1 mt-0.5">
+                      <MapPin size={11} /> {item.hudud}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-black text-rose-500">{item.kechikkan} kechikkan</p>
-                    <p className="text-[10px] font-bold text-slate-400">{item.davomat}% davomat</p>
+                    <p className="text-sm font-black text-rose-500">{item.kechikkan} kechikkan</p>
+                    <p className="text-xs font-bold text-slate-400">{item.davomat}% davomat</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white border border-slate-100 rounded-xl p-3 shadow-sm">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Hududiy boshqaruv monitori</p>
+          <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
+            <p className="text-sm font-black text-slate-600 uppercase tracking-widest mb-4">Hududiy boshqaruv monitori</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {stats.districtMonitor.length === 0 && (
                 <div className="col-span-full py-6 text-center text-xs font-black text-slate-400 uppercase tracking-widest">
@@ -421,10 +421,10 @@ export const Overview = () => {
                 const barColor = d.davomat >= 93 ? "bg-emerald-500" : d.davomat >= 89 ? "bg-amber-400" : "bg-rose-500";
                 return (
                   <div key={i} className="space-y-1.5">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{d.name}</p>
-                    <p className="text-base font-black text-slate-900">
+                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{d.name}</p>
+                    <p className="text-lg font-black text-slate-900">
                       {d.davomat}%
-                      <span className="text-[9px] font-black text-slate-400 ml-1">DAVOMAT</span>
+                      <span className="text-[10px] font-black text-slate-400 ml-1">DAVOMAT</span>
                     </p>
                     <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                       <motion.div
@@ -442,30 +442,30 @@ export const Overview = () => {
         </div>
 
         {/* Right: AI Command Center */}
-        <div className="lg:col-span-4 bg-[#0f172a] rounded-xl p-4 text-white flex flex-col gap-3 shadow-sm">
+        <div className="lg:col-span-4 bg-[#0f172a] rounded-2xl p-5 text-white flex flex-col gap-4 shadow-sm">
           <div className="flex items-center gap-2">
-            <TrendingUp size={16} className="text-indigo-400" />
-            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">AI boshqaruv markazi</p>
+            <TrendingUp size={18} className="text-indigo-400" />
+            <p className="text-sm font-black text-slate-200 uppercase tracking-widest">AI boshqaruv markazi</p>
           </div>
 
           <div className="space-y-3 flex-1">
-            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-              <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-1">Urgent Alert</p>
-              <p className="text-xs font-medium text-slate-300">Davomat o'zgarishi real ma'lumotlar asosida hisoblanadi.</p>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+              <p className="text-[11px] font-black text-amber-400 uppercase tracking-widest mb-1.5">Urgent Alert</p>
+              <p className="text-sm font-medium text-slate-300 leading-relaxed">Davomat o'zgarishi real ma'lumotlar asosida hisoblanadi.</p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-              <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-1">Risk Warning</p>
-              <p className="text-xs font-medium text-slate-300">Ta'minot xavfi real ombor ma'lumotlari asosida hisoblanadi.</p>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+              <p className="text-[11px] font-black text-rose-400 uppercase tracking-widest mb-1.5">Risk Warning</p>
+              <p className="text-sm font-medium text-slate-300 leading-relaxed">Ta'minot xavfi real ombor ma'lumotlari asosida hisoblanadi.</p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-              <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1">Good News</p>
-              <p className="text-xs font-medium text-slate-300">Ijobiy o'zgarishlar real davomat ma'lumotlari asosida ko'rinadi.</p>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+              <p className="text-[11px] font-black text-emerald-400 uppercase tracking-widest mb-1.5">Good News</p>
+              <p className="text-sm font-medium text-slate-300 leading-relaxed">Ijobiy o'zgarishlar real davomat ma'lumotlari asosida ko'rinadi.</p>
             </div>
           </div>
 
           <button
             onClick={() => setShowReport(true)}
-            className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-indigo-600/20"
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-indigo-600/20"
           >
             Full Report
           </button>

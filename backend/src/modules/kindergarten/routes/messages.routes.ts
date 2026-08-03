@@ -27,11 +27,19 @@ const ensureMessageColumns = (() => {
 
 const isDeletedMessage = (row: any) => row.is_deleted === true || row.is_deleted === 1 || row.is_deleted === '1';
 
+const roleChannelId = (kindergartenId: string, role: 'nurse' | 'teacher') => `role_${role}_${kindergartenId}`;
+
 const chatAliases = (kindergartenId: string, userId: string, role?: string) => {
   const aliases = new Set([String(userId)]);
-  const normalizedRole = String(role || '').toUpperCase();
-  if (normalizedRole === 'TEACHER' || String(userId).startsWith('staff_')) {
+  const normalizedRole = String(role || '').toLowerCase();
+  if (String(userId).startsWith('staff_')) {
     aliases.add(String(kindergartenId));
+  }
+  if (normalizedRole === 'nurse') {
+    aliases.add(roleChannelId(kindergartenId, 'nurse'));
+  }
+  if (normalizedRole === 'teacher') {
+    aliases.add(roleChannelId(kindergartenId, 'teacher'));
   }
   return Array.from(aliases);
 };
@@ -186,18 +194,64 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
     const kindergartenId = await resolveKindergartenId(req);
     const parentId = String(req.query.parentId || '');
     const childId = String(req.query.childId || '');
+
     const child = await get<any>(`
-      SELECT c.id, c.first_name, c.last_name, c.group_id, g.teacher_id, g.teacher_name
+      SELECT c.id, c.first_name, c.last_name, c.group_id, g.teacher_id, g.teacher_name,
+             k.name as kindergarten_name, k.directorName as director_name, k.username as director_login
       FROM children c
       LEFT JOIN groups g ON g.id = c.group_id AND g.kindergarten_id = c.kindergarten_id
+      LEFT JOIN kindergartens k ON k.id = c.kindergarten_id
       WHERE c.kindergarten_id = ? AND c.parent_account_id = ?
         AND (? = '' OR c.id = ?)
       LIMIT 1
     `, [kindergartenId, parentId, childId, childId]);
+
+    if (!child) return res.json([]);
+
     const teacherId = child?.teacher_id || '';
     const teacherName = child?.teacher_name || '';
     const groupId = child?.group_id || '';
     const childFullName = `${child?.first_name || ''} ${child?.last_name || ''}`.replace(/\s+/g, ' ').trim().toLowerCase();
+
+    const contactStats = async (contact: any) => {
+      const contactIds = chatAliases(kindergartenId, String(contact.id), contact.role);
+      const contactPlaceholders = contactIds.map(() => '?').join(', ');
+      const unread = await get<any>(`
+        SELECT COUNT(*) as unread_count
+        FROM messages
+        WHERE kindergarten_id = ? AND sender_id IN (${contactPlaceholders}) AND receiver_id = ?
+          AND status != 'read' AND COALESCE(is_deleted, 0) = 0
+      `, [kindergartenId, ...contactIds, parentId]);
+
+      const latest = await get<any>(`
+        SELECT text, created_at
+        FROM messages
+        WHERE kindergarten_id = ?
+          AND (
+            (sender_id IN (${contactPlaceholders}) AND receiver_id = ?)
+            OR (sender_id = ? AND receiver_id IN (${contactPlaceholders}))
+          )
+          AND COALESCE(is_deleted, 0) = 0
+        ORDER BY created_at DESC
+        LIMIT 1
+      `, [kindergartenId, ...contactIds, parentId, parentId, ...contactIds]);
+
+      const presence = contact.hasSystemAccount || contact.last_seen_at
+        ? formatLastSeenStatus(contact.last_seen_at || latest?.created_at)
+        : {
+          isOnline: false,
+          statusLabel: latest?.created_at ? 'Xabar yuborilgan' : 'Xabar yuborish mumkin',
+          lastSeenAt: null,
+        };
+
+      return {
+        unreadCount: Number(unread?.unread_count || 0),
+        lastMessage: latest?.text || '',
+        isOnline: presence.isOnline,
+        lastSeenAt: presence.lastSeenAt,
+        statusLabel: presence.statusLabel,
+      };
+    };
 
     const leaderCandidates = await all<any>(`
       SELECT
@@ -257,8 +311,8 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
       teacherId, teacherId,
       teacherName, teacherName,
       teacherId, teacherId,
-      teacherName, teacherName,
       groupId, groupId,
+      teacherName, teacherName,
       kindergartenId,
       teacherId, teacherId,
       teacherName, teacherName,
@@ -291,43 +345,59 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
       leader = undefined;
     }
 
-    if (!leader) {
-      return res.json([]);
-    }
-
-    const unread = await get<any>(`
-      SELECT COUNT(*) as unread_count
-      FROM messages
-      WHERE kindergarten_id = ? AND sender_id = ? AND receiver_id = ?
-        AND status != 'read' AND COALESCE(is_deleted, 0) = 0
-    `, [kindergartenId, leader.id, parentId]);
-
-    const latest = await get<any>(`
-      SELECT text, created_at
-      FROM messages
-      WHERE kindergarten_id = ?
-        AND ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?))
-        AND COALESCE(is_deleted, 0) = 0
-      ORDER BY created_at DESC
+    const nurse = await get<any>(`
+      SELECT id, COALESCE(NULLIF(full_name, ''), login) as full_name, role, last_seen_at, 'role_account' as source
+      FROM role_accounts
+      WHERE kindergarten_id = ? AND role = 'NURSE'
+      ORDER BY updated_at DESC, created_at DESC
       LIMIT 1
-    `, [kindergartenId, leader.id, parentId, parentId, leader.id]);
+    `, [kindergartenId]).catch(() => undefined);
 
-    const hasSystemAccount = leader.source === 'role_account';
-    const presence = formatLastSeenStatus(leader.last_seen_at || latest?.created_at);
+    const rawContacts = [
+      {
+        id: String(kindergartenId),
+        name: child.director_name || child.kindergarten_name || 'MTT direktori',
+        role: 'director',
+        title: 'MTT direktori',
+        subtitle: 'Bogʼcha boshqaruvi',
+        hasSystemAccount: true,
+        source: 'kindergarten',
+      },
+      {
+        id: nurse?.id ? String(nurse.id) : roleChannelId(kindergartenId, 'nurse'),
+        name: nurse?.full_name || 'Hamshira',
+        role: 'nurse',
+        title: 'Hamshira',
+        subtitle: 'Tibbiy nazorat',
+        last_seen_at: nurse?.last_seen_at,
+        hasSystemAccount: nurse?.source === 'role_account',
+        source: nurse?.source || 'role_channel',
+      },
+      {
+        id: leader?.id ? String(leader.id) : roleChannelId(kindergartenId, 'teacher'),
+        name: leader?.full_name || teacherName || 'Guruh tarbiyachisi',
+        role: 'teacher',
+        title: 'Guruh tarbiyachisi',
+        subtitle: 'Guruh rahbari',
+        last_seen_at: leader?.last_seen_at,
+        hasSystemAccount: leader?.source === 'role_account',
+        isGroupLeader: Boolean(leader),
+        source: leader?.source || 'role_channel',
+      },
+    ].filter(Boolean) as any[];
 
-    res.json([{
-      id: String(leader.id),
-      name: leader.full_name || teacherName,
-      role: 'teacher',
-      unreadCount: Number(unread?.unread_count || 0),
-      lastMessage: latest?.text || '',
-      isOnline: presence.isOnline,
-      lastSeenAt: presence.lastSeenAt,
-      statusLabel: presence.statusLabel,
-      hasSystemAccount,
-      isGroupLeader: true,
-      subtitle: 'Guruh rahbari',
-    }]);
+    const contacts = await Promise.all(rawContacts.map(async (contact) => ({
+      id: contact.id,
+      name: contact.name,
+      role: contact.role,
+      title: contact.title,
+      subtitle: contact.subtitle,
+      hasSystemAccount: contact.hasSystemAccount,
+      isGroupLeader: Boolean(contact.isGroupLeader),
+      ...(await contactStats(contact)),
+    })));
+
+    res.json(contacts);
   } catch (error: any) {
     console.error('Error loading message contacts:', error);
     res.status(500).json({ error: error.message });
@@ -356,10 +426,21 @@ messagesRoutes.put("/messages/read", async (req, res) => {
     const kindergartenId = await resolveKindergartenId(req);
     const userId = await resolveChatUserId(kindergartenId, String(req.body.userId || ''), req.body.userRole);
     const contactId = await resolveChatUserId(kindergartenId, String(req.body.contactId || ''), req.body.contactRole);
-    await run(`UPDATE messages SET status = 'read' WHERE kindergarten_id = ? AND sender_id = ? AND receiver_id = ? AND COALESCE(is_deleted, 0) = 0`, [
+    const userIds = chatAliases(kindergartenId, userId, req.body.userRole);
+    const contactIds = chatAliases(kindergartenId, contactId, req.body.contactRole);
+    const userPlaceholders = userIds.map(() => '?').join(', ');
+    const contactPlaceholders = contactIds.map(() => '?').join(', ');
+    await run(`
+      UPDATE messages
+      SET status = 'read'
+      WHERE kindergarten_id = ?
+        AND sender_id IN (${contactPlaceholders})
+        AND receiver_id IN (${userPlaceholders})
+        AND COALESCE(is_deleted, 0) = 0
+    `, [
       kindergartenId,
-      contactId,
-      userId,
+      ...contactIds,
+      ...userIds,
     ]);
     res.json({ success: true });
   } catch (error: any) {

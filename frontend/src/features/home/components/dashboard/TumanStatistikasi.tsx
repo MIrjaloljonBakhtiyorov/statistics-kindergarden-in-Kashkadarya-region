@@ -8,6 +8,7 @@ import { motion } from 'motion/react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Trophy, Medal } from 'lucide-react';
 import { kindergartenApi } from '@/shared/api';
+import { getMahallasByDistrict, type MahallaOption } from '../../../kindergarten-admin/data/qashqadaryoMahallas';
 
 const RANK_COLORS = [
   "#f59e0b", "#94a3b8", "#b45309",
@@ -21,25 +22,38 @@ interface TumanStatistikasiProps {
 
 type KindergartenRow = {
   district?: string;
+  mahalla?: string;
+  mahallaCode?: string;
+  mahalla_code?: string;
+  name?: string;
+  type?: string;
+  systemId?: string;
+  system_id?: string;
+  currentChildren?: number | string;
+  current_children?: number | string;
+  children?: number | string;
+  capacity?: number | string;
+  status?: string;
+  address?: string;
 };
 
 const DISTRICT_ALIASES = [
-  { name: "Qarshi sh.", aliases: ["qarshi sh", "qarshi shahri"] },
-  { name: "Shahrisabz sh.", aliases: ["shahrisabz sh", "shahrisabz shahri"] },
-  { name: "Qarshi t.", aliases: ["qarshi t", "qarshi tumani"] },
-  { name: "Shahrisabz t.", aliases: ["shahrisabz t", "shahrisabz tumani"] },
-  { name: "Kitob t.", aliases: ["kitob", "kitob t", "kitob tumani"] },
-  { name: "Koson t.", aliases: ["koson", "koson t", "koson tumani"] },
-  { name: "Muborak t.", aliases: ["muborak", "muborak t", "muborak tumani"] },
-  { name: "G'uzor t.", aliases: ["g'uzor", "g'uzor t", "g'uzor tumani", "g‘uzor", "g‘uzor t", "g‘uzor tumani"] },
-  { name: "Nishon t.", aliases: ["nishon", "nishon t", "nishon tumani"] },
-  { name: "Dehqonobod t.", aliases: ["dehqonobod", "dehqonobod t", "dehqonobod tumani"] },
-  { name: "Qamashi t.", aliases: ["qamashi", "qamashi t", "qamashi tumani"] },
-  { name: "Chiroqchi t.", aliases: ["chiroqchi", "chiroqchi t", "chiroqchi tumani"] },
-  { name: "Kasbi t.", aliases: ["kasbi", "kasbi t", "kasbi tumani"] },
-  { name: "Mirishkor t.", aliases: ["mirishkor", "mirishkor t", "mirishkor tumani"] },
-  { name: "Yakkabog' t.", aliases: ["yakkabog'", "yakkabog' t", "yakkabog' tumani", "yakkabog‘", "yakkabog‘ t", "yakkabog‘ tumani"] },
-  { name: "Ko'kdala t.", aliases: ["ko'kdala", "ko'kdala t", "ko'kdala tumani", "ko‘kdala", "ko‘kdala t", "ko‘kdala tumani"] },
+  { name: "Qarshi sh.", fullName: "Qarshi shahri", aliases: ["qarshi sh", "qarshi shahri"] },
+  { name: "Shahrisabz sh.", fullName: "Shahrisabz shahri", aliases: ["shahrisabz sh", "shahrisabz shahri"] },
+  { name: "Qarshi t.", fullName: "Qarshi tumani", aliases: ["qarshi t", "qarshi tumani"] },
+  { name: "Shahrisabz t.", fullName: "Shahrisabz tumani", aliases: ["shahrisabz t", "shahrisabz tumani"] },
+  { name: "Kitob t.", fullName: "Kitob tumani", aliases: ["kitob", "kitob t", "kitob tumani"] },
+  { name: "Koson t.", fullName: "Koson tumani", aliases: ["koson", "koson t", "koson tumani"] },
+  { name: "Muborak t.", fullName: "Muborak tumani", aliases: ["muborak", "muborak t", "muborak tumani"] },
+  { name: "G'uzor t.", fullName: "G'uzor tumani", aliases: ["g'uzor", "g'uzor t", "g'uzor tumani", "g‘uzor", "g‘uzor t", "g‘uzor tumani"] },
+  { name: "Nishon t.", fullName: "Nishon tumani", aliases: ["nishon", "nishon t", "nishon tumani"] },
+  { name: "Dehqonobod t.", fullName: "Dehqonobod tumani", aliases: ["dehqonobod", "dehqonobod t", "dehqonobod tumani"] },
+  { name: "Qamashi t.", fullName: "Qamashi tumani", aliases: ["qamashi", "qamashi t", "qamashi tumani"] },
+  { name: "Chiroqchi t.", fullName: "Chiroqchi tumani", aliases: ["chiroqchi", "chiroqchi t", "chiroqchi tumani"] },
+  { name: "Kasbi t.", fullName: "Kasbi tumani", aliases: ["kasbi", "kasbi t", "kasbi tumani"] },
+  { name: "Mirishkor t.", fullName: "Mirishkor tumani", aliases: ["mirishkor", "mirishkor t", "mirishkor tumani"] },
+  { name: "Yakkabog' t.", fullName: "Yakkabog' tumani", aliases: ["yakkabog'", "yakkabog' t", "yakkabog' tumani", "yakkabog‘", "yakkabog‘ t", "yakkabog‘ tumani"] },
+  { name: "Ko'kdala t.", fullName: "Ko'kdala tumani", aliases: ["ko'kdala", "ko'kdala t", "ko'kdala tumani", "ko‘kdala", "ko‘kdala t", "ko‘kdala tumani"] },
 ];
 
 const normalizeDistrict = (value: unknown) => String(value || '')
@@ -56,10 +70,36 @@ const districtAliasMap = new Map<string, string>(
   ])
 );
 
+const districtFullNameMap = new Map<string, string>(
+  DISTRICT_ALIASES.flatMap((district): Array<[string, string]> => [
+    [normalizeDistrict(district.name), district.fullName],
+    [normalizeDistrict(district.fullName), district.fullName],
+    ...district.aliases.map((alias): [string, string] => [normalizeDistrict(alias), district.fullName]),
+  ])
+);
+
 const resolveDistrictName = (value: unknown) => {
   const normalized = normalizeDistrict(value);
   return districtAliasMap.get(normalized) || String(value || "Noma'lum hudud").trim() || "Noma'lum hudud";
 };
+
+const resolveDistrictFullName = (value: unknown) => {
+  const normalized = normalizeDistrict(value);
+  return districtFullNameMap.get(normalized) || String(value || "Noma'lum hudud").trim() || "Noma'lum hudud";
+};
+
+const normalizeMahalla = (value: unknown) => String(value || '')
+  .trim()
+  .toLowerCase()
+  .replace(/[\u2018\u2019`]/g, "'")
+  .replace(/\s+/g, ' ');
+
+const toNumber = (value: unknown) => {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? numberValue : 0;
+};
+
+const makeMahallaKey = (mahalla: MahallaOption) => normalizeMahalla(mahalla.name);
 
 const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
@@ -109,6 +149,89 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
   const totalMTT = ranked.reduce((s, d) => s + d.count, 0);
   const maxCount = ranked[0]?.count || 1;
 
+  const selectedDistrictData = useMemo(() => {
+    if (!selectedDistrict) return null;
+
+    const displayName = resolveDistrictName(selectedDistrict);
+    const fullName = resolveDistrictFullName(selectedDistrict);
+    const fallbackDistrict = districts.find((district) =>
+      district.name === displayName || resolveDistrictFullName(district.name) === fullName
+    );
+    const rows = kindergartens.filter((kg) => resolveDistrictFullName(kg.district) === fullName);
+    const knownMahallas = getMahallasByDistrict(fullName);
+    const knownMahallaMap = new Map(knownMahallas.map((mahalla) => [makeMahallaKey(mahalla), mahalla]));
+    const mahallaRows = new Map<string, {
+      name: string;
+      code?: string;
+      count: number;
+      children: number;
+      capacity: number;
+      kindergartens: KindergartenRow[];
+    }>();
+
+    knownMahallas.forEach((mahalla) => {
+      mahallaRows.set(mahalla.name, {
+        name: mahalla.name,
+        code: mahalla.code,
+        count: 0,
+        children: 0,
+        capacity: 0,
+        kindergartens: [],
+      });
+    });
+
+    rows.forEach((kg) => {
+      const rawMahalla = String(kg.mahalla || '').trim();
+      const knownMahalla = knownMahallaMap.get(normalizeMahalla(rawMahalla));
+      const key = knownMahalla?.name || rawMahalla || "Mahalla kiritilmagan";
+      const existing = mahallaRows.get(key) || {
+        name: key,
+        code: knownMahalla?.code || kg.mahallaCode || kg.mahalla_code,
+        count: 0,
+        children: 0,
+        capacity: 0,
+        kindergartens: [],
+      };
+
+      existing.count += 1;
+      existing.children += toNumber(kg.currentChildren ?? kg.current_children ?? kg.children);
+      existing.capacity += toNumber(kg.capacity);
+      existing.kindergartens.push(kg);
+      mahallaRows.set(key, existing);
+    });
+
+    const liveTypeRows = new Map<string, { name: string; count: number; children: number }>();
+    rows.forEach((kg) => {
+      const typeName = String(kg.type || "Turi kiritilmagan").trim();
+      const current = liveTypeRows.get(typeName) || { name: typeName, count: 0, children: 0 };
+      current.count += 1;
+      current.children += toNumber(kg.currentChildren ?? kg.current_children ?? kg.children);
+      liveTypeRows.set(typeName, current);
+    });
+
+    const liveChildren = rows.reduce((sum, kg) => sum + toNumber(kg.currentChildren ?? kg.current_children ?? kg.children), 0);
+    const liveDetails = rows.length > 0 ? {
+      ...(fallbackDistrict?.details || {
+        totalChildren3to7: 0,
+        coveragePercentage: fallbackDistrict?.attendance || 0,
+      }),
+      totalMTT: rows.length,
+      totalCoveredChildren: liveChildren,
+      types: Array.from(liveTypeRows.values()).sort((a, b) => b.count - a.count),
+    } : fallbackDistrict?.details;
+
+    return {
+      ...fallbackDistrict,
+      name: fallbackDistrict?.name || displayName,
+      fullName,
+      count: rows.length || fallbackDistrict?.count || 0,
+      attendance: fallbackDistrict?.attendance || 0,
+      details: liveDetails,
+      kindergartens: rows,
+      mahallas: Array.from(mahallaRows.values()).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
+    };
+  }, [selectedDistrict, kindergartens]);
+
   return (
     <div className="space-y-6 md:space-y-10 lg:space-y-12">
       <StatsGrid />
@@ -141,11 +264,23 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
               </h3>
             </div>
           </div>
-          <div className="text-left sm:text-right">
+          <div className="text-left sm:text-right flex flex-col gap-2">
             <p className="text-2xl font-black text-slate-900">
               {totalMTT} <span className="text-sm font-bold text-slate-400">{t('common.mttCount')}</span>
             </p>
             <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">{t('district.totalRegion')}</p>
+            <select
+              value={selectedDistrict || ''}
+              onChange={(event) => setSelectedDistrict(event.target.value || null)}
+              className="w-full sm:w-56 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+            >
+              <option value="">Hudud tanlash</option>
+              {ranked.map((district) => (
+                <option key={district.name} value={district.name}>
+                  {district.nameLabel} - {district.count}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -299,7 +434,7 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
       </div>
 
       <DistrictDetailModal
-        district={districts.find(d => d.name === selectedDistrict)}
+        district={selectedDistrictData}
         onClose={() => setSelectedDistrict(null)}
       />
     </div>

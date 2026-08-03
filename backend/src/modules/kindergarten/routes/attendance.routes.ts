@@ -123,19 +123,36 @@ attendanceRoutes.post("/attendance", async (req, res) => {
         'SELECT id FROM attendance WHERE kindergarten_id = ? AND child_id = ? AND date = ?',
         [kindergartenId, childId, itemDate]
       );
-      const id = item.id || existing?.id || crypto.randomUUID();
-      await run(`
-        INSERT OR REPLACE INTO attendance (id, kindergarten_id, child_id, date, status, reason, arrival_time)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `, [
-        id,
-        kindergartenId,
-        childId,
-        itemDate,
-        normalizeStatus(item.status),
-        item.reason || null,
-        item.arrival_time || item.arrivalTime || null,
-      ]);
+      const status = normalizeStatus(item.status);
+      const reason = item.reason || null;
+      const arrivalTime = item.arrival_time || item.arrivalTime || null;
+
+      if (existing?.id) {
+        await run(`
+          UPDATE attendance
+          SET status = ?, reason = ?, arrival_time = ?
+          WHERE id = ? AND kindergarten_id = ?
+        `, [
+          status,
+          reason,
+          arrivalTime,
+          existing.id,
+          kindergartenId,
+        ]);
+      } else {
+        await run(`
+          INSERT INTO attendance (id, kindergarten_id, child_id, date, status, reason, arrival_time)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [
+          item.id || crypto.randomUUID(),
+          kindergartenId,
+          childId,
+          itemDate,
+          status,
+          reason,
+          arrivalTime,
+        ]);
+      }
     }
     res.status(201).json({ success: true });
   } catch (error: any) {
