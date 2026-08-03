@@ -27,13 +27,15 @@ const ensureMessageColumns = (() => {
 
 const isDeletedMessage = (row: any) => row.is_deleted === true || row.is_deleted === 1 || row.is_deleted === '1';
 
-const roleChannelId = (kindergartenId: string, role: 'nurse' | 'teacher') => `role_${role}_${kindergartenId}`;
+type StaffChatRole = 'director' | 'nurse' | 'teacher';
+
+const roleChannelId = (kindergartenId: string, role: StaffChatRole) => `role_${role}_${kindergartenId}`;
 
 const chatAliases = (kindergartenId: string, userId: string, role?: string) => {
   const aliases = new Set([String(userId)]);
   const normalizedRole = String(role || '').toLowerCase();
-  if (String(userId).startsWith('staff_')) {
-    aliases.add(String(kindergartenId));
+  if (normalizedRole === 'director') {
+    aliases.add(roleChannelId(kindergartenId, 'director'));
   }
   if (normalizedRole === 'nurse') {
     aliases.add(roleChannelId(kindergartenId, 'nurse'));
@@ -355,7 +357,7 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
 
     const rawContacts = [
       {
-        id: String(kindergartenId),
+        id: roleChannelId(kindergartenId, 'director'),
         name: child.director_name || child.kindergarten_name || 'MTT direktori',
         role: 'director',
         title: 'MTT direktori',
@@ -364,7 +366,7 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
         source: 'kindergarten',
       },
       {
-        id: nurse?.id ? String(nurse.id) : roleChannelId(kindergartenId, 'nurse'),
+        id: roleChannelId(kindergartenId, 'nurse'),
         name: nurse?.full_name || 'Hamshira',
         role: 'nurse',
         title: 'Hamshira',
@@ -374,7 +376,7 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
         source: nurse?.source || 'role_channel',
       },
       {
-        id: leader?.id ? String(leader.id) : roleChannelId(kindergartenId, 'teacher'),
+        id: roleChannelId(kindergartenId, 'teacher'),
         name: leader?.full_name || teacherName || 'Guruh tarbiyachisi',
         role: 'teacher',
         title: 'Guruh tarbiyachisi',
@@ -404,12 +406,10 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
   }
 });
 
-messagesRoutes.get("/messages/director-contacts", async (req, res) => {
-  try {
-    await ensureMessageColumns();
-    const kindergartenId = await resolveKindergartenId(req);
+const loadRoleParentContacts = async (kindergartenId: string, role: StaffChatRole) => {
+  const roleId = roleChannelId(kindergartenId, role);
 
-    const rows = await all<any>(`
+  const rows = await all<any>(`
       SELECT
         pa.id as parent_id,
         pa.login,
@@ -428,37 +428,37 @@ messagesRoutes.get("/messages/director-contacts", async (req, res) => {
       ORDER BY c.created_at DESC, pa.created_at DESC
     `, [kindergartenId]);
 
-    const contactsByParent = new Map<string, any>();
-    for (const row of rows) {
-      const parentId = String(row.parent_id || '');
-      if (!parentId) continue;
+  const contactsByParent = new Map<string, any>();
+  for (const row of rows) {
+    const parentId = String(row.parent_id || '');
+    if (!parentId) continue;
 
-      const childName = `${row.first_name || ''} ${row.last_name || ''}`.replace(/\s+/g, ' ').trim();
-      const existing = contactsByParent.get(parentId);
-      if (existing) {
-        if (childName && !existing.childNames.includes(childName)) existing.childNames.push(childName);
-        if (row.group_name && !existing.childGroups.includes(row.group_name)) existing.childGroups.push(row.group_name);
-        continue;
-      }
-
-      contactsByParent.set(parentId, {
-        id: parentId,
-        login: row.login || '',
-        name: row.father_name || row.mother_name || row.login || 'Ota-ona',
-        childNames: childName ? [childName] : [],
-        childGroups: row.group_name ? [row.group_name] : [],
-      });
+    const childName = `${row.first_name || ''} ${row.last_name || ''}`.replace(/\s+/g, ' ').trim();
+    const existing = contactsByParent.get(parentId);
+    if (existing) {
+      if (childName && !existing.childNames.includes(childName)) existing.childNames.push(childName);
+      if (row.group_name && !existing.childGroups.includes(row.group_name)) existing.childGroups.push(row.group_name);
+      continue;
     }
 
-    const contacts = await Promise.all(Array.from(contactsByParent.values()).map(async (contact) => {
-      const unread = await get<any>(`
+    contactsByParent.set(parentId, {
+      id: parentId,
+      login: row.login || '',
+      name: row.father_name || row.mother_name || row.login || 'Ota-ona',
+      childNames: childName ? [childName] : [],
+      childGroups: row.group_name ? [row.group_name] : [],
+    });
+  }
+
+  const contacts = await Promise.all(Array.from(contactsByParent.values()).map(async (contact) => {
+    const unread = await get<any>(`
         SELECT COUNT(*) as unread_count
         FROM messages
         WHERE kindergarten_id = ? AND sender_id = ? AND receiver_id = ?
           AND status != 'read' AND COALESCE(is_deleted, 0) = 0
-      `, [kindergartenId, contact.id, kindergartenId]);
+      `, [kindergartenId, contact.id, roleId]);
 
-      const latest = await get<any>(`
+    const latest = await get<any>(`
         SELECT text, created_at, sender_id
         FROM messages
         WHERE kindergarten_id = ?
@@ -469,27 +469,49 @@ messagesRoutes.get("/messages/director-contacts", async (req, res) => {
           AND COALESCE(is_deleted, 0) = 0
         ORDER BY created_at DESC
         LIMIT 1
-      `, [kindergartenId, contact.id, kindergartenId, kindergartenId, contact.id]);
+      `, [kindergartenId, contact.id, roleId, roleId, contact.id]);
 
-      return {
-        id: contact.id,
-        name: contact.name,
-        childName: contact.childNames.join(', '),
-        childGroup: contact.childGroups.join(', '),
-        login: contact.login,
-        unreadCount: Number(unread?.unread_count || 0),
-        lastMessage: latest?.text || '',
-        lastMessageAt: latest?.created_at || null,
-        lastSenderId: latest?.sender_id || null,
-      };
-    }));
+    return {
+      id: contact.id,
+      name: contact.name,
+      childName: contact.childNames.join(', '),
+      childGroup: contact.childGroups.join(', '),
+      login: contact.login,
+      unreadCount: Number(unread?.unread_count || 0),
+      lastMessage: latest?.text || '',
+      lastMessageAt: latest?.created_at || null,
+      lastSenderId: latest?.sender_id || null,
+    };
+  }));
 
-    contacts.sort((a, b) => {
-      if (b.unreadCount !== a.unreadCount) return b.unreadCount - a.unreadCount;
-      return String(b.lastMessageAt || '').localeCompare(String(a.lastMessageAt || ''));
-    });
+  contacts.sort((a, b) => {
+    if (b.unreadCount !== a.unreadCount) return b.unreadCount - a.unreadCount;
+    return String(b.lastMessageAt || '').localeCompare(String(a.lastMessageAt || ''));
+  });
 
-    res.json(contacts);
+  return contacts;
+};
+
+messagesRoutes.get("/messages/role-contacts", async (req, res) => {
+  try {
+    await ensureMessageColumns();
+    const kindergartenId = await resolveKindergartenId(req);
+    const role = String(req.query.role || '').toLowerCase() as StaffChatRole;
+    if (!['director', 'nurse', 'teacher'].includes(role)) {
+      return res.status(400).json({ error: "role qiymati director, nurse yoki teacher bo'lishi kerak" });
+    }
+    res.json(await loadRoleParentContacts(kindergartenId, role));
+  } catch (error: any) {
+    console.error('Error loading role message contacts:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+messagesRoutes.get("/messages/director-contacts", async (req, res) => {
+  try {
+    await ensureMessageColumns();
+    const kindergartenId = await resolveKindergartenId(req);
+    res.json(await loadRoleParentContacts(kindergartenId, 'director'));
   } catch (error: any) {
     console.error('Error loading director message contacts:', error);
     res.status(500).json({ error: error.message });

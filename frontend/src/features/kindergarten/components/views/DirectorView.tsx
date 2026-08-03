@@ -189,7 +189,8 @@ const DirectorMessagesPanel = ({ onUnreadCountChange }: { onUnreadCountChange?: 
   const [isMessagesLoading, setIsMessagesLoading] = useState(false);
   const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(null);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
-  const directorId = String(user?.kindergarten_id || user?.id || '');
+  const kindergartenId = String(user?.kindergarten_id || window.location.pathname.split('/').filter(Boolean)[1] || user?.id || '');
+  const directorId = kindergartenId ? `role_director_${kindergartenId}` : '';
 
   const filteredContacts = React.useMemo(() => {
     const query = searchTerm.trim().toLowerCase();

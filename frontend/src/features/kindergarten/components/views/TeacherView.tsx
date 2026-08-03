@@ -316,7 +316,8 @@ const TeacherMessagesView = ({ groupData }: { groupData: any }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const chatSenderId = String(groupData.teacher_id || groupData.teacherId || user?.id || '');
+  const kindergartenId = String(user?.kindergarten_id || window.location.pathname.split('/').filter(Boolean)[1] || user?.id || '');
+  const chatSenderId = kindergartenId ? `role_teacher_${kindergartenId}` : '';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

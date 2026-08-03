@@ -71,6 +71,11 @@ export const parentsApi = {
     const res = await apiClient.get('/messages/director-contacts');
     return res.data;
   },
+
+  getRoleContacts: async (role: 'director' | 'nurse' | 'teacher'): Promise<DirectorChatContact[]> => {
+    const res = await apiClient.get(`/messages/role-contacts?role=${role}`);
+    return res.data;
+  },
   
   markAsRead: async (
     userId: string,

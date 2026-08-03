@@ -20,6 +20,15 @@ export const get = <T = any>(sql: string, params: any[] = []) => new Promise<T |
 export const resolveChatUserId = async (kindergartenId: string, userId: string, role?: string) => {
   const normalizedRole = String(role || '').toUpperCase();
   const isKindergartenAccount = String(userId) === String(kindergartenId);
+  if (normalizedRole === 'DIRECTOR' && (isKindergartenAccount || !userId || String(userId).startsWith('role_director_'))) {
+    return `role_director_${kindergartenId}`;
+  }
+  if (normalizedRole === 'TEACHER' && (isKindergartenAccount || !userId || String(userId).startsWith('role_teacher_'))) {
+    return `role_teacher_${kindergartenId}`;
+  }
+  if (normalizedRole === 'NURSE' && (isKindergartenAccount || !userId || String(userId).startsWith('role_nurse_'))) {
+    return `role_nurse_${kindergartenId}`;
+  }
   if (!isKindergartenAccount || !['TEACHER', 'NURSE'].includes(normalizedRole)) return userId;
 
   const roleAccount = await get<{ id: string }>(
