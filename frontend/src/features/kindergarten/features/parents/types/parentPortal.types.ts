@@ -45,3 +45,15 @@ export interface ChatContact {
   statusLabel?: string;
   hasSystemAccount?: boolean;
 }
+
+export interface DirectorChatContact {
+  id: string;
+  name: string;
+  childName: string;
+  childGroup?: string;
+  login?: string;
+  unreadCount: number;
+  lastMessage?: string;
+  lastMessageAt?: string | null;
+  lastSenderId?: string | null;
+}

@@ -1,5 +1,5 @@
 ﻿import { apiClient } from '@/shared/api';
-import { ParentPortalUser, ChatMessage, ChatContact } from '../types/parentPortal.types';
+import { ParentPortalUser, ChatMessage, ChatContact, DirectorChatContact } from '../types/parentPortal.types';
 
 export const parentsApi = {
   getAll: async (): Promise<ParentPortalUser[]> => {
@@ -64,6 +64,11 @@ export const parentsApi = {
     const params = new URLSearchParams({ parentId });
     if (childId) params.set('childId', childId);
     const res = await apiClient.get(`/messages/contacts?${params.toString()}`);
+    return res.data;
+  },
+
+  getDirectorContacts: async (): Promise<DirectorChatContact[]> => {
+    const res = await apiClient.get('/messages/director-contacts');
     return res.data;
   },
   

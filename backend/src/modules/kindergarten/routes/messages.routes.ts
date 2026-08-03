@@ -404,6 +404,98 @@ messagesRoutes.get("/messages/contacts", async (req, res) => {
   }
 });
 
+messagesRoutes.get("/messages/director-contacts", async (req, res) => {
+  try {
+    await ensureMessageColumns();
+    const kindergartenId = await resolveKindergartenId(req);
+
+    const rows = await all<any>(`
+      SELECT
+        pa.id as parent_id,
+        pa.login,
+        c.id as child_id,
+        c.first_name,
+        c.last_name,
+        g.name as group_name,
+        f.full_name as father_name,
+        m.full_name as mother_name
+      FROM parent_accounts pa
+      LEFT JOIN children c ON c.parent_account_id = pa.id AND c.kindergarten_id = pa.kindergarten_id
+      LEFT JOIN groups g ON g.id = c.group_id AND g.kindergarten_id = c.kindergarten_id
+      LEFT JOIN parents f ON c.father_id = f.id
+      LEFT JOIN parents m ON c.mother_id = m.id
+      WHERE pa.kindergarten_id = ?
+      ORDER BY c.created_at DESC, pa.created_at DESC
+    `, [kindergartenId]);
+
+    const contactsByParent = new Map<string, any>();
+    for (const row of rows) {
+      const parentId = String(row.parent_id || '');
+      if (!parentId) continue;
+
+      const childName = `${row.first_name || ''} ${row.last_name || ''}`.replace(/\s+/g, ' ').trim();
+      const existing = contactsByParent.get(parentId);
+      if (existing) {
+        if (childName && !existing.childNames.includes(childName)) existing.childNames.push(childName);
+        if (row.group_name && !existing.childGroups.includes(row.group_name)) existing.childGroups.push(row.group_name);
+        continue;
+      }
+
+      contactsByParent.set(parentId, {
+        id: parentId,
+        login: row.login || '',
+        name: row.father_name || row.mother_name || row.login || 'Ota-ona',
+        childNames: childName ? [childName] : [],
+        childGroups: row.group_name ? [row.group_name] : [],
+      });
+    }
+
+    const contacts = await Promise.all(Array.from(contactsByParent.values()).map(async (contact) => {
+      const unread = await get<any>(`
+        SELECT COUNT(*) as unread_count
+        FROM messages
+        WHERE kindergarten_id = ? AND sender_id = ? AND receiver_id = ?
+          AND status != 'read' AND COALESCE(is_deleted, 0) = 0
+      `, [kindergartenId, contact.id, kindergartenId]);
+
+      const latest = await get<any>(`
+        SELECT text, created_at, sender_id
+        FROM messages
+        WHERE kindergarten_id = ?
+          AND (
+            (sender_id = ? AND receiver_id = ?)
+            OR (sender_id = ? AND receiver_id = ?)
+          )
+          AND COALESCE(is_deleted, 0) = 0
+        ORDER BY created_at DESC
+        LIMIT 1
+      `, [kindergartenId, contact.id, kindergartenId, kindergartenId, contact.id]);
+
+      return {
+        id: contact.id,
+        name: contact.name,
+        childName: contact.childNames.join(', '),
+        childGroup: contact.childGroups.join(', '),
+        login: contact.login,
+        unreadCount: Number(unread?.unread_count || 0),
+        lastMessage: latest?.text || '',
+        lastMessageAt: latest?.created_at || null,
+        lastSenderId: latest?.sender_id || null,
+      };
+    }));
+
+    contacts.sort((a, b) => {
+      if (b.unreadCount !== a.unreadCount) return b.unreadCount - a.unreadCount;
+      return String(b.lastMessageAt || '').localeCompare(String(a.lastMessageAt || ''));
+    });
+
+    res.json(contacts);
+  } catch (error: any) {
+    console.error('Error loading director message contacts:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 messagesRoutes.get("/messages/unread-counts", async (req, res) => {
   try {
     await ensureMessageColumns();
