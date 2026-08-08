@@ -349,7 +349,7 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
                       type="button"
                       onClick={() => setDeleteTarget(doc)}
                       disabled={deletingId === doc.id}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-rose-600 transition-all hover:bg-rose-500 hover:text-white disabled:opacity-50"
+                      className="kg-parent-danger-action inline-flex items-center justify-center gap-2 rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-rose-600 transition-all hover:bg-rose-500 hover:text-white disabled:opacity-50"
                     >
                       <Trash2 size={14} />
                       {deletingId === doc.id ? "O'chmoqda" : "O'chirish"}
@@ -413,7 +413,7 @@ export const DocumentsSection = ({ data, childId, onUpdate }: any) => {
                   type="button"
                   onClick={handleDelete}
                   disabled={deletingId === deleteTarget.id}
-                  className="flex items-center justify-center gap-2 rounded-2xl bg-rose-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-500/20 transition-all hover:bg-rose-600 disabled:opacity-50"
+                  className="kg-parent-danger-action-solid flex items-center justify-center gap-2 rounded-2xl bg-rose-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-500/20 transition-all hover:bg-rose-600 disabled:opacity-50"
                 >
                   {deletingId === deleteTarget.id ? (
                     <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white" />

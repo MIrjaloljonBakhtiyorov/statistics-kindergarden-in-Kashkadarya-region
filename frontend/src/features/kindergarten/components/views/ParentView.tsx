@@ -25,6 +25,7 @@ import {
   Crown,
   Megaphone,
   History,
+  Languages,
 } from 'lucide-react';
 import { apiClient, PARENT_PORTAL_API_BASE_URL } from '@/shared/api';
 import { useAuth } from '../../context/AuthContext';
@@ -46,15 +47,23 @@ import { PickupSection } from '../../features/parent-portal/components/PickupSec
 import { MessagesSection } from '../../features/parent-portal/components/MessagesSection';
 import { TariffsSection } from '../../features/parent-portal/components/TariffsSection';
 import { LoginHistorySection } from '../../features/parent-portal/components/LoginHistorySection';
+import {
+  ParentPortalAutoTranslator,
+  ParentPortalLanguagePanel,
+  ParentPortalLanguageProvider,
+  parentPortalLanguages,
+  useParentPortalLanguage,
+} from '../../features/parent-portal/i18n/parentPortalI18n';
 
 
-type SettingsTab = 'profile' | 'parentProfile' | 'security' | 'menu' | 'medical' | 'messages' | 'finance' | 'tariffs' | 'attendance' | 'documents' | 'pickup' | 'progress' | 'vaccines' | 'psychology' | 'nearby' | 'developmentMap' | 'education' | 'ads' | 'loginHistory';
+type SettingsTab = 'profile' | 'parentProfile' | 'security' | 'menu' | 'medical' | 'messages' | 'finance' | 'language' | 'tariffs' | 'attendance' | 'documents' | 'pickup' | 'progress' | 'vaccines' | 'psychology' | 'nearby' | 'developmentMap' | 'education' | 'ads' | 'loginHistory';
 
 const tabToPath: Record<SettingsTab, string> = {
   profile: 'profile',
   parentProfile: 'parent-profile',
   security: 'safety',
   finance: 'payment',
+  language: 'language',
   tariffs: 'tariffs',
   attendance: 'attendance',
   progress: 'achievements',
@@ -105,24 +114,25 @@ const getAssetUrl = (value?: string) => {
 
 const ComingSoonSection = ({ title, description, icon: Icon, statusText = "Bu qism dasturchi tomonidan ishlab chiqilyapti" }: { title: string; description: string; icon: any; statusText?: string }) => (
   <div className="flex min-h-[420px] items-center justify-center px-3 py-8">
-    <div className="relative w-full max-w-2xl overflow-hidden rounded-[28px] border border-rose-100 bg-gradient-to-br from-white via-rose-50/45 to-white p-6 text-center shadow-sm sm:p-8">
-      <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-rose-300/70 to-transparent" />
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/20">
+    <div className="relative w-full max-w-2xl overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-white p-6 text-center shadow-sm sm:p-8">
+      <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-slate-400/70 to-transparent" />
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] bg-gradient-to-br from-slate-950 to-blue-950 text-white shadow-lg shadow-slate-950/20">
         <Icon size={30} />
       </div>
-      <p className="mt-5 text-[10px] font-black uppercase tracking-[0.24em] text-rose-500">Tez kunda</p>
+      <p className="mt-5 text-[10px] font-black uppercase tracking-[0.24em] text-slate-950">Tez kunda</p>
       <h2 className="mt-2 text-2xl font-black leading-tight text-brand-depth sm:text-3xl">{title}</h2>
       <p className="mx-auto mt-3 max-w-xl text-sm font-bold leading-relaxed text-brand-muted sm:text-base">{description}</p>
-      <div className="mt-6 rounded-2xl border border-rose-100 bg-white px-4 py-3">
+      <div className="mt-6 rounded-2xl border border-slate-200 bg-white px-4 py-3">
         <p className="text-sm font-black text-brand-depth">{statusText}</p>
       </div>
     </div>
   </div>
 );
 
-const ParentView = () => {
+const ParentViewContent = () => {
   const { user, logout } = useAuth();
   const { showNotification } = useNotification();
+  const { language, t: parentT, phrase: parentPhrase } = useParentPortalLanguage();
   const [activeTab, setActiveTab] = useState<SettingsTab>(() => getParentTabFromPath());
   const [isSaving, setIsSaving] = useState(false);
   const [messagesUnreadCount, setMessagesUnreadCount] = useState(0);
@@ -225,7 +235,7 @@ const ParentView = () => {
   if (!user?.childId || !parentData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6 text-center space-y-6">
-        <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-[2rem] flex items-center justify-center border-2 border-rose-100 shadow-xl">
+        <div className="w-20 h-20 bg-slate-100 text-slate-950 rounded-[2rem] flex items-center justify-center border-2 border-slate-200 shadow-xl">
            <ShieldAlert size={40} />
         </div>
         <div className="space-y-2">
@@ -277,25 +287,26 @@ const ParentView = () => {
   };
 
   const navItems: { id: SettingsTab; label: string; icon: any; color: string }[] = [
-    { id: 'profile', label: 'Bola profili', icon: User, color: 'brand-primary' },
-    { id: 'parentProfile', label: 'Ota-ona profili', icon: Users, color: 'sky-500' },
-    { id: 'finance', label: "To'lovlar", icon: Wallet, color: 'rose-500' },
-    { id: 'tariffs', label: 'Tariflar', icon: BadgeDollarSign, color: 'brand-primary' },
-    { id: 'attendance', label: 'Davomat', icon: Calendar, color: 'indigo-500' },
-    { id: 'progress', label: 'Yutuqlar', icon: Star, color: 'amber-400' },
-    { id: 'developmentMap', label: 'Rivojlanish xaritasi', icon: Route, color: 'emerald-500' },
-    { id: 'education', label: "Ta'lim", icon: BookOpenCheck, color: 'blue-500' },
-    { id: 'psychology', label: 'Psixologik maslahat', icon: Brain, color: 'violet-500' },
-    { id: 'nearby', label: "Yaqin bog'chalar", icon: MapPinned, color: 'teal-500' },
-    { id: 'ads', label: 'Reklama', icon: Megaphone, color: 'amber-500' },
-    { id: 'messages', label: 'Xabarlar', icon: MessageSquare, color: 'brand-primary' },
-    { id: 'menu', label: 'Menyu', icon: Apple, color: 'orange-500' },
-    { id: 'vaccines', label: 'Emlash', icon: Syringe, color: 'sky-500' },
-    { id: 'medical', label: 'Salomatlik', icon: Activity, color: 'rose-500' },
-    { id: 'pickup', label: 'Vakillar', icon: UserCheck, color: 'teal-500' },
-    { id: 'documents', label: 'Hujjatlar', icon: FileText, color: 'slate-500' },
-    { id: 'loginHistory', label: 'Kirish tarixi', icon: History, color: 'sky-500' },
-    { id: 'security', label: 'Xavfsizlik', icon: ShieldCheck, color: 'blue-500' },
+    { id: 'profile', label: parentPhrase('Bola profili'), icon: User, color: 'navy' },
+    { id: 'parentProfile', label: parentPhrase('Ota-ona profili'), icon: Users, color: 'navy' },
+    { id: 'finance', label: parentPhrase("To'lovlar"), icon: Wallet, color: 'navy' },
+    { id: 'language', label: parentT('nav.language'), icon: Languages, color: 'navy' },
+    { id: 'tariffs', label: parentPhrase('Tariflar'), icon: BadgeDollarSign, color: 'navy' },
+    { id: 'attendance', label: parentPhrase('Davomat'), icon: Calendar, color: 'navy' },
+    { id: 'progress', label: parentPhrase('Yutuqlar'), icon: Star, color: 'navy' },
+    { id: 'developmentMap', label: parentPhrase('Rivojlanish xaritasi'), icon: Route, color: 'navy' },
+    { id: 'education', label: parentPhrase("Ta'lim"), icon: BookOpenCheck, color: 'navy' },
+    { id: 'psychology', label: parentPhrase('Psixologik maslahat'), icon: Brain, color: 'navy' },
+    { id: 'nearby', label: parentPhrase("Yaqin bog'chalar"), icon: MapPinned, color: 'navy' },
+    { id: 'ads', label: parentPhrase('Reklama'), icon: Megaphone, color: 'navy' },
+    { id: 'messages', label: parentPhrase('Xabarlar'), icon: MessageSquare, color: 'navy' },
+    { id: 'menu', label: parentPhrase('Menyu'), icon: Apple, color: 'navy' },
+    { id: 'vaccines', label: parentPhrase('Emlash'), icon: Syringe, color: 'navy' },
+    { id: 'medical', label: parentPhrase('Salomatlik'), icon: Activity, color: 'navy' },
+    { id: 'pickup', label: parentPhrase('Vakillar'), icon: UserCheck, color: 'navy' },
+    { id: 'documents', label: parentPhrase('Hujjatlar'), icon: FileText, color: 'navy' },
+    { id: 'loginHistory', label: parentPhrase('Kirish tarixi'), icon: History, color: 'navy' },
+    { id: 'security', label: parentPhrase('Xavfsizlik'), icon: ShieldCheck, color: 'navy' },
   ];
 
   const handleProfileUpdate = () => {
@@ -314,6 +325,7 @@ const ParentView = () => {
 
   const childPhotoUrl = getAssetUrl(parentData?.photo_url);
   const currentTariff = 'Premium tarif';
+  const currentParentLanguage = parentPortalLanguages.find((item) => item.code === language) || parentPortalLanguages[0];
   const renderTabContent = () => {
     const data = fullPortalData;
 
@@ -321,6 +333,7 @@ const ParentView = () => {
       case 'profile': return <ProfileSection parentData={parentData} onUpdate={handleProfileUpdate} />;
       case 'parentProfile': return <ParentProfileSection parentData={parentData} onUpdate={handleProfileUpdate} />;
       case 'finance': return <FinanceSection data={data} />;
+      case 'language': return <ParentPortalLanguagePanel />;
       case 'tariffs': return <TariffsSection />;
       case 'attendance': return <AttendanceSection data={data} childId={user.childId} onUpdate={handleProfileUpdate} />;
       case 'menu': return <MenuSection data={data} childId={user.childId} />;
@@ -392,19 +405,20 @@ const ParentView = () => {
 
   return (
     <div className="kg-page kg-parent-portal mx-auto flex h-full min-w-0 max-w-[1440px] flex-col gap-2.5 overflow-hidden bg-slate-50/30 p-2 sm:gap-3 sm:p-3 md:gap-5 md:p-5 lg:gap-6 lg:p-6">
+      <ParentPortalAutoTranslator />
       {/* Parent portal header */}
-      <div className="kg-parent-header relative flex-none overflow-hidden rounded-[20px] border border-rose-100/90 bg-white px-3 py-3 shadow-sm sm:rounded-[24px] sm:px-4">
-        <div className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-gradient-to-b from-rose-500 via-pink-500 to-fuchsia-500"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-rose-50/55 via-white to-sky-50/40"></div>
-        <div className="absolute -right-12 -top-16 hidden h-40 w-40 rounded-[42px] border border-sky-100 bg-sky-50/50 rotate-12 xl:block"></div>
+      <div className="kg-parent-header relative flex-none overflow-hidden rounded-[20px] border border-slate-200 bg-white px-3 py-3 shadow-sm sm:rounded-[24px] sm:px-4">
+        <div className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-gradient-to-b from-slate-950 via-blue-950 to-slate-800"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-100/70 via-white to-blue-50/45"></div>
+        <div className="absolute -right-12 -top-16 hidden h-40 w-40 rounded-[42px] border border-slate-200 bg-blue-50/60 rotate-12 xl:block"></div>
         <div className="relative z-10 grid grid-cols-1 items-center gap-3 xl:grid-cols-[minmax(0,1fr)_auto]">
           <div className="flex min-w-0 items-center gap-3">
             <div className="relative ml-1 shrink-0">
-              <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[16px] border border-rose-100 bg-gradient-to-br from-rose-50 to-white shadow-sm sm:h-[58px] sm:w-[58px] sm:rounded-[18px]">
+              <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[16px] border border-slate-200 bg-gradient-to-br from-slate-100 to-white shadow-sm sm:h-[58px] sm:w-[58px] sm:rounded-[18px]">
                 {childPhotoUrl ? (
                   <img src={childPhotoUrl} alt="Bola rasmi" className="h-full w-full object-cover" />
                 ) : (
-                  <User size={25} className="text-rose-300" />
+                  <User size={25} className="text-slate-500" />
                 )}
               </div>
               <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-lg border-2 border-white bg-emerald-500 shadow-sm shadow-emerald-500/20">
@@ -413,50 +427,59 @@ const ParentView = () => {
             </div>
 
             <div className="min-w-0 text-left">
-              <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-rose-500">Portal bo'limi</p>
+              <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-slate-950">Portal bo'limi</p>
               <h2 className="text-[25px] font-extrabold leading-[1.08] text-brand-depth sm:text-[31px]">Ota-ona profili</h2>
               <div className="mt-1.5 flex min-w-0 flex-wrap justify-start gap-1.5 text-[12px] font-bold text-brand-muted sm:mt-2 sm:gap-2">
-                <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-rose-100 bg-white px-2.5 py-1 text-rose-600 shadow-sm sm:px-3">
-                  <Users size={14} className="shrink-0 text-rose-500" />
+                <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-slate-950 shadow-sm sm:px-3">
+                  <Users size={14} className="shrink-0 text-slate-950" />
                   <span className="truncate">{parentData?.childGroup || 'Guruh biriktirilmagan'}</span>
                 </span>
                 <span className="kg-parent-location inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-full border border-slate-100 bg-white px-2.5 py-1 text-brand-muted shadow-sm sm:px-3">
-                  <MapPin size={14} className="shrink-0 text-rose-500" />
+                  <MapPin size={14} className="shrink-0 text-slate-950" />
                   <span className="truncate">{parentData?.kindergartenDistrict || parentData?.kindergartenAddress || "Manzil kiritilmagan"}</span>
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="relative grid w-full min-w-0 grid-cols-[minmax(0,1fr)_42px_96px] gap-1.5 overflow-hidden rounded-[20px] border border-amber-200 bg-white p-1.5 shadow-lg shadow-amber-100/60 sm:grid-cols-[minmax(230px,1fr)_48px_104px] sm:rounded-[22px] xl:w-[470px]">
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-50 via-white to-rose-50"></div>
-              <div className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/80 to-transparent"></div>
+          <div className="relative grid w-full min-w-0 grid-cols-[72px_minmax(0,1fr)_42px_96px] gap-1.5 overflow-hidden rounded-[20px] border border-slate-300 bg-white p-1.5 shadow-lg shadow-slate-950/10 sm:grid-cols-[86px_minmax(210px,1fr)_48px_104px] sm:rounded-[22px] xl:w-[570px]">
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-100 via-white to-blue-50"></div>
+              <div className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-slate-500/70 to-transparent"></div>
+              <button
+                type="button"
+                onClick={() => handleTabChange('language')}
+                title={parentT('language.title')}
+                className="relative my-auto flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-[15px] border border-slate-200 bg-white/85 px-2 text-[10px] font-black uppercase text-slate-950 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100 hover:text-blue-950 sm:h-11 sm:rounded-[16px]"
+              >
+                <Languages size={15} />
+                <span data-kg-no-translate="true">{currentParentLanguage.short}</span>
+              </button>
               <button
                 type="button"
                 onClick={() => handleTabChange('tariffs')}
                 className="group relative flex min-h-[56px] min-w-0 items-center gap-3 rounded-[16px] px-2.5 py-2 text-left transition-all hover:bg-white/75 sm:min-h-[62px] sm:rounded-[18px] sm:px-3"
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[15px] border border-amber-300 bg-gradient-to-br from-yellow-300 via-amber-400 to-orange-500 text-white shadow-lg shadow-amber-200/80 sm:h-11 sm:w-11 sm:rounded-[17px]">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[15px] border border-slate-700 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-800 text-white shadow-lg shadow-slate-950/20 sm:h-11 sm:w-11 sm:rounded-[17px]">
                   <Crown size={19} />
                 </span>
                 <span className="min-w-0">
-                  <span className="kg-parent-tariff-label block text-[9px] font-black uppercase tracking-[0.18em] text-amber-600">Tarif</span>
+                  <span className="kg-parent-tariff-label block text-[9px] font-black uppercase tracking-[0.18em] text-slate-950">Tarif</span>
                   <span className="kg-parent-tariff-value mt-0.5 block truncate text-[17px] font-extrabold leading-tight text-brand-depth sm:text-[18px]">{currentTariff}</span>
-                  <span className="mt-1 inline-flex w-fit items-center rounded-full border border-amber-200 bg-white/90 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-amber-700 shadow-sm">Faol paket</span>
+                  <span className="mt-1 inline-flex w-fit items-center rounded-full border border-slate-300 bg-white/90 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-slate-950 shadow-sm">Faol paket</span>
                 </span>
               </button>
               <button
                 type="button"
                 onClick={() => handleTabChange('tariffs')}
                 title="Tarifni yangilash"
-                className="relative my-auto flex h-10 items-center justify-center rounded-[15px] border border-amber-100 bg-white/75 text-amber-600 shadow-sm transition-all hover:border-amber-200 hover:bg-amber-50 hover:text-orange-600 sm:h-11 sm:rounded-[16px]"
+                className="relative my-auto flex h-10 items-center justify-center rounded-[15px] border border-slate-200 bg-white/75 text-slate-950 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100 hover:text-blue-950 sm:h-11 sm:rounded-[16px]"
               >
                 <RefreshCw size={18} />
               </button>
               <button
                 onClick={logout}
                 title="Tizimdan chiqish"
-                className="relative my-auto flex h-10 items-center justify-center gap-1.5 rounded-[15px] bg-gradient-to-r from-rose-500 to-pink-500 px-2 text-[11px] font-extrabold uppercase text-white shadow-lg shadow-rose-500/20 transition-all hover:from-rose-600 hover:to-pink-600 hover:shadow-md hover:shadow-rose-500/25 sm:h-11 sm:rounded-[16px] sm:px-3"
+                className="relative my-auto flex h-10 items-center justify-center gap-1.5 rounded-[15px] bg-gradient-to-r from-slate-950 to-blue-950 px-2 text-[11px] font-extrabold uppercase text-white shadow-lg shadow-slate-950/20 transition-all hover:from-blue-950 hover:to-slate-800 hover:shadow-md hover:shadow-slate-950/25 sm:h-11 sm:rounded-[16px] sm:px-3"
               >
                 <LogOut size={15} /> <span className="hidden sm:inline">Chiqish</span>
               </button>
@@ -476,14 +499,14 @@ const ParentView = () => {
                 onClick={() => handleTabChange(item.id)}
                 className={`relative flex min-h-11 shrink-0 snap-start items-center gap-2 rounded-2xl px-3.5 py-2.5 text-[9px] font-black uppercase tracking-wide transition-all ${
                   activeTab === item.id 
-                    ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/20' 
-                    : 'border border-brand-border bg-white text-brand-muted hover:border-rose-100 hover:bg-rose-50 hover:text-rose-600'
+                    ? 'bg-gradient-to-r from-slate-950 to-blue-950 text-white shadow-lg shadow-slate-950/20' 
+                    : 'border border-brand-border bg-white text-brand-muted hover:border-slate-200 hover:bg-slate-100 hover:text-slate-950'
                 }`}
               >
                 <item.icon size={14} />
-                <span>{item.label}</span>
+                <span data-kg-no-translate={item.id === 'language' ? 'true' : undefined}>{item.label}</span>
                 {item.id === 'messages' && messagesUnreadCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-black text-white ring-2 ring-white">
+                  <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-950 px-1 text-[9px] font-black text-white ring-2 ring-white">
                     {messagesUnreadCount}
                   </span>
                 )}
@@ -504,22 +527,22 @@ const ParentView = () => {
                 onClick={() => handleTabChange(item.id)}
                 className={`relative w-full flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-[11px] font-black transition-all group ${
                   activeTab === item.id 
-                    ? 'bg-gradient-to-r from-rose-50 to-pink-50 text-brand-depth shadow-sm ring-1 ring-rose-100' 
-                    : 'text-brand-muted hover:bg-rose-50/70 hover:text-rose-600'
+                    ? 'bg-gradient-to-r from-slate-100 to-blue-50 text-brand-depth shadow-sm ring-1 ring-slate-200' 
+                    : 'text-brand-muted hover:bg-slate-100 hover:text-slate-950'
                 }`}
               >
                 <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors ${
-                  activeTab === item.id ? 'bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm shadow-rose-500/20' : 'bg-slate-50 text-brand-muted group-hover:bg-rose-100 group-hover:text-rose-600'
+                  activeTab === item.id ? 'bg-gradient-to-br from-slate-950 to-blue-950 text-white shadow-sm shadow-slate-950/20' : 'bg-slate-50 text-brand-muted group-hover:bg-slate-200 group-hover:text-slate-950'
                 }`}>
                   <item.icon size={16} />
                 </span>
-                <span className="truncate uppercase tracking-[0.12em]">{item.label}</span>
+                <span className="truncate uppercase tracking-[0.12em]" data-kg-no-translate={item.id === 'language' ? 'true' : undefined}>{item.label}</span>
                 {item.id === 'messages' && messagesUnreadCount > 0 ? (
-                  <span className="ml-auto rounded-full bg-rose-500 px-2 py-0.5 text-[9px] font-black leading-none text-white shadow-sm shadow-rose-500/30">
+                  <span className="ml-auto rounded-full bg-slate-950 px-2 py-0.5 text-[9px] font-black leading-none text-white shadow-sm shadow-slate-950/30">
                     {messagesUnreadCount}
                   </span>
                 ) : (
-                  activeTab === item.id && <span className="ml-auto h-2 w-2 rounded-full bg-rose-500 shadow-sm shadow-rose-500/40"></span>
+                  activeTab === item.id && <span className="ml-auto h-2 w-2 rounded-full bg-slate-950 shadow-sm shadow-slate-950/40"></span>
                 )}
               </button>
             ))}
@@ -539,6 +562,12 @@ const ParentView = () => {
     </div>
   );
 };
+
+const ParentView = () => (
+  <ParentPortalLanguageProvider>
+    <ParentViewContent />
+  </ParentPortalLanguageProvider>
+);
 
 export default ParentView;
 

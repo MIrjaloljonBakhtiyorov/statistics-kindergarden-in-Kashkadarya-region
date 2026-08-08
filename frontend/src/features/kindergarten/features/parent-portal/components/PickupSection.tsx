@@ -9,6 +9,13 @@ const RELATIONS = [
   'Akasi', 'Opasi', 'Otasi', 'Onasi',
 ];
 
+const getRelationTone = (relation?: string) => {
+  const value = String(relation || '').toLowerCase();
+  if (value.includes('ona') || value.includes('opa') || value.includes('buvi') || value.includes('xola')) return 'kg-pickup-tone-emerald';
+  if (value.includes('ota') || value.includes('aka') || value.includes('amaki') || value.includes("tog'")) return 'kg-pickup-tone-sky';
+  return 'kg-pickup-tone-navy';
+};
+
 const initialForm = {
   full_name: '',
   relation: 'Bobosi',
@@ -99,7 +106,7 @@ export const PickupSection = ({ data, onUpdate }: any) => {
           type="button"
           onClick={() => canAddPickup && setShowForm((value) => !value)}
           disabled={!canAddPickup}
-          className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-rose-500/20 transition-all hover:scale-[1.01] disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none sm:w-auto"
+          className="kg-parent-success-action flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.01] disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none sm:w-auto"
         >
           {showForm ? <X size={16} /> : <UserPlus size={16} />}
           {canAddPickup ? (showForm ? 'Yopish' : "Vakil qo'shish") : 'Limit tugadi'}
@@ -185,21 +192,21 @@ export const PickupSection = ({ data, onUpdate }: any) => {
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {pickups.map((v: any, idx: number) => (
+        {pickups.map((v: any) => (
           <div
             key={v.id}
-            className="group relative flex flex-col items-center gap-5 overflow-hidden rounded-[1.35rem] border border-rose-100 bg-white p-4 text-center shadow-sm transition-all hover:border-rose-200 hover:shadow-md sm:flex-row sm:text-left md:p-5"
+            className={`kg-pickup-card ${getRelationTone(v.relation)} group relative flex flex-col items-center gap-5 overflow-hidden rounded-[1.35rem] border border-rose-100 bg-white p-4 text-center shadow-sm transition-all hover:border-rose-200 hover:shadow-md sm:flex-row sm:text-left md:p-5`}
           >
-            <div className="absolute -bottom-4 -right-4 text-rose-500 opacity-[0.04] transition-transform duration-700 group-hover:scale-110">
+            <div className="kg-pickup-watermark absolute -bottom-4 -right-4 text-rose-500 opacity-[0.04] transition-transform duration-700 group-hover:scale-110">
               <UserCheck size={110} />
             </div>
 
-            <div className="relative z-10 flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-rose-100 bg-rose-50 shadow-sm transition-all group-hover:scale-105">
+            <div className="kg-pickup-photo relative z-10 flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-rose-100 bg-rose-50 shadow-sm transition-all group-hover:scale-105">
               {v.photo_url ? (
                 <img src={v.photo_url} alt={v.full_name} className="h-full w-full object-cover" />
               ) : (
-                <div className="flex flex-col items-center text-rose-200">
-                  <Contact size={32} />
+                <div className="kg-pickup-photo-empty flex flex-col items-center">
+                  <Contact size={30} />
                   <p className="mt-1 text-[7px] font-black uppercase tracking-widest">Surat yo'q</p>
                 </div>
               )}
@@ -208,26 +215,26 @@ export const PickupSection = ({ data, onUpdate }: any) => {
             <div className="relative z-10 min-w-0 flex-1 space-y-3">
               <div className="space-y-1">
                 <div className="mb-1 flex items-center justify-center gap-2 sm:justify-start">
-                  <span className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-rose-600">{v.relation}</span>
-                  <span className="h-1.5 w-1.5 rounded-full bg-pink-500" />
+                  <span className="kg-pickup-relation rounded-lg border border-rose-200 bg-rose-50 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-rose-600">{v.relation}</span>
+                  <span className="kg-pickup-dot h-1.5 w-1.5 rounded-full bg-pink-500" />
                 </div>
-                <p className="text-lg font-extrabold leading-tight tracking-tight text-slate-950 transition-colors group-hover:text-rose-600 md:text-xl">{v.full_name}</p>
+                <p className="kg-pickup-name text-lg font-extrabold leading-tight tracking-tight text-slate-950 transition-colors group-hover:text-rose-600 md:text-xl">{v.full_name}</p>
               </div>
 
               <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                <div className="flex min-w-0 items-center justify-center gap-2 text-xs font-bold text-slate-800 sm:justify-start">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-500"><Smartphone size={14} /></div>
+                <div className="kg-pickup-chip flex min-w-0 items-center justify-center gap-2 text-xs font-bold text-slate-800 sm:justify-start">
+                  <div className="kg-pickup-chip-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-500"><Smartphone size={14} /></div>
                   <span className="min-w-0 break-all">{v.phone}</span>
                 </div>
-                <div className="flex items-center justify-center gap-2 text-[8px] font-bold uppercase tracking-widest text-rose-500 sm:justify-start">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-500"><ShieldCheck size={14} /></div>
+                <div className="kg-pickup-chip kg-pickup-permit flex items-center justify-center gap-2 text-[8px] font-bold uppercase tracking-widest text-rose-500 sm:justify-start">
+                  <div className="kg-pickup-chip-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-500"><ShieldCheck size={14} /></div>
                   Ruxsat: 08:00 - 18:30
                 </div>
               </div>
 
               <button
                 onClick={() => handleDelete(v.id)}
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-[9px] font-black uppercase tracking-widest text-rose-600 transition-all hover:bg-rose-500 hover:text-white active:scale-95 sm:justify-start"
+                className="kg-parent-danger-action flex items-center justify-center gap-1.5 rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-[9px] font-black uppercase tracking-widest text-rose-600 transition-all hover:bg-rose-500 hover:text-white active:scale-95 sm:justify-start"
               >
                 <Trash2 size={12} /> O'chirish
               </button>

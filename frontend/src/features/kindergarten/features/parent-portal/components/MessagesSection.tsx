@@ -144,10 +144,10 @@ const formatMessageTime = (value?: string | null) => {
   return `${day} ${month}, ${hours}:${minutes}`;
 };
 
-const MessageBody = ({ msg }: { msg: ChatMessage }) => {
+const MessageBody = ({ msg, tone }: { msg: ChatMessage; tone: 'sent' | 'received' }) => {
   const url = getAssetUrl(msg.fileUrl);
   if (msg.isDeleted) {
-    return <p className="text-[11px] md:text-sm font-bold italic opacity-70">Xabar o'chirildi</p>;
+    return <p className={`kg-chat-message-text ${tone === 'sent' ? 'kg-chat-message-text-sent' : 'kg-chat-message-text-received'} text-[11px] md:text-sm font-bold italic opacity-70`}>Xabar o'chirildi</p>;
   }
 
   return (
@@ -160,7 +160,11 @@ const MessageBody = ({ msg }: { msg: ChatMessage }) => {
           {msg.fileName || 'Faylni ochish'}
         </a>
       )}
-      {msg.text && <p className="text-sm md:text-[15px] font-semibold leading-relaxed">{msg.text}</p>}
+      {msg.text ? (
+        <p className={`kg-chat-message-text ${tone === 'sent' ? 'kg-chat-message-text-sent' : 'kg-chat-message-text-received'} text-sm md:text-[15px] font-semibold leading-relaxed`}>
+          {msg.text}
+        </p>
+      ) : null}
     </div>
   );
 };
@@ -483,8 +487,8 @@ export const MessagesSection = ({
                   <>
                     {messages.map((msg) => (
                         <div key={`msg-${msg.id}`} className={`flex ${msg.type === 'sent' ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`relative max-w-[86%] break-words px-4 py-3 shadow-sm md:max-w-[72%] md:px-4.5 md:py-3.5 group ${
-                              msg.type === 'sent' ? 'rounded-2xl rounded-tr-md bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-md shadow-rose-100' : 'rounded-2xl rounded-tl-md border border-rose-100 bg-white text-brand-depth shadow-rose-50'
+                          <div className={`kg-chat-bubble relative max-w-[86%] break-words px-4 py-3 shadow-sm md:max-w-[72%] md:px-4.5 md:py-3.5 group ${
+                              msg.type === 'sent' ? 'kg-chat-bubble-sent rounded-2xl rounded-tr-md bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-md shadow-rose-100' : 'kg-chat-bubble-received rounded-2xl rounded-tl-md border border-rose-100 bg-white text-brand-depth shadow-rose-50'
                           }`}>
                               {msg.type === 'sent' && !msg.isDeleted && (
                                 <div className="absolute -top-4 right-1 flex items-center gap-1 md:-left-16 md:right-auto md:top-2 md:hidden md:group-hover:flex">
@@ -499,15 +503,15 @@ export const MessagesSection = ({
                                   <button
                                     type="button"
                                     onClick={() => handleDeleteMessage(msg)}
-                                    className="w-7 h-7 rounded-full bg-white text-rose-500 border border-slate-100 shadow-sm flex items-center justify-center hover:bg-rose-500 hover:text-white"
+                                    className="kg-parent-danger-action w-7 h-7 rounded-full bg-white text-rose-500 border border-slate-100 shadow-sm flex items-center justify-center hover:bg-rose-500 hover:text-white"
                                     title="O'chirish"
                                   >
                                     <Trash2 size={12} />
                                   </button>
                                 </div>
                               )}
-                              <MessageBody msg={msg} />
-                              <div className={`mt-1.5 flex items-center justify-end gap-1 ${msg.type === 'sent' ? 'text-white/70' : 'text-brand-muted'}`}>
+                              <MessageBody msg={msg} tone={msg.type === 'sent' ? 'sent' : 'received'} />
+                              <div className={`kg-chat-message-meta mt-1.5 flex items-center justify-end gap-1 ${msg.type === 'sent' ? 'kg-chat-message-meta-sent text-white/70' : 'kg-chat-message-meta-received text-brand-muted'}`}>
                                 {msg.editedAt && !msg.isDeleted && <span className="text-[9px] md:text-[10px] font-black">tahrirlangan</span>}
                                 <span className="text-[9px] md:text-[10px] font-black">{formatMessageTime(msg.time)}</span>
                                 {msg.type === 'sent' && (

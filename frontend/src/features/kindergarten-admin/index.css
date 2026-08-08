@@ -14,6 +14,13 @@
     @apply antialiased bg-background text-foreground;
   }
 
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
   /* Custom Scrollbar for Sleek Interface */
   .custom-scrollbar {
     scrollbar-width: thin;
@@ -57,23 +64,38 @@
     right: 0;
     width: 100%;
     padding-left: 16px;
-    padding-right: 16px;
+    padding-right: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(51 65 85 / 0.68) rgb(2 6 23 / 0.28);
     -ms-overflow-style: none;
-    scrollbar-width: none;
     scroll-behavior: smooth;
     overscroll-behavior: contain;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .admin-sidebar-menu::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
+    width: 7px;
+    height: 7px;
     background: transparent !important;
   }
 
-  .admin-sidebar-menu::-webkit-scrollbar-track,
-  .admin-sidebar-menu::-webkit-scrollbar-thumb,
+  .admin-sidebar-menu::-webkit-scrollbar-track {
+    border-radius: 999px;
+    background: rgb(2 6 23 / 0.26);
+  }
+
+  .admin-sidebar-menu::-webkit-scrollbar-thumb {
+    min-height: 42px;
+    border: 2px solid rgb(7 17 31);
+    border-radius: 999px;
+    background: rgb(51 65 85 / 0.72);
+  }
+
+  .admin-sidebar-menu::-webkit-scrollbar-thumb:hover {
+    background: rgb(45 212 191 / 0.48);
+  }
+
   .admin-sidebar-menu::-webkit-scrollbar-button,
   .admin-sidebar-menu::-webkit-scrollbar-corner {
     display: none !important;

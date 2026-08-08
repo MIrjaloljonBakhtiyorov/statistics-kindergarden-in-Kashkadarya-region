@@ -100,7 +100,7 @@ export const ProgressSection = ({ data }: any) => {
         </div>
       )}
 
-      <div className="flex flex-col gap-4 rounded-[1.25rem] border border-brand-border bg-brand-depth p-4 text-white shadow-sm md:flex-row md:items-center md:justify-between md:p-5">
+      <div className="kg-parent-report-card flex flex-col gap-4 rounded-[1.25rem] border border-brand-border bg-brand-depth p-4 text-white shadow-sm md:flex-row md:items-center md:justify-between md:p-5">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-rose-200">
             <TrendingUp size={21} />
@@ -110,7 +110,7 @@ export const ProgressSection = ({ data }: any) => {
             <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/55">O'sish sur'ati: +12%</p>
           </div>
         </div>
-        <button className="rounded-2xl bg-white px-5 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-brand-depth transition-all hover:bg-rose-500 hover:text-white">
+        <button className="kg-parent-report-action rounded-2xl bg-white px-5 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-brand-depth transition-all hover:bg-rose-500 hover:text-white">
           Hisobotni ko'rish
         </button>
       </div>

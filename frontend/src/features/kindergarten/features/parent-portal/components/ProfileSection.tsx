@@ -137,8 +137,6 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
           <div className="space-y-3">
              <div className="relative flex flex-col sm:flex-row items-center sm:items-center gap-4 rounded-3xl border border-rose-100 bg-gradient-to-r from-white via-rose-50/60 to-pink-50/70 p-4 shadow-sm overflow-hidden">
                 <div className="pointer-events-none absolute inset-0 opacity-60">
-                  <div className="absolute right-6 top-5 h-20 w-20 rounded-full border border-rose-200/70"></div>
-                  <div className="absolute right-14 bottom-4 h-12 w-12 rounded-full bg-pink-100/60"></div>
                   <div className="absolute left-1/2 top-0 h-full w-px bg-gradient-to-b from-transparent via-white to-transparent"></div>
                 </div>
                 <div className="relative group cursor-pointer shrink-0" onClick={() => isEditing && document.getElementById('child-photo-upload')?.click()}>
@@ -231,9 +229,8 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
                   )}
                </div>
 
-               <div className="bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-500 p-4 rounded-3xl text-white shadow-lg shadow-pink-500/20 relative overflow-hidden group">
+               <div className="kg-current-group-card bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-500 p-4 rounded-3xl text-white shadow-lg shadow-pink-500/20 relative overflow-hidden group">
                   <div className="absolute -left-8 -top-10 h-24 w-24 rounded-full bg-white/15 blur-2xl"></div>
-                  <div className="absolute right-5 top-5 h-16 w-16 rounded-full border border-white/20"></div>
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/18 text-white border border-white/25 shadow-sm">
                      <Target size={18} />
                   </div>

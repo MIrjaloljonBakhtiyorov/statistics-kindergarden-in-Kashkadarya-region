@@ -534,8 +534,10 @@ const DirectorMessagesPanel = ({ onUnreadCountChange }: { onUnreadCountChange?: 
   );
 };
 
+type DirectorTab = 'dashboard' | 'messages';
+
 const DirectorView: React.FC = () => {
-  const [activeDirectorTab, setActiveDirectorTab] = useState<'dashboard' | 'messages'>('dashboard');
+  const [activeDirectorTab, setActiveDirectorTab] = useState<DirectorTab>('dashboard');
   const [directorUnreadCount, setDirectorUnreadCount] = useState(0);
   const [stats, setStats] = useState<any>(null);
   const [groups, setGroups] = useState<any[]>([]);

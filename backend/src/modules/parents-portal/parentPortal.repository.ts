@@ -147,10 +147,31 @@ export class ParentPortalRepository {
   }
 
   updateParentProfile(parentId: string, kindergartenId: string, data: any) {
-    return run('UPDATE parents SET workplace = ?, phone = ?, passport_no = ? WHERE id = ? AND kindergarten_id = ?', [
-      data.workplace || null,
-      data.phone || null,
-      data.passport_no || null,
+    const fields: string[] = [];
+    const params: any[] = [];
+    const fullName = typeof data.full_name === 'string' ? data.full_name.trim() : '';
+
+    if (fullName) {
+      fields.push('full_name = ?');
+      params.push(fullName);
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'workplace')) {
+      fields.push('workplace = ?');
+      params.push(data.workplace || null);
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'phone')) {
+      fields.push('phone = ?');
+      params.push(data.phone || null);
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'passport_no')) {
+      fields.push('passport_no = ?');
+      params.push(data.passport_no || null);
+    }
+
+    if (fields.length === 0) return Promise.resolve({ changes: 0, skipped: true });
+
+    return run(`UPDATE parents SET ${fields.join(', ')} WHERE id = ? AND kindergarten_id = ?`, [
+      ...params,
       parentId,
       kindergartenId,
     ]);

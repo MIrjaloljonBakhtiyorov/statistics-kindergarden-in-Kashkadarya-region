@@ -695,12 +695,733 @@ html.dark .kindergarten-shell main {
   --kg-parent-name-size: 1.375rem;
   --kg-parent-body-size: 0.875rem;
   --kg-parent-small-size: 0.8125rem;
+  --kg-parent-navy: #07162f;
+  --kg-parent-navy-rich: #0b2545;
+  --kg-parent-navy-muted: #334a67;
+  --kg-parent-navy-soft: #edf3fb;
+  --kg-parent-navy-border: #cbd7e6;
+  --kg-parent-navy-shadow: rgba(7, 22, 47, 0.2);
   font-family: var(--kg-parent-font);
   font-style: normal;
   font-synthesis-weight: none;
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
 }
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) :is([class*="text-rose-"], [class*="text-pink-"], [class*="text-fuchsia-"], [class*="text-amber-"], [class*="text-orange-"], [class*="text-yellow-"]) {
+  color: var(--kg-parent-navy) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) :is([class*="bg-rose-50"], [class*="bg-pink-50"], [class*="bg-fuchsia-50"], [class*="bg-amber-50"], [class*="bg-orange-50"], [class*="bg-yellow-50"], [class*="bg-rose-100"], [class*="bg-pink-100"], [class*="bg-fuchsia-100"], [class*="bg-amber-100"], [class*="bg-orange-100"], [class*="bg-yellow-100"]) {
+  background-color: var(--kg-parent-navy-soft) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) :is([class*="bg-rose-500"], [class*="bg-pink-500"], [class*="bg-fuchsia-500"], [class*="bg-amber-500"], [class*="bg-orange-500"], [class*="bg-yellow-500"]) {
+  background-color: var(--kg-parent-navy) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) :is([class*="border-rose-"], [class*="border-pink-"], [class*="border-fuchsia-"], [class*="border-amber-"], [class*="border-orange-"], [class*="border-yellow-"], [class*="ring-rose-"], [class*="ring-pink-"], [class*="ring-fuchsia-"], [class*="ring-amber-"]) {
+  border-color: var(--kg-parent-navy-border) !important;
+  --tw-ring-color: var(--kg-parent-navy-border) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) :is([class*="shadow-rose-"], [class*="shadow-pink-"], [class*="shadow-fuchsia-"], [class*="shadow-amber-"]) {
+  box-shadow: 0 12px 28px var(--kg-parent-navy-shadow) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) :is([class*="from-rose-"], [class*="from-pink-"], [class*="from-fuchsia-"], [class*="from-amber-"], [class*="from-orange-"], [class*="from-yellow-"]) {
+  --tw-gradient-from: var(--kg-parent-navy) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(7 22 47 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) :is([class*="via-rose-"], [class*="via-pink-"], [class*="via-fuchsia-"], [class*="via-amber-"], [class*="via-orange-"], [class*="via-yellow-"]) {
+  --tw-gradient-via: var(--kg-parent-navy-rich) var(--tw-gradient-via-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) :is([class*="to-rose-"], [class*="to-pink-"], [class*="to-fuchsia-"], [class*="to-amber-"], [class*="to-orange-"], [class*="to-yellow-"]) {
+  --tw-gradient-to: var(--kg-parent-navy-rich) var(--tw-gradient-to-position) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) [class*="hover:bg-rose-"]:hover,
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) [class*="hover:bg-pink-"]:hover,
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) [class*="hover:bg-fuchsia-"]:hover,
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) [class*="hover:bg-amber-"]:hover {
+  background-color: var(--kg-parent-navy-soft) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) [class*="hover:text-rose-"]:hover,
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) [class*="hover:text-pink-"]:hover,
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) [class*="hover:text-fuchsia-"]:hover,
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-header, .kg-parent-mobile-nav, .kg-parent-sidebar-menu) [class*="hover:text-amber-"]:hover {
+  color: var(--kg-parent-navy) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="text-rose-"], [class*="text-pink-"], [class*="text-fuchsia-"]),
+.kg-parent-modal-layer :is([class*="text-rose-"], [class*="text-pink-"], [class*="text-fuchsia-"]) {
+  color: var(--kg-parent-navy-muted) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="text-rose-700"], [class*="text-rose-800"], [class*="text-rose-900"], [class*="text-pink-700"], [class*="text-pink-800"], [class*="text-pink-900"]),
+.kg-parent-modal-layer :is([class*="text-rose-700"], [class*="text-rose-800"], [class*="text-rose-900"], [class*="text-pink-700"], [class*="text-pink-800"], [class*="text-pink-900"]) {
+  color: var(--kg-parent-navy) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="bg-rose-50"], [class*="bg-pink-50"], [class*="bg-fuchsia-50"], [class*="bg-rose-100"], [class*="bg-pink-100"], [class*="bg-fuchsia-100"]),
+.kg-parent-modal-layer :is([class*="bg-rose-50"], [class*="bg-pink-50"], [class*="bg-fuchsia-50"], [class*="bg-rose-100"], [class*="bg-pink-100"], [class*="bg-fuchsia-100"]) {
+  background-color: var(--kg-parent-navy-soft) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="bg-rose-200"], [class*="bg-pink-200"], [class*="bg-fuchsia-200"]),
+.kg-parent-modal-layer :is([class*="bg-rose-200"], [class*="bg-pink-200"], [class*="bg-fuchsia-200"]) {
+  background-color: #dbe7f4 !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="bg-rose-300"], [class*="bg-pink-300"], [class*="bg-fuchsia-300"], [class*="bg-rose-400"], [class*="bg-pink-400"], [class*="bg-fuchsia-400"]),
+.kg-parent-modal-layer :is([class*="bg-rose-300"], [class*="bg-pink-300"], [class*="bg-fuchsia-300"], [class*="bg-rose-400"], [class*="bg-pink-400"], [class*="bg-fuchsia-400"]) {
+  background-color: #7d99b8 !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="bg-rose-500"], [class*="bg-pink-500"], [class*="bg-fuchsia-500"], [class*="bg-rose-600"], [class*="bg-pink-600"], [class*="bg-fuchsia-600"]),
+.kg-parent-modal-layer :is([class*="bg-rose-500"], [class*="bg-pink-500"], [class*="bg-fuchsia-500"], [class*="bg-rose-600"], [class*="bg-pink-600"], [class*="bg-fuchsia-600"]) {
+  background-color: var(--kg-parent-navy-rich) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="border-rose-"], [class*="border-pink-"], [class*="border-fuchsia-"], [class*="ring-rose-"], [class*="ring-pink-"], [class*="ring-fuchsia-"]),
+.kg-parent-modal-layer :is([class*="border-rose-"], [class*="border-pink-"], [class*="border-fuchsia-"], [class*="ring-rose-"], [class*="ring-pink-"], [class*="ring-fuchsia-"]) {
+  border-color: var(--kg-parent-navy-border) !important;
+  --tw-ring-color: var(--kg-parent-navy-border) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="shadow-rose-"], [class*="shadow-pink-"], [class*="shadow-fuchsia-"]),
+.kg-parent-modal-layer :is([class*="shadow-rose-"], [class*="shadow-pink-"], [class*="shadow-fuchsia-"]) {
+  box-shadow: 0 12px 26px rgba(7, 22, 47, 0.12) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="from-rose-"], [class*="from-pink-"], [class*="from-fuchsia-"]),
+.kg-parent-modal-layer :is([class*="from-rose-"], [class*="from-pink-"], [class*="from-fuchsia-"]) {
+  --tw-gradient-from: #456b92 var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(69 107 146 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="via-rose-"], [class*="via-pink-"], [class*="via-fuchsia-"]),
+.kg-parent-modal-layer :is([class*="via-rose-"], [class*="via-pink-"], [class*="via-fuchsia-"]) {
+  --tw-gradient-via: #5f7fa1 var(--tw-gradient-via-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="to-rose-"], [class*="to-pink-"], [class*="to-fuchsia-"]),
+.kg-parent-modal-layer :is([class*="to-rose-"], [class*="to-pink-"], [class*="to-fuchsia-"]) {
+  --tw-gradient-to: var(--kg-parent-navy-rich) var(--tw-gradient-to-position) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) [class*="hover:bg-rose-"]:hover,
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) [class*="hover:bg-pink-"]:hover,
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) [class*="hover:bg-fuchsia-"]:hover,
+.kg-parent-modal-layer [class*="hover:bg-rose-"]:hover,
+.kg-parent-modal-layer [class*="hover:bg-pink-"]:hover,
+.kg-parent-modal-layer [class*="hover:bg-fuchsia-"]:hover {
+  background-color: #dbe7f4 !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) [class*="hover:text-rose-"]:hover,
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) [class*="hover:text-pink-"]:hover,
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) [class*="hover:text-fuchsia-"]:hover,
+.kg-parent-modal-layer [class*="hover:text-rose-"]:hover,
+.kg-parent-modal-layer [class*="hover:text-pink-"]:hover,
+.kg-parent-modal-layer [class*="hover:text-fuchsia-"]:hover {
+  color: var(--kg-parent-navy) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is([class*="fff7fa"], [class*="fff1f7"], [class*="fffafb"]),
+.kg-parent-modal-layer :is([class*="fff7fa"], [class*="fff1f7"], [class*="fffafb"]) {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f8fc 48%, #edf3fb 100%) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section),
+.kg-parent-modal-layer {
+  --kg-parent-premium-text: #07162f;
+  --kg-parent-premium-muted: #334a67;
+  --kg-parent-premium-soft-text: #24405f;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(h1, h2, h3, h4, h5, h6, .text-slate-950, .text-brand-depth),
+.kg-parent-modal-layer :is(h1, h2, h3, h4, h5, h6, .text-slate-950, .text-brand-depth) {
+  color: var(--kg-parent-premium-text) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(.text-brand-muted, .text-brand-slate, .text-slate-400, .text-slate-500, .text-slate-600),
+.kg-parent-modal-layer :is(.text-brand-muted, .text-brand-slate, .text-slate-400, .text-slate-500, .text-slate-600) {
+  color: var(--kg-parent-premium-muted) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(button, a, label, input, textarea, select, [class*="rounded-full"], [class*="rounded-lg"], [class*="rounded-xl"], [class*="rounded-2xl"]),
+.kg-parent-modal-layer :is(button, a, label, input, textarea, select, [class*="rounded-full"], [class*="rounded-lg"], [class*="rounded-xl"], [class*="rounded-2xl"]) {
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(button, a)[class*="text-white"],
+.kg-parent-modal-layer :is(button, a)[class*="text-white"] {
+  color: #ffffff !important;
+  text-shadow: 0 1px 1px rgba(7, 22, 47, 0.28);
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(button, a)[class*="from-rose-"],
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(button, a)[class*="from-pink-"],
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(button, a)[class*="from-fuchsia-"],
+.kg-parent-modal-layer :is(button, a)[class*="from-rose-"],
+.kg-parent-modal-layer :is(button, a)[class*="from-pink-"],
+.kg-parent-modal-layer :is(button, a)[class*="from-fuchsia-"] {
+  background: linear-gradient(135deg, #07162f 0%, #0b2545 52%, #173b61 100%) !important;
+  border-color: rgba(7, 22, 47, 0.2) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 28px rgba(7, 22, 47, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(button, a)[class*="bg-white"],
+.kg-parent-modal-layer :is(button, a)[class*="bg-white"] {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+  color: var(--kg-parent-premium-text) !important;
+  border-color: #b8c8da !important;
+  box-shadow: 0 10px 22px rgba(7, 22, 47, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  text-shadow: none !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(button, a)[class*="bg-rose-50"],
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(button, a)[class*="bg-pink-50"],
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(button, a)[class*="bg-slate-50"],
+.kg-parent-modal-layer :is(button, a)[class*="bg-rose-50"],
+.kg-parent-modal-layer :is(button, a)[class*="bg-pink-50"],
+.kg-parent-modal-layer :is(button, a)[class*="bg-slate-50"] {
+  background: linear-gradient(180deg, #f8fbff 0%, #edf3fb 100%) !important;
+  color: var(--kg-parent-premium-text) !important;
+  border-color: #b8c8da !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(button, a, input, textarea, select):disabled,
+.kg-parent-modal-layer :is(button, a, input, textarea, select):disabled {
+  opacity: 0.78 !important;
+  color: var(--kg-parent-premium-soft-text) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(button, a)[class*="text-white"]:disabled,
+.kg-parent-modal-layer :is(button, a)[class*="text-white"]:disabled {
+  color: #ffffff !important;
+  opacity: 0.86 !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is([class*="text-white/70"], [class*="text-white/80"], [class*="text-white/85"], [class*="text-white/90"]),
+.kg-parent-modal-layer :is([class*="text-white/70"], [class*="text-white/80"], [class*="text-white/85"], [class*="text-white/90"]) {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(.opacity-40, .opacity-50, .opacity-60, .opacity-70),
+.kg-parent-modal-layer :is(.opacity-40, .opacity-50, .opacity-60, .opacity-70) {
+  opacity: 0.88 !important;
+}
+
+.kindergarten-shell .kg-parent-portal :is(.kg-parent-content-panel, .kg-parent-content-scroll, .kg-parent-section) :is(.disabled\:opacity-50:disabled, .disabled\:opacity-60:disabled),
+.kg-parent-modal-layer :is(.disabled\:opacity-50:disabled, .disabled\:opacity-60:disabled) {
+  opacity: 0.82 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-chat-bubble {
+  min-height: auto !important;
+  overflow: visible !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-chat-bubble-sent {
+  background: linear-gradient(135deg, #07162f 0%, #0b2545 58%, #173b61 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(7, 22, 47, 0.18) !important;
+  box-shadow: 0 14px 28px rgba(7, 22, 47, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-chat-bubble-received {
+  background: #ffffff !important;
+  color: var(--kg-parent-premium-text) !important;
+  border-color: #c4d2e2 !important;
+  box-shadow: 0 10px 22px rgba(7, 22, 47, 0.08) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-chat-message-text {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-shadow: none !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-chat-message-text-sent,
+.kindergarten-shell .kg-parent-portal .kg-chat-bubble-sent :is(p, span, a) {
+  color: #ffffff !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-chat-message-text-received,
+.kindergarten-shell .kg-parent-portal .kg-chat-bubble-received :is(p, span, a) {
+  color: var(--kg-parent-premium-text) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-chat-message-meta-sent,
+.kindergarten-shell .kg-parent-portal .kg-chat-message-meta-sent :is(span, svg) {
+  color: rgba(255, 255, 255, 0.86) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-chat-message-meta-received,
+.kindergarten-shell .kg-parent-portal .kg-chat-message-meta-received :is(span, svg) {
+  color: var(--kg-parent-premium-muted) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-current-group-card {
+  background: linear-gradient(135deg, #07162f 0%, #0b2545 55%, #173b61 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(7, 22, 47, 0.18) !important;
+  box-shadow: 0 18px 34px rgba(7, 22, 47, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-current-group-card :is(p, span, svg) {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 1px rgba(7, 22, 47, 0.35);
+}
+
+.kindergarten-shell .kg-parent-portal .kg-current-group-card [class*="bg-white"] {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-secondary-action {
+  background: linear-gradient(180deg, #ffffff 0%, #edf3fb 100%) !important;
+  color: var(--kg-parent-premium-text) !important;
+  border: 1px solid #b8c8da !important;
+  box-shadow: 0 10px 22px rgba(7, 22, 47, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-secondary-action :is(svg, span) {
+  color: var(--kg-parent-premium-text) !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-secondary-action:hover {
+  background: linear-gradient(135deg, #07162f 0%, #0b2545 100%) !important;
+  color: #ffffff !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-secondary-action:hover :is(svg, span) {
+  color: #ffffff !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-edit-action {
+  background: linear-gradient(135deg, #07162f 0%, #0b2545 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(7, 22, 47, 0.22) !important;
+  box-shadow: 0 14px 28px rgba(7, 22, 47, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.22) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-edit-action :is(svg, span) {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-edit-action:hover {
+  background: linear-gradient(135deg, #0b2545 0%, #173b61 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 16px 32px rgba(7, 22, 47, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-edit-action:hover :is(svg, span) {
+  color: #ffffff !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action {
+  background: linear-gradient(180deg, #fff5f5 0%, #fee2e2 100%) !important;
+  color: #b91c1c !important;
+  border-color: #fecaca !important;
+  box-shadow: 0 10px 22px rgba(185, 28, 28, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action :is(svg, span) {
+  color: #b91c1c !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action svg {
+  color: #dc2626 !important;
+  stroke: #dc2626 !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action:active svg,
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action:focus-visible svg {
+  color: #dc2626 !important;
+  stroke: #dc2626 !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action:disabled,
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action.disabled\:opacity-50:disabled {
+  background: linear-gradient(180deg, #fff5f5 0%, #fee2e2 100%) !important;
+  color: #b91c1c !important;
+  border-color: #fecaca !important;
+  opacity: 0.96 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action:disabled :is(svg, span) {
+  color: #b91c1c !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+  color: #ffffff !important;
+  border-color: #b91c1c !important;
+  box-shadow: 0 14px 28px rgba(185, 28, 28, 0.2) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action:hover :is(svg, span) {
+  color: #ffffff !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action:hover svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action-solid {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+  color: #ffffff !important;
+  border-color: #b91c1c !important;
+  box-shadow: 0 14px 28px rgba(185, 28, 28, 0.24) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-danger-action-solid :is(svg, span) {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-success-action {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  color: #ffffff !important;
+  border-color: #047857 !important;
+  box-shadow: 0 16px 32px rgba(5, 150, 105, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 1px rgba(4, 120, 87, 0.28) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-success-action :is(svg, span) {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-success-action:hover {
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
+  box-shadow: 0 18px 34px rgba(5, 150, 105, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-success-action:disabled {
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%) !important;
+  color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-report-card {
+  background: linear-gradient(135deg, #07162f 0%, #101b2f 100%) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 18px 36px rgba(7, 22, 47, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-report-card :is(h1, h2, h3, h4, h5, h6) {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.28);
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-report-card p {
+  color: rgba(255, 255, 255, 0.86) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-report-card svg {
+  color: #dbeafe !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-report-card [class*="bg-white/10"] {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-report-action {
+  background: #ffffff !important;
+  color: #07162f !important;
+  border: 1px solid rgba(255, 255, 255, 0.72) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-report-action:hover {
+  background: linear-gradient(135deg, #e9f3ff 0%, #ffffff 100%) !important;
+  color: #07162f !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-card {
+  overflow: hidden;
+  position: relative;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -1.75rem -2rem auto;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 999px;
+  opacity: 0.1;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-card .kg-health-status-icon {
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.58) !important;
+  box-shadow: 0 12px 22px rgba(7, 22, 47, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-card .kg-health-status-icon svg {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-allergy {
+  background: linear-gradient(135deg, #fff7ed 0%, #fff1f2 100%) !important;
+  border-color: #fed7aa !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-allergy::after {
+  background: #f97316;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-allergy .kg-health-status-icon {
+  background: linear-gradient(135deg, #f97316 0%, #dc2626 100%) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-allergy :is(p, span) {
+  color: #7c2d12 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-control {
+  background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%) !important;
+  border-color: #bfdbfe !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-control::after {
+  background: #2563eb;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-control .kg-health-status-icon {
+  background: linear-gradient(135deg, #2563eb 0%, #0b2545 100%) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-control :is(p, span) {
+  color: #0b2545 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-healthy {
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%) !important;
+  border-color: #bbf7d0 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-healthy::after {
+  background: #059669;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-healthy .kg-health-status-icon {
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-health-status-healthy :is(p, span) {
+  color: #064e3b !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-card {
+  --kg-pickup-accent: #0ea5e9;
+  --kg-pickup-accent-strong: #0b2545;
+  --kg-pickup-soft: #eff6ff;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 251, 255, 0.94) 56%, rgba(236, 253, 245, 0.72) 100%) !important;
+  border-color: rgba(184, 200, 218, 0.88) !important;
+  box-shadow: 0 16px 34px rgba(7, 22, 47, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--kg-pickup-accent), var(--kg-pickup-accent-strong));
+  opacity: 0.95;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -2.5rem -3rem auto;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 999px;
+  background: var(--kg-pickup-accent);
+  opacity: 0.06;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-tone-emerald {
+  --kg-pickup-accent: #10b981;
+  --kg-pickup-accent-strong: #047857;
+  --kg-pickup-soft: #ecfdf5;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-tone-sky {
+  --kg-pickup-accent: #0ea5e9;
+  --kg-pickup-accent-strong: #0b2545;
+  --kg-pickup-soft: #eff6ff;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-tone-navy {
+  --kg-pickup-accent: #173b61;
+  --kg-pickup-accent-strong: #07162f;
+  --kg-pickup-soft: #edf3fb;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--kg-pickup-accent) 42%, #b8c8da) !important;
+  box-shadow: 0 20px 42px rgba(7, 22, 47, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-watermark {
+  color: var(--kg-pickup-accent) !important;
+  opacity: 0.08 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-photo {
+  background: linear-gradient(180deg, #ffffff 0%, var(--kg-pickup-soft) 100%) !important;
+  border-color: color-mix(in srgb, var(--kg-pickup-accent) 26%, #c7d7ea) !important;
+  box-shadow: 0 12px 28px rgba(7, 22, 47, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.82) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-photo-empty {
+  color: var(--kg-pickup-accent-strong) !important;
+  opacity: 0.9 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-photo-empty :is(svg, p) {
+  color: var(--kg-pickup-accent-strong) !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-relation {
+  background: var(--kg-pickup-soft) !important;
+  border-color: color-mix(in srgb, var(--kg-pickup-accent) 34%, #c7d7ea) !important;
+  color: var(--kg-pickup-accent-strong) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-dot {
+  background: var(--kg-pickup-accent-strong) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--kg-pickup-accent) 12%, transparent) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-name {
+  color: #07162f !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-card:hover .kg-pickup-name {
+  color: var(--kg-pickup-accent-strong) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-chip {
+  min-height: 2.25rem;
+  border-radius: 1rem;
+  color: #07162f !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-chip-icon {
+  background: var(--kg-pickup-soft) !important;
+  border-color: color-mix(in srgb, var(--kg-pickup-accent) 28%, #c7d7ea) !important;
+  color: var(--kg-pickup-accent-strong) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-chip-icon svg {
+  color: var(--kg-pickup-accent-strong) !important;
+  opacity: 1 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-permit {
+  color: var(--kg-pickup-accent-strong) !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-pickup-card .kg-parent-danger-action {
+  position: relative;
+  z-index: 2;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-sidebar-menu button {
+  min-height: 3.25rem !important;
+  font-size: 0.8125rem !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+  color: #23364f !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-sidebar-menu button span.truncate {
+  font-size: 0.8125rem !important;
+  line-height: 1.15 !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+  color: #243852 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-sidebar-menu button:hover span.truncate,
+.kindergarten-shell .kg-parent-portal .kg-parent-sidebar-menu button:hover svg {
+  color: #07162f !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-sidebar-menu button[class*="ring-1"] span.truncate {
+  color: #07162f !important;
+  text-shadow: 0 0 0.01px #07162f;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-sidebar-menu button[class*="ring-1"] {
+  background: linear-gradient(135deg, #edf3fb 0%, #f8fbff 100%) !important;
+  box-shadow: 0 12px 24px rgba(7, 22, 47, 0.08) !important;
+}
+
+.kindergarten-shell .kg-parent-portal aside .flex-none p:first-child {
+  font-size: 0.6875rem !important;
+  color: #344b68 !important;
+  font-weight: 950 !important;
+}
+
+.kindergarten-shell .kg-parent-portal aside .flex-none p:last-child {
+  font-size: 1rem !important;
+  color: #07162f !important;
+  font-weight: 950 !important;
+}
+
 
 .kindergarten-shell .kg-parent-portal :is(h1, h2, h3, h4, h5, h6, p, span, label, button, input, textarea, select) {
   font-family: inherit;

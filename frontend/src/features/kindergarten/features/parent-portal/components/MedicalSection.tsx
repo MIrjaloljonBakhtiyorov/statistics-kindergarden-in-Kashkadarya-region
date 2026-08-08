@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, AlertCircle, Calendar, Clipboard, FileText, HeartPulse, Ruler, ShieldAlert, Thermometer, Weight } from 'lucide-react';
+import { Activity, AlertCircle, Calendar, Clipboard, FileText, HeartPulse, Ruler, ShieldAlert, ShieldCheck, Thermometer, Weight } from 'lucide-react';
 
 type HealthRecord = {
   id?: string | number;
@@ -53,6 +53,12 @@ export const MedicalSection = ({ parentData, health = [] }: { parentData: any; h
     : isUnderControl
       ? "Shifokor qaydi bo'yicha nazorat davom etmoqda."
       : 'Hozircha xavfli belgi qayd etilmagan.';
+  const StatusIcon = hasAllergy ? ShieldAlert : isUnderControl ? AlertCircle : ShieldCheck;
+  const statusToneClass = hasAllergy
+    ? 'kg-health-status-allergy'
+    : isUnderControl
+      ? 'kg-health-status-control'
+      : 'kg-health-status-healthy';
 
   const vitals = [
     {
@@ -97,11 +103,11 @@ export const MedicalSection = ({ parentData, health = [] }: { parentData: any; h
             </div>
           </div>
 
-          <div className="rounded-2xl border border-rose-100 bg-white/80 px-4 py-3 shadow-sm">
+          <div className={`kg-health-status-card ${statusToneClass} rounded-2xl border border-rose-100 bg-white/80 px-4 py-3 shadow-sm`}>
             <p className="text-[8px] font-black uppercase tracking-[0.18em] text-brand-muted">Umumiy holat</p>
             <div className="mt-1 flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm shadow-rose-500/20">
-                <Activity size={16} />
+              <span className="kg-health-status-icon flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-sm shadow-rose-500/20">
+                <StatusIcon size={16} />
               </span>
               <div>
                 <p className="text-sm font-extrabold uppercase leading-none text-brand-depth">{statusLabel}</p>

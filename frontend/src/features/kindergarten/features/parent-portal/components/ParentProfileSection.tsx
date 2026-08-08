@@ -5,31 +5,34 @@ import { useNotification } from '../../../context/NotificationContext';
 
 const emptyParentForm = {
   father: {
+    full_name: '',
     workplace: '',
     phone: '',
     passport_no: '',
   },
   mother: {
+    full_name: '',
     workplace: '',
     phone: '',
     passport_no: '',
   },
 };
 
+type ParentFormKey = 'full_name' | 'workplace' | 'phone' | 'passport_no';
+type ParentFormData = Record<ParentFormKey, string>;
+
 const ParentInfoCard = ({
   title,
-  name,
   tone,
   data,
   isEditing,
   onChange,
 }: {
   title: string;
-  name?: string;
   tone: 'sky' | 'emerald';
-  data: { workplace: string; phone: string; passport_no: string };
+  data: ParentFormData;
   isEditing: boolean;
-  onChange: (field: 'workplace' | 'phone' | 'passport_no', value: string) => void;
+  onChange: (field: ParentFormKey, value: string) => void;
 }) => {
   const accent = tone === 'sky'
     ? {
@@ -44,6 +47,7 @@ const ParentInfoCard = ({
       };
 
   const fieldClass = 'w-full rounded-xl border border-brand-border bg-slate-50 px-3 py-2 text-[15px] font-semibold outline-none focus:ring-2 focus:ring-sky-100';
+  const filledCount = [data.full_name, data.phone, data.workplace, data.passport_no].filter(Boolean).length;
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-brand-border bg-white p-4 shadow-sm md:p-5">
@@ -51,7 +55,19 @@ const ParentInfoCard = ({
       <div className="flex items-start justify-between gap-4 pt-1">
         <div className="min-w-0">
           <span className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-bold ${accent.badge}`}>{title}</span>
-          <h5 className="mt-2 text-[22px] font-extrabold leading-tight text-brand-depth break-words">{name || 'Kiritilmagan'}</h5>
+          {isEditing ? (
+            <input
+              value={data.full_name}
+              onChange={(e) => onChange('full_name', e.target.value)}
+              className={`${fieldClass} mt-2 text-[18px] font-extrabold`}
+              placeholder={`${title} F.I.Sh.`}
+            />
+          ) : (
+            <h5 className="mt-2 text-[22px] font-extrabold leading-tight text-brand-depth break-words">{data.full_name || 'Kiritilmagan'}</h5>
+          )}
+          <p className="mt-2 text-[11px] font-black uppercase tracking-[0.16em] text-brand-muted">
+            {filledCount}/4 ta ma'lumot to'ldirilgan
+          </p>
         </div>
         <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${accent.icon}`}>
           <User size={20} />
@@ -80,7 +96,7 @@ const ParentInfoCard = ({
           <div className="min-w-0 flex-1">
             <p className="text-[12px] font-semibold text-brand-muted">Telefon</p>
             {isEditing ? (
-              <input value={data.phone} onChange={(e) => onChange('phone', e.target.value)} className={fieldClass} />
+              <input type="tel" value={data.phone} onChange={(e) => onChange('phone', e.target.value)} className={fieldClass} placeholder="+998" />
             ) : (
               <p className="mt-1 text-[15px] font-bold leading-snug text-brand-depth break-words">{data.phone || '--'}</p>
             )}
@@ -94,7 +110,7 @@ const ParentInfoCard = ({
           <div className="min-w-0 flex-1">
             <p className="text-[12px] font-semibold text-brand-muted">Passport</p>
             {isEditing ? (
-              <input value={data.passport_no} onChange={(e) => onChange('passport_no', e.target.value)} className={`${fieldClass} uppercase`} />
+              <input value={data.passport_no} onChange={(e) => onChange('passport_no', e.target.value.toUpperCase())} className={`${fieldClass} uppercase`} placeholder="AA1234567" />
             ) : (
               <p className="mt-1 text-[15px] font-bold uppercase leading-snug text-brand-depth break-words">{data.passport_no || '--'}</p>
             )}
@@ -114,11 +130,13 @@ export const ParentProfileSection = ({ parentData, onUpdate }: any) => {
   useEffect(() => {
     setFormData({
       father: {
+        full_name: parentData.fatherName || '',
         workplace: parentData.fatherWorkplace || '',
         phone: parentData.fatherPhone || '',
         passport_no: parentData.fatherPassport || '',
       },
       mother: {
+        full_name: parentData.motherName || '',
         workplace: parentData.motherWorkplace || '',
         phone: parentData.motherPhone || '',
         passport_no: parentData.motherPassport || '',
@@ -126,7 +144,7 @@ export const ParentProfileSection = ({ parentData, onUpdate }: any) => {
     });
   }, [parentData]);
 
-  const updateParentField = (parent: 'father' | 'mother', field: 'workplace' | 'phone' | 'passport_no', value: string) => {
+  const updateParentField = (parent: 'father' | 'mother', field: ParentFormKey, value: string) => {
     setFormData((current) => ({
       ...current,
       [parent]: {
@@ -166,15 +184,15 @@ export const ParentProfileSection = ({ parentData, onUpdate }: any) => {
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-sky-50 px-4 py-2.5 text-[12px] font-bold text-sky-700 transition-all hover:bg-sky-500 hover:text-white sm:w-auto"
+            className="kg-parent-edit-action flex w-full items-center justify-center gap-2 rounded-2xl bg-sky-50 px-4 py-2.5 text-[12px] font-bold text-sky-700 transition-all hover:bg-sky-500 hover:text-white sm:w-auto"
           >
-            <Edit2 size={13} /> Tahrirlash
+            <Edit2 size={13} /> <span>Tahrirlash</span>
           </button>
         ) : (
           <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
             <button
               onClick={() => setIsEditing(false)}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 py-2.5 text-[12px] font-bold text-brand-muted transition-all hover:bg-slate-200"
+              className="kg-parent-secondary-action flex items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 py-2.5 text-[12px] font-bold text-brand-muted transition-all hover:bg-slate-200"
             >
               <X size={13} /> Bekor qilish
             </button>
@@ -183,7 +201,7 @@ export const ParentProfileSection = ({ parentData, onUpdate }: any) => {
               disabled={loading}
               className="flex items-center justify-center gap-2 rounded-2xl bg-sky-600 px-4 py-2.5 text-[12px] font-bold text-white shadow-lg shadow-sky-500/20 transition-all hover:bg-sky-700 disabled:opacity-50"
             >
-              {loading ? <div className="h-3 w-3 rounded-full border-2 border-white border-t-transparent" /> : <Save size={13} />}
+              {loading ? <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Save size={13} />}
               Saqlash
             </button>
           </div>
@@ -207,7 +225,6 @@ export const ParentProfileSection = ({ parentData, onUpdate }: any) => {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <ParentInfoCard
           title="Otasi"
-          name={parentData.fatherName}
           tone="sky"
           data={formData.father}
           isEditing={isEditing}
@@ -215,7 +232,6 @@ export const ParentProfileSection = ({ parentData, onUpdate }: any) => {
         />
         <ParentInfoCard
           title="Onasi"
-          name={parentData.motherName}
           tone="emerald"
           data={formData.mother}
           isEditing={isEditing}

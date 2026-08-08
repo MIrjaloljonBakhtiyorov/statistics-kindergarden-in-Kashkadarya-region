@@ -20,6 +20,7 @@ const MenuStatistics = lazy(() => import('./pages/dashboard/MenuStatistics').the
 const KindergartenWebsiteBuilder = lazy(() => import('./pages/dashboard/KindergartenWebsiteBuilder').then((module) => ({ default: module.KindergartenWebsiteBuilder })));
 const WebsiteNewsManager = lazy(() => import('./pages/dashboard/WebsiteNewsManager').then((module) => ({ default: module.WebsiteNewsManager })));
 const Alerts = lazy(() => import('./pages/dashboard/Alerts').then((module) => ({ default: module.Alerts })));
+const Subscriptions = lazy(() => import('./pages/dashboard/Subscriptions').then((module) => ({ default: module.Subscriptions })));
 
 const RouteFallback = () => (
   <div className="flex min-h-[420px] items-center justify-center">
@@ -92,6 +93,7 @@ export default function App() {
             <Route path="warehouse" element={<WarehouseCommandCenter />} />
             <Route path="medical-stock" element={<MedicalStockReserve />} />
             <Route path="financial-stats" element={<FinancialAnalytics />} />
+            <Route path="subscriptions" element={<Subscriptions />} />
             <Route path="menu-stats" element={<MenuStatistics />} />
             <Route path="website-builder" element={<KindergartenWebsiteBuilder />} />
             <Route path="website-news" element={<WebsiteNewsManager />} />
