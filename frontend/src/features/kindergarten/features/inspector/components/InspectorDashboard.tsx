@@ -69,6 +69,15 @@ interface InspectorDashboardProps {
 }
 
 export const InspectorDashboard: React.FC<InspectorDashboardProps> = ({ onNewInspection, audits = [] }) => {
+  const totalAudits = audits.length;
+  const passedAudits = audits.filter((audit) => String(audit.overall_result || '').toUpperCase() === 'PASS').length;
+  const failedAudits = audits.filter((audit) => {
+    const result = String(audit.overall_result || '').toUpperCase();
+    return result === 'FAIL' || result === 'WARNING';
+  }).length;
+  const passRate = totalAudits > 0 ? Math.round((passedAudits / totalAudits) * 100) : 0;
+  const qualityIndex = totalAudits > 0 ? ((passedAudits / totalAudits) * 5).toFixed(1) : '0.0';
+
   return (
     <div className="space-y-4 sm:space-y-5 animate-in fade-in duration-700">
       {/* Header Section */}
@@ -129,29 +138,28 @@ export const InspectorDashboard: React.FC<InspectorDashboardProps> = ({ onNewIns
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         <KPICard 
           title="Jami auditlar" 
-          value={audits.length || 128} 
+          value={totalAudits} 
           icon={FileText} 
           theme="blue" 
-          trend="+12%"
           helper="umumiy nazorat"
         />
         <KPICard 
           title="Xatolar" 
-          value={audits.filter(a => a.overall_result !== 'PASS').length || 14} 
+          value={failedAudits} 
           icon={AlertTriangle} 
           theme="rose"
           helper="kamchiliklar"
         />
         <KPICard 
           title="Muvaffaqiyatli" 
-          value={`${audits.length ? Math.round((audits.filter(a => a.overall_result === 'PASS').length / audits.length) * 100) : 92}%`} 
+          value={`${passRate}%`} 
           icon={CheckCircle2} 
           theme="emerald"
           helper="pass ko'rsatkichi"
         />
         <KPICard 
           title="Sifat indeksi" 
-          value="4.8/5.0" 
+          value={`${qualityIndex}/5.0`} 
           icon={Activity} 
           theme="violet"
           helper="o'rtacha baho"
@@ -206,8 +214,8 @@ export const InspectorDashboard: React.FC<InspectorDashboardProps> = ({ onNewIns
                           <FileText size={16} className="sm:w-[18px] sm:h-[18px]" />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-black text-slate-900 text-xs sm:text-sm truncate">{a.inspection_id || `AUD-${1000 + i}`}</p>
-                          <p className="text-[8px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate">{a.inspection_type || "Organoleptik ko'rsatkichlar"}</p>
+                          <p className="font-black text-slate-900 text-xs sm:text-sm truncate">{a.inspection_id || a.id || '-'}</p>
+                          <p className="text-[8px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate">{a.inspection_type || 'Umumiy audit'}</p>
                         </div>
                       </div>
                     </td>
@@ -220,10 +228,10 @@ export const InspectorDashboard: React.FC<InspectorDashboardProps> = ({ onNewIns
                       </div>
                     </td>
                     <td className="px-6 sm:px-8 py-4 sm:py-6">
-                      <p className="text-[10px] sm:text-sm font-medium text-slate-600 whitespace-nowrap">{a.created_at?.split(' ')[0] || '2026-04-24'}</p>
+                      <p className="text-[10px] sm:text-sm font-medium text-slate-600 whitespace-nowrap">{a.created_at?.split(' ')[0] || '-'}</p>
                     </td>
                     <td className="px-6 sm:px-8 py-4 sm:py-6 hidden md:table-cell">
-                      <p className="text-sm font-bold text-slate-900 truncate">{a.created_by || 'Bosh inspektor'}</p>
+                      <p className="text-sm font-bold text-slate-900 truncate">{a.created_by || '-'}</p>
                     </td>
                     <td className="px-6 sm:px-8 py-4 sm:py-6">
                       <span className={`px-2 sm:px-3 py-1 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-wider whitespace-nowrap ${
