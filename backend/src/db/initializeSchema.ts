@@ -601,6 +601,74 @@ const initializeSchema = () => new Promise<void>(async (resolve, reject) => {
         FOREIGN KEY (kindergarten_id) REFERENCES kindergartens(id)
       )`);
 
+      db.run(`CREATE TABLE IF NOT EXISTS kindergarten_archive_documents (
+        id TEXT PRIMARY KEY,
+        kindergarten_id INTEGER NOT NULL,
+        document_name TEXT NOT NULL,
+        file_url TEXT NOT NULL,
+        file_name TEXT,
+        mime_type TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (kindergarten_id) REFERENCES kindergartens(id)
+      )`);
+
+      db.run(`CREATE TABLE IF NOT EXISTS child_archive_documents (
+        id TEXT PRIMARY KEY,
+        kindergarten_id INTEGER NOT NULL,
+        child_id TEXT NOT NULL,
+        category TEXT NOT NULL,
+        document_name TEXT NOT NULL,
+        file_url TEXT NOT NULL,
+        file_name TEXT,
+        mime_type TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (kindergarten_id) REFERENCES kindergartens(id),
+        FOREIGN KEY (child_id) REFERENCES children(id)
+      )`);
+
+      db.run(`CREATE TABLE IF NOT EXISTS staff_archive_documents (
+        id TEXT PRIMARY KEY,
+        kindergarten_id INTEGER NOT NULL,
+        staff_id TEXT NOT NULL,
+        category TEXT NOT NULL,
+        document_name TEXT NOT NULL,
+        file_url TEXT NOT NULL,
+        file_name TEXT,
+        mime_type TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (kindergarten_id) REFERENCES kindergartens(id),
+        FOREIGN KEY (staff_id) REFERENCES staff(id)
+      )`);
+
+      db.run(`CREATE TABLE IF NOT EXISTS archive_hidden_documents (
+        kindergarten_id INTEGER NOT NULL,
+        owner_type TEXT NOT NULL,
+        owner_id TEXT NOT NULL,
+        document_id TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (kindergarten_id, owner_type, owner_id, document_id),
+        FOREIGN KEY (kindergarten_id) REFERENCES kindergartens(id)
+      )`);
+
+      db.run(`CREATE TABLE IF NOT EXISTS archive_file_records (
+        id TEXT PRIMARY KEY,
+        kindergarten_id INTEGER NOT NULL,
+        owner_type TEXT NOT NULL,
+        owner_id TEXT NOT NULL,
+        document_id TEXT NOT NULL,
+        document_table TEXT NOT NULL,
+        category TEXT,
+        document_name TEXT NOT NULL,
+        file_url TEXT NOT NULL,
+        file_name TEXT,
+        mime_type TEXT,
+        file_exists BOOLEAN DEFAULT FALSE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(kindergarten_id, owner_type, document_id),
+        FOREIGN KEY (kindergarten_id) REFERENCES kindergartens(id)
+      )`);
+
       db.run(`CREATE TABLE IF NOT EXISTS inventory_transactions (
         id TEXT PRIMARY KEY,
         kindergarten_id INTEGER,
@@ -777,6 +845,11 @@ const initializeSchema = () => new Promise<void>(async (resolve, reject) => {
       ensureCascadeForeignKey('pickup_people', 'pickup_people_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
       ensureCascadeForeignKey('pickup_people', 'pickup_people_child_id_fkey', 'child_id', 'children');
       ensureCascadeForeignKey('kindergarten_settings', 'kindergarten_settings_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('kindergarten_archive_documents', 'kindergarten_archive_documents_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('child_archive_documents', 'child_archive_documents_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('child_archive_documents', 'child_archive_documents_child_id_fkey', 'child_id', 'children');
+      ensureCascadeForeignKey('staff_archive_documents', 'staff_archive_documents_kindergarten_id_fkey', 'kindergarten_id', 'kindergartens');
+      ensureCascadeForeignKey('staff_archive_documents', 'staff_archive_documents_staff_id_fkey', 'staff_id', 'staff');
 
       // Compatibility upgrades for databases created with older schemas.
       addColumn('parents', 'workplace', 'TEXT');
