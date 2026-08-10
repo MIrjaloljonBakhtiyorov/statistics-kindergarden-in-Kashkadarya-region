@@ -17,3 +17,4 @@ frontend/.env
 .npm-cache/
 *.log
 *.err.log
+backend/uploads/system-assets/
