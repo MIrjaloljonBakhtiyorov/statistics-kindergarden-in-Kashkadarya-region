@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserRole } from '../types';
 import { apiClient } from '@/shared/api';
 
+const HEARTBEAT_ROLES = ['OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR', 'LAB_CONTROLLER'];
+
 interface User {
   id: string;
   kindergarten_id?: string | number;
@@ -49,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const role = String(user?.role || '').toUpperCase();
-    if (!user?.id || !['OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR'].includes(role)) return;
+    if (!user?.id || !HEARTBEAT_ROLES.includes(role)) return;
 
     const sendHeartbeat = () => {
       apiClient.post('/auth/heartbeat', {

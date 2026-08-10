@@ -5,6 +5,7 @@
 
 import React, { lazy, Suspense, useState, useEffect } from 'react';
 import { AnimatePresence } from 'motion/react';
+import { Toaster } from 'sonner';
 import { useAuth } from './context/AuthContext';
 import './index.css';
 
@@ -15,18 +16,36 @@ import TopBar from './components/layout/TopBar';
 // --- Types & Hooks ---
 import { UserRole } from './types';
 import { useGroups } from './features/groups/hooks/useGroups';
+import { canAccessMenuRole, getDefaultMenuRole } from './roleAccess';
 
-const DirectorView = lazy(() => import('./components/views/DirectorView'));
-const OperatorView = lazy(() => import('./components/views/OperatorView'));
-const StorekeeperView = lazy(() => import('./components/views/StorekeeperView'));
-const ChefView = lazy(() => import('./components/views/ChefView'));
-const KitchenManagerView = lazy(() => import('./components/views/KitchenManagerView'));
-const LabView = lazy(() => import('./components/views/LabView'));
-const TeacherView = lazy(() => import('./components/views/TeacherView'));
-const NurseView = lazy(() => import('./components/views/NurseView'));
-const InspectorView = lazy(() => import('./components/views/InspectorView'));
-const ParentView = lazy(() => import('./components/views/ParentView'));
-const KindergartenWebsiteView = lazy(() => import('./components/views/KindergartenWebsiteView'));
+const lazyWithTimeout = <T extends React.ComponentType<any>>(loader: () => Promise<{ default: T }>) =>
+  lazy(() =>
+    new Promise<{ default: T }>((resolve, reject) => {
+      const timer = window.setTimeout(() => reject(new Error("Bo'limni yuklash vaqti tugadi")), 15000);
+      loader()
+        .then((module) => {
+          window.clearTimeout(timer);
+          resolve(module);
+        })
+        .catch((error) => {
+          window.clearTimeout(timer);
+          reject(error);
+        });
+    })
+  );
+
+const DirectorView = lazyWithTimeout(() => import('./components/views/DirectorView'));
+const OperatorView = lazyWithTimeout(() => import('./components/views/OperatorView'));
+const StorekeeperView = lazyWithTimeout(() => import('./components/views/StorekeeperView'));
+const ChefView = lazyWithTimeout(() => import('./components/views/ChefView'));
+const KitchenManagerView = lazyWithTimeout(() => import('./components/views/KitchenManagerView'));
+const LabView = lazyWithTimeout(() => import('./components/views/LabView'));
+const TeacherView = lazyWithTimeout(() => import('./components/views/TeacherView'));
+const NurseView = lazyWithTimeout(() => import('./components/views/NurseView'));
+const InspectorView = lazyWithTimeout(() => import('./components/views/InspectorView'));
+const ParentView = lazyWithTimeout(() => import('./components/views/ParentView'));
+const ArchiveView = lazyWithTimeout(() => import('./components/views/ArchiveView'));
+const KindergartenWebsiteView = lazyWithTimeout(() => import('./components/views/KindergartenWebsiteView'));
 
 const ViewFallback = () => (
   <div className="flex min-h-[360px] items-center justify-center rounded-lg border border-brand-line bg-white">
@@ -36,6 +55,44 @@ const ViewFallback = () => (
     </div>
   </div>
 );
+
+class ViewErrorBoundary extends React.Component<
+  { children: React.ReactNode; role: UserRole },
+  { hasError: boolean; message: string }
+> {
+  state = { hasError: false, message: '' };
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, message: error.message || "Bo'limni yuklashda xatolik yuz berdi" };
+  }
+
+  componentDidUpdate(previousProps: { role: UserRole }) {
+    if (previousProps.role !== this.props.role && this.state.hasError) {
+      this.setState({ hasError: false, message: '' });
+    }
+  }
+
+  render() {
+    if (!this.state.hasError) return this.props.children;
+
+    return (
+      <div className="flex min-h-[360px] items-center justify-center rounded-lg border border-rose-100 bg-white p-8">
+        <div className="max-w-md text-center">
+          <p className="text-[10px] font-black uppercase tracking-widest text-rose-600">Bo'lim yuklanmadi</p>
+          <h2 className="mt-2 text-xl font-black text-brand-depth">Sahifani ochishda xatolik yuz berdi</h2>
+          <p className="mt-3 text-sm font-bold leading-6 text-brand-slate">{this.state.message}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-6 h-11 rounded-[1px] border border-emerald-300 bg-emerald-700 px-5 text-sm font-black text-white transition-colors hover:bg-emerald-800"
+          >
+            Qayta yuklash
+          </button>
+        </div>
+      </div>
+    );
+  }
+}
 
 const getRouteState = () => {
   const parts = window.location.pathname.split('/').filter(Boolean);
@@ -87,13 +144,22 @@ const App: React.FC = () => {
     }
 
     if (user.role !== 'PARENT' && currentRole === 'PARENT') {
-      setCurrentRole(user.role);
-      window.history.replaceState(null, '', `/kindergarten/${currentKindergartenId}/${String(user.role).toLowerCase()}`);
+      const defaultRole = getDefaultMenuRole(user.role);
+      setCurrentRole(defaultRole);
+      window.history.replaceState(null, '', `/kindergarten/${currentKindergartenId}/${String(defaultRole).toLowerCase()}`);
+      return;
+    }
+
+    if (user.role !== 'PARENT' && !canAccessMenuRole(user.role, currentRole)) {
+      const defaultRole = getDefaultMenuRole(user.role);
+      setCurrentRole(defaultRole);
+      window.history.replaceState(null, '', `/kindergarten/${currentKindergartenId}/${String(defaultRole).toLowerCase()}`);
     }
   }, [currentKindergartenId, currentRole, isAuthenticated, user]);
 
   // Rol o'zgarganda URL ni yangilash
   const handleRoleChange = (role: UserRole) => {
+    if (!canAccessMenuRole(user?.role, role)) return;
     setCurrentRole(role);
     if (currentKindergartenId) {
       window.history.pushState(null, '', `/kindergarten/${currentKindergartenId}/${role.toLowerCase()}`);
@@ -128,6 +194,8 @@ const App: React.FC = () => {
         return <NurseView />;
       case 'INSPECTOR':
         return <InspectorView />;
+      case 'ARCHIVE':
+        return <ArchiveView />;
       case 'WEBSITE':
         return <KindergartenWebsiteView />;
       case 'PARENT':
@@ -146,6 +214,7 @@ const App: React.FC = () => {
 
   return (
     <div className="kindergarten-shell flex h-dvh bg-brand-ghost font-sans text-brand-depth overflow-hidden">
+      <Toaster position="top-center" richColors />
       {/* Sidebar - Hidden for Parents */}
       {!isParent && (
         <>
@@ -186,9 +255,11 @@ const App: React.FC = () => {
           <div className={`${isParent ? 'w-full h-full min-h-0' : 'max-w-[1600px] mx-auto w-full min-w-0'}`}>
             <AnimatePresence mode="wait">
               <div key={currentRole} className={`min-w-0 ${isParent ? 'h-full min-h-0' : ''}`}>
-                <Suspense fallback={<ViewFallback />}>
-                  {renderCurrentView()}
-                </Suspense>
+                <ViewErrorBoundary role={currentRole}>
+                  <Suspense fallback={<ViewFallback />}>
+                    {renderCurrentView()}
+                  </Suspense>
+                </ViewErrorBoundary>
               </div>
             </AnimatePresence>
           </div>
