@@ -32,7 +32,18 @@ const roleLabels: Record<string, string> = {
   NURSE: 'Hamshira',
   CHEF: 'Oshpaz',
   STOREKEEPER: 'Omborchi',
-  INSPECTOR: 'Nazorat / Laboratoriya',
+  INSPECTOR: "Organoleptik ko'rsatkichlar",
+  LAB_CONTROLLER: 'Laboratoriya',
+};
+
+const roleDescriptions: Record<string, string> = {
+  OPERATOR: "Operator, arxiv va bog'cha web sayti menyulari uchun yagona kirish",
+  TEACHER: "Tarbiyachi bo'limi uchun alohida kirish",
+  NURSE: "Hamshira bo'limi uchun alohida kirish",
+  CHEF: "Oshpaz bo'limi uchun alohida kirish",
+  STOREKEEPER: "Omborchi bo'limi uchun alohida kirish",
+  INSPECTOR: "Organoleptik ko'rsatkichlar bo'limi uchun alohida kirish",
+  LAB_CONTROLLER: "Laboratoriya bo'limi uchun alohida kirish",
 };
 
 roleAccountsRoutes.get("/role-accounts", async (req, res) => {
@@ -40,7 +51,19 @@ roleAccountsRoutes.get("/role-accounts", async (req, res) => {
     await ensureTables();
     const kindergartenId = await resolveKindergartenId(req);
     const rows = await all<any>(
-      'SELECT id, role, full_name, login, created_at, updated_at FROM role_accounts WHERE kindergarten_id = ? ORDER BY role',
+      `SELECT id, role, full_name, login, created_at, updated_at
+       FROM role_accounts
+       WHERE kindergarten_id = ?
+       ORDER BY CASE role
+         WHEN 'OPERATOR' THEN 1
+         WHEN 'TEACHER' THEN 2
+         WHEN 'NURSE' THEN 3
+         WHEN 'CHEF' THEN 4
+         WHEN 'STOREKEEPER' THEN 5
+         WHEN 'INSPECTOR' THEN 6
+         WHEN 'LAB_CONTROLLER' THEN 7
+         ELSE 99
+       END`,
       [kindergartenId]
     );
     const byRole = new Map(rows.map((row) => [row.role, row]));
@@ -49,6 +72,7 @@ roleAccountsRoutes.get("/role-accounts", async (req, res) => {
       id: byRole.get(role)?.id || null,
       role,
       label,
+      description: roleDescriptions[role],
       full_name: byRole.get(role)?.full_name || label,
       login: byRole.get(role)?.login || '',
       created_at: byRole.get(role)?.created_at || null,
@@ -65,7 +89,7 @@ roleAccountsRoutes.put("/role-accounts/:role", async (req, res) => {
     await ensureTables();
     const kindergartenId = await resolveKindergartenId(req);
     const role = String(req.params.role || '').trim().toUpperCase();
-    if (!roleLabels[role]) return res.status(400).json({ error: 'NotoКјgКјri rol' });
+    if (!roleLabels[role]) return res.status(400).json({ error: "Noto'g'ri rol" });
 
     const existing = await get<any>(
       'SELECT id FROM role_accounts WHERE kindergarten_id = ? AND role = ?',

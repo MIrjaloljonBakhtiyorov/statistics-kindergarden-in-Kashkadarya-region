@@ -11,6 +11,7 @@ const PHONE_RE = /^\+?\d[\d\s-]{7,18}$/;
 
 const normalizeEmail = (email: unknown) => String(email || '').trim().toLowerCase();
 const isBcryptHash = (value: unknown) => /^\$2[aby]\$\d{2}\$/.test(String(value || ''));
+const ROLE_ACCOUNT_ROLES = ['OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR', 'LAB_CONTROLLER'];
 
 const verifyPassword = async (password: string, storedPassword: unknown) => {
   const stored = String(storedPassword || '');
@@ -185,7 +186,7 @@ export class AuthController {
          LEFT JOIN kindergartens k ON k.id = ra.kindergarten_id
          WHERE lower(trim(ra.login)) = ?
            AND ra.role IN (
-             'OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR'
+             'OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR', 'LAB_CONTROLLER'
            )
          LIMIT 1`,
         [normalizedLogin],
@@ -252,7 +253,7 @@ export class AuthController {
       const kindergartenId = req.body.kindergartenId ?? req.body.kindergarten_id ?? null;
       const role = String(req.body.role || '').toUpperCase();
 
-      if (!userId || !['OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR'].includes(role)) {
+      if (!userId || !ROLE_ACCOUNT_ROLES.includes(role)) {
         return res.status(400).json({ error: "Foydalanuvchi ma'lumoti noto'g'ri" });
       }
 

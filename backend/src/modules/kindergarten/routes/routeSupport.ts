@@ -150,7 +150,7 @@ export const ensureTables = (() => {
         )`,
         `DELETE FROM role_accounts
          WHERE role NOT IN (
-           'OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR'
+           'OPERATOR', 'TEACHER', 'NURSE', 'CHEF', 'STOREKEEPER', 'INSPECTOR', 'LAB_CONTROLLER'
          )`
       ];
 
