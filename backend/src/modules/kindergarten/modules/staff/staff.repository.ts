@@ -36,6 +36,13 @@ export class StaffRepository {
         async function(err) {
           if (err) reject(err);
           else {
+            if (data.passport_no) {
+              db.run(
+                `DELETE FROM archive_hidden_documents
+                 WHERE kindergarten_id = ? AND owner_type = ? AND owner_id = ? AND document_id = ?`,
+                [kindergartenId, 'staff', id, `profile_${id}_passport`]
+              );
+            }
             await OperationsRepository.log('UPDATE', 'STAFF', data.full_name, 'Xodim ma\'lumotlari tahrirlandi');
             resolve();
           }

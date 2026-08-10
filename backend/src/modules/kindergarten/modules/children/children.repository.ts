@@ -112,6 +112,21 @@ export class ChildrenRepository {
                await run('UPDATE parent_accounts SET login = ? WHERE id = ? AND kindergarten_id = ?', [normalizeLogin(nextLogin), child.parent_account_id, kindergartenId]);
             }
 
+            const visibleProfileDocumentIds = [
+              data.father_passport ? `profile_${id}_father_passport` : null,
+              data.mother_passport ? `profile_${id}_mother_passport` : null,
+              data.birth_certificate_number ? `profile_${id}_birth_certificate` : null,
+              (data.medical_notes || data.allergies) ? `profile_${id}_medical` : null,
+            ].filter(Boolean);
+
+            for (const documentId of visibleProfileDocumentIds) {
+              await run(
+                `DELETE FROM archive_hidden_documents
+                 WHERE kindergarten_id = ? AND owner_type = ? AND owner_id = ? AND document_id = ?`,
+                [kindergartenId, 'child', id, documentId]
+              ).catch(() => undefined);
+            }
+
             await OperationsRepository.log('UPDATE', 'CHILD', `${data.first_name} ${data.last_name}`, 'Bolaning ma\'lumotlari tahrirlandi');
             db.run('COMMIT', (err) => { if (err) { db.run('ROLLBACK'); reject(err); } else resolve(); });
           } catch (error) { db.run('ROLLBACK'); reject(error); }
