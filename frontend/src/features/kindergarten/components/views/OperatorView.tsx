@@ -44,6 +44,7 @@ interface RoleAccount {
   id: string | null;
   role: string;
   label: string;
+  description?: string;
   full_name: string;
   login: string;
   password?: string;
@@ -338,6 +339,11 @@ const OperatorView: React.FC<OperatorViewProps> = ({ groups: initialGroups }) =>
                     </div>
                     <div>
                       <p className="font-black text-brand-depth">{account.label}</p>
+                      {account.description && (
+                        <p className="mt-1 max-w-[220px] text-[10px] font-bold text-brand-slate leading-snug">
+                          {account.description}
+                        </p>
+                      )}
                       <p className="text-[10px] font-bold text-brand-muted uppercase tracking-widest">
                         {account.hasPassword ? 'Faol account' : 'Hali yaratilmagan'}
                       </p>
