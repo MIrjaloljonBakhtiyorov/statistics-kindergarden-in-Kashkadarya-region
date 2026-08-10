@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { authRoutes } from './auth.routes.js';
 import { attendanceRoutes } from './attendance.routes.js';
+import { archiveRoutes } from './archive.routes.js';
 import { chefRoutes } from './chef.routes.js';
 import { childrenRoutes } from './children.routes.js';
 import { foodRoutes } from './food.routes.js';
@@ -22,6 +23,7 @@ import { staffRoutes } from './staff.routes.js';
 const router = Router();
 
 router.use(authRoutes);
+router.use(archiveRoutes);
 router.use(settingsRoutes);
 router.use(roleAccountsRoutes);
 router.use(childrenRoutes);
