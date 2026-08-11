@@ -17,15 +17,18 @@ import {
   Syringe,
   Apple,
   Brain,
-  BookOpenCheck,
   FileText,
   MapPinned,
   RefreshCw,
   Route,
   Crown,
+  ExternalLink,
+  Loader2,
   Megaphone,
+  Newspaper,
   History,
   Languages,
+  X,
 } from 'lucide-react';
 import { apiClient, PARENT_PORTAL_API_BASE_URL } from '@/shared/api';
 import { useAuth } from '../../context/AuthContext';
@@ -56,7 +59,7 @@ import {
 } from '../../features/parent-portal/i18n/parentPortalI18n';
 
 
-type SettingsTab = 'profile' | 'parentProfile' | 'security' | 'menu' | 'medical' | 'messages' | 'finance' | 'language' | 'tariffs' | 'attendance' | 'documents' | 'pickup' | 'progress' | 'vaccines' | 'psychology' | 'nearby' | 'developmentMap' | 'education' | 'ads' | 'loginHistory';
+type SettingsTab = 'profile' | 'parentProfile' | 'security' | 'menu' | 'medical' | 'messages' | 'finance' | 'language' | 'tariffs' | 'attendance' | 'documents' | 'pickup' | 'progress' | 'vaccines' | 'psychology' | 'nearby' | 'developmentMap' | 'ads' | 'news' | 'loginHistory';
 
 const tabToPath: Record<SettingsTab, string> = {
   profile: 'profile',
@@ -76,8 +79,8 @@ const tabToPath: Record<SettingsTab, string> = {
   psychology: 'psychology',
   nearby: 'nearby-kindergartens',
   developmentMap: 'development-map',
-  education: 'education',
   ads: 'ads',
+  news: 'news',
   loginHistory: 'login-history'
 };
 
@@ -105,11 +108,13 @@ const getParentTabFromPath = (): SettingsTab => {
 const getParentTabPath = (tab: SettingsTab) => `${getParentBasePath()}/${tabToPath[tab]}`;
 
 const getAssetUrl = (value?: string) => {
-  if (!value) return '';
-  if (/^(https?:|data:|blob:)/.test(value)) return value;
+  const rawValue = String(value || '').trim();
+  if (!rawValue || rawValue === 'null' || rawValue === 'undefined') return '';
+  const normalizedValue = rawValue;
+  if (/^(https?:|data:|blob:)/.test(normalizedValue)) return normalizedValue;
   const apiBase = PARENT_PORTAL_API_BASE_URL || '';
   const origin = apiBase.replace(/\/api\/?$/, '');
-  return `${origin}${value.startsWith('/') ? value : `/${value}`}`;
+  return `${origin}${normalizedValue.startsWith('/') ? normalizedValue : `/${normalizedValue}`}`;
 };
 
 const ComingSoonSection = ({ title, description, icon: Icon, statusText = "Bu qism dasturchi tomonidan ishlab chiqilyapti" }: { title: string; description: string; icon: any; statusText?: string }) => (
@@ -129,6 +134,439 @@ const ComingSoonSection = ({ title, description, icon: Icon, statusText = "Bu qi
   </div>
 );
 
+interface ParentNewsItem {
+  id: string;
+  title: string;
+  text?: string;
+  imageUrl?: string;
+  mediaType?: 'image' | 'video';
+  linkUrl?: string;
+  publishedAt?: string;
+  createdAt?: string;
+}
+
+interface ParentAdvertisementItem {
+  id: string;
+  name: string;
+  text?: string;
+  imageUrl?: string;
+  linkUrl?: string;
+  contentType?: 'image' | 'video' | 'text';
+  displayCount?: number;
+  durationDays?: number;
+  createdAt?: string;
+}
+
+const formatParentNewsDate = (value?: string) => {
+  if (!value) return 'Yangilik';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleDateString('uz-UZ', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+};
+
+const normalizeParentNewsLink = (value?: string) => {
+  const link = String(value || '').trim();
+  if (!link) return '';
+  return /^(https?:)?\/\//i.test(link) || link.startsWith('/') ? link : `https://${link}`;
+};
+
+const getSeenNewsIds = (storageKey: string) => {
+  if (!storageKey) return new Set<string>();
+  try {
+    const parsed = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
+  } catch {
+    localStorage.removeItem(storageKey);
+    return new Set<string>();
+  }
+};
+
+const saveSeenNewsIds = (storageKey: string, ids: string[]) => {
+  if (!storageKey) return;
+  const merged = new Set([...getSeenNewsIds(storageKey), ...ids.map(String)]);
+  localStorage.setItem(storageKey, JSON.stringify([...merged].slice(-500)));
+};
+
+const AD_COUNTDOWN_SECONDS = 9;
+
+const ParentAdsSection = ({ onClose, onEmpty }: { onClose: () => void; onEmpty?: () => void }) => {
+  const [items, setItems] = useState<ParentAdvertisementItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const countdownRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    apiClient.get('/parent-portal/advertisements')
+      .then((response) => {
+        if (!mounted) return;
+        const rows = Array.isArray(response.data) ? response.data : [];
+        setItems(rows.map((item: any) => ({
+          id: String(item.id),
+          name: String(item.name || ''),
+          text: String(item.text || '').trim() || undefined,
+          imageUrl: String(item.imageUrl || item.image_url || '').trim() || undefined,
+          linkUrl: String(item.linkUrl || item.link_url || '').trim() || undefined,
+          contentType: String(item.contentType || item.content_type || 'text') === 'video'
+            ? 'video'
+            : String(item.contentType || item.content_type || 'text') === 'image'
+              ? 'image'
+              : 'text',
+          displayCount: Number(item.displayCount || item.display_count || 0),
+          durationDays: Number(item.durationDays || item.duration_days || 1),
+          createdAt: String(item.createdAt || item.created_at || ''),
+        })));
+      })
+      .catch(() => {
+        if (mounted) setItems([]);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const activeItem = items[0];
+
+  useEffect(() => {
+    if (!loading && !activeItem) {
+      onEmpty?.();
+    }
+  }, [activeItem, loading, onEmpty]);
+
+  useEffect(() => {
+    if (loading || !activeItem) return;
+
+    let remainingSeconds = AD_COUNTDOWN_SECONDS;
+    const countdownElement = countdownRef.current;
+    const closeButtonElement = closeButtonRef.current;
+
+    if (countdownElement) {
+      countdownElement.textContent = String(AD_COUNTDOWN_SECONDS);
+      countdownElement.style.display = 'flex';
+    }
+    if (closeButtonElement) {
+      closeButtonElement.style.display = 'none';
+    }
+
+    const intervalId = window.setInterval(() => {
+      remainingSeconds -= 1;
+
+      if (countdownElement) {
+        countdownElement.textContent = String(Math.max(remainingSeconds, 0));
+      }
+
+      if (remainingSeconds <= 0) {
+        window.clearInterval(intervalId);
+        if (countdownElement) {
+          countdownElement.style.display = 'none';
+        }
+        if (closeButtonElement) {
+          closeButtonElement.style.display = 'flex';
+        }
+      }
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [activeItem?.id, loading]);
+
+  const openAdLink = (link?: string) => {
+    const url = normalizeParentNewsLink(link);
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleAdCardClick = (event: React.MouseEvent<HTMLElement>, link?: string) => {
+    const target = event.target as HTMLElement;
+    if (target.closest('video, button, a')) return;
+    openAdLink(link);
+  };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center bg-slate-950 text-white">
+        <div className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-5 py-4 text-sm font-black text-white shadow-xl backdrop-blur">
+          <Loader2 size={18} className="animate-spin text-blue-700" />
+          Reklamalar yuklanmoqda
+        </div>
+      </div>
+    );
+  }
+
+  if (!activeItem) {
+    return null;
+  }
+
+  const source = getAssetUrl(activeItem.imageUrl);
+  const isLinked = Boolean(activeItem.linkUrl);
+
+  return (
+    <section
+      role={isLinked ? 'link' : undefined}
+      tabIndex={isLinked ? 0 : undefined}
+      onClick={(event) => handleAdCardClick(event, activeItem.linkUrl)}
+      onKeyDown={(event) => {
+        if (isLinked && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          openAdLink(activeItem.linkUrl);
+        }
+      }}
+      className={`fixed inset-0 z-[9999] h-screen w-screen overflow-hidden bg-transparent text-white ${
+        isLinked ? 'cursor-pointer focus:outline-none' : ''
+      }`}
+    >
+      <div className="absolute inset-x-[10vw] inset-y-[9vh] overflow-hidden bg-slate-900">
+        {source && activeItem.contentType === 'video' ? (
+          <video
+            src={source}
+            autoPlay
+            muted
+            playsInline
+            className="h-full w-full object-cover"
+          />
+        ) : source ? (
+          <img src={source} alt={activeItem.name} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 p-8 text-center">
+            <div className="max-w-3xl">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center border border-white/15 bg-white/10 shadow-2xl">
+                <Megaphone size={38} />
+              </div>
+              <h1 className="mt-7 break-words text-4xl font-black leading-tight sm:text-6xl">
+                {activeItem.name}
+              </h1>
+              {activeItem.text ? (
+                <p className="mx-auto mt-5 max-w-2xl break-words text-lg font-bold leading-8 text-white/75 sm:text-2xl sm:leading-10">
+                  {activeItem.text}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="absolute right-[calc(10vw-56px)] top-[calc(9vh-56px)] z-20">
+        <button
+          ref={closeButtonRef}
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onClose();
+          }}
+          aria-label="Reklamani yopish"
+          style={{ display: 'none' }}
+          className="h-13 w-13 items-center justify-center rounded-full border border-white/25 bg-white text-slate-950 shadow-2xl transition hover:scale-105 hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-white/40"
+        >
+          <X size={24} />
+        </button>
+        <div
+          ref={countdownRef}
+          className="flex h-13 min-w-13 items-center justify-center rounded-full border border-slate-200 bg-white px-5 text-2xl font-black text-slate-950 shadow-2xl"
+        >
+          {AD_COUNTDOWN_SECONDS}
+        </div>
+      </div>
+
+    </section>
+  );
+};
+
+const ParentNewsSection = ({
+  seenStorageKey,
+  onCountChange,
+}: {
+  seenStorageKey: string;
+  onCountChange?: (count: number) => void;
+}) => {
+  const [items, setItems] = useState<ParentNewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    apiClient.get('/parent-portal/news')
+      .then((response) => {
+        if (!mounted) return;
+        const rows = Array.isArray(response.data) ? response.data : [];
+        const normalizedRows: ParentNewsItem[] = rows.map((item: any) => ({
+          id: String(item.id),
+          title: String(item.title || ''),
+          text: String(item.text || item.body || '').trim() || undefined,
+          imageUrl: String(item.imageUrl || item.image_url || ''),
+          mediaType: String(item.mediaType || item.media_type || 'image') === 'video' ? 'video' as const : 'image' as const,
+          linkUrl: String(item.linkUrl || item.link_url || '').trim() || undefined,
+          publishedAt: String(item.publishedAt || item.published_at || ''),
+          createdAt: String(item.createdAt || item.created_at || ''),
+        }));
+        saveSeenNewsIds(seenStorageKey, normalizedRows.map((item) => item.id));
+        onCountChange?.(0);
+        setItems(normalizedRows);
+      })
+      .catch(() => {
+        if (mounted) setItems([]);
+        onCountChange?.(0);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [onCountChange, seenStorageKey]);
+
+  const openNewsLink = (link?: string) => {
+    const url = normalizeParentNewsLink(link);
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleNewsCardClick = (event: React.MouseEvent<HTMLElement>, link?: string) => {
+    const target = event.target as HTMLElement;
+    if (target.closest('video, button, a')) return;
+    openNewsLink(link);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[360px] items-center justify-center">
+        <div className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-black text-brand-muted shadow-sm">
+          <Loader2 size={18} className="animate-spin text-blue-700" />
+          Yuklanmoqda
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 sm:space-y-5">
+      <div className="relative overflow-hidden rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-slate-950 via-blue-800 to-indigo-700" />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-[18px] bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-900 text-white shadow-lg shadow-slate-950/15">
+              <Newspaper size={24} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Ota-ona portali</p>
+              <h2 className="mt-1 text-2xl font-black leading-tight text-brand-depth sm:text-3xl">Yangiliklar</h2>
+              <p className="mt-1 text-sm font-bold leading-6 text-brand-muted">
+                MTT administratsiyasi tomonidan joylangan faol yangiliklar.
+              </p>
+            </div>
+          </div>
+          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[11px] font-black text-blue-800">
+            <Newspaper size={14} />
+            {items.length} ta yangilik
+          </span>
+        </div>
+      </div>
+
+      {items.length > 0 ? (
+        <div className="grid max-w-[820px] gap-4">
+          {items.map((item) => {
+            const mediaUrl = getAssetUrl(item.imageUrl);
+            const isLinked = Boolean(item.linkUrl);
+
+            return (
+              <article
+                key={item.id}
+                role={isLinked ? 'link' : undefined}
+                tabIndex={isLinked ? 0 : undefined}
+                onClick={(event) => handleNewsCardClick(event, item.linkUrl)}
+                onKeyDown={(event) => {
+                  if (isLinked && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    openNewsLink(item.linkUrl);
+                  }
+                }}
+                className={`group grid min-w-0 overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-sm transition-all md:grid-cols-[260px_minmax(0,1fr)] ${
+                  isLinked ? 'cursor-pointer hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-100/70 focus:outline-none focus:ring-4 focus:ring-blue-100' : ''
+                }`}
+              >
+                <div className="relative h-[190px] w-full overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 sm:h-[220px] md:h-[230px]">
+                  {mediaUrl ? (
+                    item.mediaType === 'video' ? (
+                      <video src={mediaUrl} controls className="h-full w-full object-cover" />
+                    ) : (
+                      <img src={mediaUrl} alt={item.title} className="h-full w-full object-cover" />
+                    )
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-slate-400">
+                      <Newspaper size={34} />
+                    </div>
+                  )}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-950/30 to-transparent" />
+                  <span className="absolute left-3 top-3 rounded-full border border-white/40 bg-white/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-slate-950 shadow-sm backdrop-blur">
+                    Yangilik
+                  </span>
+                </div>
+                <div className="flex min-h-0 min-w-0 flex-col justify-between p-4 sm:p-5">
+                  <div className="min-w-0">
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-black text-slate-500">
+                        <Calendar size={13} />
+                        {formatParentNewsDate(item.publishedAt || item.createdAt)}
+                      </span>
+                      {isLinked && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-black text-blue-700">
+                          <ExternalLink size={13} />
+                          Batafsil
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="min-w-0 overflow-hidden break-words text-[18px] font-black leading-snug text-brand-depth sm:text-[20px] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+                        {item.title}
+                      </h3>
+                      {isLinked && (
+                        <span className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-700 transition group-hover:bg-blue-600 group-hover:text-white sm:flex">
+                          <ExternalLink size={17} />
+                        </span>
+                      )}
+                    </div>
+                    {item.text && (
+                      <p className="mt-3 max-w-2xl overflow-hidden break-words text-[13px] font-semibold leading-6 text-brand-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                        {item.text}
+                      </p>
+                    )}
+                  </div>
+                  {isLinked && (
+                    <div className="mt-4 border-t border-slate-100 pt-4">
+                      <p className="truncate text-[11px] font-bold text-slate-400">
+                        Yangilik ustiga bosib havolaga o'tish mumkin
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="flex min-h-[300px] items-center justify-center rounded-[24px] border border-dashed border-slate-300 bg-white p-6 text-center shadow-sm">
+          <div>
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[18px] bg-slate-100 text-slate-500">
+              <Newspaper size={24} />
+            </div>
+            <p className="mt-4 text-base font-black text-brand-depth">Hozircha faol yangilik yo'q</p>
+            <p className="mt-2 text-sm font-bold text-brand-muted">Admin panelda saqlangan faol yangiliklar shu yerda chiqadi.</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ParentViewContent = () => {
   const { user, logout } = useAuth();
   const { showNotification } = useNotification();
@@ -136,11 +574,15 @@ const ParentViewContent = () => {
   const [activeTab, setActiveTab] = useState<SettingsTab>(() => getParentTabFromPath());
   const [isSaving, setIsSaving] = useState(false);
   const [messagesUnreadCount, setMessagesUnreadCount] = useState(0);
+  const [parentNewsCount, setParentNewsCount] = useState(0);
+  const [showLoginAdvertisement, setShowLoginAdvertisement] = useState(false);
   const mobileNavRef = useRef<HTMLElement>(null);
+  const loginAdvertisementAttemptedRef = useRef(false);
   
   const [parentData, setParentData] = useState<any>(null);
   const [fullPortalData, setFullPortalData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [childPhotoFailed, setChildPhotoFailed] = useState(false);
 
   useEffect(() => {
     if (user?.childId) {
@@ -197,6 +639,49 @@ const ParentViewContent = () => {
     return () => window.clearInterval(interval);
   }, [loadMessagesUnreadCount]);
 
+  const parentNewsSeenKey = `parent-portal-seen-news:${user?.id || 'parent'}:${user?.childId || 'child'}`;
+
+  const dismissLoginAdvertisement = useCallback(() => {
+    setShowLoginAdvertisement(false);
+  }, []);
+
+  const handleParentLogout = useCallback(() => {
+    logout();
+  }, [logout]);
+
+  useEffect(() => {
+    loginAdvertisementAttemptedRef.current = false;
+    setShowLoginAdvertisement(false);
+  }, [user?.childId, user?.id]);
+
+  useEffect(() => {
+    if (loading || !user?.id || !user?.childId || !parentData) return;
+    if (loginAdvertisementAttemptedRef.current) return;
+    loginAdvertisementAttemptedRef.current = true;
+    setShowLoginAdvertisement(true);
+  }, [loading, parentData, user?.childId, user?.id]);
+
+  const loadParentNewsCount = useCallback(async () => {
+    try {
+      const response = await apiClient.get('/parent-portal/news');
+      const rows = Array.isArray(response.data) ? response.data : [];
+      const seenIds = getSeenNewsIds(parentNewsSeenKey);
+      setParentNewsCount(rows.filter((item: any) => !seenIds.has(String(item.id))).length);
+    } catch {
+      setParentNewsCount(0);
+    }
+  }, [parentNewsSeenKey]);
+
+  useEffect(() => {
+    loadParentNewsCount();
+    const interval = window.setInterval(loadParentNewsCount, 30000);
+    return () => window.clearInterval(interval);
+  }, [loadParentNewsCount]);
+
+  useEffect(() => {
+    setChildPhotoFailed(false);
+  }, [parentData?.photo_url]);
+
   const fetchPortalData = async (childId: string) => {
     setLoading(true);
     try {
@@ -242,7 +727,7 @@ const ParentViewContent = () => {
            <h2 className="text-2xl font-black text-brand-depth">Hisob bog'lanmagan</h2>
            <p className="text-brand-muted font-bold max-w-sm mx-auto text-sm">Ushbu ota-ona hisobi hali biron bir bola ma'lumotlariga bog'lanmagan.</p>
         </div>
-        <button onClick={logout} className="px-8 py-4 bg-brand-depth text-white font-black uppercase text-[10px] tracking-widest rounded-xl hover:bg-brand-primary flex items-center gap-3">
+        <button onClick={handleParentLogout} className="px-8 py-4 bg-brand-depth text-white font-black uppercase text-[10px] tracking-widest rounded-xl hover:bg-brand-primary flex items-center gap-3">
            <LogOut size={16} /> Chiqish
         </button>
       </div>
@@ -295,10 +780,9 @@ const ParentViewContent = () => {
     { id: 'attendance', label: parentPhrase('Davomat'), icon: Calendar, color: 'navy' },
     { id: 'progress', label: parentPhrase('Yutuqlar'), icon: Star, color: 'navy' },
     { id: 'developmentMap', label: parentPhrase('Rivojlanish xaritasi'), icon: Route, color: 'navy' },
-    { id: 'education', label: parentPhrase("Ta'lim"), icon: BookOpenCheck, color: 'navy' },
     { id: 'psychology', label: parentPhrase('Psixologik maslahat'), icon: Brain, color: 'navy' },
     { id: 'nearby', label: parentPhrase("Yaqin bog'chalar"), icon: MapPinned, color: 'navy' },
-    { id: 'ads', label: parentPhrase('Reklama'), icon: Megaphone, color: 'navy' },
+    { id: 'news', label: parentPhrase('Yangiliklar'), icon: Newspaper, color: 'navy' },
     { id: 'messages', label: parentPhrase('Xabarlar'), icon: MessageSquare, color: 'navy' },
     { id: 'menu', label: parentPhrase('Menyu'), icon: Apple, color: 'navy' },
     { id: 'vaccines', label: parentPhrase('Emlash'), icon: Syringe, color: 'navy' },
@@ -309,10 +793,14 @@ const ParentViewContent = () => {
     { id: 'security', label: parentPhrase('Xavfsizlik'), icon: ShieldCheck, color: 'navy' },
   ];
 
-  const handleProfileUpdate = () => {
-    if (user?.childId) {
-      fetchPortalData(user.childId);
+  const handleProfileUpdate = (nextParentData?: any) => {
+    if (nextParentData && typeof nextParentData === 'object') {
+      setParentData(nextParentData);
     }
+    if (user?.childId) {
+      return fetchPortalData(user.childId);
+    }
+    return Promise.resolve();
   };
 
   const handleTabChange = (tab: SettingsTab) => {
@@ -324,6 +812,7 @@ const ParentViewContent = () => {
   };
 
   const childPhotoUrl = getAssetUrl(parentData?.photo_url);
+  const showChildPhoto = Boolean(childPhotoUrl && !childPhotoFailed);
   const currentTariff = 'Premium tarif';
   const currentParentLanguage = parentPortalLanguages.find((item) => item.code === language) || parentPortalLanguages[0];
   const renderTabContent = () => {
@@ -348,15 +837,6 @@ const ParentViewContent = () => {
             icon={Route}
           />
         );
-      case 'education':
-        return (
-          <ComingSoonSection
-            title="Ta'lim"
-            description="Bolaning ta'lim jarayoni, mashg'ulotlar rejasi va o'quv natijalari shu bo'limda jamlanadi."
-            icon={BookOpenCheck}
-            statusText="Bu qism dasturchi tomonidan ishlab chiqildi"
-          />
-        );
       case 'psychology':
         return (
           <ComingSoonSection
@@ -374,13 +854,8 @@ const ParentViewContent = () => {
           />
         );
       case 'ads':
-        return (
-          <ComingSoonSection
-            title="Reklama"
-            description="Ota-onalar uchun foydali e'lonlar, maxsus takliflar va hamkorlar reklamalari shu bo'limda ko'rsatiladi."
-            icon={Megaphone}
-          />
-        );
+        return <ParentProfileSection parentData={parentData} onUpdate={handleProfileUpdate} />;
+      case 'news': return <ParentNewsSection seenStorageKey={parentNewsSeenKey} onCountChange={setParentNewsCount} />;
       case 'messages': return (
         <MessagesSection
           childName={`${parentData?.first_name || ''} ${parentData?.last_name || ''}`.trim()}
@@ -415,8 +890,13 @@ const ParentViewContent = () => {
           <div className="flex min-w-0 items-center gap-3">
             <div className="relative ml-1 shrink-0">
               <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[16px] border border-slate-200 bg-gradient-to-br from-slate-100 to-white shadow-sm sm:h-[58px] sm:w-[58px] sm:rounded-[18px]">
-                {childPhotoUrl ? (
-                  <img src={childPhotoUrl} alt="Bola rasmi" className="h-full w-full object-cover" />
+                {showChildPhoto ? (
+                  <img
+                    src={childPhotoUrl}
+                    alt="Bola rasmi"
+                    className="h-full w-full object-cover"
+                    onError={() => setChildPhotoFailed(true)}
+                  />
                 ) : (
                   <User size={25} className="text-slate-500" />
                 )}
@@ -477,7 +957,7 @@ const ParentViewContent = () => {
                 <RefreshCw size={18} />
               </button>
               <button
-                onClick={logout}
+                onClick={handleParentLogout}
                 title="Tizimdan chiqish"
                 className="relative my-auto flex h-10 items-center justify-center gap-1.5 rounded-[15px] bg-gradient-to-r from-slate-950 to-blue-950 px-2 text-[11px] font-extrabold uppercase text-white shadow-lg shadow-slate-950/20 transition-all hover:from-blue-950 hover:to-slate-800 hover:shadow-md hover:shadow-slate-950/25 sm:h-11 sm:rounded-[16px] sm:px-3"
               >
@@ -508,6 +988,11 @@ const ParentViewContent = () => {
                 {item.id === 'messages' && messagesUnreadCount > 0 && (
                   <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-950 px-1 text-[9px] font-black text-white ring-2 ring-white">
                     {messagesUnreadCount}
+                  </span>
+                )}
+                {item.id === 'news' && parentNewsCount > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[9px] font-black text-white ring-2 ring-white">
+                    {parentNewsCount}
                   </span>
                 )}
               </button>
@@ -541,6 +1026,10 @@ const ParentViewContent = () => {
                   <span className="ml-auto rounded-full bg-slate-950 px-2 py-0.5 text-[9px] font-black leading-none text-white shadow-sm shadow-slate-950/30">
                     {messagesUnreadCount}
                   </span>
+                ) : item.id === 'news' && parentNewsCount > 0 ? (
+                  <span className="ml-auto rounded-full bg-blue-600 px-2 py-0.5 text-[9px] font-black leading-none text-white shadow-sm shadow-blue-600/30">
+                    {parentNewsCount}
+                  </span>
                 ) : (
                   activeTab === item.id && <span className="ml-auto h-2 w-2 rounded-full bg-slate-950 shadow-sm shadow-slate-950/40"></span>
                 )}
@@ -559,6 +1048,10 @@ const ParentViewContent = () => {
           </div>
         </div>
       </div>
+
+      {showLoginAdvertisement ? (
+        <ParentAdsSection onClose={dismissLoginAdvertisement} onEmpty={dismissLoginAdvertisement} />
+      ) : null}
     </div>
   );
 };
