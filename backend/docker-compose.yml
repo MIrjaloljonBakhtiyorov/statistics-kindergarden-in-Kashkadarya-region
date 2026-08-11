@@ -1,0 +1,55 @@
+services:
+  db:
+    build:
+      context: ./database
+    container_name: raqamli-mtt-db
+    environment:
+      POSTGRES_DB: raqamli_mtt
+      POSTGRES_USER: raqamli_mtt
+      POSTGRES_PASSWORD: raqamli_mtt_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - raqamli_mtt_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U raqamli_mtt -d raqamli_mtt"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: .
+    container_name: raqamli-mtt-backend
+    env_file:
+      - .env
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgresql://raqamli_mtt:raqamli_mtt_password@db:5432/raqamli_mtt
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../frontend
+    container_name: raqamli-mtt-frontend
+    environment:
+      VITE_PROXY_TARGET: http://backend:3001
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../frontend/src:/app/src
+      - ../frontend/public:/app/public
+      - ../frontend/index.html:/app/index.html
+      - ../frontend/vite.config.ts:/app/vite.config.ts
+    depends_on:
+      - backend
+
+volumes:
+  raqamli_mtt_pgdata:
