@@ -48,6 +48,8 @@ const toPostgresSql = (sql) => {
   next = next.replace(/\bDATETIME\b/gi, 'TIMESTAMP');
   next = next.replace(/\bREAL\b/gi, 'DOUBLE PRECISION');
   next = next.replace(/BOOLEAN/gi, 'INTEGER');
+  next = next.replace(/\bDEFAULT\s+TRUE\b/gi, 'DEFAULT 1');
+  next = next.replace(/\bDEFAULT\s+FALSE\b/gi, 'DEFAULT 0');
   next = next.replace(/INSERT OR IGNORE INTO/gi, 'INSERT INTO');
   next = next.replace(/INSERT OR REPLACE INTO/gi, 'INSERT INTO');
   next = replaceQuestionParams(next);
