@@ -17,4 +17,10 @@ export const kindergartenApi = {
     update: (newsId: string, data: any) => apiClient.put(`/kindergartens/website-news/${newsId}`, data).then((res) => res.data),
     delete: (newsId: string) => apiClient.delete(`/kindergartens/website-news/${newsId}`).then((res) => res.data),
   },
+  parentProfileNews: {
+    getAll: () => apiClient.get('/kindergartens/parent-profile-news').then((res) => res.data),
+    create: (data: any) => apiClient.post('/kindergartens/parent-profile-news', data).then((res) => res.data),
+    update: (newsId: string, data: any) => apiClient.put(`/kindergartens/parent-profile-news/${newsId}`, data).then((res) => res.data),
+    delete: (newsId: string) => apiClient.delete(`/kindergartens/parent-profile-news/${newsId}`).then((res) => res.data),
+  },
 };
