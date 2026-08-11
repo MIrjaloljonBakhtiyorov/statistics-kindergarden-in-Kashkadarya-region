@@ -19,6 +19,7 @@ const FinancialAnalytics = lazy(() => import('./pages/dashboard/FinancialAnalyti
 const MenuStatistics = lazy(() => import('./pages/dashboard/MenuStatistics').then((module) => ({ default: module.MenuStatistics })));
 const KindergartenWebsiteBuilder = lazy(() => import('./pages/dashboard/KindergartenWebsiteBuilder').then((module) => ({ default: module.KindergartenWebsiteBuilder })));
 const WebsiteNewsManager = lazy(() => import('./pages/dashboard/WebsiteNewsManager').then((module) => ({ default: module.WebsiteNewsManager })));
+const Advertising = lazy(() => import('./pages/dashboard/Advertising').then((module) => ({ default: module.Advertising })));
 const Alerts = lazy(() => import('./pages/dashboard/Alerts').then((module) => ({ default: module.Alerts })));
 const Subscriptions = lazy(() => import('./pages/dashboard/Subscriptions').then((module) => ({ default: module.Subscriptions })));
 
@@ -97,6 +98,7 @@ export default function App() {
             <Route path="menu-stats" element={<MenuStatistics />} />
             <Route path="website-builder" element={<KindergartenWebsiteBuilder />} />
             <Route path="website-news" element={<WebsiteNewsManager />} />
+            <Route path="advertising" element={<Advertising />} />
             <Route path="alerts" element={<Alerts />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
