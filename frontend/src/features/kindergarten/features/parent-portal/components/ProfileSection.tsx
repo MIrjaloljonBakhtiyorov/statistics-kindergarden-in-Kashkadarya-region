@@ -4,17 +4,19 @@ import { apiClient, PARENT_PORTAL_API_BASE_URL } from '@/shared/api';
 import { useNotification } from '../../../context/NotificationContext';
 
 const getAssetUrl = (value?: string) => {
-  if (!value) return '';
-  if (/^(https?:|data:|blob:)/.test(value)) return value;
+  const rawValue = String(value || '').trim();
+  if (!rawValue || rawValue === 'null' || rawValue === 'undefined') return '';
+  if (/^(https?:|data:|blob:)/.test(rawValue)) return rawValue;
   const apiBase = PARENT_PORTAL_API_BASE_URL || '';
   const origin = apiBase.replace(/\/api\/?$/, '');
-  return `${origin}${value.startsWith('/') ? value : `/${value}`}`;
+  return `${origin}${rawValue.startsWith('/') ? rawValue : `/${rawValue}`}`;
 };
 
 export const ProfileSection = ({ parentData, onUpdate }: any) => {
   const { showNotification } = useNotification();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [photoFailed, setPhotoFailed] = useState(false);
 
   // Local state for form data
   const [formData, setFormData] = useState({
@@ -31,6 +33,7 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
       passport_no: parentData.motherPassport || '',
     }
   });
+  const childPhotoUrl = getAssetUrl(formData.photo_url);
 
   useEffect(() => {
     setFormData({
@@ -47,6 +50,7 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
         passport_no: parentData.motherPassport || '',
       }
     });
+    setPhotoFailed(false);
   }, [parentData]);
 
   const handleSave = async () => {
@@ -77,6 +81,7 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
       const res = await apiClient.post(`/upload`, formDataUpload, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
+      setPhotoFailed(false);
       setFormData({ ...formData, photo_url: res.data.url });
       showNotification("Rasm muvaffaqiyatli yuklandi!", "success");
     } catch (err) {
@@ -141,8 +146,13 @@ export const ProfileSection = ({ parentData, onUpdate }: any) => {
                 </div>
                 <div className="relative group cursor-pointer shrink-0" onClick={() => isEditing && document.getElementById('child-photo-upload')?.click()}>
                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-slate-50 border-2 border-white shadow-lg shadow-slate-200/70 overflow-hidden flex items-center justify-center relative">
-                      {formData.photo_url ? (
-                         <img src={getAssetUrl(formData.photo_url)} alt="Bola rasmi" className="w-full h-full object-cover" />
+                      {childPhotoUrl && !photoFailed ? (
+                         <img
+                           src={childPhotoUrl}
+                           alt="Bola rasmi"
+                           className="w-full h-full object-cover"
+                           onError={() => setPhotoFailed(true)}
+                         />
                       ) : (
                          <User size={30} className="text-slate-300" />
                       )}
