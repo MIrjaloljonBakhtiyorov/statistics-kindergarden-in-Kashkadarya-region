@@ -189,6 +189,7 @@ const ensureAdminAdvertisementsTable = async () => {
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     display_count INTEGER DEFAULT 0,
+    view_count INTEGER DEFAULT 0,
     duration_days INTEGER DEFAULT 1,
     content_type TEXT DEFAULT 'text',
     image_url TEXT,
@@ -199,6 +200,7 @@ const ensureAdminAdvertisementsTable = async () => {
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
   await run(`ALTER TABLE admin_advertisements ADD COLUMN IF NOT EXISTS link_url TEXT`);
+  await run(`ALTER TABLE admin_advertisements ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0`);
   await run('CREATE INDEX IF NOT EXISTS idx_admin_advertisements_status ON admin_advertisements(status, created_at DESC)');
 };
 
@@ -206,6 +208,7 @@ const serializeAdvertisementRow = (row) => ({
   id: row.id,
   name: row.name || '',
   displayCount: Number(row.display_count || row.displayCount || 0),
+  viewCount: Number(row.view_count || row.viewCount || 0),
   durationDays: Number(row.duration_days || row.durationDays || 1),
   contentType: row.content_type || row.contentType || 'text',
   imageUrl: row.image_url || row.imageUrl || '',

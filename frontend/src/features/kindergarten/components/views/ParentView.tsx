@@ -194,11 +194,42 @@ const saveSeenNewsIds = (storageKey: string, ids: string[]) => {
 
 const AD_COUNTDOWN_SECONDS = 9;
 
-const ParentAdsSection = ({ onClose, onEmpty }: { onClose: () => void; onEmpty?: () => void }) => {
-  const [items, setItems] = useState<ParentAdvertisementItem[]>([]);
+const getRandomParentAdvertisement = (items: ParentAdvertisementItem[], storageKey: string) => {
+  if (items.length === 0) return undefined;
+  if (items.length <= 1) return items[0];
+
+  let lastId = '';
+  try {
+    lastId = localStorage.getItem(storageKey) || '';
+  } catch {
+    lastId = '';
+  }
+
+  const candidates = lastId ? items.filter((item) => item.id !== lastId) : items;
+  const selectedItem = candidates[Math.floor(Math.random() * candidates.length)] || items[0];
+  try {
+    localStorage.setItem(storageKey, selectedItem.id);
+  } catch {
+    // Storage can be unavailable in private or restricted browser modes.
+  }
+
+  return selectedItem;
+};
+
+const ParentAdsSection = ({
+  onClose,
+  onEmpty,
+  rotationKey,
+}: {
+  onClose: () => void;
+  onEmpty?: () => void;
+  rotationKey: string;
+}) => {
+  const [selectedItem, setSelectedItem] = useState<ParentAdvertisementItem | null>(null);
   const [loading, setLoading] = useState(true);
   const countdownRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const recordedAdvertisementViewRef = useRef('');
 
   useEffect(() => {
     let mounted = true;
@@ -207,7 +238,7 @@ const ParentAdsSection = ({ onClose, onEmpty }: { onClose: () => void; onEmpty?:
       .then((response) => {
         if (!mounted) return;
         const rows = Array.isArray(response.data) ? response.data : [];
-        setItems(rows.map((item: any) => ({
+        const normalizedItems: ParentAdvertisementItem[] = rows.map((item: any) => ({
           id: String(item.id),
           name: String(item.name || ''),
           text: String(item.text || '').trim() || undefined,
@@ -221,10 +252,13 @@ const ParentAdsSection = ({ onClose, onEmpty }: { onClose: () => void; onEmpty?:
           displayCount: Number(item.displayCount || item.display_count || 0),
           durationDays: Number(item.durationDays || item.duration_days || 1),
           createdAt: String(item.createdAt || item.created_at || ''),
-        })));
+        }));
+        setSelectedItem(getRandomParentAdvertisement(normalizedItems, rotationKey) || null);
       })
       .catch(() => {
-        if (mounted) setItems([]);
+        if (mounted) {
+          setSelectedItem(null);
+        }
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -233,15 +267,22 @@ const ParentAdsSection = ({ onClose, onEmpty }: { onClose: () => void; onEmpty?:
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [rotationKey]);
 
-  const activeItem = items[0];
+  const activeItem = selectedItem;
 
   useEffect(() => {
     if (!loading && !activeItem) {
       onEmpty?.();
     }
   }, [activeItem, loading, onEmpty]);
+
+  useEffect(() => {
+    if (!activeItem?.id) return;
+    if (recordedAdvertisementViewRef.current === activeItem.id) return;
+    recordedAdvertisementViewRef.current = activeItem.id;
+    apiClient.post(`/parent-portal/advertisements/${activeItem.id}/view`).catch(() => undefined);
+  }, [activeItem?.id]);
 
   useEffect(() => {
     if (loading || !activeItem) return;
@@ -640,6 +681,7 @@ const ParentViewContent = () => {
   }, [loadMessagesUnreadCount]);
 
   const parentNewsSeenKey = `parent-portal-seen-news:${user?.id || 'parent'}:${user?.childId || 'child'}`;
+  const parentAdvertisementRotationKey = `parent-portal-ad-rotation:${user?.id || 'parent'}:${user?.childId || 'child'}`;
 
   const dismissLoginAdvertisement = useCallback(() => {
     setShowLoginAdvertisement(false);
@@ -1050,7 +1092,11 @@ const ParentViewContent = () => {
       </div>
 
       {showLoginAdvertisement ? (
-        <ParentAdsSection onClose={dismissLoginAdvertisement} onEmpty={dismissLoginAdvertisement} />
+        <ParentAdsSection
+          onClose={dismissLoginAdvertisement}
+          onEmpty={dismissLoginAdvertisement}
+          rotationKey={parentAdvertisementRotationKey}
+        />
       ) : null}
     </div>
   );

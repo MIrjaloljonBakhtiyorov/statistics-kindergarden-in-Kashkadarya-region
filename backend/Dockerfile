@@ -15,4 +15,4 @@ COPY . .
 
 EXPOSE 3001
 
-CMD ["pnpm", "run", "dev"]
+CMD ["pnpm", "exec", "tsx", "src/index.ts"]

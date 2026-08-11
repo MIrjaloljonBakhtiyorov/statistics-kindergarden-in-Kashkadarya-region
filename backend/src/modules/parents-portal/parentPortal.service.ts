@@ -32,6 +32,7 @@ export class ParentPortalService {
         id: row.id,
         name: row.name || '',
         displayCount: Number(row.display_count || 0),
+        viewCount: Number(row.view_count || 0),
         durationDays: Number(row.duration_days || 1),
         contentType: row.content_type || 'text',
         imageUrl: row.image_url || '',
@@ -39,6 +40,14 @@ export class ParentPortalService {
         text: row.text || '',
         createdAt: row.created_at || null,
       }));
+  }
+
+  async recordAdvertisementView(id: string) {
+    const advertisementId = String(id || '').trim();
+    if (!advertisementId) throw new ParentPortalError('Advertisement id is required', 400);
+
+    await this.repository.recordAdvertisementView(advertisementId);
+    return { success: true };
   }
 
   async getParentProfileNews() {

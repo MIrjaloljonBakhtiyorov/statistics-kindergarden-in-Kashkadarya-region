@@ -39,6 +39,14 @@ export class ParentPortalController {
     }
   };
 
+  recordAdvertisementView = async (req: Request, res: Response) => {
+    try {
+      res.json(await this.service.recordAdvertisementView(routeParam(req, 'id')));
+    } catch (error: any) {
+      sendError(res, error);
+    }
+  };
+
   listParents = async (req: Request, res: Response) => {
     try {
       res.json(await this.service.listParents(await resolveKindergartenId(req)));

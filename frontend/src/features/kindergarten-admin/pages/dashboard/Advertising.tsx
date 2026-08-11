@@ -10,6 +10,7 @@ type Advertisement = {
   id: string;
   name: string;
   displayCount: number;
+  viewCount?: number;
   durationDays: number;
   contentType: 'image' | 'video' | 'text';
   imageUrl?: string;
@@ -44,6 +45,28 @@ const mediaUrl = (url?: string) => {
   if (!url) return '';
   if (/^https?:\/\//i.test(url)) return url;
   return `${apiRoot}${url.startsWith('/') ? url : `/${url}`}`;
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const getAdvertisementTiming = (ad: Advertisement) => {
+  const durationDays = Math.max(1, Number(ad.durationDays || 1));
+  const createdAt = new Date(ad.createdAt || Date.now()).getTime();
+  const safeCreatedAt = Number.isNaN(createdAt) ? Date.now() : createdAt;
+  const endsAt = safeCreatedAt + durationDays * DAY_MS;
+  const remainingMs = Math.max(0, endsAt - Date.now());
+  const remainingMinutesTotal = Math.floor(remainingMs / (60 * 1000));
+  const days = Math.floor(remainingMinutesTotal / (24 * 60));
+  const hours = Math.floor((remainingMinutesTotal % (24 * 60)) / 60);
+  const minutes = remainingMinutesTotal % 60;
+
+  return {
+    isExpired: remainingMs <= 0,
+    durationText: `${durationDays} kun`,
+    remainingText: remainingMs <= 0
+      ? 'Muddati tugagan'
+      : `${days} kun ${hours} soat ${minutes} daqiqa qoldi`,
+  };
 };
 
 const getVideoDuration = (file: File) =>
@@ -475,7 +498,12 @@ export const Advertising = () => {
           />
 
           <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {shownAds.map((ad) => (
+            {shownAds.map((ad) => {
+              const timing = getAdvertisementTiming(ad);
+              const viewCount = Number(ad.viewCount || 0);
+              const plannedCount = Number(ad.displayCount || 0);
+
+              return (
               <article key={ad.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-100/60">
                 {editingId === ad.id ? (
                   <div className="grid gap-4 bg-slate-50 p-4">
@@ -580,10 +608,10 @@ export const Advertising = () => {
                             {ad.status === 'active' ? 'Faol' : 'Nofaol'}
                           </span>
                           <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-black text-blue-700 ring-1 ring-blue-100">
-                            {ad.durationDays} kun
+                            {timing.durationText}
                           </span>
                           <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[10px] font-black text-slate-500 ring-1 ring-slate-200">
-                            {ad.displayCount} marta
+                            {plannedCount} marta reja
                           </span>
                         </div>
                         <h3 className="mt-3 break-words text-lg font-black leading-snug text-slate-950">{ad.name}</h3>
@@ -594,6 +622,30 @@ export const Advertising = () => {
                           </p>
                         ) : null}
                         {ad.text ? <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6 text-slate-600">{ad.text}</p> : null}
+                        {ad.status === 'active' ? (
+                          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-2">
+                              <p className="text-[9px] font-black uppercase tracking-wider text-emerald-600">Ko‘rilgan</p>
+                              <p className="mt-1 text-sm font-black text-emerald-950">{viewCount} marta</p>
+                            </div>
+                            <div className="rounded-2xl border border-blue-100 bg-blue-50 px-3 py-2">
+                              <p className="text-[9px] font-black uppercase tracking-wider text-blue-600">Faollik davri</p>
+                              <p className="mt-1 text-sm font-black text-blue-950">{timing.durationText}</p>
+                            </div>
+                            <div className={`rounded-2xl border px-3 py-2 ${
+                              timing.isExpired
+                                ? 'border-rose-100 bg-rose-50'
+                                : 'border-amber-100 bg-amber-50'
+                            }`}>
+                              <p className={`text-[9px] font-black uppercase tracking-wider ${
+                                timing.isExpired ? 'text-rose-600' : 'text-amber-600'
+                              }`}>Qolgan vaqt</p>
+                              <p className={`mt-1 text-sm font-black ${
+                                timing.isExpired ? 'text-rose-950' : 'text-amber-950'
+                              }`}>{timing.remainingText}</p>
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 border-t border-slate-100 bg-slate-50 px-4 py-3">
@@ -627,7 +679,8 @@ export const Advertising = () => {
                   </>
                 )}
               </article>
-            ))}
+              );
+            })}
           </div>
 
           {!loading && shownAds.length === 0 ? (

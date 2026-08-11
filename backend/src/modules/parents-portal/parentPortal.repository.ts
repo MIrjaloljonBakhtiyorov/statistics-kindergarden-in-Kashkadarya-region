@@ -46,6 +46,7 @@ const ensureParentAdvertisementsTable = async () => {
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     display_count INTEGER DEFAULT 0,
+    view_count INTEGER DEFAULT 0,
     duration_days INTEGER DEFAULT 1,
     content_type TEXT DEFAULT 'text',
     image_url TEXT,
@@ -56,6 +57,7 @@ const ensureParentAdvertisementsTable = async () => {
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
   await run(`ALTER TABLE admin_advertisements ADD COLUMN IF NOT EXISTS link_url TEXT`);
+  await run(`ALTER TABLE admin_advertisements ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0`);
   await run('CREATE INDEX IF NOT EXISTS idx_admin_advertisements_status ON admin_advertisements(status, created_at DESC)');
 };
 
@@ -81,6 +83,16 @@ export class ParentPortalRepository {
       ORDER BY created_at DESC
       LIMIT 100
     `);
+  }
+
+  async recordAdvertisementView(id: string) {
+    await ensureParentAdvertisementsTable();
+    return run(`
+      UPDATE admin_advertisements
+      SET view_count = COALESCE(view_count, 0) + 1,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND status = 'active'
+    `, [id]);
   }
 
   listParents(kindergartenId: string) {

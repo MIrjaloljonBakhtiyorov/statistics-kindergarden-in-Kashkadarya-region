@@ -13,6 +13,7 @@ parentsRoutes.delete('/parents/:id', controller.deleteParentAccount);
 parentsRoutes.get('/parent-portal/child-info/:childId', controller.getChildInfo);
 parentsRoutes.get('/parent-portal/full-data/:childId', controller.getFullData);
 parentsRoutes.get('/parent-portal/advertisements', controller.getAdvertisements);
+parentsRoutes.post('/parent-portal/advertisements/:id/view', controller.recordAdvertisementView);
 parentsRoutes.get('/parent-portal/news', controller.getParentProfileNews);
 parentsRoutes.get('/parent-portal/login-history/:childId', controller.getParentLoginHistory);
 parentsRoutes.put('/parent-portal/profile/:childId', controller.updateProfile);
