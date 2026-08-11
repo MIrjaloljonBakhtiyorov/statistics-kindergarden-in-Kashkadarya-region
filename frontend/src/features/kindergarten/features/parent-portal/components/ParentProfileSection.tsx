@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Briefcase, Edit2, Fingerprint, Save, Smartphone, User, Users, X } from 'lucide-react';
 import { apiClient } from '@/shared/api';
 import { useNotification } from '../../../context/NotificationContext';
@@ -26,12 +26,14 @@ const ParentInfoCard = ({
   tone,
   data,
   isEditing,
+  inputNamePrefix,
   onChange,
 }: {
   title: string;
   tone: 'sky' | 'emerald';
   data: ParentFormData;
   isEditing: boolean;
+  inputNamePrefix: 'father' | 'mother';
   onChange: (field: ParentFormKey, value: string) => void;
 }) => {
   const accent = tone === 'sky'
@@ -57,8 +59,10 @@ const ParentInfoCard = ({
           <span className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-bold ${accent.badge}`}>{title}</span>
           {isEditing ? (
             <input
+              name={`${inputNamePrefix}.full_name`}
               value={data.full_name}
               onChange={(e) => onChange('full_name', e.target.value)}
+              onInput={(e) => onChange('full_name', e.currentTarget.value)}
               className={`${fieldClass} mt-2 text-[18px] font-extrabold`}
               placeholder={`${title} F.I.Sh.`}
             />
@@ -82,7 +86,7 @@ const ParentInfoCard = ({
           <div className="min-w-0 flex-1">
             <p className="text-[12px] font-semibold text-brand-muted">Ish joyi</p>
             {isEditing ? (
-              <input value={data.workplace} onChange={(e) => onChange('workplace', e.target.value)} className={fieldClass} />
+              <input name={`${inputNamePrefix}.workplace`} value={data.workplace} onChange={(e) => onChange('workplace', e.target.value)} onInput={(e) => onChange('workplace', e.currentTarget.value)} className={fieldClass} />
             ) : (
               <p className="mt-1 text-[15px] font-bold leading-snug text-brand-depth break-words">{data.workplace || 'Kiritilmagan'}</p>
             )}
@@ -96,7 +100,7 @@ const ParentInfoCard = ({
           <div className="min-w-0 flex-1">
             <p className="text-[12px] font-semibold text-brand-muted">Telefon</p>
             {isEditing ? (
-              <input type="tel" value={data.phone} onChange={(e) => onChange('phone', e.target.value)} className={fieldClass} placeholder="+998" />
+              <input name={`${inputNamePrefix}.phone`} type="tel" value={data.phone} onChange={(e) => onChange('phone', e.target.value)} onInput={(e) => onChange('phone', e.currentTarget.value)} className={fieldClass} placeholder="+998" />
             ) : (
               <p className="mt-1 text-[15px] font-bold leading-snug text-brand-depth break-words">{data.phone || '--'}</p>
             )}
@@ -110,7 +114,7 @@ const ParentInfoCard = ({
           <div className="min-w-0 flex-1">
             <p className="text-[12px] font-semibold text-brand-muted">Passport</p>
             {isEditing ? (
-              <input value={data.passport_no} onChange={(e) => onChange('passport_no', e.target.value.toUpperCase())} className={`${fieldClass} uppercase`} placeholder="AA1234567" />
+              <input name={`${inputNamePrefix}.passport_no`} value={data.passport_no} onChange={(e) => onChange('passport_no', e.target.value.toUpperCase())} onInput={(e) => onChange('passport_no', e.currentTarget.value.toUpperCase())} className={`${fieldClass} uppercase`} placeholder="AA1234567" />
             ) : (
               <p className="mt-1 text-[15px] font-bold uppercase leading-snug text-brand-depth break-words">{data.passport_no || '--'}</p>
             )}
@@ -123,6 +127,7 @@ const ParentInfoCard = ({
 
 export const ParentProfileSection = ({ parentData, onUpdate }: any) => {
   const { showNotification } = useNotification();
+  const formRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState(emptyParentForm);
@@ -157,15 +162,50 @@ export const ParentProfileSection = ({ parentData, onUpdate }: any) => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await apiClient.put(`/parent-portal/profile/${parentData.id}`, {
+      const readParentData = (parent: 'father' | 'mother'): ParentFormData => {
+        const readField = (field: ParentFormKey) => {
+          const input = formRef.current?.querySelector<HTMLInputElement>(`input[name="${parent}.${field}"]`);
+          return (input?.value ?? formData[parent][field] ?? '').trim();
+        };
+
+        return {
+          full_name: readField('full_name'),
+          workplace: readField('workplace'),
+          phone: readField('phone'),
+          passport_no: readField('passport_no').toUpperCase(),
+        };
+      };
+      const nextFormData = {
+        father: readParentData('father'),
+        mother: readParentData('mother'),
+      };
+
+      setFormData(nextFormData);
+      const response = await apiClient.put(`/parent-portal/profile/${parentData.id}`, {
         address: parentData.address || '',
         photo_url: parentData.photo_url || '',
-        father: formData.father,
-        mother: formData.mother,
+        father: nextFormData.father,
+        mother: nextFormData.mother,
       });
+      if (response.data) {
+        setFormData({
+          father: {
+            full_name: response.data.fatherName || nextFormData.father.full_name || '',
+            workplace: response.data.fatherWorkplace || nextFormData.father.workplace || '',
+            phone: response.data.fatherPhone || nextFormData.father.phone || '',
+            passport_no: response.data.fatherPassport || nextFormData.father.passport_no || '',
+          },
+          mother: {
+            full_name: response.data.motherName || nextFormData.mother.full_name || '',
+            workplace: response.data.motherWorkplace || nextFormData.mother.workplace || '',
+            phone: response.data.motherPhone || nextFormData.mother.phone || '',
+            passport_no: response.data.motherPassport || nextFormData.mother.passport_no || '',
+          },
+        });
+      }
       showNotification("Ota-ona ma'lumotlari yangilandi!", 'success');
       setIsEditing(false);
-      onUpdate?.();
+      await onUpdate?.(response.data);
     } catch (err) {
       console.error(err);
       showNotification("Saqlashda xatolik yuz berdi", 'error');
@@ -222,19 +262,31 @@ export const ParentProfileSection = ({ parentData, onUpdate }: any) => {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <div ref={formRef} className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <ParentInfoCard
           title="Otasi"
           tone="sky"
-          data={formData.father}
+          data={isEditing ? formData.father : {
+            full_name: parentData.fatherName || formData.father.full_name || '',
+            workplace: parentData.fatherWorkplace || formData.father.workplace || '',
+            phone: parentData.fatherPhone || formData.father.phone || '',
+            passport_no: parentData.fatherPassport || formData.father.passport_no || '',
+          }}
           isEditing={isEditing}
+          inputNamePrefix="father"
           onChange={(field, value) => updateParentField('father', field, value)}
         />
         <ParentInfoCard
           title="Onasi"
           tone="emerald"
-          data={formData.mother}
+          data={isEditing ? formData.mother : {
+            full_name: parentData.motherName || formData.mother.full_name || '',
+            workplace: parentData.motherWorkplace || formData.mother.workplace || '',
+            phone: parentData.motherPhone || formData.mother.phone || '',
+            passport_no: parentData.motherPassport || formData.mother.passport_no || '',
+          }}
           isEditing={isEditing}
+          inputNamePrefix="mother"
           onChange={(field, value) => updateParentField('mother', field, value)}
         />
       </div>
