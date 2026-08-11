@@ -49,23 +49,26 @@ const mediaUrl = (url?: string) => {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const getAdvertisementTiming = (ad: Advertisement) => {
+const padTime = (value: number) => String(value).padStart(2, '0');
+
+const getAdvertisementTiming = (ad: Advertisement, now = Date.now()) => {
   const durationDays = Math.max(1, Number(ad.durationDays || 1));
-  const createdAt = new Date(ad.createdAt || Date.now()).getTime();
-  const safeCreatedAt = Number.isNaN(createdAt) ? Date.now() : createdAt;
+  const createdAt = new Date(ad.createdAt || now).getTime();
+  const safeCreatedAt = Number.isNaN(createdAt) ? now : createdAt;
   const endsAt = safeCreatedAt + durationDays * DAY_MS;
-  const remainingMs = Math.max(0, endsAt - Date.now());
-  const remainingMinutesTotal = Math.floor(remainingMs / (60 * 1000));
-  const days = Math.floor(remainingMinutesTotal / (24 * 60));
-  const hours = Math.floor((remainingMinutesTotal % (24 * 60)) / 60);
-  const minutes = remainingMinutesTotal % 60;
+  const remainingMs = Math.max(0, endsAt - now);
+  const remainingSecondsTotal = Math.floor(remainingMs / 1000);
+  const days = Math.floor(remainingSecondsTotal / (24 * 60 * 60));
+  const hours = Math.floor((remainingSecondsTotal % (24 * 60 * 60)) / (60 * 60));
+  const minutes = Math.floor((remainingSecondsTotal % (60 * 60)) / 60);
+  const seconds = remainingSecondsTotal % 60;
 
   return {
     isExpired: remainingMs <= 0,
     durationText: `${durationDays} kun`,
     remainingText: remainingMs <= 0
       ? 'Muddati tugagan'
-      : `${days} kun ${hours} soat ${minutes} daqiqa qoldi`,
+      : `${days} kun ${padTime(hours)} : ${padTime(minutes)} : ${padTime(seconds)}`,
   };
 };
 
@@ -97,6 +100,7 @@ export const Advertising = () => {
   const [editForm, setEditForm] = useState<AdvertisementForm>(emptyForm);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [clockNow, setClockNow] = useState(Date.now());
 
   const activeAds = useMemo(() => advertisements.filter((ad) => ad.status === 'active'), [advertisements]);
   const inactiveAds = useMemo(() => advertisements.filter((ad) => ad.status === 'inactive'), [advertisements]);
@@ -118,6 +122,14 @@ export const Advertising = () => {
       alive = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (activePanel !== 'active') return;
+
+    setClockNow(Date.now());
+    const intervalId = window.setInterval(() => setClockNow(Date.now()), 1000);
+    return () => window.clearInterval(intervalId);
+  }, [activePanel]);
 
   const cards = [
     {
@@ -303,10 +315,7 @@ export const Advertising = () => {
     }
   };
 
-  const deleteAdvertisement = async (advertisement: Advertisement) => {
-    const confirmed = window.confirm(`"${advertisement.name}" reklamasi o‘chirilsinmi?`);
-    if (!confirmed) return;
-
+  const performDeleteAdvertisement = async (advertisement: Advertisement) => {
     setDeletingId(advertisement.id);
     try {
       await apiClient.delete(`/kindergartens/advertisements/${advertisement.id}`);
@@ -318,6 +327,30 @@ export const Advertising = () => {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const deleteAdvertisement = (advertisement: Advertisement) => {
+    if (deletingId === advertisement.id) return;
+
+    const toastId = toast.warning('Reklamani o‘chirishni tasdiqlang', {
+      description: `"${advertisement.name}" butunlay o‘chiriladi.`,
+      duration: 10000,
+      closeButton: true,
+      action: {
+        label: 'O‘chirish',
+        onClick: () => {
+          toast.dismiss(toastId);
+          void performDeleteAdvertisement(advertisement);
+        },
+      },
+      cancel: {
+        label: 'Bekor qilish',
+        onClick: () => {
+          toast.dismiss(toastId);
+          toast.info('O‘chirish bekor qilindi');
+        },
+      },
+    });
   };
 
   const shownAds = activePanel === 'inactive' ? inactiveAds : activeAds;
@@ -499,7 +532,7 @@ export const Advertising = () => {
 
           <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
             {shownAds.map((ad) => {
-              const timing = getAdvertisementTiming(ad);
+              const timing = getAdvertisementTiming(ad, clockNow);
               const viewCount = Number(ad.viewCount || 0);
               const plannedCount = Number(ad.displayCount || 0);
 
