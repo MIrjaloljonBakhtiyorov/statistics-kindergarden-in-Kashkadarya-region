@@ -57,43 +57,147 @@
   }
 
   .admin-sidebar-scroll-mask {
-    scrollbar-width: none;
+    min-height: 0;
+  }
+
+  .admin-sidebar,
+  .admin-sidebar-scroll-mask {
+    overflow-y: hidden;
+  }
+
+  .admin-sidebar::-webkit-scrollbar,
+  .admin-sidebar-scroll-mask::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .admin-sidebar-brand-card {
+    border: 1px solid rgb(148 163 184 / 0.13);
+    border-radius: 16px;
+    background:
+      linear-gradient(135deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.045) 48%, rgb(255 255 255 / 0.02)),
+      radial-gradient(circle at 18% 0%, rgb(14 165 233 / 0.11), transparent 48%),
+      radial-gradient(circle at 96% 12%, rgb(79 70 229 / 0.1), transparent 42%);
+    box-shadow:
+      0 16px 42px rgb(2 6 23 / 0.24),
+      inset 0 1px 0 rgb(255 255 255 / 0.1);
+    backdrop-filter: blur(18px);
+  }
+
+  .admin-sidebar-logo {
+    display: block;
+    width: 100%;
+    height: 60px;
+    object-fit: contain;
+    object-position: left center;
+    filter: drop-shadow(0 12px 24px rgb(14 165 233 / 0.1)) brightness(1.06) saturate(1.03);
+  }
+
+  .admin-sidebar-brand-badge {
+    border: 1px solid rgb(103 232 249 / 0.15);
+    border-radius: 999px;
+    background: rgb(103 232 249 / 0.075);
+    color: rgb(207 250 254 / 0.9);
+    font-size: 10px;
+    font-weight: 950;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .admin-sidebar-brand-badge span:first-child {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: #67e8f9;
+    box-shadow: 0 0 14px rgb(103 232 249 / 0.95);
+  }
+
+  .admin-sidebar-scroll-mask::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 18px;
+    background: linear-gradient(90deg, transparent, rgb(7 21 44 / 0.5));
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .admin-sidebar-custom-scrollbar {
+    display: none;
+  }
+
+  .admin-sidebar-scroll-mask:hover .admin-sidebar-custom-scrollbar,
+  .admin-sidebar-custom-scrollbar.is-visible {
+    opacity: 1;
+  }
+
+  .admin-sidebar-custom-scrollbar::before {
+    content: "";
+    position: absolute;
+    top: 14px;
+    bottom: 14px;
+    left: 50%;
+    width: 1px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: linear-gradient(
+      180deg,
+      rgb(103 232 249 / 0.12),
+      rgb(129 140 248 / 0.12),
+      rgb(15 23 42 / 0.04)
+    );
+  }
+
+  .admin-sidebar-custom-scrollbar span {
+    position: absolute;
+    left: 0;
+    width: 5px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #38bdf8 0%, #6366f1 52%, #8b5cf6 100%);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.24),
+      0 10px 26px rgb(34 211 238 / 0.18),
+      0 0 16px rgb(129 140 248 / 0.18);
+    transition: height 120ms ease, transform 80ms linear;
+    pointer-events: none;
   }
 
   .admin-sidebar-menu {
-    right: 0;
     width: 100%;
     padding-left: 16px;
-    padding-right: 8px;
-    scrollbar-width: thin;
-    scrollbar-color: rgb(51 65 85 / 0.68) rgb(2 6 23 / 0.28);
-    -ms-overflow-style: none;
+    padding-right: 18px;
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+    scrollbar-gutter: stable;
     scroll-behavior: smooth;
     overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     overflow-x: hidden;
     overflow-y: auto;
   }
 
   .admin-sidebar-menu::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
+    display: none;
+    width: 0;
+    height: 0;
     background: transparent !important;
   }
 
   .admin-sidebar-menu::-webkit-scrollbar-track {
-    border-radius: 999px;
-    background: rgb(2 6 23 / 0.26);
+    background: transparent !important;
   }
 
   .admin-sidebar-menu::-webkit-scrollbar-thumb {
-    min-height: 42px;
-    border: 2px solid rgb(7 17 31);
-    border-radius: 999px;
-    background: rgb(51 65 85 / 0.72);
+    background: transparent !important;
   }
 
   .admin-sidebar-menu::-webkit-scrollbar-thumb:hover {
-    background: rgb(45 212 191 / 0.48);
+    background: transparent !important;
   }
 
   .admin-sidebar-menu::-webkit-scrollbar-button,
