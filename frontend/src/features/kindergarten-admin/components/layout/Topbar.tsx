@@ -66,16 +66,6 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
           <Menu size={24} />
         </button>
 
-        <div className="hidden sm:flex items-center gap-3 px-5 py-2.5 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 shrink-0 group transition-all hover:bg-indigo-50 hover:shadow-lg hover:shadow-indigo-500/5">
-          <motion.div 
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 3, repeat: Infinity }}
-            className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.6)]"
-          />
-          <span className="max-w-[210px] text-[10px] font-black leading-4 text-indigo-600 sm:max-w-[280px] lg:max-w-none">
-            Bu qism dasturchi tomonidan ishlab chiqilyapti
-          </span>
-        </div>
       </div>
 
       <div className="flex items-center gap-4 sm:gap-8 shrink-0">
