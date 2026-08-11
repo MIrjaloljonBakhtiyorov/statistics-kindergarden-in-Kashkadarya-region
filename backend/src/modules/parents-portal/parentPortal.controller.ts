@@ -23,6 +23,22 @@ const sendError = (res: Response, error: any) => {
 export class ParentPortalController {
   private service = new ParentPortalService();
 
+  getParentProfileNews = async (_req: Request, res: Response) => {
+    try {
+      res.json(await this.service.getParentProfileNews());
+    } catch (error: any) {
+      sendError(res, error);
+    }
+  };
+
+  getAdvertisements = async (_req: Request, res: Response) => {
+    try {
+      res.json(await this.service.getAdvertisements());
+    } catch (error: any) {
+      sendError(res, error);
+    }
+  };
+
   listParents = async (req: Request, res: Response) => {
     try {
       res.json(await this.service.listParents(await resolveKindergartenId(req)));
