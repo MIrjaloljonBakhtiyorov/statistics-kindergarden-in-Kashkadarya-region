@@ -17,6 +17,44 @@ const verifyStoredPassword = async (password: string, storedPassword: string) =>
 export class ParentPortalService {
   private repository = new ParentPortalRepository();
 
+  async getAdvertisements() {
+    const rows = await this.repository.getActiveAdvertisements();
+    const now = Date.now();
+
+    return rows
+      .filter((row: any) => {
+        const durationDays = Math.max(1, Number(row.duration_days || 1));
+        const createdAt = new Date(row.created_at || Date.now()).getTime();
+        if (Number.isNaN(createdAt)) return true;
+        return createdAt + durationDays * 24 * 60 * 60 * 1000 >= now;
+      })
+      .map((row: any) => ({
+        id: row.id,
+        name: row.name || '',
+        displayCount: Number(row.display_count || 0),
+        durationDays: Number(row.duration_days || 1),
+        contentType: row.content_type || 'text',
+        imageUrl: row.image_url || '',
+        linkUrl: row.link_url || '',
+        text: row.text || '',
+        createdAt: row.created_at || null,
+      }));
+  }
+
+  async getParentProfileNews() {
+    const rows = await this.repository.getParentProfileNews();
+    return rows.map((row: any) => ({
+      id: row.id,
+      title: row.title || '',
+      text: row.body || '',
+      imageUrl: row.image_url || '',
+      mediaType: row.media_type || 'image',
+      linkUrl: row.link_url || '',
+      publishedAt: row.published_at || row.created_at || '',
+      createdAt: row.created_at || null,
+    }));
+  }
+
   async listParents(kindergartenId: string) {
     const rows = await this.repository.listParents(kindergartenId);
 
@@ -82,7 +120,23 @@ export class ParentPortalService {
   async getChildInfo(childId: string, kindergartenId: string) {
     const child = await this.repository.getChildInfo(childId, kindergartenId);
     if (!child) throw new ParentPortalError('Child not found', 404);
-    return child;
+    const row = child as any;
+
+    return {
+      ...row,
+      childGroup: row.childGroup || row.childgroup || row.child_group || '',
+      kindergartenName: row.kindergartenName || row.kindergartenname || row.kindergarten_name || '',
+      kindergartenDistrict: row.kindergartenDistrict || row.kindergartendistrict || row.kindergarten_district || '',
+      kindergartenAddress: row.kindergartenAddress || row.kindergartenaddress || row.kindergarten_address || '',
+      fatherName: row.fatherName || row.fathername || row.father_name || '',
+      fatherPhone: row.fatherPhone || row.fatherphone || row.father_phone || '',
+      fatherPassport: row.fatherPassport || row.fatherpassport || row.father_passport || '',
+      fatherWorkplace: row.fatherWorkplace || row.fatherworkplace || row.father_workplace || '',
+      motherName: row.motherName || row.mothername || row.mother_name || '',
+      motherPhone: row.motherPhone || row.motherphone || row.mother_phone || '',
+      motherPassport: row.motherPassport || row.motherpassport || row.mother_passport || '',
+      motherWorkplace: row.motherWorkplace || row.motherworkplace || row.mother_workplace || '',
+    };
   }
 
   async getFullData(childId: string, kindergartenId: string) {
@@ -137,7 +191,7 @@ export class ParentPortalService {
       await this.repository.updateParentProfile(child.mother_id, kindergartenId, body.mother);
     }
 
-    return { success: true };
+    return this.getChildInfo(childId, kindergartenId);
   }
 
   getMenu(childId: string, kindergartenId: string, date: string) {
