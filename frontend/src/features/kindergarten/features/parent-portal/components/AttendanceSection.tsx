@@ -9,6 +9,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
   const [tomorrowAttending, setTomorrowAttending] = useState<boolean | null>(null);
   const [reason, setReason] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [autoPresentSynced, setAutoPresentSynced] = useState(false);
 
   const formatDateKey = (date: Date) => {
     const year = date.getFullYear();
@@ -54,7 +55,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
       return;
     }
 
-    setTomorrowAttending(true);
+    setTomorrowAttending(null);
     setReason('');
   }, [isTomorrowWeekend, tomorrowKey, tomorrowRecord?.status, tomorrowRecord?.reason]);
 
@@ -64,31 +65,71 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
     return [0, 6].includes(date.getDay());
   };
 
+  const isHolidayDateKey = (dateKey?: string) => {
+    if (!dateKey) return false;
+    const [, month, day] = dateKey.split('-');
+    const fixedHolidayKeys = new Set([
+      '01-01',
+      '03-08',
+      '03-21',
+      '05-09',
+      '09-01',
+      '10-01',
+      '12-08',
+    ]);
+    return fixedHolidayKeys.has(`${month}-${day}`);
+  };
+
+  const isNonAttendanceDateKey = (dateKey?: string) => isWeekendDateKey(dateKey) || isHolidayDateKey(dateKey);
+  const todayRecord: any = attendanceByDate.get(todayKey);
+
+  useEffect(() => {
+    if (autoPresentSynced || !childId || isNonAttendanceDateKey(todayKey) || todayRecord?.status) return;
+
+    setAutoPresentSynced(true);
+    apiClient.post('/attendance', {
+      date: todayKey,
+      attendance_data: {
+        [childId]: {
+          status: 'PRESENT',
+          reason: '',
+        },
+      },
+      reason: '',
+    })
+      .then(() => onUpdate?.())
+      .catch((err) => {
+        console.error(err);
+        setAutoPresentSynced(false);
+      });
+  }, [autoPresentSynced, childId, onUpdate, todayKey, todayRecord?.status]);
+
   const calendarDays = Array.from({ length: 30 }, (_, index) => {
     const date = new Date();
     date.setDate(today.getDate() + index);
     const dateKey = formatDateKey(date);
     const record: any = attendanceByDate.get(dateKey);
-    const isPastDay = dateKey < todayKey;
     const isWeekend = [0, 6].includes(date.getDay());
+    const isHoliday = isHolidayDateKey(dateKey);
     const status =
-      isWeekend
-        ? 'weekend'
+      isWeekend || isHoliday
+        ? 'holiday'
         : dateKey === tomorrowKey && tomorrowAttending !== null
         ? (tomorrowAttending ? 'present' : 'absent')
         : record?.status === 'PRESENT'
           ? 'present'
-          : record?.status
+          : record?.status === 'ABSENT'
             ? 'absent'
-            : isPastDay
-              ? 'pastPending'
-              : 'pending';
+            : dateKey <= todayKey
+              ? 'present'
+            : 'unmarked';
 
     return {
       date,
       dateKey,
       status,
       isWeekend,
+      isHoliday,
       day: date.getDate(),
       weekday: date.toLocaleDateString('uz-UZ', { weekday: 'short' }),
       label: dateKey === todayKey ? 'Bugun' : dateKey === tomorrowKey ? 'Ertaga' : ''
@@ -96,24 +137,22 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
   });
 
   const calendarTone: Record<string, string> = {
-    present: 'border-emerald-500 bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-emerald-200',
-    absent: 'border-rose-500 bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-rose-200',
-    weekend: 'border-yellow-400 bg-gradient-to-br from-yellow-300 via-amber-300 to-orange-300 text-amber-950 shadow-yellow-200',
-    pending: 'border-slate-200 bg-white text-slate-500 shadow-slate-50',
-    pastPending: 'border-slate-200 bg-white text-slate-500 shadow-slate-50'
+    present: 'border-green-700 bg-gradient-to-br from-green-500 via-emerald-600 to-green-900 text-white shadow-green-300',
+    absent: 'border-red-700 bg-gradient-to-br from-red-600 via-red-700 to-red-900 text-white shadow-red-300',
+    holiday: 'border-yellow-400 bg-gradient-to-br from-yellow-300 via-amber-300 to-orange-300 text-amber-950 shadow-yellow-200',
+    unmarked: 'border-slate-300 bg-gradient-to-br from-slate-100 to-slate-300 text-slate-700 shadow-slate-200'
   };
 
   const calendarDot: Record<string, string> = {
     present: 'bg-white ring-2 ring-white/40',
-    absent: 'bg-white ring-2 ring-white/40',
-    weekend: 'bg-orange-500 ring-2 ring-white/80',
-    pending: 'bg-slate-300 ring-2 ring-slate-100',
-    pastPending: 'bg-slate-300 ring-2 ring-slate-100'
+    absent: 'bg-white ring-2 ring-red-200',
+    holiday: 'bg-orange-500 ring-2 ring-white/80',
+    unmarked: 'bg-slate-500 ring-2 ring-white/80'
   };
 
   const getCalendarStatusLabel = (day: { label: string; status: string }) => {
-    if (day.status === 'weekend') return 'Dam olish';
-    if (day.status === 'pending' || day.status === 'pastPending') return 'Belgilanmagan';
+    if (day.status === 'holiday') return 'Dam olish';
+    if (day.status === 'unmarked') return 'Belgilanmagan';
     if (day.label) return day.label;
     return day.status === 'present' ? 'Boradi' : 'Bormaydi';
   };
@@ -204,7 +243,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
                  <p className="text-[13px] md:text-[15px] font-medium leading-relaxed text-brand-muted max-w-md">
                    {isTomorrowWeekend
                      ? 'Shanba va yakshanba kunlari davomat belgilanmaydi.'
-                     : "Ertangi kun holati belgilanmagan bo'lsa, avtomatik ravishda boradi holati tanlanadi."}
+                     : "00:00 gacha bormaydi deb belgilanmasa, kun boshlanganda avtomatik boradi holati tanlanadi."}
                  </p>
               </div>
               
@@ -232,7 +271,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
                        </button>
                        <button 
                          onClick={() => setTomorrowAttending(false)}
-                         className={`flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-extrabold text-[12px] transition-all duration-300 ${tomorrowAttending === false ? 'bg-brand-depth text-white shadow-lg shadow-slate-200' : 'text-brand-muted hover:bg-rose-50 hover:text-rose-600'}`}
+                         className={`flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-extrabold text-[12px] transition-all duration-300 ${tomorrowAttending === false ? 'bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-lg shadow-rose-200/70' : 'text-brand-muted hover:bg-rose-50 hover:text-rose-600'}`}
                        >
                           <XCircle size={16} /> Yo'q
                        </button>
@@ -240,7 +279,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
 
                     {tomorrowAttending === true && !tomorrowRecord?.status && (
                       <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-[11px] font-extrabold text-emerald-700">
-                        Boradi holati avtomatik tanlandi.
+                        Boradi holati qo'lda tanlandi.
                       </div>
                     )}
 
@@ -315,7 +354,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
               <h5 className="text-xl md:text-2xl font-extrabold text-brand-depth leading-tight">30 kunlik davomat kalendari</h5>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-rose-100 bg-white px-3 py-1 text-[12px] font-extrabold text-rose-600 shadow-sm">{currentMonthLabel}</span>
-                <p className="text-[13px] font-medium text-brand-muted">Boradi, bormaydi va hali belgilanmagan kunlar ranglar bilan ko'rsatiladi.</p>
+                <p className="text-[13px] font-medium text-brand-muted">Belgilanmagan kunlar kulrang, bormaydigan kunlar qizil, dam olish va bayram kunlari sariq, boradigan kunlar yashil ko'rsatiladi.</p>
               </div>
             </div>
           </div>
@@ -345,7 +384,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
                 <span className={`h-2.5 w-2.5 rounded-full ${calendarDot[day.status]}`}></span>
                 <span className="text-[10px] font-extrabold capitalize opacity-75">{day.weekday}</span>
               </div>
-              <p className="mt-2 text-2xl font-extrabold leading-none">{day.day}</p>
+              <p className="mt-2 text-2xl font-extrabold leading-none text-white drop-shadow-sm">{day.day}</p>
               <p className="mt-1 h-4 truncate text-[9px] font-extrabold opacity-90">{getCalendarStatusLabel(day)}</p>
             </div>
           ))}
