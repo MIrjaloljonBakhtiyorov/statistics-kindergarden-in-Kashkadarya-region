@@ -25,6 +25,8 @@ const run = (sql, params = []) => new Promise((resolve, reject) => {
   });
 });
 
+const PARENT_PROFILE_NEWS_KINDERGARTEN_ID = '__parent_profile_news__';
+
 const normalizeDate = (value) => {
   const date = String(value || '').slice(0, 10);
   return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : new Date().toISOString().slice(0, 10);
@@ -110,11 +112,15 @@ const ensureKindergartenWebTables = async () => {
     summary TEXT,
     body TEXT,
     image_url TEXT,
+    media_type TEXT DEFAULT 'image',
+    link_url TEXT,
     status TEXT DEFAULT 'draft',
     published_at TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
+  await run(`ALTER TABLE kindergarten_website_news ADD COLUMN IF NOT EXISTS media_type TEXT DEFAULT 'image'`);
+  await run(`ALTER TABLE kindergarten_website_news ADD COLUMN IF NOT EXISTS link_url TEXT`);
   await run('CREATE INDEX IF NOT EXISTS idx_kindergarten_websites_slug ON kindergarten_websites(slug)');
   await run('CREATE INDEX IF NOT EXISTS idx_kindergarten_website_news_kindergarten ON kindergarten_website_news(kindergarten_id, created_at DESC)');
 };
@@ -170,8 +176,42 @@ const serializeWebsiteNewsRow = (row) => ({
   summary: row.summary || '',
   body: row.body || '',
   imageUrl: row.image_url || row.imageUrl || '',
+  mediaType: row.media_type || row.mediaType || 'image',
+  linkUrl: row.link_url || row.linkUrl || '',
   status: row.status || 'draft',
   publishedAt: row.published_at || row.publishedAt || '',
+  createdAt: row.created_at || row.createdAt || null,
+  updatedAt: row.updated_at || row.updatedAt || null,
+});
+
+const ensureAdminAdvertisementsTable = async () => {
+  await run(`CREATE TABLE IF NOT EXISTS admin_advertisements (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    display_count INTEGER DEFAULT 0,
+    duration_days INTEGER DEFAULT 1,
+    content_type TEXT DEFAULT 'text',
+    image_url TEXT,
+    link_url TEXT,
+    text TEXT,
+    status TEXT DEFAULT 'active',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+  await run(`ALTER TABLE admin_advertisements ADD COLUMN IF NOT EXISTS link_url TEXT`);
+  await run('CREATE INDEX IF NOT EXISTS idx_admin_advertisements_status ON admin_advertisements(status, created_at DESC)');
+};
+
+const serializeAdvertisementRow = (row) => ({
+  id: row.id,
+  name: row.name || '',
+  displayCount: Number(row.display_count || row.displayCount || 0),
+  durationDays: Number(row.duration_days || row.durationDays || 1),
+  contentType: row.content_type || row.contentType || 'text',
+  imageUrl: row.image_url || row.imageUrl || '',
+  linkUrl: row.link_url || row.linkUrl || '',
+  text: row.text || '',
+  status: row.status || 'active',
   createdAt: row.created_at || row.createdAt || null,
   updatedAt: row.updated_at || row.updatedAt || null,
 });
@@ -2323,8 +2363,8 @@ const KindergartenController = {
 
       await run(`
         INSERT INTO kindergarten_website_news (
-          id, kindergarten_id, title, summary, body, image_url, status, published_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+          id, kindergarten_id, title, summary, body, image_url, media_type, status, published_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
       `, [
         id,
         String(kindergarten.id),
@@ -2332,6 +2372,7 @@ const KindergartenController = {
         String(req.body.summary || '').trim(),
         String(req.body.body || '').trim(),
         String(req.body.imageUrl || '').trim(),
+        String(req.body.mediaType || 'image').trim() === 'video' ? 'video' : 'image',
         status,
         publishedAt,
       ]);
@@ -2370,6 +2411,7 @@ const KindergartenController = {
             summary = ?,
             body = ?,
             image_url = ?,
+            media_type = ?,
             status = ?,
             published_at = ?,
             updated_at = CURRENT_TIMESTAMP
@@ -2379,6 +2421,7 @@ const KindergartenController = {
         String(req.body.summary ?? current.summary ?? '').trim(),
         String(req.body.body ?? current.body ?? '').trim(),
         String(req.body.imageUrl ?? current.image_url ?? '').trim(),
+        String(req.body.mediaType ?? current.media_type ?? 'image').trim() === 'video' ? 'video' : 'image',
         status,
         publishedAt,
         req.params.newsId,
@@ -2400,6 +2443,229 @@ const KindergartenController = {
     try {
       await ensureKindergartenWebTables();
       const result = await run('DELETE FROM kindergarten_website_news WHERE id = ?', [req.params.newsId]);
+      if (!result.changes) return res.status(404).json({ error: 'Yangilik topilmadi' });
+      res.json({ id: req.params.newsId, deleted: true });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  getAdvertisements: async (req, res) => {
+    try {
+      await ensureAdminAdvertisementsTable();
+      const status = String(req.query.status || '').trim().toLowerCase();
+      const hasStatus = ['active', 'inactive'].includes(status);
+      const rows = await all(
+        `SELECT * FROM admin_advertisements
+         ${hasStatus ? 'WHERE status = ?' : ''}
+         ORDER BY created_at DESC
+         LIMIT 300`,
+        hasStatus ? [status] : []
+      );
+      res.json(rows.map(serializeAdvertisementRow));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  createAdvertisement: async (req, res) => {
+    try {
+      await ensureAdminAdvertisementsTable();
+      const name = String(req.body.name || '').trim();
+      const displayCount = Math.max(0, Math.floor(Number(req.body.displayCount || req.body.display_count || 0)));
+      const durationDays = Math.max(1, Math.floor(Number(req.body.durationDays || req.body.duration_days || 1)));
+      const imageUrl = String(req.body.imageUrl || req.body.image_url || '').trim();
+      const linkUrl = String(req.body.linkUrl || req.body.link_url || '').trim();
+      const text = String(req.body.text || '').trim();
+      const requestedContentType = String(req.body.contentType || req.body.mediaType || req.body.content_type || '').trim().toLowerCase();
+      const contentType = imageUrl
+        ? (requestedContentType === 'video' ? 'video' : 'image')
+        : 'text';
+
+      if (!name) return res.status(400).json({ error: 'Reklama nomini kiriting' });
+      if (!imageUrl && !text) return res.status(400).json({ error: 'Reklama uchun rasm yoki matn kiriting' });
+
+      const id = crypto.randomUUID();
+      await run(`
+        INSERT INTO admin_advertisements (
+          id, name, display_count, duration_days, content_type, image_url, link_url, text, status, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', CURRENT_TIMESTAMP)
+      `, [id, name, displayCount, durationDays, contentType, imageUrl || null, linkUrl || null, text || null]);
+
+      const row = await get('SELECT * FROM admin_advertisements WHERE id = ?', [id]);
+      res.status(201).json(serializeAdvertisementRow(row));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  updateAdvertisement: async (req, res) => {
+    try {
+      await ensureAdminAdvertisementsTable();
+      const current = await get('SELECT * FROM admin_advertisements WHERE id = ?', [req.params.adId]);
+      if (!current) return res.status(404).json({ error: 'Reklama topilmadi' });
+
+      const name = String(req.body.name ?? current.name ?? '').trim();
+      const displayCount = Math.max(0, Math.floor(Number(req.body.displayCount ?? req.body.display_count ?? current.display_count ?? 0)));
+      const durationDays = Math.max(1, Math.floor(Number(req.body.durationDays ?? req.body.duration_days ?? current.duration_days ?? 1)));
+      const imageUrl = String(req.body.imageUrl ?? req.body.image_url ?? current.image_url ?? '').trim();
+      const linkUrl = String(req.body.linkUrl ?? req.body.link_url ?? current.link_url ?? '').trim();
+      const text = String(req.body.text ?? current.text ?? '').trim();
+      const requestedContentType = String(req.body.contentType || req.body.mediaType || req.body.content_type || current.content_type || '').trim().toLowerCase();
+      const contentType = imageUrl
+        ? (requestedContentType === 'video' ? 'video' : 'image')
+        : 'text';
+      const status = ['active', 'inactive'].includes(String(req.body.status || '').toLowerCase())
+        ? String(req.body.status).toLowerCase()
+        : current.status;
+
+      if (!name) return res.status(400).json({ error: 'Reklama nomini kiriting' });
+      if (!imageUrl && !text) return res.status(400).json({ error: 'Reklama uchun rasm, video yoki matn kiriting' });
+
+      await run(`
+        UPDATE admin_advertisements
+        SET name = ?,
+            display_count = ?,
+            duration_days = ?,
+            content_type = ?,
+            image_url = ?,
+            link_url = ?,
+            text = ?,
+            status = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `, [name, displayCount, durationDays, contentType, imageUrl || null, linkUrl || null, text || null, status, req.params.adId]);
+
+      const row = await get('SELECT * FROM admin_advertisements WHERE id = ?', [req.params.adId]);
+      res.json(serializeAdvertisementRow(row));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  deleteAdvertisement: async (req, res) => {
+    try {
+      await ensureAdminAdvertisementsTable();
+      const result = await run('DELETE FROM admin_advertisements WHERE id = ?', [req.params.adId]);
+      if (!result.changes) return res.status(404).json({ error: 'Reklama topilmadi' });
+      res.json({ id: req.params.adId, deleted: true });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  getParentProfileNews: async (_req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const rows = await all(`
+        SELECT n.*, 'Ota-ona profili' as kindergarten_name
+        FROM kindergarten_website_news n
+        WHERE n.kindergarten_id = ?
+        ORDER BY COALESCE(n.published_at, CAST(n.created_at AS TEXT)) DESC
+        LIMIT 300
+      `, [PARENT_PROFILE_NEWS_KINDERGARTEN_ID]);
+      res.json(rows.map(serializeWebsiteNewsRow));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  createParentProfileNews: async (req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const title = String(req.body.title || '').trim();
+      if (!title) return res.status(400).json({ error: 'Yangilik sarlavhasi kiritilishi shart' });
+
+      const status = ['published', 'draft'].includes(String(req.body.status || '').toLowerCase())
+        ? String(req.body.status).toLowerCase()
+        : 'draft';
+      const id = crypto.randomUUID();
+      const publishedAt = status === 'published'
+        ? String(req.body.publishedAt || new Date().toISOString()).slice(0, 10)
+        : String(req.body.publishedAt || '').slice(0, 10) || null;
+
+      await run(`
+        INSERT INTO kindergarten_website_news (
+          id, kindergarten_id, title, summary, body, image_url, media_type, link_url, status, published_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `, [
+        id,
+        PARENT_PROFILE_NEWS_KINDERGARTEN_ID,
+        title,
+        String(req.body.summary || '').trim(),
+        String(req.body.body || '').trim(),
+        String(req.body.imageUrl || '').trim(),
+        String(req.body.mediaType || 'image').trim() === 'video' ? 'video' : 'image',
+        String(req.body.linkUrl || '').trim(),
+        status,
+        publishedAt,
+      ]);
+
+      const row = await get('SELECT * FROM kindergarten_website_news WHERE id = ?', [id]);
+      res.status(201).json(serializeWebsiteNewsRow({ ...row, kindergarten_name: 'Ota-ona profili' }));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  updateParentProfileNews: async (req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const current = await get('SELECT * FROM kindergarten_website_news WHERE id = ? AND kindergarten_id = ?', [
+        req.params.newsId,
+        PARENT_PROFILE_NEWS_KINDERGARTEN_ID,
+      ]);
+      if (!current) return res.status(404).json({ error: 'Yangilik topilmadi' });
+
+      const title = String(req.body.title ?? current.title ?? '').trim();
+      if (!title) return res.status(400).json({ error: 'Yangilik sarlavhasi kiritilishi shart' });
+
+      const status = ['published', 'draft'].includes(String(req.body.status ?? current.status ?? '').toLowerCase())
+        ? String(req.body.status ?? current.status).toLowerCase()
+        : 'draft';
+      const publishedAt = status === 'published'
+        ? String(req.body.publishedAt || current.published_at || new Date().toISOString()).slice(0, 10)
+        : String(req.body.publishedAt || current.published_at || '').slice(0, 10) || null;
+
+      await run(`
+        UPDATE kindergarten_website_news
+        SET title = ?,
+            summary = ?,
+            body = ?,
+            image_url = ?,
+            media_type = ?,
+            link_url = ?,
+            status = ?,
+            published_at = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND kindergarten_id = ?
+      `, [
+        title,
+        String(req.body.summary ?? current.summary ?? '').trim(),
+        String(req.body.body ?? current.body ?? '').trim(),
+        String(req.body.imageUrl ?? current.image_url ?? '').trim(),
+        String(req.body.mediaType ?? current.media_type ?? 'image').trim() === 'video' ? 'video' : 'image',
+        String(req.body.linkUrl ?? current.link_url ?? '').trim(),
+        status,
+        publishedAt,
+        req.params.newsId,
+        PARENT_PROFILE_NEWS_KINDERGARTEN_ID,
+      ]);
+
+      const row = await get('SELECT * FROM kindergarten_website_news WHERE id = ?', [req.params.newsId]);
+      res.json(serializeWebsiteNewsRow({ ...row, kindergarten_name: 'Ota-ona profili' }));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  deleteParentProfileNews: async (req, res) => {
+    try {
+      await ensureKindergartenWebTables();
+      const result = await run('DELETE FROM kindergarten_website_news WHERE id = ? AND kindergarten_id = ?', [
+        req.params.newsId,
+        PARENT_PROFILE_NEWS_KINDERGARTEN_ID,
+      ]);
       if (!result.changes) return res.status(404).json({ error: 'Yangilik topilmadi' });
       res.json({ id: req.params.newsId, deleted: true });
     } catch (err) {
