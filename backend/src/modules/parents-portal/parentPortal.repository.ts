@@ -19,7 +19,70 @@ const get = <T = any>(sql: string, params: any[] = []) => new Promise<T | undefi
   db.get(sql, params, (err: Error | null, row: T | undefined) => err ? reject(err) : resolve(row));
 });
 
+const PARENT_PROFILE_NEWS_KINDERGARTEN_ID = '__parent_profile_news__';
+
+const ensureParentProfileNewsTable = async () => {
+  await run(`CREATE TABLE IF NOT EXISTS kindergarten_website_news (
+    id TEXT PRIMARY KEY,
+    kindergarten_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    summary TEXT,
+    body TEXT,
+    image_url TEXT,
+    media_type TEXT DEFAULT 'image',
+    link_url TEXT,
+    status TEXT DEFAULT 'draft',
+    published_at TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+  await run(`ALTER TABLE kindergarten_website_news ADD COLUMN IF NOT EXISTS media_type TEXT DEFAULT 'image'`);
+  await run(`ALTER TABLE kindergarten_website_news ADD COLUMN IF NOT EXISTS link_url TEXT`);
+  await run('CREATE INDEX IF NOT EXISTS idx_kindergarten_website_news_kindergarten ON kindergarten_website_news(kindergarten_id, created_at DESC)');
+};
+
+const ensureParentAdvertisementsTable = async () => {
+  await run(`CREATE TABLE IF NOT EXISTS admin_advertisements (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    display_count INTEGER DEFAULT 0,
+    duration_days INTEGER DEFAULT 1,
+    content_type TEXT DEFAULT 'text',
+    image_url TEXT,
+    link_url TEXT,
+    text TEXT,
+    status TEXT DEFAULT 'active',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+  await run(`ALTER TABLE admin_advertisements ADD COLUMN IF NOT EXISTS link_url TEXT`);
+  await run('CREATE INDEX IF NOT EXISTS idx_admin_advertisements_status ON admin_advertisements(status, created_at DESC)');
+};
+
 export class ParentPortalRepository {
+  async getParentProfileNews() {
+    await ensureParentProfileNewsTable();
+    return all(`
+      SELECT *
+      FROM kindergarten_website_news
+      WHERE kindergarten_id = ?
+        AND status = 'published'
+      ORDER BY COALESCE(published_at, CAST(created_at AS TEXT)) DESC
+      LIMIT 100
+    `, [PARENT_PROFILE_NEWS_KINDERGARTEN_ID]);
+  }
+
+  async getActiveAdvertisements() {
+    await ensureParentAdvertisementsTable();
+    return all(`
+      SELECT *
+      FROM admin_advertisements
+      WHERE status = 'active'
+      ORDER BY created_at DESC
+      LIMIT 100
+    `);
+  }
+
   listParents(kindergartenId: string) {
     return all(`
       SELECT c.id as child_id, c.first_name, c.last_name, c.birth_certificate_number, c.group_id,
@@ -149,11 +212,10 @@ export class ParentPortalRepository {
   updateParentProfile(parentId: string, kindergartenId: string, data: any) {
     const fields: string[] = [];
     const params: any[] = [];
-    const fullName = typeof data.full_name === 'string' ? data.full_name.trim() : '';
-
-    if (fullName) {
+    if (Object.prototype.hasOwnProperty.call(data, 'full_name')) {
+      const fullName = typeof data.full_name === 'string' ? data.full_name.trim() : '';
       fields.push('full_name = ?');
-      params.push(fullName);
+      params.push(fullName || null);
     }
     if (Object.prototype.hasOwnProperty.call(data, 'workplace')) {
       fields.push('workplace = ?');
