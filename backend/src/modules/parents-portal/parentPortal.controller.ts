@@ -103,6 +103,14 @@ export class ParentPortalController {
     }
   };
 
+  getNearbyKindergartens = async (req: Request, res: Response) => {
+    try {
+      res.json(await this.service.getNearbyKindergartens(routeParam(req, 'childId'), await resolveKindergartenId(req), req.query));
+    } catch (error: any) {
+      sendError(res, error);
+    }
+  };
+
   getMenu = async (req: Request, res: Response) => {
     try {
       res.json(await this.service.getMenu(routeParam(req, 'childId'), await resolveKindergartenId(req), routeParam(req, 'date')));

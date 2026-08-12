@@ -17,6 +17,7 @@ parentsRoutes.post('/parent-portal/advertisements/:id/view', controller.recordAd
 parentsRoutes.get('/parent-portal/news', controller.getParentProfileNews);
 parentsRoutes.get('/parent-portal/login-history/:childId', controller.getParentLoginHistory);
 parentsRoutes.put('/parent-portal/profile/:childId', controller.updateProfile);
+parentsRoutes.get('/parent-portal/nearby-kindergartens/:childId', controller.getNearbyKindergartens);
 parentsRoutes.get('/parent-portal/menu/:childId/:date', controller.getMenu);
 parentsRoutes.post('/parent-portal/documents', controller.createDocument);
 parentsRoutes.delete('/parent-portal/documents/:id', controller.deleteDocument);

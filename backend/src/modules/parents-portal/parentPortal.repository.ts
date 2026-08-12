@@ -21,6 +21,21 @@ const get = <T = any>(sql: string, params: any[] = []) => new Promise<T | undefi
 
 const PARENT_PROFILE_NEWS_KINDERGARTEN_ID = '__parent_profile_news__';
 
+const safeAddColumn = async (table: string, column: string, definition: string) => {
+  const statement = db.dialect === 'postgres'
+    ? `ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${column} ${definition}`
+    : `ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`;
+
+  try {
+    await run(statement);
+  } catch (error: any) {
+    const message = String(error?.message || '').toLowerCase();
+    if (!message.includes('duplicate column') && !message.includes('already exists')) {
+      throw error;
+    }
+  }
+};
+
 const ensureParentProfileNewsTable = async () => {
   await run(`CREATE TABLE IF NOT EXISTS kindergarten_website_news (
     id TEXT PRIMARY KEY,
@@ -59,6 +74,43 @@ const ensureParentAdvertisementsTable = async () => {
   await run(`ALTER TABLE admin_advertisements ADD COLUMN IF NOT EXISTS link_url TEXT`);
   await run(`ALTER TABLE admin_advertisements ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0`);
   await run('CREATE INDEX IF NOT EXISTS idx_admin_advertisements_status ON admin_advertisements(status, created_at DESC)');
+};
+
+const ensureNearbyKindergartenTables = async () => {
+  await safeAddColumn('children', 'home_lat', 'REAL');
+  await safeAddColumn('children', 'home_lng', 'REAL');
+  await run(`CREATE TABLE IF NOT EXISTS kindergarten_websites (
+    kindergarten_id TEXT PRIMARY KEY,
+    slug TEXT UNIQUE,
+    status TEXT DEFAULT 'draft',
+    address TEXT,
+    phone TEXT,
+    location_lat REAL,
+    location_lng REAL,
+    working_days_json TEXT DEFAULT '[]',
+    monthly_fee REAL DEFAULT 0,
+    advantages_json TEXT DEFAULT '[]',
+    advantages_text TEXT,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+
+  const columns: Array<[string, string]> = [
+    ['slug', 'TEXT'],
+    ['status', "TEXT DEFAULT 'draft'"],
+    ['address', 'TEXT'],
+    ['phone', 'TEXT'],
+    ['location_lat', 'REAL'],
+    ['location_lng', 'REAL'],
+    ['working_days_json', "TEXT DEFAULT '[]'"],
+    ['monthly_fee', 'REAL DEFAULT 0'],
+    ['advantages_json', "TEXT DEFAULT '[]'"],
+    ['advantages_text', 'TEXT'],
+  ];
+
+  for (const [column, definition] of columns) {
+    await safeAddColumn('kindergarten_websites', column, definition);
+  }
 };
 
 export class ParentPortalRepository {
@@ -205,10 +257,32 @@ export class ParentPortalRepository {
     return all('SELECT * FROM menus WHERE kindergarten_id = ? AND date = ? ORDER BY meal_type', [kindergartenId, date]);
   }
 
-  updateChildProfile(childId: string, kindergartenId: string, data: { address?: string | null; photo_url?: string | null }) {
-    return run('UPDATE children SET address = ?, photo_url = ? WHERE id = ? AND kindergarten_id = ?', [
-      data.address || null,
-      data.photo_url || null,
+  async updateChildProfile(childId: string, kindergartenId: string, data: { address?: string | null; photo_url?: string | null; home_lat?: number | null; home_lng?: number | null }) {
+    await ensureNearbyKindergartenTables();
+    const fields: string[] = [];
+    const params: any[] = [];
+
+    if (Object.prototype.hasOwnProperty.call(data, 'address')) {
+      fields.push('address = ?');
+      params.push(data.address || null);
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'photo_url')) {
+      fields.push('photo_url = ?');
+      params.push(data.photo_url || null);
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'home_lat')) {
+      fields.push('home_lat = ?');
+      params.push(data.home_lat ?? null);
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'home_lng')) {
+      fields.push('home_lng = ?');
+      params.push(data.home_lng ?? null);
+    }
+
+    if (fields.length === 0) return { changes: 0, skipped: true };
+
+    return run(`UPDATE children SET ${fields.join(', ')} WHERE id = ? AND kindergarten_id = ?`, [
+      ...params,
       childId,
       kindergartenId,
     ]);
@@ -251,8 +325,55 @@ export class ParentPortalRepository {
     ]);
   }
 
-  getChildById(childId: string, kindergartenId: string) {
+  async getChildById(childId: string, kindergartenId: string) {
+    await ensureNearbyKindergartenTables();
     return get<{ id: string }>('SELECT id FROM children WHERE id = ? AND kindergarten_id = ?', [childId, kindergartenId]);
+  }
+
+  async getChildLocation(childId: string, kindergartenId: string) {
+    await ensureNearbyKindergartenTables();
+    return get<{ id: string; address?: string | null; home_lat?: number | null; home_lng?: number | null }>(
+      'SELECT id, address, home_lat, home_lng FROM children WHERE id = ? AND kindergarten_id = ?',
+      [childId, kindergartenId]
+    );
+  }
+
+  async getNearbyKindergartenCandidates() {
+    await ensureNearbyKindergartenTables();
+    return all(`
+      SELECT
+        k.id,
+        k.system_id,
+        k.name,
+        k.type,
+        k.district,
+        k.address,
+        k.phone,
+        k.capacity,
+        k.currentChildren,
+        k.lat,
+        k.lng,
+        w.slug,
+        w.address as website_address,
+        w.phone as website_phone,
+        w.location_lat,
+        w.location_lng,
+        w.working_days_json,
+        w.monthly_fee,
+        w.advantages_json,
+        w.advantages_text,
+        COALESCE(child_counts.children_count, 0) as children_count
+      FROM kindergartens k
+      LEFT JOIN kindergarten_websites w ON CAST(w.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+      LEFT JOIN (
+        SELECT kindergarten_id, COUNT(*) as children_count
+        FROM children
+        WHERE COALESCE(status, 'ACTIVE') != 'ARCHIVED'
+        GROUP BY kindergarten_id
+      ) child_counts ON CAST(child_counts.kindergarten_id AS TEXT) = CAST(k.id AS TEXT)
+      WHERE COALESCE(k.status, 'ACTIVE') != 'ARCHIVED'
+      ORDER BY k.district, k.name
+    `);
   }
 
   async createDocument(kindergartenId: string, data: { child_id: string; title: string; type: string; file_url: string }) {

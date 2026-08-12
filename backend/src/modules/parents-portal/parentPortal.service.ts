@@ -8,6 +8,39 @@ import { ParentPortalRepository } from './parentPortal.repository.js';
 const PASSWORD_POLICY_RE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 const MAX_PICKUP_PEOPLE = 10;
 
+const parseJsonArray = (value: any): any[] => {
+  if (Array.isArray(value)) return value;
+  try {
+    const parsed = JSON.parse(value || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const toFiniteNumber = (value: any) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const toLocationNumber = (value: any) => {
+  if (value === '' || value == null) return null;
+  return toFiniteNumber(value);
+};
+
+const hasUsableLocation = (lat: number | null, lng: number | null) =>
+  lat != null && lng != null && !(Math.abs(lat) < 0.000001 && Math.abs(lng) < 0.000001);
+
+const distanceKmBetween = (fromLat: number, fromLng: number, toLat: number, toLng: number) => {
+  const earthRadiusKm = 6371;
+  const toRad = (degree: number) => degree * Math.PI / 180;
+  const dLat = toRad(toLat - fromLat);
+  const dLng = toRad(toLng - fromLng);
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(fromLat)) * Math.cos(toRad(toLat)) * Math.sin(dLng / 2) ** 2;
+  return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
 const verifyStoredPassword = async (password: string, storedPassword: string) => {
   if (!storedPassword) return false;
   if (!storedPassword.startsWith('$2')) return password === storedPassword;
@@ -137,6 +170,8 @@ export class ParentPortalService {
       kindergartenName: row.kindergartenName || row.kindergartenname || row.kindergarten_name || '',
       kindergartenDistrict: row.kindergartenDistrict || row.kindergartendistrict || row.kindergarten_district || '',
       kindergartenAddress: row.kindergartenAddress || row.kindergartenaddress || row.kindergarten_address || '',
+      homeLat: toFiniteNumber(row.home_lat ?? row.homeLat),
+      homeLng: toFiniteNumber(row.home_lng ?? row.homeLng),
       fatherName: row.fatherName || row.fathername || row.father_name || '',
       fatherPhone: row.fatherPhone || row.fatherphone || row.father_phone || '',
       fatherPassport: row.fatherPassport || row.fatherpassport || row.father_passport || '',
@@ -187,9 +222,22 @@ export class ParentPortalService {
   }
 
   async updateProfile(childId: string, kindergartenId: string, body: any) {
+    const childUpdates: { address?: string | null; photo_url?: string | null; home_lat?: number | null; home_lng?: number | null } = {};
+    if (Object.prototype.hasOwnProperty.call(body, 'address')) {
+      childUpdates.address = body.address || null;
+    }
+    if (Object.prototype.hasOwnProperty.call(body, 'photo_url')) {
+      childUpdates.photo_url = body.photo_url || null;
+    }
+    if (Object.prototype.hasOwnProperty.call(body, 'homeLat') || Object.prototype.hasOwnProperty.call(body, 'home_lat')) {
+      childUpdates.home_lat = toLocationNumber(body.homeLat ?? body.home_lat);
+    }
+    if (Object.prototype.hasOwnProperty.call(body, 'homeLng') || Object.prototype.hasOwnProperty.call(body, 'home_lng')) {
+      childUpdates.home_lng = toLocationNumber(body.homeLng ?? body.home_lng);
+    }
+
     await this.repository.updateChildProfile(childId, kindergartenId, {
-      address: body.address || null,
-      photo_url: body.photo_url || null,
+      ...childUpdates,
     });
 
     const child = await this.repository.getChildParentIds(childId, kindergartenId);
@@ -201,6 +249,74 @@ export class ParentPortalService {
     }
 
     return this.getChildInfo(childId, kindergartenId);
+  }
+
+  async getNearbyKindergartens(childId: string, kindergartenId: string, query: any) {
+    const child = await this.repository.getChildLocation(childId, kindergartenId);
+    if (!child) throw new ParentPortalError('Child not found', 404);
+
+    const radiusKm = Math.min(50, Math.max(0.5, Number.parseFloat(String(query.radiusKm || query.radius || '5')) || 5));
+    const homeLat = toFiniteNumber((child as any).home_lat ?? (child as any).homeLat);
+    const homeLng = toFiniteNumber((child as any).home_lng ?? (child as any).homeLng);
+
+    if (!hasUsableLocation(homeLat, homeLng)) {
+      return {
+        home: {
+          address: (child as any).address || '',
+          lat: null,
+          lng: null,
+        },
+        radiusKm,
+        items: [],
+      };
+    }
+
+    const rows = await this.repository.getNearbyKindergartenCandidates();
+    const items = rows
+      .map((row: any) => {
+        const locationLat = toFiniteNumber(row.location_lat ?? row.locationLat ?? row.lat);
+        const locationLng = toFiniteNumber(row.location_lng ?? row.locationLng ?? row.lng);
+        if (!hasUsableLocation(locationLat, locationLng)) return null;
+        const distanceKm = distanceKmBetween(homeLat as number, homeLng as number, locationLat as number, locationLng as number);
+        if (distanceKm > radiusKm) return null;
+        const childrenCount = Number(row.children_count ?? row.childrenCount ?? row.currentChildren ?? 0) || 0;
+        const capacity = Number(row.capacity || 0) || 0;
+
+        return {
+          id: String(row.id),
+          kindergartenId: String(row.id),
+          systemId: row.system_id || row.systemId || '',
+          name: row.name || '',
+          type: row.type || '',
+          district: row.district || '',
+          address: row.website_address || row.websiteAddress || row.address || '',
+          phone: row.website_phone || row.websitePhone || row.phone || '',
+          slug: row.slug || '',
+          locationLat,
+          locationLng,
+          distanceKm: Number(distanceKm.toFixed(4)),
+          workingDays: parseJsonArray(row.working_days_json || row.workingDaysJson),
+          monthlyFee: Number(row.monthly_fee ?? row.monthlyFee ?? 0) || 0,
+          advantages: parseJsonArray(row.advantages_json || row.advantagesJson).map((item) => String(item || '').trim()).filter(Boolean),
+          advantagesText: String(row.advantages_text || row.advantagesText || '').trim(),
+          capacity,
+          childrenCount,
+          freeSeats: capacity > 0 ? Math.max(capacity - childrenCount, 0) : null,
+          isCurrent: String(row.id) === String(kindergartenId),
+        };
+      })
+      .filter(Boolean)
+      .sort((a: any, b: any) => a.distanceKm - b.distanceKm || String(a.name).localeCompare(String(b.name)));
+
+    return {
+      home: {
+        address: (child as any).address || '',
+        lat: homeLat,
+        lng: homeLng,
+      },
+      radiusKm,
+      items,
+    };
   }
 
   getMenu(childId: string, kindergartenId: string, date: string) {
