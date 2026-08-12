@@ -38,7 +38,10 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
     'noyabr',
     'dekabr'
   ];
-  const currentMonthLabel = `${today.getFullYear()} yilning ${monthNames[today.getMonth()]} oyi`;
+  const calendarYear = today.getFullYear();
+  const calendarMonth = today.getMonth();
+  const daysInCalendarMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  const currentMonthLabel = `${calendarYear} yilning ${monthNames[calendarMonth]} oyi`;
   const attendanceByDate = new Map((data?.attendance || []).map((item: any) => [item.date, item]));
   const tomorrowRecord: any = attendanceByDate.get(tomorrowKey);
 
@@ -104,9 +107,8 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
       });
   }, [autoPresentSynced, childId, onUpdate, todayKey, todayRecord?.status]);
 
-  const calendarDays = Array.from({ length: 30 }, (_, index) => {
-    const date = new Date();
-    date.setDate(today.getDate() + index);
+  const calendarDays = Array.from({ length: daysInCalendarMonth }, (_, index) => {
+    const date = new Date(calendarYear, calendarMonth, index + 1);
     const dateKey = formatDateKey(date);
     const record: any = attendanceByDate.get(dateKey);
     const isWeekend = [0, 6].includes(date.getDay());
@@ -130,7 +132,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
       status,
       isWeekend,
       isHoliday,
-      day: date.getDate(),
+      day: index + 1,
       weekday: date.toLocaleDateString('uz-UZ', { weekday: 'short' }),
       label: dateKey === todayKey ? 'Bugun' : dateKey === tomorrowKey ? 'Ertaga' : ''
     };
@@ -342,7 +344,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
         ))}
       </div>
 
-      {/* 30 Day Calendar */}
+      {/* Monthly Calendar */}
       <div className="rounded-3xl border border-rose-100 bg-white p-5 md:p-6 shadow-sm overflow-hidden relative">
         <div className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-pink-500 via-rose-400 to-amber-300"></div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -351,7 +353,7 @@ export const AttendanceSection = ({ data, childId, onUpdate }: any) => {
               <Calendar size={22} />
             </div>
             <div>
-              <h5 className="text-xl md:text-2xl font-extrabold text-brand-depth leading-tight">30 kunlik davomat kalendari</h5>
+              <h5 className="text-xl md:text-2xl font-extrabold text-brand-depth leading-tight">{calendarDays.length} kunlik davomat kalendari</h5>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-rose-100 bg-white px-3 py-1 text-[12px] font-extrabold text-rose-600 shadow-sm">{currentMonthLabel}</span>
                 <p className="text-[13px] font-medium text-brand-muted">Belgilanmagan kunlar kulrang, bormaydigan kunlar qizil, dam olish va bayram kunlari sariq, boradigan kunlar yashil ko'rsatiladi.</p>
