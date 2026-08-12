@@ -288,7 +288,6 @@ export const QASHQADARYO_MAHALLAS_BY_DISTRICT: Record<string, MahallaOption[]> =
     { code: "18040058", name: "Yangi Zamon MFY" },
     { code: "18040059", name: "Yangiobod MFY" },
   ],
-  "Kitob shahri": [],
   "Koson tumani": [
     { code: "18050001", name: "Ayronchi MFY" },
     { code: "18050002", name: "Alachabob MFY" },
@@ -369,7 +368,6 @@ export const QASHQADARYO_MAHALLAS_BY_DISTRICT: Record<string, MahallaOption[]> =
     { code: "18050077", name: "Obihayot MFY" },
     { code: "18050078", name: "Yangi O‘zbekiston MFY" },
   ],
-  "Koson shahri": [],
   "Muborak tumani": [
     { code: "18060001", name: "Alisher Navoiy MFY" },
     { code: "18060002", name: "Amir Temur MFY" },
@@ -397,7 +395,6 @@ export const QASHQADARYO_MAHALLAS_BY_DISTRICT: Record<string, MahallaOption[]> =
     { code: "18060024", name: "Yangiobod MFY" },
     { code: "18060025", name: "Yashnaobod MFY" },
   ],
-  "Muborak shahri": [],
   "G'uzor tumani": [
     { code: "18140001", name: "Amir Temur MFY" },
     { code: "18140002", name: "Avg‘onbog‘ MFY" },
@@ -824,7 +821,6 @@ export const QASHQADARYO_MAHALLAS_BY_DISTRICT: Record<string, MahallaOption[]> =
     { code: "18110062", name: "Yashnaobod MFY" },
     { code: "18110063", name: "Bog‘zor MFY" },
   ],
-  "Yakkabog' shahri": [],
   "Ko'kdala tumani": [
     { code: "18080001", name: "Ayritom MFY" },
     { code: "18080002", name: "Annaro‘z MFY" },
