@@ -8,6 +8,7 @@ import { motion } from 'motion/react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Trophy, Medal } from 'lucide-react';
 import { kindergartenApi } from '@/shared/api';
+import { getKindergartenTypeLabel, makeEmptyKindergartenTypeStats } from '@/shared/lib/kindergartenTypes';
 import { getMahallasByDistrict, type MahallaOption } from '../../../kindergarten-admin/data/qashqadaryoMahallas';
 
 const RANK_COLORS = [
@@ -200,10 +201,12 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
       mahallaRows.set(key, existing);
     });
 
-    const liveTypeRows = new Map<string, { name: string; count: number; children: number }>();
+    const liveTypeRows = new Map<string, { name: string; label: string; count: number; children: number }>(
+      makeEmptyKindergartenTypeStats().map((type) => [type.name, type])
+    );
     rows.forEach((kg) => {
       const typeName = String(kg.type || "Turi kiritilmagan").trim();
-      const current = liveTypeRows.get(typeName) || { name: typeName, count: 0, children: 0 };
+      const current = liveTypeRows.get(typeName) || { name: typeName, label: getKindergartenTypeLabel(typeName), count: 0, children: 0 };
       current.count += 1;
       current.children += toNumber(kg.currentChildren ?? kg.current_children ?? kg.children);
       liveTypeRows.set(typeName, current);
@@ -217,7 +220,7 @@ const TumanStatistikasi: React.FC<TumanStatistikasiProps> = () => {
       }),
       totalMTT: rows.length,
       totalCoveredChildren: liveChildren,
-      types: Array.from(liveTypeRows.values()).sort((a, b) => b.count - a.count),
+      types: Array.from(liveTypeRows.values()),
     } : fallbackDistrict?.details;
 
     return {

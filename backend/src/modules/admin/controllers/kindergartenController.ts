@@ -90,6 +90,10 @@ const ensureKindergartenWebTables = async () => {
     ['news_title', 'TEXT'],
     ['location_lat', 'REAL'],
     ['location_lng', 'REAL'],
+    ['working_days_json', "TEXT DEFAULT '[]'"],
+    ['monthly_fee', 'REAL DEFAULT 0'],
+    ['advantages_json', "TEXT DEFAULT '[]'"],
+    ['advantages_text', 'TEXT'],
     ['news_subtitle', 'TEXT'],
     ['groups_title', 'TEXT'],
     ['groups_description', 'TEXT'],
@@ -126,6 +130,7 @@ const ensureKindergartenWebTables = async () => {
 };
 
 const parseJsonArray = (value) => {
+  if (Array.isArray(value)) return value;
   try {
     const parsed = JSON.parse(value || '[]');
     return Array.isArray(parsed) ? parsed : [];
@@ -151,6 +156,10 @@ const serializeWebsiteRow = (row) => ({
   coverImageUrl: row.cover_image_url || row.coverImageUrl || '',
   locationLat: row.location_lat ?? row.locationLat ?? row.lat ?? null,
   locationLng: row.location_lng ?? row.locationLng ?? row.lng ?? null,
+  workingDays: parseJsonArray(row.working_days_json || row.workingDaysJson || row.workingDays),
+  monthlyFee: Number(row.monthly_fee ?? row.monthlyFee ?? 0) || 0,
+  advantages: parseJsonArray(row.advantages_json || row.advantagesJson || row.advantages),
+  advantagesText: row.advantages_text || row.advantagesText || '',
   newsTitle: row.news_title || row.newsTitle || 'Yangiliklar',
   newsSubtitle: row.news_subtitle || row.newsSubtitle || '',
   groupsTitle: row.groups_title || row.groupsTitle || 'Bolalar guruhlari',
@@ -509,8 +518,7 @@ const QASHQADARYO_DISTRICTS = new Set([
   'Chiroqchi tumani', 'Dehqonobod tumani', "G'uzor tumani", 'Kasbi tumani',
   'Kitob tumani', 'Koson tumani', "Ko'kdala tumani", 'Mirishkor tumani',
   'Muborak tumani', 'Nishon tumani', 'Qamashi tumani', 'Qarshi tumani', 'Shahrisabz tumani',
-  "Yakkabog' tumani", 'Qarshi shahri', 'Shahrisabz shahri', 'Kitob shahri',
-  'Koson shahri', 'Muborak shahri', "Yakkabog' shahri",
+  "Yakkabog' tumani", 'Qarshi shahri', 'Shahrisabz shahri',
 ]);
 
 const publicKindergartenRow = (row) => {
@@ -2106,6 +2114,10 @@ const KindergartenController = {
           w.cover_image_url,
           w.location_lat,
           w.location_lng,
+          w.working_days_json,
+          w.monthly_fee,
+          w.advantages_json,
+          w.advantages_text,
           w.news_title,
           w.news_subtitle,
           w.groups_title,
@@ -2167,6 +2179,10 @@ const KindergartenController = {
           w.cover_image_url,
           w.location_lat,
           w.location_lng,
+          w.working_days_json,
+          w.monthly_fee,
+          w.advantages_json,
+          w.advantages_text,
           w.news_title,
           w.news_subtitle,
           w.groups_title,
@@ -2206,6 +2222,22 @@ const KindergartenController = {
       const gallery = Array.isArray(req.body.gallery)
         ? req.body.gallery.map((item) => String(item || '').trim()).filter(Boolean)
         : [];
+      const currentProfile = await get(
+        'SELECT working_days_json, monthly_fee, advantages_json, advantages_text FROM kindergarten_websites WHERE CAST(kindergarten_id AS TEXT) = CAST(? AS TEXT)',
+        [req.params.kindergartenId]
+      );
+      const workingDays = Array.isArray(req.body.workingDays)
+        ? req.body.workingDays.map((item) => String(item || '').trim()).filter(Boolean)
+        : parseJsonArray(currentProfile?.working_days_json);
+      const advantages = Array.isArray(req.body.advantages)
+        ? req.body.advantages.map((item) => String(item || '').trim()).filter(Boolean)
+        : parseJsonArray(currentProfile?.advantages_json);
+      const monthlyFee = req.body.monthlyFee === undefined
+        ? Number(currentProfile?.monthly_fee || 0)
+        : toCost(req.body.monthlyFee);
+      const advantagesText = req.body.advantagesText === undefined
+        ? String(currentProfile?.advantages_text || '').trim()
+        : String(req.body.advantagesText || '').trim();
 
       await run(`
         INSERT INTO kindergarten_websites (
@@ -2272,6 +2304,23 @@ const KindergartenController = {
         JSON.stringify(gallery),
       ]);
 
+      await run(
+        `UPDATE kindergarten_websites
+         SET working_days_json = ?,
+             monthly_fee = ?,
+             advantages_json = ?,
+             advantages_text = ?,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE CAST(kindergarten_id AS TEXT) = CAST(? AS TEXT)`,
+        [
+          JSON.stringify(workingDays),
+          monthlyFee,
+          JSON.stringify(advantages),
+          advantagesText,
+          String(kindergarten.id),
+        ]
+      );
+
       const saved = await get(`
         SELECT
           k.id,
@@ -2296,6 +2345,10 @@ const KindergartenController = {
           w.cover_image_url,
           w.location_lat,
           w.location_lng,
+          w.working_days_json,
+          w.monthly_fee,
+          w.advantages_json,
+          w.advantages_text,
           w.news_title,
           w.news_subtitle,
           w.groups_title,
@@ -2703,6 +2756,10 @@ const KindergartenController = {
           w.cover_image_url,
           w.location_lat,
           w.location_lng,
+          w.working_days_json,
+          w.monthly_fee,
+          w.advantages_json,
+          w.advantages_text,
           w.news_title,
           w.news_subtitle,
           w.groups_title,

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Clock, AlertTriangle, ShieldAlert,
   Building2, Home, Filter, TrendingUp, TrendingDown,
-  MapPin, X, Zap, Activity
+  MapPin, X, Zap, Activity, School, LayoutGrid
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -13,6 +13,7 @@ import {
 import { clsx } from 'clsx';
 import { StatsModal } from '../../components/StatsModal';
 import { kindergartenApi } from '@/shared/api';
+import { KINDERGARTEN_TYPES } from '@/shared/lib/kindergartenTypes';
 
 const REGIONAL_STAT_CARDS = [
   { name: "Qoraqalpog'iston Respublikasi", type: "Respublika", slug: "qoraqalpogiston" },
@@ -86,6 +87,14 @@ const attendanceBreakdownOf = (kg: any) => {
   return { children, before930, after930, present, absent };
 };
 
+const TYPE_KPI_META: Record<string, { icon: any; color: string; chartColor: string }> = {
+  Public: { icon: School, color: 'blue', chartColor: '#6366f1' },
+  Private: { icon: Home, color: 'orange', chartColor: '#f59e0b' },
+  PPP: { icon: ShieldAlert, color: 'teal', chartColor: '#14b8a6' },
+  Home: { icon: Home, color: 'amber', chartColor: '#10b981' },
+  Organization: { icon: LayoutGrid, color: 'violet', chartColor: '#8b5cf6' },
+};
+
 const KpiCard = ({ kpi }: { kpi: any }) => (
   <div className="bg-white border border-slate-100 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-sm relative overflow-hidden min-h-[116px]">
     <div className="flex justify-between items-start">
@@ -154,11 +163,10 @@ export const Overview = () => {
     const totalBefore9 = selectedRegionKindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).before930, 0);
     const totalAfter9 = selectedRegionKindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).after930, 0);
     const totalAbsent = selectedRegionKindergartens.reduce((sum, kg) => sum + attendanceBreakdownOf(kg).absent, 0);
-    const typeCounts = {
-      Public: selectedRegionKindergartens.filter(kg => kg.type === 'Public').length,
-      Private: selectedRegionKindergartens.filter(kg => kg.type === 'Private').length,
-      Home: selectedRegionKindergartens.filter(kg => kg.type === 'Home').length,
-    };
+    const typeCounts = KINDERGARTEN_TYPES.reduce<Record<string, number>>((acc, type) => {
+      acc[type.value] = selectedRegionKindergartens.filter(kg => kg.type === type.value).length;
+      return acc;
+    }, {});
     const districtData = DISTRICTS.map((district) => {
       const districtKindergartens = selectedRegionKindergartens.filter(kg => matchesDistrict(kg.district, district));
       const districtStats = districtKindergartens.reduce((acc, kg) => {
@@ -216,14 +224,22 @@ export const Overview = () => {
       ],
       kpiRow2: [
         { title: "Umumiy bog'chalar", val: selectedRegionKindergartens.length.toLocaleString(), icon: Building2, color: "violet" },
-        { title: "Private", val: typeCounts.Private.toLocaleString(), icon: Home, color: "orange" },
-        { title: "Public", val: typeCounts.Public.toLocaleString(), icon: Building2, color: "blue" },
-        { title: "Home", val: typeCounts.Home.toLocaleString(), icon: Home, color: "teal" },
+        ...KINDERGARTEN_TYPES.map((type) => {
+          const meta = TYPE_KPI_META[type.value] || TYPE_KPI_META.Public;
+          return {
+            title: type.shortLabel,
+            val: Number(typeCounts[type.value] || 0).toLocaleString(),
+            icon: meta.icon,
+            color: meta.color,
+          };
+        }),
       ],
       pieData: [
-        { name: "Home", value: typeCounts.Home, color: "#10b981" },
-        { name: "Private", value: typeCounts.Private, color: "#f59e0b" },
-        { name: "Public", value: typeCounts.Public, color: "#6366f1" },
+        ...KINDERGARTEN_TYPES.map((type) => ({
+          name: type.shortLabel,
+          value: typeCounts[type.value] || 0,
+          color: (TYPE_KPI_META[type.value] || TYPE_KPI_META.Public).chartColor,
+        })),
       ],
       districtData,
       bottomDistricts,
@@ -275,7 +291,7 @@ export const Overview = () => {
       </div>
 
       {/* KPI Row 2 */}
-      <div className={clsx("grid grid-cols-2 xl:grid-cols-4 gap-4", !isQashqadaryoRegion && "hidden")}>
+      <div className={clsx("grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4", !isQashqadaryoRegion && "hidden")}>
         {stats.kpiRow2.map((kpi, i) => <KpiCard key={i} kpi={kpi} />)}
       </div>
 
@@ -485,9 +501,9 @@ export const Overview = () => {
               <h3 className="text-xl font-black text-slate-900 mb-1">AI To'liq Hisobot</h3>
               <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-6">May 2026</p>
               <div className="space-y-4">
-                {["Davlat", "Xususiy", "Oilaviy"].map(type => (
-                  <div key={type} className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-3">{type} MTT</p>
+                {KINDERGARTEN_TYPES.map(type => (
+                  <div key={type.value} className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-3">{type.label}</p>
                     <div className="grid grid-cols-3 gap-3">
                       <div className="text-center"><p className="text-lg font-black text-emerald-600">{stats.reportCounts.excellent}</p><p className="text-[9px] font-black text-slate-400 uppercase">A'lo</p></div>
                       <div className="text-center"><p className="text-lg font-black text-amber-600">{stats.reportCounts.average}</p><p className="text-[9px] font-black text-slate-400 uppercase">O'rta</p></div>

@@ -4,14 +4,14 @@ import {
   MapPin, ChevronRight, Search, Filter, Sparkles,
   TrendingUp, TrendingDown, Activity,
   ArrowUpRight, LayoutGrid, Map as MapIcon,
-  ArrowLeft, School, Home, Building2, Download, List
+  ArrowLeft, School, Home, Building2, Download, List, ShieldCheck
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import { KindergartenType } from '../../types';
 import { clsx } from 'clsx';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { kindergartenApi } from '@/shared/api';
+import { KINDERGARTEN_TYPES, KINDERGARTEN_TYPE_LABELS, type KindergartenTypeValue } from '@/shared/lib/kindergartenTypes';
 import { getMahallasByDistrict, type MahallaOption } from '../../data/qashqadaryoMahallas';
 
 const toNumber = (value: unknown) => Number(value || 0);
@@ -36,10 +36,20 @@ const normalizeMahallaName = (value: unknown) => String(value || '')
   .replace(/[\u2018\u2019`]/g, "'")
   .replace(/\s+/g, ' ');
 const getKindergartenMahallaCode = (kg: any) => kg.mahallaCode ?? kg.mahalla_code ?? kg.mahallacode;
-const typeLabels: Record<string, string> = {
-  Public: 'Davlat MTT',
-  Private: 'Xususiy MTT',
-  Home: 'Oilaviy MTT',
+const typeLabels: Record<string, string> = KINDERGARTEN_TYPE_LABELS;
+const typeCardMeta: Record<string, { icon: any; color: string }> = {
+  Public: { icon: Building2, color: 'indigo' },
+  Private: { icon: School, color: 'emerald' },
+  PPP: { icon: ShieldCheck, color: 'teal' },
+  Home: { icon: Home, color: 'amber' },
+  Organization: { icon: LayoutGrid, color: 'sky' },
+};
+const typeAccentClass = (color: string) => {
+  if (color === 'emerald') return 'bg-emerald-500';
+  if (color === 'teal') return 'bg-teal-500';
+  if (color === 'amber') return 'bg-amber-500';
+  if (color === 'sky') return 'bg-sky-500';
+  return 'bg-indigo-600';
 };
 
 type DistrictStat = {
@@ -202,11 +212,11 @@ const DistrictCard = ({ d, onClick }: { d: DistrictStat; onClick: () => void }) 
 // в”Ђв”Ђв”Ђ Main Component в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 export const Districts = () => {
   const [selected, setSelected] = useState<DistrictStat | null>(null);
-  const [selectedType, setSelectedType] = useState<'Public' | 'Private' | 'Home' | null>(null);
+  const [selectedType, setSelectedType] = useState<KindergartenTypeValue | null>(null);
   const [selectedMahallaName, setSelectedMahallaName] = useState('');
   const [mahallaDetailOpen, setMahallaDetailOpen] = useState(false);
   const [kindergartenSearch, setKindergartenSearch] = useState('');
-  const [kindergartenTypeFilter, setKindergartenTypeFilter] = useState<'all' | 'Public' | 'Private' | 'Home'>('all');
+  const [kindergartenTypeFilter, setKindergartenTypeFilter] = useState<'all' | KindergartenTypeValue>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [search, setSearch] = useState('');
   const [districtSearch, setDistrictSearch] = useState('');
@@ -306,11 +316,10 @@ export const Districts = () => {
   const selectedKindergartens = selected
     ? kindergartens.filter(kg => normalizeDistrictName(kg.district) === normalizeDistrictName(selected.name))
     : [];
-  const selectedTypeStats = {
-    Public: selectedKindergartens.filter(kg => kg.type === 'Public'),
-    Private: selectedKindergartens.filter(kg => kg.type === 'Private'),
-    Home: selectedKindergartens.filter(kg => kg.type === 'Home'),
-  };
+  const selectedTypeStats = KINDERGARTEN_TYPES.reduce<Record<KindergartenTypeValue, any[]>>((acc, type) => {
+    acc[type.value] = selectedKindergartens.filter(kg => kg.type === type.value);
+    return acc;
+  }, {} as Record<KindergartenTypeValue, any[]>);
   const activeTypeKindergartens = selectedType ? selectedTypeStats[selectedType] : [];
   const getTypeAttendance = (items: any[]) => {
     const children = items.reduce((sum, kg) => sum + getRealChildrenCount(kg), 0);
@@ -498,9 +507,9 @@ export const Districts = () => {
                 className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
               >
                 <option value="all">Barchasi</option>
-                <option value="Public">Davlat MTT</option>
-                <option value="Private">Xususiy MTT</option>
-                <option value="Home">Oilaviy MTT</option>
+                {KINDERGARTEN_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>{type.label}</option>
+                ))}
               </select>
             </label>
           </div>
@@ -620,20 +629,27 @@ export const Districts = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {[
-            { type: KindergartenType.PUBLIC, key: 'Public' as const, icon: Building2, label: "Davlat MTT", count: selectedTypeStats.Public.length, attend: getTypeAttendance(selectedTypeStats.Public), color: "indigo" },
-            { type: KindergartenType.PRIVATE, key: 'Private' as const, icon: School, label: "Xususiy MTT", count: selectedTypeStats.Private.length, attend: getTypeAttendance(selectedTypeStats.Private), color: "emerald" },
-            { type: KindergartenType.HOME, key: 'Home' as const, icon: Home, label: "Oilaviy MTT", count: selectedTypeStats.Home.length, attend: getTypeAttendance(selectedTypeStats.Home), color: "amber" },
-          ].map(cat => (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5">
+          {KINDERGARTEN_TYPES.map((type) => {
+            const meta = typeCardMeta[type.value] || typeCardMeta.Public;
+            const items = selectedTypeStats[type.value] || [];
+            const cat = {
+              key: type.value,
+              icon: meta.icon,
+              label: type.label,
+              count: items.length,
+              attend: getTypeAttendance(items),
+              color: meta.color,
+            };
+            return (
             <motion.div
-              key={cat.type}
+              key={cat.key}
               whileHover={{ y: -4 }}
-              onClick={showAllMahallas}
+              onClick={() => setSelectedType(cat.key)}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') showAllMahallas();
+                if (event.key === 'Enter' || event.key === ' ') setSelectedType(cat.key);
               }}
               className={clsx(
                 "bg-white border rounded-2xl p-6 shadow-sm cursor-pointer hover:shadow-lg transition-all group",
@@ -641,7 +657,7 @@ export const Districts = () => {
               )}
             >
               <div className={clsx("w-12 h-12 rounded-2xl flex items-center justify-center mb-4 text-white shadow-lg",
-                cat.color === "indigo" ? "bg-indigo-600" : cat.color === "emerald" ? "bg-emerald-500" : "bg-amber-500"
+                typeAccentClass(cat.color)
               )}>
                 <cat.icon size={24} />
               </div>
@@ -658,7 +674,8 @@ export const Districts = () => {
                 Batafsil <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
 
         {selectedMahallaStats.length > 0 && (

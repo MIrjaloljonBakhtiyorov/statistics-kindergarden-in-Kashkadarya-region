@@ -11,6 +11,7 @@ import {
 import { clsx } from 'clsx';
 import { toast } from 'sonner';
 import { apiClient, kindergartenApi } from '@/shared/api';
+import { KINDERGARTEN_TYPE_OPTIONS, KINDERGARTEN_TYPE_VALUES, getKindergartenTypeLabel } from '@/shared/lib/kindergartenTypes';
 import { getMahallaByName, getMahallasByDistrict } from '../../data/qashqadaryoMahallas';
 
 // --- VALIDATION SCHEMA ---
@@ -29,7 +30,7 @@ const requiredNumber = (message: string) =>
 const formSchema = z.object({
     // Step 1: Asosiy
     name: z.string().min(3, "Bog'cha nomi majburiy"),
-    type: requiredEnum(['Public', 'Private', 'Home'], "Bog'cha turini tanlang"),
+    type: requiredEnum(KINDERGARTEN_TYPE_VALUES, "Bog'cha turini tanlang"),
     workHours: z.coerce.number().refine((value) => [4, 9, 9.5, 10.5, 12, 24].includes(value), "Ish vaqti turini tanlang"),
     region: z.string().min(1, "Viloyatni tanlang"),
     district: z.string().min(1, "Tuman/shaharni kiriting"),
@@ -130,8 +131,7 @@ const DISTRICT_OPTIONS_BY_REGION: Record<string, string[]> = {
         "Kitob tumani", "Koson tumani", "Ko'kdala tumani", "Mirishkor tumani",
         "Muborak tumani", "Nishon tumani", "Qamashi tumani", "Qarshi tumani", "Shahrisabz tumani",
         "Yakkabog' tumani",
-        "Qarshi shahri", "Shahrisabz shahri", "Kitob shahri", "Koson shahri",
-        "Muborak shahri", "Yakkabog' shahri"
+        "Qarshi shahri", "Shahrisabz shahri"
     ],
     "Navoiy viloyati": [
         "Karmana tumani", "Konimex tumani", "Navbahor tumani", "Nurota tumani",
@@ -608,7 +608,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                         {step === 1 && (<>
                             <FormField name="name" label="Bog'cha nomi *" placeholder="Masalan: 12-sonli MTT" />
                             <FormField name="id_auto" label="Bog'cha ID" placeholder={credentialPreview.systemId} disabled />
-                            <FormField name="type" label="Turi *" options={[{label: 'Davlat', value: 'Public'}, {label: 'Xususiy', value: 'Private'}, {label: 'Oilaviy', value: 'Home'}]} />
+                            <FormField name="type" label="Turi *" options={KINDERGARTEN_TYPE_OPTIONS} />
                             <FormField name="workHours" label="Ish vaqti turi *" options={WORK_HOUR_OPTIONS} />
                             <FormField name="region" label="Viloyat *" options={REGIONS} />
                             <FormField
@@ -696,7 +696,7 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                         {step === 8 && (
                             <div className="md:col-span-2 space-y-6 sm:space-y-8 pb-6 sm:pb-10">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-                                    <SummaryCard icon={Building2} title="Asosiy" data={{'Nomi': allValues.name, 'Turi': allValues.type, 'Viloyat': allValues.region, 'Tuman': allValues.district, 'Mahalla': allValues.mahalla, 'Mahalla kodi': allValues.mahallaCode || 'Kiritilmagan'}} />
+                                    <SummaryCard icon={Building2} title="Asosiy" data={{'Nomi': allValues.name, 'Turi': getKindergartenTypeLabel(allValues.type), 'Viloyat': allValues.region, 'Tuman': allValues.district, 'Mahalla': allValues.mahalla, 'Mahalla kodi': allValues.mahallaCode || 'Kiritilmagan'}} />
                                     <SummaryCard icon={FileText} title="Hujjatlar" data={{'Brokerlash': allValues.brokerageDocumentFile ? 'Yuklangan' : "Yo'q", 'Buyruq': allValues.commissionOrder || 'Kiritilmagan', 'Tasdiqlangan kuni': allValues.commissionApprovedDate || 'Kiritilmagan', 'Muddat': allValues.commissionValidUntil || 'Kiritilmagan'}} />
                                     <SummaryCard icon={UserRound} title="Rahbar" data={{'F.I.O': allValues.directorName, 'Yili': allValues.directorBirthYear, 'Login': credentialPreview.username}} />
                                     <SummaryCard icon={Baby} title="Sig'im" data={{'Soni': allValues.capacity, 'Bolalar': allValues.currentChildren}} />

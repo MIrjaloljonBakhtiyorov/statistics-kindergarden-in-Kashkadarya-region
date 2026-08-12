@@ -264,6 +264,8 @@ const initializeSchema = () => new Promise<void>(async (resolve, reject) => {
         father_id TEXT,
         mother_id TEXT,
         address TEXT,
+        home_lat REAL,
+        home_lng REAL,
         photo_url TEXT,
         passport_info TEXT,
         birth_certificate_number TEXT,
@@ -866,6 +868,8 @@ const initializeSchema = () => new Promise<void>(async (resolve, reject) => {
       addColumn('staff', 'created_at', 'DATETIME');
       addColumn('children', 'passport_info', 'TEXT');
       addColumn('children', 'status', "TEXT DEFAULT 'ACTIVE'");
+      addColumn('children', 'home_lat', 'REAL');
+      addColumn('children', 'home_lng', 'REAL');
       addColumn('health_checks', 'weight', 'REAL');
       addColumn('health_checks', 'height', 'REAL');
       addColumn('health_checks', 'chest_circumference', 'REAL');

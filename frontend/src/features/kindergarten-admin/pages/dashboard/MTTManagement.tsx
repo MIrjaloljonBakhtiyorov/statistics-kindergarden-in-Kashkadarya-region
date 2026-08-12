@@ -10,6 +10,7 @@ import { clsx } from 'clsx';
 import { toast } from 'sonner';
 import { YangiBogchaQoshishModal } from './YangiBogchaQoshishModal';
 import { kindergartenApi } from '@/shared/api';
+import { KINDERGARTEN_TYPES, KINDERGARTEN_TYPE_GROUP_LABELS } from '@/shared/lib/kindergartenTypes';
 
 const BOGCHA_PANEL_URL = '/kindergarten/';
 const PAGE_SIZE = 20;
@@ -266,12 +267,14 @@ const DeleteConfirmModal = ({
 };
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string; iconBg: string }> = {
-  Public:  { label: 'Davlat',  color: 'text-blue-600',   bg: 'bg-blue-50 border-blue-100',   iconBg: 'bg-blue-600' },
-  Private: { label: 'Xususiy', color: 'text-purple-600', bg: 'bg-purple-50 border-purple-100', iconBg: 'bg-purple-500' },
-  Home:    { label: 'Oilaviy', color: 'text-amber-600',  bg: 'bg-amber-50 border-amber-100',  iconBg: 'bg-amber-500' },
+  Public:       { label: 'Davlat',     color: 'text-blue-600',    bg: 'bg-blue-50 border-blue-100',       iconBg: 'bg-blue-600' },
+  Private:      { label: 'Xususiy',    color: 'text-purple-600',  bg: 'bg-purple-50 border-purple-100',   iconBg: 'bg-purple-500' },
+  PPP:          { label: 'DXSH',       color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100', iconBg: 'bg-emerald-500' },
+  Home:         { label: 'Oilaviy',    color: 'text-amber-600',   bg: 'bg-amber-50 border-amber-100',     iconBg: 'bg-amber-500' },
+  Organization: { label: 'Tashkilot',  color: 'text-sky-600',     bg: 'bg-sky-50 border-sky-100',         iconBg: 'bg-sky-500' },
 };
 
-const TYPE_ORDER = ['Private', 'Public', 'Home'];
+const TYPE_ORDER: string[] = KINDERGARTEN_TYPES.map((type) => type.value);
 
 const getTypeOrder = (type: string) => {
   const index = TYPE_ORDER.indexOf(type);
@@ -432,9 +435,11 @@ export const MTTManagement = () => {
 
   const stats = [
     { label: 'Jami muassasalar',  val: Array.isArray(data) ? data.length : 0,                               icon: Building2,  iconBg: 'bg-indigo-600' },
-    { label: 'Davlat (Public)',   val: Array.isArray(data) ? data.filter(i => i.type === 'Public').length : 0,  icon: School,     iconBg: 'bg-blue-500' },
-    { label: 'Xususiy (Private)', val: Array.isArray(data) ? data.filter(i => i.type === 'Private').length : 0, icon: LayoutGrid, iconBg: 'bg-purple-500' },
-    { label: 'Oilaviy (Home)',    val: Array.isArray(data) ? data.filter(i => i.type === 'Home').length : 0,    icon: Home,       iconBg: 'bg-amber-500' },
+    { label: 'Davlat MTT',        val: Array.isArray(data) ? data.filter(i => i.type === 'Public').length : 0,       icon: School,      iconBg: 'bg-blue-500' },
+    { label: 'Nodavlat xususiy',  val: Array.isArray(data) ? data.filter(i => i.type === 'Private').length : 0,      icon: LayoutGrid,  iconBg: 'bg-purple-500' },
+    { label: 'DXSH asosida',      val: Array.isArray(data) ? data.filter(i => i.type === 'PPP').length : 0,          icon: ShieldCheck, iconBg: 'bg-emerald-500' },
+    { label: 'Oilaviy nodavlat',  val: Array.isArray(data) ? data.filter(i => i.type === 'Home').length : 0,         icon: Home,        iconBg: 'bg-amber-500' },
+    { label: 'Tashkilotga qarashli', val: Array.isArray(data) ? data.filter(i => i.type === 'Organization').length : 0, icon: Building2, iconBg: 'bg-sky-500' },
   ];
 
   const workHourStats = WORK_HOUR_STAT_GROUPS.map((group) => ({
@@ -500,7 +505,7 @@ export const MTTManagement = () => {
       </div>
 
       {/* в”Ђв”Ђ Stats в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
         {stats.map((s, i) => (
           <motion.div
             key={i}
@@ -572,9 +577,9 @@ export const MTTManagement = () => {
             className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-wider outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
           >
             <option value="">Turlari</option>
-            <option value="Public">Davlat</option>
-            <option value="Private">Xususiy</option>
-            <option value="Home">Oilaviy</option>
+            {KINDERGARTEN_TYPES.map((type) => (
+              <option key={type.value} value={type.value}>{type.label}</option>
+            ))}
           </select>
 
           <select
@@ -678,7 +683,7 @@ export const MTTManagement = () => {
                             <div className="flex items-center gap-3">
                               <span className={clsx("w-2.5 h-2.5 rounded-full", tc.iconBg)} />
                               <span className={clsx("text-[11px] font-black uppercase tracking-[0.22em]", tc.color)}>
-                                {tc.label} bog'chalar
+                                {KINDERGARTEN_TYPE_GROUP_LABELS[item.type] || `${tc.label} bog'chalar`}
                               </span>
                               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                 {filtered.filter((row) => row.type === item.type).length} ta
@@ -771,7 +776,7 @@ export const MTTManagement = () => {
                   <div key={`${item.type}-grid-header`} className="sm:col-span-2 xl:col-span-3 flex items-center gap-3 pt-2">
                     <span className={clsx("w-3 h-3 rounded-full", tc.iconBg)} />
                     <h2 className={clsx("text-sm font-black uppercase tracking-[0.22em]", tc.color)}>
-                      {tc.label} bog'chalar
+                      {KINDERGARTEN_TYPE_GROUP_LABELS[item.type] || `${tc.label} bog'chalar`}
                     </h2>
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                       {filtered.filter((row) => row.type === item.type).length} ta

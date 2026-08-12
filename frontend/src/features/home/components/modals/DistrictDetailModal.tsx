@@ -5,8 +5,9 @@ import {
   X, School, Users, Baby, CheckCircle2,
   MapPin, LayoutGrid, Target, Zap, AlertCircle, Building2,
 } from 'lucide-react';
+import { getKindergartenTypeLabel } from '@/shared/lib/kindergartenTypes';
 
-type DistrictTypeRow = { name: string; count: number; children: number };
+type DistrictTypeRow = { name: string; label?: string; count: number; children: number };
 type DistrictDetails = {
   totalChildren3to7: number;
   totalMTT: number;
@@ -262,7 +263,7 @@ const DistrictDetailModal: React.FC<DistrictDetailModalProps> = ({ district, onC
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
                                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: TYPE_COLORS[i % TYPE_COLORS.length], flexShrink: 0 }} />
                                   <div style={{ minWidth: 0 }}>
-                                    <p style={{ fontSize: 11, fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t(type.name)}</p>
+                                    <p style={{ fontSize: 11, fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{type.label || t(type.name)}</p>
                                     <div style={{ height: 3, background: '#f1f5f9', borderRadius: 3, marginTop: 4, overflow: 'hidden' }}>
                                       <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ delay: i * 0.06 + 0.3, duration: 0.5 }}
                                         style={{ height: '100%', background: TYPE_COLORS[i % TYPE_COLORS.length], borderRadius: 3 }} />
@@ -373,7 +374,7 @@ const DistrictDetailModal: React.FC<DistrictDetailModalProps> = ({ district, onC
                                                 {kg.name || "Nomi kiritilmagan bog'cha"}
                                               </p>
                                               <p style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                {kg.type || 'Turi kiritilmagan'}{kg.address ? ` · ${kg.address}` : ''}
+                                                {getKindergartenTypeLabel(kg.type)}{kg.address ? ` · ${kg.address}` : ''}
                                               </p>
                                             </div>
                                           </div>

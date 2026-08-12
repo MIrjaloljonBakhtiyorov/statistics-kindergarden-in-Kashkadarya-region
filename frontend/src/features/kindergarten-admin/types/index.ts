@@ -4,9 +4,11 @@
  */
 
 export enum KindergartenType {
-  PUBLIC = 'Davlat (Public)',
-  PRIVATE = 'Xususiy (Private)',
-  HOME = 'Oilaviy (Home)',
+  PUBLIC = 'Davlat MTT',
+  PRIVATE = 'Nodavlat xususiy MTT',
+  PPP = 'Davlat-xususiy sherikchilik asosida MTT',
+  HOME = 'Oilaviy nodavlat MTT',
+  ORGANIZATION = 'Tashkilotga qarashli MTT',
 }
 
 export enum StatusType {
