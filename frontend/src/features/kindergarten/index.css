@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800;900&family=Open+Sans:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "../../shared/styles/theme.css";
 
@@ -680,10 +680,20 @@ html.dark .kindergarten-shell main {
 }
 
 .kindergarten-shell .kg-parent-portal .kg-parent-mobile-nav {
-  scroll-snap-type: x proximity;
-  scroll-padding-inline: 0.125rem;
-  overscroll-behavior-x: contain;
-  touch-action: pan-x;
+  scroll-snap-type: y proximity;
+  scroll-padding-block: 0.125rem;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-mobile-drawer {
+  position: absolute !important;
+  background: linear-gradient(180deg, #0875df 0%, #0871d8 52%, #0262c8 100%) !important;
+  color: #ffffff !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-parent-mobile-drawer :is(p, span, button, svg) {
+  color: inherit !important;
 }
 
 .kindergarten-shell .kg-parent-portal .kg-parent-content-scroll>* {
@@ -869,7 +879,7 @@ html.dark .kindergarten-shell main {
 }
 
 .kindergarten-shell .kg-parent-portal {
-  --kg-parent-font: "Open Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --kg-parent-font: "Manrope", "Open Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --kg-parent-title-size: 1.625rem;
   --kg-parent-section-size: 1.125rem;
   --kg-parent-name-size: 1.375rem;
@@ -1666,6 +1676,91 @@ html.dark .kindergarten-shell main {
 
 .kindergarten-shell .kg-profile-typography button {
   font-weight: 800 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography {
+  font-family: var(--kg-parent-font);
+  font-feature-settings: "cv02", "cv03", "cv04", "kern";
+  letter-spacing: 0 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography h3 {
+  font-size: clamp(1.7rem, 1.35rem + 1vw, 2.2rem) !important;
+  line-height: 1.08 !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.01em !important;
+  color: #07162f !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography h4 {
+  font-size: clamp(1.35rem, 1.1rem + 0.55vw, 1.65rem) !important;
+  line-height: 1.12 !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.005em !important;
+  color: #07162f !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography h5 {
+  font-size: clamp(1.35rem, 1.08rem + 0.55vw, 1.65rem) !important;
+  line-height: 1.14 !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.005em !important;
+  color: #07162f !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography p {
+  font-size: 0.95rem !important;
+  line-height: 1.5 !important;
+  font-weight: 750 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography :is(label, input, button, a) {
+  font-size: 0.95rem !important;
+  line-height: 1.35 !important;
+  font-weight: 800 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography :is(input) {
+  height: 3.05rem !important;
+  color: #07162f !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography :is(p, span)[class*="uppercase"],
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography :is(button, a)[class*="uppercase"] {
+  font-size: 0.78rem !important;
+  line-height: 1.25 !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.045em !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography :is(span)[class*="text-\\[10px\\]"] {
+  font-size: 0.78rem !important;
+  line-height: 1.25 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography :is(span)[class*="text-\\[11px\\]"] {
+  font-size: 0.82rem !important;
+  line-height: 1.25 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography article > div:nth-child(3) span {
+  font-size: 0.92rem !important;
+  line-height: 1.3 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography article > div:nth-child(3) span span:first-of-type {
+  font-size: 0.75rem !important;
+  color: #475569 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography article > div:last-child span {
+  font-size: 0.82rem !important;
+  line-height: 1.28 !important;
+  font-weight: 900 !important;
+}
+
+.kindergarten-shell .kg-parent-portal .kg-nearby-typography .rounded-full {
+  letter-spacing: 0.02em !important;
 }
 
 .kindergarten-shell .kg-tariffs-typography {

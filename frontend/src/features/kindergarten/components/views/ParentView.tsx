@@ -25,6 +25,7 @@ import {
   ExternalLink,
   Loader2,
   Megaphone,
+  Menu,
   Newspaper,
   History,
   Languages,
@@ -50,6 +51,7 @@ import { PickupSection } from '../../features/parent-portal/components/PickupSec
 import { MessagesSection } from '../../features/parent-portal/components/MessagesSection';
 import { TariffsSection } from '../../features/parent-portal/components/TariffsSection';
 import { LoginHistorySection } from '../../features/parent-portal/components/LoginHistorySection';
+import { NearbyKindergartensSection } from '../../features/parent-portal/components/NearbyKindergartensSection';
 import {
   ParentPortalAutoTranslator,
   ParentPortalLanguagePanel,
@@ -617,6 +619,7 @@ const ParentViewContent = () => {
   const [messagesUnreadCount, setMessagesUnreadCount] = useState(0);
   const [parentNewsCount, setParentNewsCount] = useState(0);
   const [showLoginAdvertisement, setShowLoginAdvertisement] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const mobileNavRef = useRef<HTMLElement>(null);
   const loginAdvertisementAttemptedRef = useRef(false);
   
@@ -650,15 +653,14 @@ const ParentViewContent = () => {
   }, []);
 
   useEffect(() => {
+    if (!isMobileSidebarOpen) return;
     const nav = mobileNavRef.current;
     const activeItem = nav?.querySelector<HTMLElement>(`[data-parent-tab="${activeTab}"]`);
     if (!nav || !activeItem) return;
-    if (nav.clientWidth === 0) return;
+    if (nav.clientHeight === 0) return;
 
-    const centeredLeft = activeItem.offsetLeft - (nav.clientWidth - activeItem.offsetWidth) / 2;
-    const maxLeft = Math.max(0, nav.scrollWidth - nav.clientWidth);
-    nav.scrollTo({ left: Math.min(Math.max(0, centeredLeft), maxLeft), behavior: 'auto' });
-  }, [activeTab]);
+    activeItem.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [activeTab, isMobileSidebarOpen]);
 
   const loadMessagesUnreadCount = useCallback(async () => {
     if (!user?.id) {
@@ -834,6 +836,8 @@ const ParentViewContent = () => {
     { id: 'loginHistory', label: parentPhrase('Kirish tarixi'), icon: History, color: 'navy' },
     { id: 'security', label: parentPhrase('Xavfsizlik'), icon: ShieldCheck, color: 'navy' },
   ];
+  const activeNavItem = navItems.find((item) => item.id === activeTab) || navItems[0];
+  const ActiveNavIcon = activeNavItem.icon;
 
   const handleProfileUpdate = (nextParentData?: any) => {
     if (nextParentData && typeof nextParentData === 'object') {
@@ -847,6 +851,7 @@ const ParentViewContent = () => {
 
   const handleTabChange = (tab: SettingsTab) => {
     setActiveTab(tab);
+    setIsMobileSidebarOpen(false);
     const nextPath = getParentTabPath(tab);
     if (window.location.pathname !== nextPath) {
       window.history.pushState(null, '', nextPath);
@@ -888,13 +893,7 @@ const ParentViewContent = () => {
           />
         );
       case 'nearby':
-        return (
-          <ComingSoonSection
-            title="Yaqin atrofdagi bog'chalar"
-            description="Manzil bo'yicha yaqin MTTlarni qidirish, masofa va asosiy ma'lumotlarni ko'rish imkoniyati qo'shiladi."
-            icon={MapPinned}
-          />
-        );
+        return <NearbyKindergartensSection parentData={parentData} childId={user.childId} onUpdate={handleProfileUpdate} />;
       case 'ads':
         return <ParentProfileSection parentData={parentData} onUpdate={handleProfileUpdate} />;
       case 'news': return <ParentNewsSection seenStorageKey={parentNewsSeenKey} onCountChange={setParentNewsCount} />;
@@ -964,14 +963,14 @@ const ParentViewContent = () => {
             </div>
           </div>
 
-          <div className="relative grid w-full min-w-0 grid-cols-[72px_minmax(0,1fr)_42px_96px] gap-1.5 overflow-hidden rounded-[20px] border border-slate-300 bg-white p-1.5 shadow-lg shadow-slate-950/10 sm:grid-cols-[86px_minmax(210px,1fr)_48px_104px] sm:rounded-[22px] xl:w-[570px]">
+          <div className="relative grid w-full min-w-0 grid-cols-[62px_minmax(0,1fr)_40px_42px] gap-1.5 overflow-hidden rounded-[18px] border border-slate-300 bg-white p-1.5 shadow-lg shadow-slate-950/10 sm:grid-cols-[86px_minmax(210px,1fr)_48px_104px] sm:rounded-[22px] xl:w-[570px]">
               <div className="absolute inset-0 bg-gradient-to-r from-slate-100 via-white to-blue-50"></div>
               <div className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-slate-500/70 to-transparent"></div>
               <button
                 type="button"
                 onClick={() => handleTabChange('language')}
                 title={parentT('language.title')}
-                className="relative my-auto flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-[15px] border border-slate-200 bg-white/85 px-2 text-[10px] font-black uppercase text-slate-950 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100 hover:text-blue-950 sm:h-11 sm:rounded-[16px]"
+                className="relative my-auto flex h-10 min-w-0 items-center justify-center gap-1 rounded-[14px] border border-slate-200 bg-white/85 px-1.5 text-[10px] font-black uppercase text-slate-950 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100 hover:text-blue-950 sm:h-11 sm:gap-1.5 sm:rounded-[16px] sm:px-2"
               >
                 <Languages size={15} />
                 <span data-kg-no-translate="true">{currentParentLanguage.short}</span>
@@ -979,29 +978,29 @@ const ParentViewContent = () => {
               <button
                 type="button"
                 onClick={() => handleTabChange('tariffs')}
-                className="group relative flex min-h-[56px] min-w-0 items-center gap-3 rounded-[16px] px-2.5 py-2 text-left transition-all hover:bg-white/75 sm:min-h-[62px] sm:rounded-[18px] sm:px-3"
+                className="group relative flex min-h-10 min-w-0 items-center gap-2 rounded-[14px] px-2 py-1.5 text-left transition-all hover:bg-white/75 sm:min-h-[62px] sm:gap-3 sm:rounded-[18px] sm:px-3 sm:py-2"
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[15px] border border-slate-700 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-800 text-white shadow-lg shadow-slate-950/20 sm:h-11 sm:w-11 sm:rounded-[17px]">
-                  <Crown size={19} />
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-slate-700 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-800 text-white shadow-lg shadow-slate-950/20 sm:h-11 sm:w-11 sm:rounded-[17px]">
+                  <Crown size={16} className="sm:h-[19px] sm:w-[19px]" />
                 </span>
                 <span className="min-w-0">
-                  <span className="kg-parent-tariff-label block text-[9px] font-black uppercase tracking-[0.18em] text-slate-950">Tarif</span>
-                  <span className="kg-parent-tariff-value mt-0.5 block truncate text-[17px] font-extrabold leading-tight text-brand-depth sm:text-[18px]">{currentTariff}</span>
-                  <span className="mt-1 inline-flex w-fit items-center rounded-full border border-slate-300 bg-white/90 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-slate-950 shadow-sm">Faol paket</span>
+                  <span className="kg-parent-tariff-label hidden text-[9px] font-black uppercase tracking-[0.18em] text-slate-950 sm:block">Tarif</span>
+                  <span className="kg-parent-tariff-value block truncate text-[13px] font-extrabold leading-tight text-brand-depth sm:mt-0.5 sm:text-[18px]">{currentTariff}</span>
+                  <span className="mt-1 hidden w-fit items-center rounded-full border border-slate-300 bg-white/90 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-slate-950 shadow-sm sm:inline-flex">Faol paket</span>
                 </span>
               </button>
               <button
                 type="button"
                 onClick={() => handleTabChange('tariffs')}
                 title="Tarifni yangilash"
-                className="relative my-auto flex h-10 items-center justify-center rounded-[15px] border border-slate-200 bg-white/75 text-slate-950 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100 hover:text-blue-950 sm:h-11 sm:rounded-[16px]"
+                className="relative my-auto flex h-10 w-10 items-center justify-center rounded-[14px] border border-slate-200 bg-white/75 text-slate-950 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100 hover:text-blue-950 sm:h-11 sm:w-auto sm:rounded-[16px]"
               >
                 <RefreshCw size={18} />
               </button>
               <button
                 onClick={handleParentLogout}
                 title="Tizimdan chiqish"
-                className="relative my-auto flex h-10 items-center justify-center gap-1.5 rounded-[15px] bg-gradient-to-r from-slate-950 to-blue-950 px-2 text-[11px] font-extrabold uppercase text-white shadow-lg shadow-slate-950/20 transition-all hover:from-blue-950 hover:to-slate-800 hover:shadow-md hover:shadow-slate-950/25 sm:h-11 sm:rounded-[16px] sm:px-3"
+                className="relative my-auto flex h-10 w-10 items-center justify-center gap-1.5 rounded-[14px] bg-gradient-to-r from-slate-950 to-blue-950 px-0 text-[11px] font-extrabold uppercase text-white shadow-lg shadow-slate-950/20 transition-all hover:from-blue-950 hover:to-slate-800 hover:shadow-md hover:shadow-slate-950/25 sm:h-11 sm:w-auto sm:rounded-[16px] sm:px-3"
               >
                 <LogOut size={15} /> <span className="hidden sm:inline">Chiqish</span>
               </button>
@@ -1010,36 +1009,97 @@ const ParentViewContent = () => {
       </div>
 
       <div className="kg-parent-layout grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-2.5 sm:gap-3 md:gap-5 lg:grid-cols-12 lg:grid-rows-none lg:gap-6">
-        {/* Navigation - Sidebar for Desktop, Horizontal Scroll for Mobile */}
+        {/* Navigation */}
         <div className="lg:col-span-3 lg:self-stretch lg:min-h-0 lg:h-full lg:overflow-hidden">
-          {/* Mobile Menu Toggle */}
-          <nav ref={mobileNavRef} aria-label="Ota-ona portali bo'limlari" className="kg-parent-mobile-nav kg-scroll-x no-scrollbar flex gap-2 overflow-x-auto px-0.5 pb-1.5 lg:hidden">
-            {navItems.map(item => (
-              <button
-                key={item.id}
-                data-parent-tab={item.id}
-                onClick={() => handleTabChange(item.id)}
-                className={`relative flex min-h-11 shrink-0 snap-start items-center gap-2 rounded-2xl px-3.5 py-2.5 text-[9px] font-black uppercase tracking-wide transition-all ${
-                  activeTab === item.id 
-                    ? 'bg-gradient-to-r from-slate-950 to-blue-950 text-white shadow-lg shadow-slate-950/20' 
-                    : 'border border-brand-border bg-white text-brand-muted hover:border-slate-200 hover:bg-slate-100 hover:text-slate-950'
-                }`}
-              >
-                <item.icon size={14} />
-                <span data-kg-no-translate={item.id === 'language' ? 'true' : undefined}>{item.label}</span>
-                {item.id === 'messages' && messagesUnreadCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-950 px-1 text-[9px] font-black text-white ring-2 ring-white">
-                    {messagesUnreadCount}
+          <div className="mb-2 flex items-center gap-2 lg:hidden">
+            <button
+              type="button"
+              onClick={() => setIsMobileSidebarOpen((value) => !value)}
+              aria-expanded={isMobileSidebarOpen}
+              aria-controls="parent-mobile-sidebar"
+              aria-label={parentPhrase(isMobileSidebarOpen ? 'Yopish' : 'Ochish')}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] border border-blue-100 bg-white text-blue-700 shadow-[0_10px_26px_rgba(37,99,235,0.14)] transition-all active:scale-95"
+            >
+              {isMobileSidebarOpen ? <X size={22} /> : <Menu size={24} />}
+            </button>
+            <div className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-[1rem] border border-brand-border bg-white px-3 shadow-sm">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                <ActiveNavIcon size={16} />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-[9px] font-black uppercase tracking-[0.18em] text-brand-muted">{parentPhrase("Portal bo'limlari")}</span>
+                <span className="block truncate text-[12px] font-black uppercase tracking-[0.1em] text-brand-depth" data-kg-no-translate="true">{activeNavItem.label}</span>
+              </span>
+            </div>
+          </div>
+
+          <div className={`fixed inset-0 z-[80] lg:hidden ${isMobileSidebarOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+            <button
+              type="button"
+              aria-label={parentPhrase('Yopish')}
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className={`absolute inset-0 bg-slate-950/45 transition-opacity duration-300 ${
+                isMobileSidebarOpen ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+            <div
+              id="parent-mobile-sidebar"
+              className={`kg-parent-mobile-drawer absolute left-0 top-0 flex h-full w-[82vw] max-w-[360px] flex-col overflow-hidden bg-gradient-to-b from-[#0875df] via-[#0871d8] to-[#0262c8] px-5 pb-5 pt-6 text-white shadow-[22px_0_60px_rgba(15,23,42,0.28)] transition-transform duration-300 ${
+                isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+              }`}
+            >
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/14 ring-1 ring-white/20">
+                    <ActiveNavIcon size={22} />
                   </span>
-                )}
-                {item.id === 'news' && parentNewsCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[9px] font-black text-white ring-2 ring-white">
-                    {parentNewsCount}
-                  </span>
-                )}
-              </button>
-            ))}
-          </nav>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">{parentPhrase("Portal bo'limlari")}</p>
+                    <p className="mt-0.5 truncate text-lg font-black leading-tight" data-kg-no-translate="true">{activeNavItem.label}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  aria-label={parentPhrase('Yopish')}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/12 text-white ring-1 ring-white/20 transition-all active:scale-95"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <nav ref={mobileNavRef} aria-label="Ota-ona portali bo'limlari" className="kg-parent-mobile-nav flex-1 space-y-1 overflow-y-auto pr-1 custom-scrollbar">
+                {navItems.map(item => (
+                  <button
+                    key={item.id}
+                    data-parent-tab={item.id}
+                    onClick={() => handleTabChange(item.id)}
+                    className={`group relative flex min-h-[54px] w-full items-center gap-3 border-b border-white/14 px-1 py-3 text-left text-[14px] font-black tracking-wide transition-all ${
+                      activeTab === item.id ? 'rounded-2xl border-b-transparent bg-white/16 px-3 shadow-sm ring-1 ring-white/20' : 'text-white/95 hover:rounded-2xl hover:border-b-transparent hover:bg-white/10 hover:px-3'
+                    }`}
+                  >
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                      activeTab === item.id ? 'bg-emerald-300 text-blue-900' : 'bg-white/8 text-emerald-200 group-hover:bg-white/14'
+                    }`}>
+                      <item.icon size={18} />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate" data-kg-no-translate="true">{item.label}</span>
+                    {item.id === 'messages' && messagesUnreadCount > 0 ? (
+                      <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-black leading-none text-blue-700">
+                        {messagesUnreadCount}
+                      </span>
+                    ) : item.id === 'news' && parentNewsCount > 0 ? (
+                      <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-black leading-none text-blue-700">
+                        {parentNewsCount}
+                      </span>
+                    ) : (
+                      activeTab === item.id && <span className="h-2 w-2 rounded-full bg-emerald-200 shadow-sm shadow-emerald-200/50"></span>
+                    )}
+                  </button>
+                ))}
+              </nav>
+            </div>
+          </div>
 
           {/* Desktop Sidebar */}
           <aside className="hidden lg:flex h-full min-h-0 rounded-3xl border border-brand-border bg-white p-3 shadow-sm overflow-hidden flex-col">
@@ -1063,7 +1123,7 @@ const ParentViewContent = () => {
                 }`}>
                   <item.icon size={16} />
                 </span>
-                <span className="truncate uppercase tracking-[0.12em]" data-kg-no-translate={item.id === 'language' ? 'true' : undefined}>{item.label}</span>
+                <span className="truncate uppercase tracking-[0.12em]" data-kg-no-translate="true">{item.label}</span>
                 {item.id === 'messages' && messagesUnreadCount > 0 ? (
                   <span className="ml-auto rounded-full bg-slate-950 px-2 py-0.5 text-[9px] font-black leading-none text-white shadow-sm shadow-slate-950/30">
                     {messagesUnreadCount}
