@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Archive, Baby, ChevronRight, Database, Eye, ExternalLink, FileText, Pencil, Plus, Search, School, ShieldCheck, Trash2, UploadCloud, UsersRound, X } from 'lucide-react';
+import { Archive, Baby, CalendarDays, CheckCircle2, ChevronRight, Database, Eye, ExternalLink, FileText, Loader2, MapPin, Pencil, Plus, Save, School, Search, ShieldCheck, Sparkles, Trash2, UploadCloud, UsersRound, Wallet, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiClient } from '@/shared/api';
+import { LocationPicker } from '@/shared/components/LocationPicker';
 import { useChildren } from '../../features/children/hooks/useChildren';
 import { useStaff } from '../../features/staff/hooks/useStaff';
 import { Pagination } from '../ui/Pagination';
@@ -59,6 +60,23 @@ type ArchivePreviewDocument = {
   source?: string;
 };
 
+type KindergartenProfileForm = Record<string, any> & {
+  kindergartenId: string;
+  kindergartenName: string;
+  slug: string;
+  status: 'draft' | 'published';
+  address: string;
+  phone: string;
+  telegram: string;
+  email: string;
+  locationLat: number | string | null;
+  locationLng: number | string | null;
+  workingDays: string[];
+  monthlyFee: number | string;
+  advantages: string[];
+  advantagesText: string;
+};
+
 const childDocumentCategories = [
   { value: 'FATHER_PASSPORT', label: 'Otasining passporti' },
   { value: 'MOTHER_PASSPORT', label: 'Onasining passporti' },
@@ -71,6 +89,72 @@ const staffDocumentCategories = [
   { value: 'PASSPORT', label: 'Passporti' },
   { value: 'OTHER', label: 'Boshqa hujjatlar' },
 ];
+
+const workingDayOptions = [
+  { value: 'monday', label: 'Dushanba', short: 'Dush' },
+  { value: 'tuesday', label: 'Seshanba', short: 'Sesh' },
+  { value: 'wednesday', label: 'Chorshanba', short: 'Chor' },
+  { value: 'thursday', label: 'Payshanba', short: 'Pay' },
+  { value: 'friday', label: 'Juma', short: 'Jum' },
+  { value: 'saturday', label: 'Shanba', short: 'Shan' },
+  { value: 'sunday', label: 'Yakshanba', short: 'Yak' },
+];
+
+const kindergartenAdvantageOptions = [
+  'Ingliz tili',
+  'Rus tili',
+  'Logoped',
+  'Psixolog',
+  'Kamera nazorati',
+  'Transport xizmati',
+  '3 mahal ovqat',
+  "Sport to'garagi",
+  "Raqs to'garagi",
+  'Robototexnika',
+  "Keng o'yin maydonchasi",
+  'Maktabga tayyorlov',
+];
+
+const emptyKindergartenProfile: KindergartenProfileForm = {
+  kindergartenId: '',
+  kindergartenName: '',
+  slug: '',
+  status: 'draft',
+  address: '',
+  phone: '',
+  telegram: '',
+  email: '',
+  locationLat: null,
+  locationLng: null,
+  workingDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+  monthlyFee: '',
+  advantages: [],
+  advantagesText: '',
+};
+
+const asText = (value: unknown, fallback = '') => String(value ?? fallback);
+const asArray = <T,>(value: unknown): T[] => Array.isArray(value) ? value : [];
+
+const normalizeKindergartenProfile = (value: Partial<KindergartenProfileForm> = {}): KindergartenProfileForm => ({
+  ...emptyKindergartenProfile,
+  ...value,
+  kindergartenId: asText(value.kindergartenId),
+  kindergartenName: asText(value.kindergartenName),
+  slug: asText(value.slug),
+  status: value.status === 'published' ? 'published' : 'draft',
+  address: asText(value.address),
+  phone: asText(value.phone),
+  telegram: asText(value.telegram),
+  email: asText(value.email),
+  locationLat: value.locationLat ?? null,
+  locationLng: value.locationLng ?? null,
+  workingDays: asArray<string>(value.workingDays).map((item) => asText(item)).filter(Boolean),
+  monthlyFee: value.monthlyFee ?? '',
+  advantages: asArray<string>(value.advantages).map((item) => asText(item)).filter(Boolean),
+  advantagesText: asText(value.advantagesText),
+});
+
+const getKindergartenIdFromRoute = () => window.location.pathname.split('/').filter(Boolean)[1] || '';
 
 const archiveCards = [
   {
@@ -103,13 +187,24 @@ const archiveCards = [
     label: "MTT arxivi",
     code: '03',
   },
+  {
+    title: "Bog'cha profili",
+    description: "Lokatsiya, ish kunlari, oylik to'lov va ota-onaga ko'rinadigan ustunliklarni bir marta kiritish bo'limi.",
+    icon: MapPin,
+    metaIcon: Sparkles,
+    tone: 'from-amber-50 via-white to-orange-100 text-amber-700 border-amber-100/90',
+    accent: 'from-amber-500 via-orange-500 to-rose-400',
+    label: "Yaqin bog'chalar",
+    code: '04',
+  },
 ];
 
 const ArchiveView: React.FC = () => {
   const { children, loading: childrenLoading } = useChildren();
   const { staff, loading: staffLoading } = useStaff();
   const apiRoot = String(apiClient.defaults.baseURL || '').replace(/\/api\/?$/, '');
-  const [activeMenu, setActiveMenu] = useState<'overview' | 'children' | 'childProfile' | 'staff' | 'staffProfile' | 'kindergarten'>('overview');
+  const kindergartenId = useMemo(() => getKindergartenIdFromRoute(), []);
+  const [activeMenu, setActiveMenu] = useState<'overview' | 'children' | 'childProfile' | 'staff' | 'staffProfile' | 'kindergarten' | 'kindergartenProfile'>('overview');
   const [childSearch, setChildSearch] = useState('');
   const [staffSearch, setStaffSearch] = useState('');
   const [childrenPage, setChildrenPage] = useState(1);
@@ -149,6 +244,9 @@ const ArchiveView: React.FC = () => {
   const [isDeletingDocument, setIsDeletingDocument] = useState(false);
   const [documentError, setDocumentError] = useState('');
   const [previewDocument, setPreviewDocument] = useState<ArchivePreviewDocument | null>(null);
+  const [kindergartenProfile, setKindergartenProfile] = useState<KindergartenProfileForm>(emptyKindergartenProfile);
+  const [kindergartenProfileLoading, setKindergartenProfileLoading] = useState(false);
+  const [kindergartenProfileSaving, setKindergartenProfileSaving] = useState(false);
 
   const filteredChildren = useMemo(() => {
     const query = childSearch.trim().toLowerCase();
@@ -237,6 +335,80 @@ const ArchiveView: React.FC = () => {
   useEffect(() => {
     if (activeMenu === 'kindergarten') fetchKindergartenDocuments();
   }, [activeMenu]);
+
+  const fetchKindergartenProfile = async () => {
+    if (!kindergartenId) {
+      toast.error("Bog'cha ID aniqlanmadi");
+      return;
+    }
+
+    try {
+      setKindergartenProfileLoading(true);
+      const res = await apiClient.get(`/kindergartens/websites/${kindergartenId}`);
+      setKindergartenProfile(normalizeKindergartenProfile(res.data));
+    } catch (error: any) {
+      console.error('Kindergarten profile failed:', error);
+      toast.error(error?.response?.data?.error || "Bog'cha profili yuklanmadi");
+    } finally {
+      setKindergartenProfileLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeMenu === 'kindergartenProfile') fetchKindergartenProfile();
+  }, [activeMenu, kindergartenId]);
+
+  const updateKindergartenProfileField = <K extends keyof KindergartenProfileForm>(key: K, value: KindergartenProfileForm[K]) => {
+    setKindergartenProfile((current) => ({ ...current, [key]: value }));
+  };
+
+  const toggleKindergartenProfileListValue = (field: 'workingDays' | 'advantages', value: string) => {
+    setKindergartenProfile((current) => {
+      const currentValues = Array.isArray(current[field]) ? current[field] : [];
+      const nextValues = currentValues.includes(value)
+        ? currentValues.filter((item) => item !== value)
+        : [...currentValues, value];
+      return { ...current, [field]: nextValues };
+    });
+  };
+
+  const formatWorkingDays = (days: string[]) => {
+    const selected = workingDayOptions.filter((item) => days.includes(item.value));
+    if (selected.length === 5 && selected.every((item, index) => item.value === workingDayOptions[index].value)) return 'Dushanba-Juma';
+    if (!selected.length) return 'Belgilanmagan';
+    return selected.map((item) => item.short).join(', ');
+  };
+
+  const handleKindergartenProfileSave = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!kindergartenId) {
+      toast.error("Bog'cha ID aniqlanmadi");
+      return;
+    }
+
+    try {
+      setKindergartenProfileSaving(true);
+      const payload = {
+        ...kindergartenProfile,
+        kindergartenId,
+        address: kindergartenProfile.address.trim(),
+        phone: kindergartenProfile.phone.trim(),
+        telegram: kindergartenProfile.telegram.trim(),
+        email: kindergartenProfile.email.trim(),
+        workingDays: kindergartenProfile.workingDays,
+        monthlyFee: Number(kindergartenProfile.monthlyFee || 0),
+        advantages: kindergartenProfile.advantages,
+        advantagesText: kindergartenProfile.advantagesText.trim(),
+      };
+      const res = await apiClient.put(`/kindergartens/websites/${kindergartenId}`, payload);
+      setKindergartenProfile(normalizeKindergartenProfile(res.data));
+      toast.success("Bog'cha profili saqlandi");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Bog'cha profilini saqlashda xatolik");
+    } finally {
+      setKindergartenProfileSaving(false);
+    }
+  };
 
   const fetchChildDocuments = async (childId: string) => {
     try {
@@ -1319,6 +1491,224 @@ const ArchiveView: React.FC = () => {
     );
   }
 
+  if (activeMenu === 'kindergartenProfile') {
+    const hasLocation = kindergartenProfile.locationLat != null && kindergartenProfile.locationLng != null;
+    const monthlyFeeLabel = Number(kindergartenProfile.monthlyFee || 0) > 0
+      ? `${Number(kindergartenProfile.monthlyFee || 0).toLocaleString('uz-UZ')} so'm`
+      : 'Kiritilmagan';
+
+    return (
+      <div className="space-y-4">
+        <section className="relative overflow-hidden rounded-[1.1rem] border border-slate-200/80 bg-white px-4 py-3 shadow-[0_14px_34px_rgba(15,23,42,0.065)] backdrop-blur-xl sm:px-5">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-400" />
+          <div className="relative z-10 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="max-w-xl">
+              <button
+                onClick={() => setActiveMenu('overview')}
+                className="mb-2 inline-flex h-8 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 text-[11px] font-black uppercase text-brand-muted transition-all hover:border-amber-200 hover:bg-white hover:text-amber-700"
+              >
+                <ChevronRight size={13} className="rotate-180" />
+                Arxivga qaytish
+              </button>
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 via-white to-orange-100 text-amber-700 shadow-[0_10px_22px_rgba(245,158,11,0.09)]">
+                  <MapPin size={18} />
+                </div>
+                <div>
+                  <p className="mb-0.5 text-[11px] font-black uppercase text-amber-700">Yaqin bog'chalar ma'lumoti</p>
+                  <h1 className="text-2xl font-black tracking-tight text-brand-depth sm:text-3xl">Bog'cha profili</h1>
+                </div>
+              </div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto] xl:min-w-[520px] xl:grid-cols-[1fr_auto]">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                <div className="rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white px-3 py-2 shadow-sm">
+                  <p className="text-[10px] font-black uppercase text-amber-700">Lokatsiya</p>
+                  <p className="mt-0.5 text-sm font-black text-brand-depth">{hasLocation ? 'Belgilangan' : 'Belgilanmagan'}</p>
+                </div>
+                <div className="rounded-xl border border-orange-100 bg-gradient-to-br from-orange-50 to-white px-3 py-2 shadow-sm">
+                  <p className="text-[10px] font-black uppercase text-orange-700">Ish kunlari</p>
+                  <p className="mt-0.5 text-sm font-black text-brand-depth">{formatWorkingDays(kindergartenProfile.workingDays)}</p>
+                </div>
+                <div className="rounded-xl border border-rose-100 bg-gradient-to-br from-rose-50 to-white px-3 py-2 shadow-sm">
+                  <p className="text-[10px] font-black uppercase text-rose-700">Oylik to'lov</p>
+                  <p className="mt-0.5 text-sm font-black text-brand-depth">{monthlyFeeLabel}</p>
+                </div>
+              </div>
+              <button
+                type="submit"
+                form="kindergarten-profile-form"
+                disabled={kindergartenProfileSaving || kindergartenProfileLoading}
+                className="inline-flex h-full min-h-[46px] items-center justify-center gap-2 rounded-xl border border-slate-900 bg-slate-950 px-5 text-[12px] font-black uppercase tracking-widest text-white shadow-[0_14px_28px_rgba(15,23,42,0.20)] transition-all hover:-translate-y-0.5 hover:border-amber-600 hover:bg-amber-600 disabled:cursor-wait disabled:opacity-70"
+              >
+                {kindergartenProfileSaving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+                Saqlash
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <form id="kindergarten-profile-form" onSubmit={handleKindergartenProfileSave} className="space-y-4">
+          {kindergartenProfileLoading ? (
+            <div className="flex min-h-[320px] items-center justify-center rounded-[1.65rem] border border-amber-100 bg-white">
+              <div className="text-center">
+                <Loader2 className="mx-auto animate-spin text-amber-600" size={34} />
+                <p className="mt-4 text-[13px] font-black uppercase tracking-widest text-brand-muted">Profil yuklanmoqda</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <section className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)]">
+                <div className="rounded-[1.25rem] border border-slate-200/80 bg-white p-4 shadow-[0_16px_42px_rgba(15,23,42,0.06)] sm:p-5">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-700 ring-1 ring-amber-100">
+                      <MapPin size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[12px] font-black uppercase text-amber-700">Manzil va lokatsiya</p>
+                      <h2 className="text-lg font-black text-brand-depth sm:text-xl">Xaritadagi joylashuv</h2>
+                    </div>
+                  </div>
+                  <label className="block">
+                    <span className="text-[12px] font-black uppercase tracking-widest text-brand-muted">Manzil</span>
+                    <input
+                      value={kindergartenProfile.address}
+                      onChange={(event) => updateKindergartenProfileField('address', event.target.value)}
+                      placeholder="Masalan: Qarshi shahri, Nasaf MFY, ..."
+                      className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-base font-extrabold text-brand-depth outline-none transition-all placeholder:text-slate-400 focus:border-amber-300 focus:bg-white focus:ring-4 focus:ring-amber-100/70"
+                    />
+                  </label>
+                  <div className="mt-4">
+                    <LocationPicker
+                      lat={kindergartenProfile.locationLat}
+                      lng={kindergartenProfile.locationLng}
+                      label="Bog'chaning xaritadagi joyi"
+                      markerLabel="Bog'cha"
+                      className="rounded-2xl border-slate-200 bg-slate-50/40 p-4 shadow-none"
+                      mapClassName="h-[260px] sm:h-[300px] xl:h-[320px]"
+                      onChange={(value) => {
+                        updateKindergartenProfileField('locationLat', value.lat);
+                        updateKindergartenProfileField('locationLng', value.lng);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-[1.25rem] border border-slate-200/80 bg-white p-4 shadow-[0_16px_42px_rgba(15,23,42,0.06)] sm:p-5">
+                    <div className="mb-4 flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-700 ring-1 ring-orange-100">
+                        <CalendarDays size={18} />
+                      </div>
+                      <div>
+                        <p className="text-[12px] font-black uppercase text-orange-700">Ish grafigi</p>
+                        <h2 className="text-lg font-black text-brand-depth sm:text-xl">Qaysi kunlari ishlaydi</h2>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {workingDayOptions.map((day) => {
+                        const selected = kindergartenProfile.workingDays.includes(day.value);
+                        return (
+                          <button
+                            key={day.value}
+                            type="button"
+                            onClick={() => toggleKindergartenProfileListValue('workingDays', day.value)}
+                            className={`flex min-h-12 items-center justify-center gap-2 rounded-xl border px-3 text-[13px] font-black transition-all ${
+                              selected
+                                ? 'border-orange-500 bg-orange-500 text-white shadow-lg shadow-orange-100'
+                                : 'border-slate-200 bg-slate-50 text-brand-slate hover:border-orange-200 hover:bg-white hover:text-orange-700'
+                            }`}
+                          >
+                            {selected && <CheckCircle2 size={14} />}
+                            {day.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="rounded-[1.25rem] border border-slate-200/80 bg-white p-4 shadow-[0_16px_42px_rgba(15,23,42,0.06)] sm:p-5">
+                    <div className="mb-4 flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-700 ring-1 ring-rose-100">
+                        <Wallet size={18} />
+                      </div>
+                      <div>
+                        <p className="text-[12px] font-black uppercase text-rose-700">To'lov</p>
+                        <h2 className="text-lg font-black text-brand-depth sm:text-xl">Bir oylik to'lov</h2>
+                      </div>
+                    </div>
+                    <label className="block">
+                      <span className="text-[12px] font-black uppercase tracking-widest text-brand-muted">Summa, so'm</span>
+                      <input
+                        type="number"
+                        min={0}
+                        step={1000}
+                        value={kindergartenProfile.monthlyFee}
+                        onChange={(event) => updateKindergartenProfileField('monthlyFee', event.target.value)}
+                        placeholder="Masalan: 750000"
+                        className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-base font-extrabold text-brand-depth outline-none transition-all placeholder:text-slate-400 focus:border-rose-300 focus:bg-white focus:ring-4 focus:ring-rose-100/70"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </section>
+
+              <section className="rounded-[1.25rem] border border-slate-200/80 bg-white p-4 shadow-[0_16px_42px_rgba(15,23,42,0.06)] sm:p-5">
+                <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-700 ring-1 ring-violet-100">
+                      <Sparkles size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[12px] font-black uppercase text-violet-700">Ustunliklar</p>
+                      <h2 className="text-lg font-black text-brand-depth sm:text-xl">Boshqa bog'chalardan afzalligi</h2>
+                    </div>
+                  </div>
+                  <span className="rounded-full border border-violet-100 bg-violet-50 px-3.5 py-1.5 text-[12px] font-black uppercase text-violet-700">
+                    {kindergartenProfile.advantages.length} ta tanlangan
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4">
+                  {kindergartenAdvantageOptions.map((item) => {
+                    const selected = kindergartenProfile.advantages.includes(item);
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => toggleKindergartenProfileListValue('advantages', item)}
+                        className={`flex min-h-12 items-center justify-center gap-2 rounded-xl border px-3 text-center text-[13px] font-black transition-all ${
+                          selected
+                            ? 'border-violet-600 bg-violet-600 text-white shadow-lg shadow-violet-100'
+                            : 'border-slate-200 bg-slate-50 text-brand-slate hover:border-violet-200 hover:bg-white hover:text-violet-700'
+                        }`}
+                      >
+                        {selected && <CheckCircle2 size={14} />}
+                        {item}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <label className="mt-4 block">
+                  <span className="text-[12px] font-black uppercase tracking-widest text-brand-muted">Qo'shimcha izoh</span>
+                  <textarea
+                    value={kindergartenProfile.advantagesText}
+                    onChange={(event) => updateKindergartenProfileField('advantagesText', event.target.value)}
+                    rows={3}
+                    placeholder="Masalan: Montessori metodikasi, maktabga tayyorlov dasturi, maxsus sport maydonchasi..."
+                    className="mt-2 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-base font-semibold leading-7 text-brand-depth outline-none transition-all placeholder:text-slate-400 focus:border-violet-300 focus:bg-white focus:ring-4 focus:ring-violet-100/70"
+                  />
+                </label>
+              </section>
+
+            </>
+          )}
+        </form>
+      </div>
+    );
+  }
+
   if (activeMenu === 'kindergarten') {
     return (
       <div className="space-y-6">
@@ -1625,7 +2015,7 @@ const ArchiveView: React.FC = () => {
             </div>
             <div className="mb-4 flex items-center justify-between gap-4 border-b border-slate-200/80 pb-3">
               <span className="text-[10px] font-black uppercase text-brand-muted">Arxiv yo'nalishlari</span>
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-100">3 bo'lim</span>
+              <span className="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-100">{archiveCards.length} bo'lim</span>
             </div>
             <div className="space-y-3">
               {archiveCards.map((card) => (
@@ -1649,7 +2039,7 @@ const ArchiveView: React.FC = () => {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-5 md:grid-cols-3">
+      <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {archiveCards.map((card) => (
           <article
             key={card.title}
@@ -1657,6 +2047,7 @@ const ArchiveView: React.FC = () => {
               if (card.code === '01') setActiveMenu('children');
               if (card.code === '02') setActiveMenu('staff');
               if (card.code === '03') setActiveMenu('kindergarten');
+              if (card.code === '04') setActiveMenu('kindergartenProfile');
             }}
             className={`group relative min-h-[220px] cursor-pointer overflow-hidden rounded-[1.65rem] border bg-gradient-to-br p-6 shadow-[0_20px_52px_rgba(15,23,42,0.075)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_76px_rgba(15,23,42,0.12)] ${card.tone}`}
             role="button"
@@ -1667,6 +2058,7 @@ const ArchiveView: React.FC = () => {
                 if (card.code === '01') setActiveMenu('children');
                 if (card.code === '02') setActiveMenu('staff');
                 if (card.code === '03') setActiveMenu('kindergarten');
+                if (card.code === '04') setActiveMenu('kindergartenProfile');
               }
             }}
           >

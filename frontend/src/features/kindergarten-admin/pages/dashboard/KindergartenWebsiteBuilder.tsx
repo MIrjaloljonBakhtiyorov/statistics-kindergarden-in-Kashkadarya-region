@@ -27,6 +27,10 @@ type WebsiteRow = {
   coverImageUrl: string;
   locationLat: number | string | null;
   locationLng: number | string | null;
+  workingDays: string[];
+  monthlyFee: number | string;
+  advantages: string[];
+  advantagesText: string;
   newsTitle: string;
   newsSubtitle: string;
   groupsTitle: string;
@@ -58,6 +62,10 @@ const emptyWebsite: WebsiteRow = {
   coverImageUrl: '',
   locationLat: null,
   locationLng: null,
+  workingDays: [],
+  monthlyFee: 0,
+  advantages: [],
+  advantagesText: '',
   newsTitle: 'Yangiliklar',
   newsSubtitle: '',
   groupsTitle: 'Bolalar guruhlari',
@@ -118,6 +126,10 @@ const normalizeWebsite = (value: Partial<WebsiteRow> = {}): WebsiteRow => ({
   coverImageUrl: asText(value.coverImageUrl),
   locationLat: value.locationLat ?? null,
   locationLng: value.locationLng ?? null,
+  workingDays: asArray<string>(value.workingDays).map((item) => asText(item)).filter(Boolean),
+  monthlyFee: value.monthlyFee ?? 0,
+  advantages: asArray<string>(value.advantages).map((item) => asText(item)).filter(Boolean),
+  advantagesText: asText(value.advantagesText),
   newsTitle: asText(value.newsTitle, emptyWebsite.newsTitle),
   newsSubtitle: asText(value.newsSubtitle),
   groupsTitle: asText(value.groupsTitle, emptyWebsite.groupsTitle),

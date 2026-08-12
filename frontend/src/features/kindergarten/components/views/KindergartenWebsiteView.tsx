@@ -23,6 +23,10 @@ type WebsiteForm = {
   coverImageUrl: string;
   locationLat: number | string | null;
   locationLng: number | string | null;
+  workingDays: string[];
+  monthlyFee: number | string;
+  advantages: string[];
+  advantagesText: string;
   newsTitle: string;
   newsSubtitle: string;
   groupsTitle: string;
@@ -69,6 +73,10 @@ const emptyForm: WebsiteForm = {
   coverImageUrl: '',
   locationLat: null,
   locationLng: null,
+  workingDays: [],
+  monthlyFee: 0,
+  advantages: [],
+  advantagesText: '',
   newsTitle: 'Yangiliklar',
   newsSubtitle: '',
   groupsTitle: 'Bolalar guruhlari',
@@ -127,6 +135,10 @@ const normalizeWebsiteForm = (value: Partial<WebsiteForm> = {}): WebsiteForm => 
   coverImageUrl: asText(value.coverImageUrl),
   locationLat: value.locationLat ?? null,
   locationLng: value.locationLng ?? null,
+  workingDays: asArray<string>(value.workingDays).map((item) => asText(item)).filter(Boolean),
+  monthlyFee: value.monthlyFee ?? 0,
+  advantages: asArray<string>(value.advantages).map((item) => asText(item)).filter(Boolean),
+  advantagesText: asText(value.advantagesText),
   newsTitle: asText(value.newsTitle, emptyForm.newsTitle),
   newsSubtitle: asText(value.newsSubtitle),
   groupsTitle: asText(value.groupsTitle, emptyForm.groupsTitle),
