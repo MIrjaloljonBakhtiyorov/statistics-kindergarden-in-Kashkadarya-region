@@ -54,15 +54,15 @@ const CHECK_SECTIONS = [
 ];
 
 const CHECK_STATUS = [
-  { value: 'passed', label: 'Talabga javob beradi', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  { value: 'attention', label: "E'tibor kerak", color: 'bg-amber-50 text-amber-700 border-amber-200' },
-  { value: 'failed', label: 'Kamchilik bor', color: 'bg-rose-50 text-rose-700 border-rose-200' },
+  { value: 'passed', label: 'Talabga javob beradi', color: 'bg-emerald-500/15 text-emerald-200 border-emerald-400/25' },
+  { value: 'attention', label: "E'tibor kerak", color: 'bg-amber-500/15 text-amber-200 border-amber-400/25' },
+  { value: 'failed', label: 'Kamchilik bor', color: 'bg-rose-500/15 text-rose-200 border-rose-400/25' },
 ];
 
 const OVERALL_STATUS = [
-  { value: 'excellent', label: 'Yaxshi', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
-  { value: 'needs_attention', label: 'Nazoratda', color: 'text-amber-600 bg-amber-50 border-amber-200' },
-  { value: 'critical', label: 'Kritik', color: 'text-rose-600 bg-rose-50 border-rose-200' },
+  { value: 'excellent', label: 'Yaxshi', color: 'text-emerald-200 bg-emerald-500/15 border-emerald-400/25' },
+  { value: 'needs_attention', label: 'Nazoratda', color: 'text-amber-200 bg-amber-500/15 border-amber-400/25' },
+  { value: 'critical', label: 'Kritik', color: 'text-rose-200 bg-rose-500/15 border-rose-400/25' },
 ];
 
 const emptyInspector = {
@@ -143,7 +143,7 @@ export const KindergartenInspection = () => {
   const [overallStatus, setOverallStatus] = useState('needs_attention');
   const [inspector, setInspector] = useState(emptyInspector);
   const [checks, setChecks] = useState(initialChecks);
-  const [activeMode, setActiveMode] = useState<'new' | 'archive'>('new');
+  const [activeMode, setActiveMode] = useState<'new' | 'archive' | null>(null);
 
   const loadKindergartens = async () => {
     try {
@@ -296,8 +296,8 @@ export const KindergartenInspection = () => {
   }
 
   return (
-    <div className="space-y-4 pb-12">
-      <div className="rounded-xl bg-slate-950 text-white p-4 md:p-5 shadow-md relative overflow-hidden">
+    <div className="space-y-4 pb-12 text-white">
+      <div className="rounded-xl border border-white/10 bg-[#070b1a] text-white p-4 md:p-5 shadow-[0_18px_50px_rgba(0,0,0,0.28)] relative overflow-hidden">
         <div className="absolute -right-14 -top-20 h-44 w-44 rounded-full bg-indigo-500/20 blur-3xl" />
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div>
@@ -325,45 +325,81 @@ export const KindergartenInspection = () => {
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-100 bg-white p-2 shadow-sm">
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <button
             type="button"
             onClick={() => setActiveMode('new')}
-            className={`flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs font-black uppercase tracking-widest transition-all ${
+            className={`group relative min-h-[132px] overflow-hidden rounded-xl border p-5 text-left transition-all ${
               activeMode === 'new'
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                ? 'border-indigo-400/40 bg-indigo-600 text-white shadow-[0_18px_46px_rgba(79,70,229,0.28)]'
+                : 'border-white/10 bg-[#111615] text-slate-300 shadow-[0_14px_40px_rgba(0,0,0,0.22)] hover:border-indigo-400/30 hover:bg-white/[0.06] hover:text-white'
             }`}
           >
-            <Plus className="h-4 w-4" />
-            Yangi inspeksiya
+            <div className="absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-white/5 transition group-hover:bg-white/10" />
+            <div className="relative flex h-full flex-col justify-between gap-5">
+              <div className="flex items-start justify-between gap-4">
+                <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border ${
+                  activeMode === 'new' ? 'border-white/20 bg-white/15 text-white' : 'border-indigo-400/20 bg-indigo-500/15 text-indigo-200'
+                }`}>
+                  <Plus className="h-5 w-5" />
+                </span>
+                <span className={`rounded-lg border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                  activeMode === 'new' ? 'border-white/20 bg-white/15 text-white' : 'border-white/10 bg-white/[0.04] text-slate-300'
+                }`}>
+                  {activeMode === 'new' ? 'Ochilgan' : 'Ochish'}
+                </span>
+              </div>
+              <div className="relative">
+                <p className="text-lg font-black uppercase tracking-widest text-white">Yangi inspeksiya</p>
+                <p className={`mt-2 max-w-xl text-[11px] font-bold uppercase tracking-widest leading-relaxed ${activeMode === 'new' ? 'text-indigo-100' : 'text-slate-400'}`}>
+                  Bogcha tanlash, sanitariya checklisti, dalolatnoma va tekshiruvchi ma'lumotlari shu bo'limda kiritiladi.
+                </p>
+              </div>
+            </div>
           </button>
           <button
             type="button"
             onClick={() => setActiveMode('archive')}
-            className={`flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs font-black uppercase tracking-widest transition-all ${
+            className={`group relative min-h-[132px] overflow-hidden rounded-xl border p-5 text-left transition-all ${
               activeMode === 'archive'
-                ? 'bg-slate-950 text-white shadow-lg shadow-slate-900/15'
-                : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                ? 'border-emerald-400/35 bg-[#10201b] text-white shadow-[0_18px_46px_rgba(16,185,129,0.16)]'
+                : 'border-white/10 bg-[#111615] text-slate-300 shadow-[0_14px_40px_rgba(0,0,0,0.22)] hover:border-emerald-400/25 hover:bg-white/[0.06] hover:text-white'
             }`}
           >
-            <Archive className="h-4 w-4" />
-            Mavjud inspeksiyalar
+            <div className="absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-white/5 transition group-hover:bg-white/10" />
+            <div className="relative flex h-full flex-col justify-between gap-5">
+              <div className="flex items-start justify-between gap-4">
+                <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border ${
+                  activeMode === 'archive' ? 'border-emerald-300/25 bg-emerald-500/15 text-emerald-100' : 'border-emerald-400/20 bg-emerald-500/12 text-emerald-200'
+                }`}>
+                  <Archive className="h-5 w-5" />
+                </span>
+                <span className={`rounded-lg border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                  activeMode === 'archive' ? 'border-emerald-300/25 bg-emerald-500/15 text-emerald-100' : 'border-white/10 bg-white/[0.04] text-slate-300'
+                }`}>
+                  {inspections.length} ta
+                </span>
+              </div>
+              <div className="relative">
+                <p className="text-lg font-black uppercase tracking-widest text-white">Mavjud inspeksiyalar</p>
+                <p className={`mt-2 max-w-xl text-[11px] font-bold uppercase tracking-widest leading-relaxed ${activeMode === 'archive' ? 'text-emerald-100' : 'text-slate-400'}`}>
+                  Saqlangan inspeksiyalar arxivi, tuman kesimidagi hisobot va Word dalolatnomalar alohida ochiladi.
+                </p>
+              </div>
+            </div>
           </button>
-        </div>
       </div>
 
       {activeMode === 'new' && (
       <div className="grid grid-cols-1 xl:grid-cols-[0.9fr_1.4fr] gap-4">
         <section className="space-y-3">
-          <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+          <div className="rounded-xl border border-white/10 bg-[#111615] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.24)]">
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="h-9 w-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <div className="h-9 w-9 rounded-lg border border-indigo-400/20 bg-indigo-500/15 text-indigo-200 flex items-center justify-center">
                 <MapPin className="h-4 w-4" />
               </div>
               <div>
-                <h2 className="text-base font-black text-slate-900">Hudud va bogcha tanlash</h2>
+                <h2 className="text-base font-black text-white">Hudud va bogcha tanlash</h2>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Viloyat: Qashqadaryo</p>
               </div>
             </div>
@@ -377,7 +413,7 @@ export const KindergartenInspection = () => {
                     setDistrict(event.target.value);
                     setSelectedKindergarten(null);
                   }}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
+                  className="w-full rounded-lg border border-white/10 bg-[#0b1110] px-3 py-2 text-xs font-bold text-white outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 [&>option]:bg-[#111615] [&>option]:text-white"
                 >
                   <option value="">Barcha tumanlar</option>
                   {DISTRICTS.map((item) => <option key={item} value={item}>{item}</option>)}
@@ -392,7 +428,7 @@ export const KindergartenInspection = () => {
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder="Bogcha nomi, ID, direktor..."
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs font-bold outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
+                    className="w-full rounded-lg border border-white/10 bg-[#0b1110] py-2 pl-9 pr-3 text-xs font-bold text-white outline-none placeholder:text-slate-500 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15"
                   />
                 </div>
               </label>
@@ -406,14 +442,14 @@ export const KindergartenInspection = () => {
                     key={item.id}
                     type="button"
                     onClick={() => setSelectedKindergarten(item)}
-                    className={`w-full rounded-lg border px-3 py-2 text-left transition-all ${active ? 'border-indigo-300 bg-indigo-50 shadow-sm' : 'border-slate-100 bg-slate-50/70 hover:bg-white hover:border-slate-200'}`}
+                    className={`w-full rounded-lg border px-3 py-2 text-left transition-all ${active ? 'border-indigo-400/45 bg-indigo-500/15 shadow-[0_10px_24px_rgba(79,70,229,0.14)]' : 'border-white/10 bg-white/[0.035] hover:bg-white/[0.07] hover:border-white/20'}`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="truncate text-xs font-black text-slate-900">{item.name || 'Nomsiz MTT'}</p>
+                        <p className="truncate text-xs font-black text-white">{item.name || 'Nomsiz MTT'}</p>
                         <p className="mt-0.5 text-[10px] font-bold text-slate-500">{item.district || 'Tuman kiritilmagan'}</p>
                       </div>
-                      <span className="shrink-0 rounded-md bg-white px-2 py-0.5 text-[9px] font-black text-indigo-600 border border-indigo-100">
+                      <span className="shrink-0 rounded-md border border-indigo-400/25 bg-indigo-500/15 px-2 py-0.5 text-[9px] font-black text-indigo-200">
                         {item.system_id || item.systemId || `#${item.id}`}
                       </span>
                     </div>
@@ -421,7 +457,7 @@ export const KindergartenInspection = () => {
                 );
               })}
               {filteredKindergartens.length === 0 && (
-                <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 py-8 text-center text-xs font-bold text-slate-400">
+                <div className="rounded-lg border border-dashed border-white/10 bg-white/[0.03] py-8 text-center text-xs font-bold text-slate-400">
                   Bogcha topilmadi
                 </div>
               )}
@@ -429,15 +465,15 @@ export const KindergartenInspection = () => {
           </div>
 
           {selectedKindergarten && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-indigo-100 bg-white p-3 shadow-sm">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-indigo-400/25 bg-indigo-500/10 p-3 shadow-[0_14px_40px_rgba(0,0,0,0.22)]">
               <div className="flex items-start gap-3">
                 <div className="h-9 w-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0">
                   <School className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-[9px] font-black uppercase tracking-widest text-indigo-500">Tanlangan profil</p>
-                  <h3 className="mt-0.5 text-sm font-black text-slate-900 leading-tight">{selectedKindergarten.name}</h3>
-                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10px] font-bold text-slate-500">
+                  <h3 className="mt-0.5 text-sm font-black text-white leading-tight">{selectedKindergarten.name}</h3>
+                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10px] font-bold text-slate-300">
                     <span>{selectedKindergarten.district || '-'}</span>
                     <span>{selectedKindergarten.type || 'Turi kiritilmagan'}</span>
                     <span>{selectedKindergarten.directorName || 'Direktor kiritilmagan'}</span>
@@ -450,10 +486,10 @@ export const KindergartenInspection = () => {
         </section>
 
         <section className="space-y-3">
-          <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+          <div className="rounded-xl border border-white/10 bg-[#111615] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.24)]">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
               <div>
-                <h2 className="text-base font-black text-slate-900">Nazorat checklisti</h2>
+                <h2 className="text-base font-black text-white">Nazorat checklisti</h2>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Har bir bolim alohida baholanadi</p>
               </div>
               <div className="flex flex-wrap items-center gap-1.5">
@@ -462,7 +498,7 @@ export const KindergartenInspection = () => {
                     key={item.value}
                     type="button"
                     onClick={() => setOverallStatus(item.value)}
-                    className={`rounded-lg border px-2.5 py-1.5 text-[9px] font-black uppercase tracking-widest ${overallStatus === item.value ? item.color : 'border-slate-200 bg-white text-slate-400'}`}
+                    className={`rounded-lg border px-2.5 py-1.5 text-[9px] font-black uppercase tracking-widest transition-all ${overallStatus === item.value ? item.color : 'border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] hover:text-white'}`}
                   >
                     {item.label}
                   </button>
@@ -475,13 +511,13 @@ export const KindergartenInspection = () => {
                 const row = checks.find((item) => item.key === section.key)!;
                 const Icon = section.icon;
                 return (
-                  <div key={section.key} className="rounded-lg border border-slate-100 bg-slate-50/70 p-3">
+                  <div key={section.key} className="rounded-lg border border-white/10 bg-white/[0.035] p-3">
                     <div className="flex items-start gap-2.5 mb-2">
-                      <div className="h-8 w-8 rounded-lg bg-white border border-slate-100 text-indigo-600 flex items-center justify-center shrink-0">
+                      <div className="h-8 w-8 rounded-lg border border-indigo-400/20 bg-indigo-500/12 text-indigo-200 flex items-center justify-center shrink-0">
                         <Icon className="h-4 w-4" />
                       </div>
                       <div>
-                        <h3 className="text-xs font-black text-slate-900">{section.title}</h3>
+                        <h3 className="text-xs font-black text-white">{section.title}</h3>
                         <p className="mt-0.5 text-[10px] font-semibold text-slate-400 leading-snug">{section.hint}</p>
                       </div>
                     </div>
@@ -491,7 +527,7 @@ export const KindergartenInspection = () => {
                           key={status.value}
                           type="button"
                           onClick={() => updateCheck(section.key, { status: status.value })}
-                          className={`rounded-lg border px-2.5 py-1 text-[9px] font-black transition-all ${row.status === status.value ? status.color : 'border-slate-200 bg-white text-slate-400 hover:text-slate-700'}`}
+                          className={`rounded-lg border px-2.5 py-1 text-[9px] font-black transition-all ${row.status === status.value ? status.color : 'border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] hover:text-white'}`}
                         >
                           {status.label}
                         </button>
@@ -501,7 +537,7 @@ export const KindergartenInspection = () => {
                       value={row.note}
                       onChange={(event) => updateCheck(section.key, { note: event.target.value })}
                       placeholder="Izoh, aniqlangan holat yoki topshiriq..."
-                      className="min-h-[62px] w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-semibold outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
+                      className="min-h-[62px] w-full resize-none rounded-lg border border-white/10 bg-[#0b1110] px-3 py-2 text-[11px] font-semibold text-white outline-none placeholder:text-slate-500 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15"
                     />
                   </div>
                 );
@@ -510,8 +546,8 @@ export const KindergartenInspection = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
-              <h2 className="text-base font-black text-slate-900 mb-3">Dalolatnoma</h2>
+            <div className="rounded-xl border border-white/10 bg-[#111615] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.24)]">
+              <h2 className="text-base font-black text-white mb-3">Dalolatnoma</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
                 <label className="space-y-1">
                   <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Sana</span>
@@ -519,7 +555,7 @@ export const KindergartenInspection = () => {
                     type="date"
                     value={inspectionDate}
                     onChange={(event) => setInspectionDate(event.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold outline-none"
+                    className="w-full rounded-lg border border-white/10 bg-[#0b1110] px-3 py-2 text-xs font-bold text-white outline-none"
                   />
                 </label>
                 <label className="space-y-1">
@@ -528,13 +564,13 @@ export const KindergartenInspection = () => {
                     value={actNumber}
                     onChange={(event) => setActNumber(event.target.value)}
                     placeholder="AKT-2026-001"
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold outline-none"
+                    className="w-full rounded-lg border border-white/10 bg-[#0b1110] px-3 py-2 text-xs font-bold text-white outline-none placeholder:text-slate-500"
                   />
                 </label>
               </div>
-              <label className="flex min-h-[104px] cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-indigo-200 bg-indigo-50/50 px-4 py-4 text-center transition hover:bg-indigo-50">
+              <label className="flex min-h-[104px] cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-indigo-400/25 bg-indigo-500/10 px-4 py-4 text-center transition hover:bg-indigo-500/15">
                 <UploadCloud className="h-7 w-7 text-indigo-500" />
-                <span className="mt-2 text-xs font-black text-slate-900">
+                <span className="mt-2 text-xs font-black text-white">
                   {actFile ? actFile.name : 'PDF, Word yoki rasm yuklang'}
                 </span>
                 <span className="mt-1 text-[10px] font-semibold text-slate-400">Dalolatnoma qogoz shaklidan skan/rasm ham qabul qilinadi</span>
@@ -549,17 +585,17 @@ export const KindergartenInspection = () => {
                 value={summary}
                 onChange={(event) => setSummary(event.target.value)}
                 placeholder="Umumiy xulosa..."
-                className="mt-2 min-h-[76px] w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold outline-none"
+                className="mt-2 min-h-[76px] w-full resize-none rounded-lg border border-white/10 bg-[#0b1110] px-3 py-2 text-xs font-semibold text-white outline-none placeholder:text-slate-500"
               />
             </div>
 
-            <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+            <div className="rounded-xl border border-white/10 bg-[#111615] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.24)]">
               <div className="mb-3 flex items-start justify-between gap-2">
                 <div>
-                  <h2 className="text-base font-black text-slate-900">Tekshiruvchi ma'lumotlari</h2>
+                  <h2 className="text-base font-black text-white">Tekshiruvchi ma'lumotlari</h2>
                   <p className="mt-0.5 text-[9px] font-bold uppercase tracking-widest text-rose-500">Barcha maydonlar majburiy</p>
                 </div>
-                <div className="rounded-lg bg-rose-50 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-rose-600">
+                <div className="rounded-lg border border-rose-400/25 bg-rose-500/15 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-rose-200">
                   To'liq
                 </div>
               </div>
@@ -579,7 +615,7 @@ export const KindergartenInspection = () => {
                       value={inspector[field as keyof typeof emptyInspector]}
                       onChange={(event) => updateInspector(field as keyof typeof emptyInspector, event.target.value)}
                       placeholder={placeholder}
-                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
+                      className="w-full rounded-lg border border-white/10 bg-[#0b1110] px-3 py-2 text-xs font-bold text-white outline-none placeholder:text-slate-500 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15"
                     />
                   </label>
                 ))}
@@ -600,10 +636,10 @@ export const KindergartenInspection = () => {
       )}
 
       {activeMode === 'archive' && (
-      <section className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+      <section className="rounded-xl border border-white/10 bg-[#111615] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.24)]">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
           <div>
-            <h2 className="text-base font-black text-slate-900">Inspeksiya arxivi</h2>
+            <h2 className="text-base font-black text-white">Inspeksiya arxivi</h2>
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Tumanlar kesimida oylik dalolatnomalar</p>
           </div>
           <label className="space-y-1">
@@ -612,7 +648,7 @@ export const KindergartenInspection = () => {
               type="month"
               value={archiveMonth}
               onChange={(event) => setArchiveMonth(event.target.value)}
-              className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
+              className="rounded-lg border border-white/10 bg-[#0b1110] px-3 py-2 text-xs font-bold text-white outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 [&>option]:bg-[#111615] [&>option]:text-white"
             />
           </label>
         </div>
@@ -626,8 +662,8 @@ export const KindergartenInspection = () => {
                 onClick={() => setArchiveMonth(item.month)}
                 className={`rounded-lg border px-2.5 py-1.5 text-[9px] font-black uppercase tracking-widest ${
                   archiveMonth === item.month
-                    ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
-                    : 'border-slate-200 bg-white text-slate-500'
+                    ? 'border-indigo-400/40 bg-indigo-500/15 text-indigo-100'
+                    : 'border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] hover:text-white'
                 }`}
               >
                 {item.month} | {item.entries}
@@ -638,19 +674,19 @@ export const KindergartenInspection = () => {
 
         <div className="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
           {monthlySummary.map((item) => (
-            <div key={item.district} className="rounded-lg border border-slate-100 bg-slate-50/70 p-3">
-              <p className="text-xs font-black text-slate-900">{item.district}</p>
-              <div className="mt-2 grid grid-cols-2 gap-1.5 text-[10px] font-bold text-slate-500">
+            <div key={item.district} className="rounded-lg border border-white/10 bg-white/[0.035] p-3">
+              <p className="text-xs font-black text-white">{item.district}</p>
+              <div className="mt-2 grid grid-cols-2 gap-1.5 text-[10px] font-bold text-slate-300">
                 <span>Jami: {item.entries}</span>
                 <span>MTT: {item.kindergartenCount}</span>
-                <span className="text-emerald-600">Yaxshi: {item.excellentCount}</span>
-                <span className="text-amber-600">Nazorat: {item.attentionCount}</span>
-                <span className="col-span-2 text-rose-600">Kritik: {item.criticalCount}</span>
+                <span className="text-emerald-300">Yaxshi: {item.excellentCount}</span>
+                <span className="text-amber-300">Nazorat: {item.attentionCount}</span>
+                <span className="col-span-2 text-rose-300">Kritik: {item.criticalCount}</span>
               </div>
             </div>
           ))}
           {monthlySummary.length === 0 && (
-            <div className="col-span-full rounded-lg border border-dashed border-slate-200 bg-slate-50 py-8 text-center text-xs font-bold text-slate-400">
+            <div className="col-span-full rounded-lg border border-dashed border-white/10 bg-white/[0.03] py-8 text-center text-xs font-bold text-slate-400">
               Tanlangan oy bo'yicha tumanlar kesimida arxiv topilmadi
             </div>
           )}
@@ -662,33 +698,33 @@ export const KindergartenInspection = () => {
             const failed = item.checks?.filter((check) => check.status === 'failed').length || 0;
             const attention = item.checks?.filter((check) => check.status === 'attention').length || 0;
             return (
-              <div key={item.id} className="rounded-lg border border-slate-100 bg-slate-50/70 p-3">
+              <div key={item.id} className="rounded-lg border border-white/10 bg-white/[0.035] p-3">
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="min-w-0">
-                    <p className="truncate text-xs font-black text-slate-900">{item.kindergartenName}</p>
-                    <p className="mt-0.5 flex items-center gap-1 text-[10px] font-bold text-slate-500">
+                    <p className="truncate text-xs font-black text-white">{item.kindergartenName}</p>
+                    <p className="mt-0.5 flex items-center gap-1 text-[10px] font-bold text-slate-400">
                       <MapPin className="h-3 w-3" /> {item.district}
                     </p>
                   </div>
                   <span className={`shrink-0 rounded-md border px-2 py-0.5 text-[9px] font-black uppercase ${status.color}`}>{status.label}</span>
                 </div>
-                <div className="grid grid-cols-2 gap-1.5 text-[10px] font-bold text-slate-500">
+                <div className="grid grid-cols-2 gap-1.5 text-[10px] font-bold text-slate-300">
                   <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" /> {item.inspectionDate}</span>
                   <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> {item.inspector?.phone || '-'}</span>
                   <span>Kamchilik: {failed}</span>
                   <span>Eslatma: {attention}</span>
                 </div>
-                <div className="mt-2 border-t border-slate-200 pt-2">
+                <div className="mt-2 border-t border-white/10 pt-2">
                   <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Tekshiruvchi</p>
-                  <p className="mt-0.5 text-xs font-black text-slate-800">{item.inspector?.fullName || '-'}</p>
-                  <p className="text-[10px] font-semibold text-slate-500">{item.inspector?.organization || '-'}</p>
+                  <p className="mt-0.5 text-xs font-black text-white">{item.inspector?.fullName || '-'}</p>
+                  <p className="text-[10px] font-semibold text-slate-400">{item.inspector?.organization || '-'}</p>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   <a
                     href={inspectionWordHref(item.id)}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-100 bg-white px-2.5 py-1.5 text-[9px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-400/25 bg-indigo-500/15 px-2.5 py-1.5 text-[9px] font-black uppercase tracking-widest text-indigo-100 hover:bg-indigo-500/25"
                   >
                     <FileText className="h-3 w-3" />
                     Word dalolatnoma
@@ -698,7 +734,7 @@ export const KindergartenInspection = () => {
             );
           })}
           {inspections.length === 0 && (
-            <div className="col-span-full rounded-lg border border-dashed border-slate-200 bg-slate-50 py-10 text-center text-xs font-bold text-slate-400">
+            <div className="col-span-full rounded-lg border border-dashed border-white/10 bg-white/[0.03] py-10 text-center text-xs font-bold text-slate-400">
               Tanlangan oy uchun inspeksiya yozuvlari yo'q
             </div>
           )}
