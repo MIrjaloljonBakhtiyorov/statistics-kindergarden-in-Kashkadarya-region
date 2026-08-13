@@ -311,49 +311,57 @@ export const WarehouseCommandCenter = () => {
   };
 
   const kpis = [
-    { title: 'Jami xarid', value: money(totalAmount), icon: Wallet, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { title: 'Mahsulot miqdori', value: `${Math.round(totalKg).toLocaleString('uz-UZ')} kg`, icon: Package, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-    { title: "To'ldirilgan hudud", value: `${filledDistricts} / ${DISTRICTS.length}`, icon: Database, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { title: 'Tanlangan tuman', value: money(selectedTotal), icon: TrendingUp, color: 'text-rose-600', bg: 'bg-rose-50' },
+    { title: 'Jami xarid', value: money(totalAmount), icon: Wallet, color: 'text-emerald-200', bg: 'bg-emerald-500/15 ring-emerald-400/25' },
+    { title: 'Mahsulot miqdori', value: `${Math.round(totalKg).toLocaleString('uz-UZ')} kg`, icon: Package, color: 'text-indigo-200', bg: 'bg-indigo-500/15 ring-indigo-400/25' },
+    { title: "To'ldirilgan hudud", value: `${filledDistricts} / ${DISTRICTS.length}`, icon: Database, color: 'text-blue-200', bg: 'bg-blue-500/15 ring-blue-400/25' },
+    { title: 'Tanlangan tuman', value: money(selectedTotal), icon: TrendingUp, color: 'text-rose-200', bg: 'bg-rose-500/15 ring-rose-400/25' },
   ];
 
+  const darkTooltip = {
+    borderRadius: '14px',
+    border: '1px solid rgba(255,255,255,0.12)',
+    background: '#0b1110',
+    color: '#ffffff',
+    boxShadow: '0 18px 45px rgba(0,0,0,0.36)',
+  };
+
   return (
-    <div className="min-h-screen bg-[#f4f6fb] pb-20 font-sans text-slate-900">
-      <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-xl border-b border-slate-200/70 shadow-sm">
+    <div className="min-h-screen bg-[#08100f] pb-20 font-sans text-white">
+      <header className="sticky top-0 z-30 bg-[#0b1110]/92 backdrop-blur-xl border-b border-white/10 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
         <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20">
               <Box className="text-white" size={22} />
             </div>
             <div>
-              <h1 className="text-lg sm:text-2xl font-black text-slate-900 leading-none">Omborxona Markazi</h1>
-              <p className="text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+              <h1 className="text-lg sm:text-2xl font-black text-white leading-none">Omborxona Markazi</h1>
+              <p className="text-[9px] sm:text-[11px] font-bold text-slate-300 uppercase tracking-widest mt-1">
                 16 hudud bo'yicha 24 turdagi mahsulot xaridi
               </p>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 w-full xl:w-auto">
-            <label className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600">
-              <CalendarDays size={16} className="text-slate-400 shrink-0" />
+            <label className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/10 bg-[#111615] text-slate-200">
+              <CalendarDays size={16} className="text-slate-300 shrink-0" />
               <input
                 type="date"
                 value={date}
                 onChange={(event) => setDate(event.target.value)}
-                className="bg-transparent text-xs font-black text-slate-800 outline-none min-w-[140px]"
+                className="bg-transparent text-xs font-black text-white outline-none min-w-[140px] [color-scheme:dark]"
               />
             </label>
             <select
               value={selectedDistrict}
               onChange={(event) => setSelectedDistrict(event.target.value)}
-              className="px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-black text-slate-800 outline-none min-w-[220px]"
+              className="px-3 py-2.5 rounded-xl border border-white/10 bg-[#111615] text-xs font-black text-white outline-none min-w-[220px] focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-500/10"
             >
               {DISTRICTS.map((district) => <option key={district} value={district}>{district}</option>)}
             </select>
             <button
               type="button"
               onClick={exportCsv}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#111615] border border-white/10 rounded-xl text-xs font-bold text-white hover:bg-[#17201e] transition-all shadow-sm"
             >
               <Download size={14} /> Export
             </button>
@@ -369,26 +377,26 @@ export const WarehouseCommandCenter = () => {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.04 }}
-              className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 shadow-sm"
+              className="bg-[#111615] border border-white/10 rounded-2xl p-4 sm:p-5 shadow-[0_16px_40px_rgba(0,0,0,0.22)]"
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${kpi.bg} ${kpi.color} mb-4`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${kpi.bg} ${kpi.color} mb-4 ring-1`}>
                 <kpi.icon size={19} />
               </div>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 truncate">{kpi.title}</p>
-              <h3 className="text-base sm:text-xl font-black text-slate-900 truncate">{loading ? '...' : kpi.value}</h3>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1 truncate">{kpi.title}</p>
+              <h3 className="text-base sm:text-xl font-black text-white truncate">{loading ? '...' : kpi.value}</h3>
             </motion.div>
           ))}
         </div>
 
-        <section className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-          <div className="p-5 sm:p-7 flex flex-col xl:flex-row xl:items-center justify-between gap-5 border-b border-slate-100">
+        <section className="bg-[#111615] border border-white/10 rounded-2xl shadow-[0_20px_55px_rgba(0,0,0,0.24)] overflow-hidden">
+          <div className="p-5 sm:p-7 flex flex-col xl:flex-row xl:items-center justify-between gap-5 border-b border-white/10">
             <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
+              <div className="w-11 h-11 rounded-xl bg-indigo-500/15 text-indigo-200 flex items-center justify-center border border-indigo-400/25">
                 <Package size={22} />
               </div>
               <div>
-                <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">{selectedDistrict} ombor xaridi</h2>
-                <p className="text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                <h2 className="text-base sm:text-xl font-black text-white tracking-tight">{selectedDistrict} ombor xaridi</h2>
+                <p className="text-[9px] sm:text-[11px] font-bold text-slate-300 uppercase tracking-widest mt-1">
                   Miqdor x 1 birlik narx = jami xarid summasi
                 </p>
               </div>
@@ -396,12 +404,12 @@ export const WarehouseCommandCenter = () => {
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Mahsulot qidirish"
-                  className="w-full sm:w-64 pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                  className="w-full sm:w-64 pl-9 pr-4 py-3 bg-[#0b1110] border border-white/10 rounded-xl text-xs font-bold text-white placeholder:text-slate-500 outline-none focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-500/10"
                 />
               </div>
               <button
@@ -416,45 +424,45 @@ export const WarehouseCommandCenter = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-slate-100 border-b border-slate-100">
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/10 border-b border-white/10 bg-[#0d1312]">
             <div className="p-4 sm:p-5">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Tanlangan tuman xaridi</p>
-              <p className="text-base sm:text-xl font-black text-slate-900">{money(selectedTotal)}</p>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Tanlangan tuman xaridi</p>
+              <p className="text-base sm:text-xl font-black text-white">{money(selectedTotal)}</p>
             </div>
             <div className="p-4 sm:p-5">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Eng katta hudud</p>
-              <p className="text-base sm:text-xl font-black text-slate-900 truncate">{topDistrict?.name || "Yo'q"}</p>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Eng katta hudud</p>
+              <p className="text-base sm:text-xl font-black text-white truncate">{topDistrict?.name || "Yo'q"}</p>
             </div>
             <div className="p-4 sm:p-5">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Eng katta mahsulot</p>
-              <p className="text-base sm:text-xl font-black text-slate-900 truncate">{topProduct?.name || "Yo'q"}</p>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Eng katta mahsulot</p>
+              <p className="text-base sm:text-xl font-black text-white truncate">{topProduct?.name || "Yo'q"}</p>
             </div>
             <div className="p-4 sm:p-5">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Mahsulot turlari</p>
-              <p className="text-base sm:text-xl font-black text-slate-900">{PRODUCTS.length} ta</p>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Mahsulot turlari</p>
+              <p className="text-base sm:text-xl font-black text-white">{PRODUCTS.length} ta</p>
             </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1120px] text-left">
-              <thead className="bg-slate-50 border-b border-slate-100">
+              <thead className="bg-[#0b1110] border-b border-white/10">
                 <tr>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Mahsulot</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Birlik</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Berilgan miqdor</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">1 birlik narx</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Jami xarid</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Izoh</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Mahsulot</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Birlik</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Berilgan miqdor</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">1 birlik narx</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Jami xarid</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Izoh</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-white/10">
                 {selectedRows.map((row) => (
-                  <tr key={row.name} className="hover:bg-slate-50/70 transition-colors">
+                  <tr key={row.name} className="hover:bg-white/[0.04] transition-colors">
                     <td className="px-5 py-4">
-                      <p className="text-sm font-black text-slate-900">{row.name}</p>
+                      <p className="text-sm font-black text-white">{row.name}</p>
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap">
-                      <span className="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase">{row.unit}</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-indigo-500/15 text-indigo-200 text-[10px] font-black uppercase ring-1 ring-indigo-400/20">{row.unit}</span>
                     </td>
                     <td className="px-5 py-4">
                       <input
@@ -464,7 +472,7 @@ export const WarehouseCommandCenter = () => {
                         value={row.quantity || ''}
                         onChange={(event) => updateEntry(row.name, { quantity: toNumber(event.target.value) })}
                         placeholder="0"
-                        className="w-40 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-black text-slate-900 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                        className="w-40 rounded-xl border border-white/10 bg-[#0b1110] px-3 py-2.5 text-sm font-black text-white placeholder:text-slate-500 outline-none focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-500/10"
                       />
                     </td>
                     <td className="px-5 py-4">
@@ -475,17 +483,17 @@ export const WarehouseCommandCenter = () => {
                         value={row.pricePerUnit || ''}
                         onChange={(event) => updateEntry(row.name, { pricePerUnit: toNumber(event.target.value) })}
                         placeholder="0"
-                        className="w-44 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-black text-slate-900 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                        className="w-44 rounded-xl border border-white/10 bg-[#0b1110] px-3 py-2.5 text-sm font-black text-white placeholder:text-slate-500 outline-none focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-500/10"
                       />
                     </td>
-                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-emerald-700">{money(row.totalAmount)}</td>
+                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-emerald-300">{money(row.totalAmount)}</td>
                     <td className="px-5 py-4">
                       <input
                         type="text"
                         value={row.note}
                         onChange={(event) => updateEntry(row.name, { note: event.target.value })}
                         placeholder="Yetkazib beruvchi yoki hujjat raqami"
-                        className="w-72 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                        className="w-72 rounded-xl border border-white/10 bg-[#0b1110] px-3 py-2.5 text-xs font-bold text-white placeholder:text-slate-500 outline-none focus:border-indigo-400/70 focus:ring-4 focus:ring-indigo-500/10"
                       />
                     </td>
                   </tr>
@@ -496,13 +504,13 @@ export const WarehouseCommandCenter = () => {
         </section>
 
         <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_0.75fr] gap-6">
-          <section className="bg-white border border-slate-100 rounded-2xl p-5 sm:p-7 shadow-sm">
+          <section className="bg-[#111615] border border-white/10 rounded-2xl p-5 sm:p-7 shadow-[0_20px_55px_rgba(0,0,0,0.24)]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <div>
-                <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">Tumanlar bo'yicha jami xarid</h2>
-                <p className="text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">Har bir hududga berilgan mahsulotlar summasi</p>
+                <h2 className="text-base sm:text-xl font-black text-white tracking-tight">Tumanlar bo'yicha jami xarid</h2>
+                <p className="text-[9px] sm:text-[11px] font-bold text-slate-300 uppercase tracking-widest mt-1">Har bir hududga berilgan mahsulotlar summasi</p>
               </div>
-              <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-100 w-fit">
+              <div className="px-4 py-2 bg-emerald-500/15 text-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-400/25 w-fit">
                 {money(totalAmount)}
               </div>
             </div>
@@ -510,7 +518,7 @@ export const WarehouseCommandCenter = () => {
             <div className="h-[430px] min-w-0">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={districtRows} margin={{ top: 10, right: 14, left: 0, bottom: 72 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.08)" />
                   <XAxis
                     dataKey="name"
                     interval={0}
@@ -521,12 +529,12 @@ export const WarehouseCommandCenter = () => {
                     tickFormatter={shortDistrictName}
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }}
+                    tick={{ fontSize: 10, fill: '#cbd5e1', fontWeight: 700 }}
                   />
-                  <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `${Math.round(Number(value || 0) / 1000000)} mln`} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} />
+                  <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `${Math.round(Number(value || 0) / 1000000)} mln`} tick={{ fontSize: 10, fill: '#cbd5e1', fontWeight: 700 }} />
                   <Tooltip
                     formatter={(value) => [money(toNumber(value)), 'Jami xarid']}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    contentStyle={darkTooltip}
                   />
                   <Bar dataKey="totalAmount" name="Jami xarid" fill="#4f46e5" radius={[5, 5, 0, 0]} barSize={18} />
                 </BarChart>
@@ -534,11 +542,11 @@ export const WarehouseCommandCenter = () => {
             </div>
           </section>
 
-          <section className="bg-slate-950 border border-slate-900 rounded-2xl p-5 sm:p-7 text-white shadow-sm">
+          <section className="bg-[#101827] border border-white/10 rounded-2xl p-5 sm:p-7 text-white shadow-[0_20px_55px_rgba(0,0,0,0.24)]">
             <div className="flex items-center justify-between gap-3 mb-5">
               <div>
                 <h2 className="text-base sm:text-xl font-black tracking-tight">Mahsulotlar reytingi</h2>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Jami xarid summasi bo'yicha</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mt-1">Jami xarid summasi bo'yicha</p>
               </div>
               <BarChart3 size={22} className="text-indigo-300" />
             </div>
@@ -549,7 +557,7 @@ export const WarehouseCommandCenter = () => {
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-black text-white">#{index + 1} {product.name}</p>
-                      <p className="text-[10px] font-bold text-slate-500">
+                      <p className="text-[10px] font-bold text-slate-300">
                         {product.quantity.toLocaleString('uz-UZ')} {product.unit}
                       </p>
                     </div>
@@ -561,50 +569,50 @@ export const WarehouseCommandCenter = () => {
           </section>
         </div>
 
-        <section className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-          <div className="p-5 sm:p-7 flex flex-col xl:flex-row xl:items-start justify-between gap-5 border-b border-slate-100">
+        <section className="bg-[#111615] border border-white/10 rounded-2xl shadow-[0_20px_55px_rgba(0,0,0,0.24)] overflow-hidden">
+          <div className="p-5 sm:p-7 flex flex-col xl:flex-row xl:items-start justify-between gap-5 border-b border-white/10">
             <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+              <div className="w-11 h-11 rounded-xl bg-emerald-500/15 text-emerald-200 flex items-center justify-center border border-emerald-400/25">
                 <BarChart3 size={22} />
               </div>
               <div>
-                <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">Choraklik mahsulot xaridi hisoboti</h2>
-                <p className="text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                <h2 className="text-base sm:text-xl font-black text-white tracking-tight">Choraklik mahsulot xaridi hisoboti</h2>
+                <p className="text-[9px] sm:text-[11px] font-bold text-slate-300 uppercase tracking-widest mt-1">
                   {quarterRange.label}: {quarterRange.startDate} dan {quarterRange.endDate} gacha
                 </p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 w-full xl:w-auto xl:min-w-[760px]">
-              <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
-                <p className="text-[9px] font-black uppercase tracking-widest text-emerald-500">Chorak jami</p>
-                <p className="mt-1 text-lg font-black text-emerald-700">{quarterLoading ? '...' : money(quarterlyTotalAmount)}</p>
+              <div className="rounded-xl border border-emerald-400/25 bg-emerald-500/10 p-4">
+                <p className="text-[9px] font-black uppercase tracking-widest text-emerald-200">Chorak jami</p>
+                <p className="mt-1 text-lg font-black text-white">{quarterLoading ? '...' : money(quarterlyTotalAmount)}</p>
               </div>
-              <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-                <p className="text-[9px] font-black uppercase tracking-widest text-indigo-500">Jami miqdor</p>
-                <p className="mt-1 text-lg font-black text-indigo-700">{quarterLoading ? '...' : `${Math.round(quarterlyTotalKg).toLocaleString('uz-UZ')} kg`}</p>
+              <div className="rounded-xl border border-indigo-400/25 bg-indigo-500/10 p-4">
+                <p className="text-[9px] font-black uppercase tracking-widest text-indigo-200">Jami miqdor</p>
+                <p className="mt-1 text-lg font-black text-white">{quarterLoading ? '...' : `${Math.round(quarterlyTotalKg).toLocaleString('uz-UZ')} kg`}</p>
               </div>
-              <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-                <p className="text-[9px] font-black uppercase tracking-widest text-blue-500">Mahsulot turi</p>
-                <p className="mt-1 text-lg font-black text-blue-700">{quarterLoading ? '...' : `${quarterlyActiveProducts} / ${PRODUCTS.length}`}</p>
+              <div className="rounded-xl border border-blue-400/25 bg-blue-500/10 p-4">
+                <p className="text-[9px] font-black uppercase tracking-widest text-blue-200">Mahsulot turi</p>
+                <p className="mt-1 text-lg font-black text-white">{quarterLoading ? '...' : `${quarterlyActiveProducts} / ${PRODUCTS.length}`}</p>
               </div>
-              <div className="rounded-xl border border-amber-100 bg-amber-50 p-4">
-                <p className="text-[9px] font-black uppercase tracking-widest text-amber-500">Eng katta mahsulot</p>
-                <p className="mt-1 text-sm font-black text-amber-700 truncate">{quarterLoading ? '...' : (quarterlyTopProduct?.name || "Yo'q")}</p>
+              <div className="rounded-xl border border-amber-400/25 bg-amber-500/10 p-4">
+                <p className="text-[9px] font-black uppercase tracking-widest text-amber-200">Eng katta mahsulot</p>
+                <p className="mt-1 text-sm font-black text-white truncate">{quarterLoading ? '...' : (quarterlyTopProduct?.name || "Yo'q")}</p>
               </div>
             </div>
           </div>
 
           <div>
-            <div className="p-5 sm:p-7 border-b border-slate-100">
+            <div className="p-5 sm:p-7 border-b border-white/10">
               <div className="mb-4">
-                <h3 className="text-sm font-black text-slate-900">Mahsulotlar bo'yicha xarid summasi</h3>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">Chorak kesimida 24 ta mahsulot to'liq ko'rinadi</p>
+                <h3 className="text-sm font-black text-white">Mahsulotlar bo'yicha xarid summasi</h3>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mt-1">Chorak kesimida 24 ta mahsulot to'liq ko'rinadi</p>
               </div>
               <div className="h-[560px] min-w-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={quarterlyProductRows} margin={{ top: 12, right: 14, left: 0, bottom: 150 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.08)" />
                     <XAxis
                       dataKey="name"
                       interval={0}
@@ -615,17 +623,17 @@ export const WarehouseCommandCenter = () => {
                       tickFormatter={(value) => String(value).length > 20 ? `${String(value).slice(0, 20)}...` : String(value)}
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 10, fill: '#475569', fontWeight: 800 }}
+                      tick={{ fontSize: 10, fill: '#e2e8f0', fontWeight: 800 }}
                     />
                     <YAxis
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(value) => `${Math.round(Number(value || 0) / 1000000)} mln`}
-                      tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }}
+                      tick={{ fontSize: 10, fill: '#cbd5e1', fontWeight: 700 }}
                     />
                     <Tooltip
                       formatter={(value) => [money(toNumber(value)), 'Chorak jami']}
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                      contentStyle={darkTooltip}
                     />
                     <Bar dataKey="totalAmount" name="Chorak jami" fill="#059669" radius={[5, 5, 0, 0]} barSize={16} />
                   </BarChart>
@@ -635,31 +643,31 @@ export const WarehouseCommandCenter = () => {
 
             <div className="overflow-x-auto">
               <table className="w-full min-w-[860px] text-left">
-                <thead className="bg-slate-50 border-b border-slate-100">
+                <thead className="bg-[#0b1110] border-b border-white/10">
                   <tr>
-                    <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Mahsulot</th>
-                    <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Birlik</th>
-                    <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Chorak miqdori</th>
-                    <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Qamralgan hudud</th>
-                    <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Chorak jami xarid</th>
+                    <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Mahsulot</th>
+                    <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Birlik</th>
+                    <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Chorak miqdori</th>
+                    <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Qamralgan hudud</th>
+                    <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Chorak jami xarid</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-white/10">
                   {quarterlyProductRows.map((product) => (
-                    <tr key={product.name} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={product.name} className="hover:bg-white/[0.04] transition-colors">
                       <td className="px-5 py-4">
-                        <p className="text-sm font-black text-slate-900">{product.name}</p>
+                        <p className="text-sm font-black text-white">{product.name}</p>
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">
-                        <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase">{product.unit}</span>
+                        <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-200 text-[10px] font-black uppercase ring-1 ring-emerald-400/20">{product.unit}</span>
                       </td>
-                      <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-slate-900">
+                      <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-white">
                         {quarterLoading ? '...' : `${product.quantity.toLocaleString('uz-UZ')} ${product.unit}`}
                       </td>
-                      <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-blue-700">
+                      <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-blue-300">
                         {quarterLoading ? '...' : `${product.districts} / ${DISTRICTS.length}`}
                       </td>
-                      <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-emerald-700">
+                      <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-emerald-300">
                         {quarterLoading ? '...' : money(product.totalAmount)}
                       </td>
                     </tr>

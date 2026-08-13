@@ -52,12 +52,12 @@ type MedicalStockResponse = {
 };
 
 const statusMeta: Record<MedicalStockStatus, { label: string; className: string; icon: any }> = {
-  NOT_ENTERED: { label: 'Kiritilmagan', className: 'bg-slate-50 text-slate-700 border-slate-200', icon: CircleAlert },
-  OK: { label: 'Yetarli', className: 'bg-emerald-50 text-emerald-700 border-emerald-100', icon: CheckCircle2 },
-  LOW: { label: 'Yetarli emas', className: 'bg-amber-50 text-amber-700 border-amber-100', icon: AlertTriangle },
-  EMPTY: { label: 'Qolmagan', className: 'bg-rose-50 text-rose-700 border-rose-100', icon: PackageX },
-  EXPIRED: { label: "Muddati o'tgan", className: 'bg-red-50 text-red-700 border-red-100', icon: ShieldAlert },
-  EXPIRING: { label: 'Muddati yaqin', className: 'bg-orange-50 text-orange-700 border-orange-100', icon: CalendarClock },
+  NOT_ENTERED: { label: 'Kiritilmagan', className: 'bg-slate-500/10 text-slate-200 border-white/10', icon: CircleAlert },
+  OK: { label: 'Yetarli', className: 'bg-emerald-500/10 text-emerald-200 border-emerald-400/25', icon: CheckCircle2 },
+  LOW: { label: 'Yetarli emas', className: 'bg-amber-500/10 text-amber-200 border-amber-400/25', icon: AlertTriangle },
+  EMPTY: { label: 'Qolmagan', className: 'bg-rose-500/10 text-rose-200 border-rose-400/25', icon: PackageX },
+  EXPIRED: { label: "Muddati o'tgan", className: 'bg-red-500/10 text-red-200 border-red-400/25', icon: ShieldAlert },
+  EXPIRING: { label: 'Muddati yaqin', className: 'bg-orange-500/10 text-orange-200 border-orange-400/25', icon: CalendarClock },
 };
 
 const filters = [
@@ -138,16 +138,16 @@ export const MedicalStockReserve = () => {
   const visibleTo = Math.min(startIndex + PAGE_SIZE, filteredIssues.length);
 
   return (
-    <div className="min-h-screen bg-[#f4f6fb] pb-12 font-sans text-slate-900">
-      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-200/70 shadow-sm">
+    <div className="min-h-screen bg-[#08100f] pb-12 font-sans text-white">
+      <header className="sticky top-0 z-30 bg-[#0b1110]/92 backdrop-blur-xl border-b border-white/10 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
         <div className="px-4 sm:px-6 lg:px-8 py-3 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 bg-rose-600 rounded-lg flex items-center justify-center shadow-md shadow-rose-600/20">
               <Pill className="text-white" size={18} />
             </div>
             <div>
-              <h1 className="text-base font-black text-slate-900 leading-none">Dori-darmon zaxirasi</h1>
-              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+              <h1 className="text-base font-black text-white leading-none">Dori-darmon zaxirasi</h1>
+              <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest mt-1">
                 Bogchalar kesimida muddati, qoldiq va normativ nazorati
               </p>
             </div>
@@ -155,18 +155,18 @@ export const MedicalStockReserve = () => {
 
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={13} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={13} />
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Bogcha yoki dori qidirish"
-                className="w-full sm:w-72 pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-[11px] font-bold text-slate-700 shadow-sm outline-none focus:border-rose-300"
+                className="w-full sm:w-72 pl-8 pr-3 py-2 bg-[#111615] border border-white/10 rounded-lg text-[12px] font-bold text-white placeholder:text-slate-500 shadow-sm outline-none focus:border-rose-400/70 focus:ring-4 focus:ring-rose-500/10"
               />
             </div>
             <select
               value={districtFilter}
               onChange={(event) => setDistrictFilter(event.target.value)}
-              className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-[11px] font-black text-slate-600 outline-none focus:border-rose-300"
+              className="bg-[#111615] border border-white/10 rounded-lg px-3 py-2 text-[12px] font-black text-white outline-none focus:border-rose-400/70 focus:ring-4 focus:ring-rose-500/10"
             >
               <option value="ALL">Barcha tumanlar</option>
               {districts.map((district) => (
@@ -179,11 +179,11 @@ export const MedicalStockReserve = () => {
 
       <main className="px-4 sm:px-6 lg:px-8 py-4 space-y-4">
         <div className="grid grid-cols-2 xl:grid-cols-5 gap-2">
-          <StatCard title="Bogchalar" value={summary.kindergartens} icon={Building2} color="text-indigo-600" bg="bg-indigo-50" />
-          <StatCard title="Muammolar" value={summary.issues} icon={ShieldAlert} color="text-rose-600" bg="bg-rose-50" />
-          <StatCard title="Muddati o'tgan" value={summary.expired} icon={CalendarClock} color="text-red-600" bg="bg-red-50" />
-          <StatCard title="Qolmagan" value={summary.empty} icon={PackageX} color="text-pink-600" bg="bg-pink-50" />
-          <StatCard title="Yetarli emas" value={summary.low} icon={AlertTriangle} color="text-amber-600" bg="bg-amber-50" />
+          <StatCard title="Bogchalar" value={summary.kindergartens} icon={Building2} color="text-indigo-200" bg="bg-indigo-500/15 ring-indigo-400/25" />
+          <StatCard title="Muammolar" value={summary.issues} icon={ShieldAlert} color="text-rose-200" bg="bg-rose-500/15 ring-rose-400/25" />
+          <StatCard title="Muddati o'tgan" value={summary.expired} icon={CalendarClock} color="text-red-200" bg="bg-red-500/15 ring-red-400/25" />
+          <StatCard title="Qolmagan" value={summary.empty} icon={PackageX} color="text-pink-200" bg="bg-pink-500/15 ring-pink-400/25" />
+          <StatCard title="Yetarli emas" value={summary.low} icon={AlertTriangle} color="text-amber-200" bg="bg-amber-500/15 ring-amber-400/25" />
         </div>
 
         <div className="flex gap-1.5 overflow-x-auto pb-1">
@@ -191,10 +191,10 @@ export const MedicalStockReserve = () => {
             <button
               key={filter.value}
               onClick={() => setStatusFilter(filter.value)}
-              className={`shrink-0 px-3 py-2 rounded-lg border text-[9px] font-black uppercase tracking-widest transition-all ${
+              className={`shrink-0 px-3 py-2 rounded-lg border text-[10px] font-black uppercase tracking-widest transition-all ${
                 statusFilter === filter.value
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-md shadow-slate-900/10'
-                  : 'bg-white text-slate-500 border-slate-200 hover:text-slate-900'
+                  ? 'bg-white text-[#08100f] border-white shadow-md shadow-black/20'
+                  : 'bg-[#111615] text-slate-200 border-white/10 hover:border-rose-400/40 hover:text-white'
               }`}
             >
               {filter.label}
@@ -203,21 +203,21 @@ export const MedicalStockReserve = () => {
         </div>
 
         {error && (
-          <div className="bg-rose-50 border border-rose-100 text-rose-700 rounded-lg p-3 text-xs font-bold">
+          <div className="bg-rose-500/10 border border-rose-400/25 text-rose-100 rounded-lg p-3 text-[13px] font-bold">
             {error}
           </div>
         )}
 
         <section>
-          <div className="bg-white border border-slate-100 rounded-xl shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/60">
+          <div className="bg-[#111615] border border-white/10 rounded-xl shadow-[0_20px_55px_rgba(0,0,0,0.24)] overflow-hidden">
+            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between gap-3 bg-[#0b1110]">
               <div>
-                <h2 className="text-sm font-black text-slate-900">Muammoli dori-darmonlar</h2>
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">
+                <h2 className="text-[15px] font-black text-white">Muammoli dori-darmonlar</h2>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-300 mt-0.5">
                   {filteredIssues.length} ta yozuvdan {visibleFrom}-{visibleTo} ko'rsatilmoqda
                 </p>
               </div>
-              <div className="hidden sm:flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-slate-400">
+              <div className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-300">
                 <span>Har sahifada {PAGE_SIZE} ta</span>
               </div>
             </div>
@@ -225,7 +225,7 @@ export const MedicalStockReserve = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left min-w-[1120px]">
                 <thead>
-                  <tr className="bg-white text-[9px] font-black uppercase text-slate-400 tracking-widest border-b border-slate-100">
+                  <tr className="bg-[#0b1110] text-[10px] font-black uppercase text-slate-300 tracking-widest border-b border-white/10">
                     <th className="px-3 py-3 w-16 text-center">#</th>
                     <th className="px-4 py-3">Bogcha</th>
                     <th className="px-3 py-3">Dori</th>
@@ -235,17 +235,17 @@ export const MedicalStockReserve = () => {
                     <th className="px-4 py-3">Holat</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-white/10">
                   {loading && (
                     <tr>
-                      <td colSpan={7} className="px-4 py-10 text-center text-slate-400 font-black uppercase tracking-widest text-[9px]">
+                      <td colSpan={7} className="px-4 py-10 text-center text-slate-300 font-black uppercase tracking-widest text-[10px]">
                         Zaxira yuklanmoqda...
                       </td>
                     </tr>
                   )}
                   {!loading && filteredIssues.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-4 py-10 text-center text-slate-400 font-black uppercase tracking-widest text-[9px]">
+                      <td colSpan={7} className="px-4 py-10 text-center text-slate-300 font-black uppercase tracking-widest text-[10px]">
                         Tanlangan filtrda muammo topilmadi
                       </td>
                     </tr>
@@ -254,39 +254,39 @@ export const MedicalStockReserve = () => {
                     const meta = statusMeta[item.status];
                     const StatusIcon = meta.icon;
                     return (
-                      <tr key={`${item.kindergarten_id}-${item.id}`} className="hover:bg-slate-50/70 transition-colors">
+                      <tr key={`${item.kindergarten_id}-${item.id}`} className="hover:bg-white/[0.04] transition-colors">
                         <td className="px-3 py-3 text-center">
-                          <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-md bg-slate-100 px-2 text-[10px] font-black text-slate-600">
+                          <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-md bg-white/10 px-2 text-[11px] font-black text-white">
                             {startIndex + index + 1}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-xs font-black text-slate-900 leading-snug">{item.kindergarten_name}</p>
-                          <p className="text-[10px] font-semibold text-slate-500 mt-0.5">{item.phone || 'Telefon kiritilmagan'}</p>
-                          <p className="text-[10px] font-semibold text-slate-400 mt-0.5">{item.district || 'Tuman kiritilmagan'}</p>
+                          <p className="text-[13px] font-black text-white leading-snug">{item.kindergarten_name}</p>
+                          <p className="text-[11px] font-semibold text-slate-300 mt-0.5">{item.phone || 'Telefon kiritilmagan'}</p>
+                          <p className="text-[11px] font-semibold text-slate-300 mt-0.5">{item.district || 'Tuman kiritilmagan'}</p>
                         </td>
                         <td className="px-3 py-3">
-                          <p className="text-xs font-black text-slate-900 leading-snug">{item.name}</p>
-                          <p className="text-[10px] font-semibold text-slate-500 mt-0.5 max-w-sm">{item.form || 'Shakli kiritilmagan'}</p>
+                          <p className="text-[13px] font-black text-white leading-snug">{item.name}</p>
+                          <p className="text-[11px] font-semibold text-slate-300 mt-0.5 max-w-sm">{item.form || 'Shakli kiritilmagan'}</p>
                         </td>
                         <td className="px-3 py-3">
-                          <p className="text-base font-black text-slate-900 leading-none">
+                          <p className="text-base font-black text-white leading-none">
                             {Number(item.current_quantity || 0).toLocaleString('uz-UZ')}
-                            <span className="text-[10px] text-slate-400 ml-1">{item.unit}</span>
+                            <span className="text-[11px] text-slate-300 ml-1">{item.unit}</span>
                           </p>
                         </td>
                         <td className="px-3 py-3">
-                          <p className="text-xs font-black text-slate-900">{item.required_quantity} {item.unit}</p>
-                          <p className="text-[9px] font-semibold text-slate-500 mt-0.5">{item.child_count_basis} bola asosida</p>
+                          <p className="text-[13px] font-black text-white">{item.required_quantity} {item.unit}</p>
+                          <p className="text-[10px] font-semibold text-slate-300 mt-0.5">{item.child_count_basis} bola asosida</p>
                         </td>
                         <td className="px-3 py-3">
-                          <p className="text-[11px] font-black text-slate-700">{item.oldest_expired_date || item.nearest_expiry_date || '-'}</p>
+                          <p className="text-[12px] font-black text-white">{item.oldest_expired_date || item.nearest_expiry_date || '-'}</p>
                           {item.expired_batch_count ? (
-                            <p className="text-[9px] font-bold text-red-600 mt-0.5">{item.expired_batch_count} partiya muddati o'tgan</p>
+                            <p className="text-[10px] font-bold text-red-300 mt-0.5">{item.expired_batch_count} partiya muddati o'tgan</p>
                           ) : null}
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[9px] font-black uppercase tracking-widest ${meta.className}`}>
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[10px] font-black uppercase tracking-widest ${meta.className}`}>
                             <StatusIcon size={12} />
                             {meta.label}
                           </span>
@@ -298,8 +298,8 @@ export const MedicalStockReserve = () => {
               </table>
             </div>
             {!loading && filteredIssues.length > PAGE_SIZE && (
-              <div className="flex min-w-0 flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-100 px-4 py-3">
-                <p className="shrink-0 text-[9px] font-black uppercase tracking-widest text-slate-400">
+              <div className="flex min-w-0 flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-white/10 px-4 py-3 bg-[#0b1110]">
+                <p className="shrink-0 text-[10px] font-black uppercase tracking-widest text-slate-300">
                   {safePage}-sahifa / {totalPages} sahifa
                 </p>
                 <div className="flex w-full min-w-0 items-center gap-2 sm:flex-1 sm:justify-end">
@@ -307,7 +307,7 @@ export const MedicalStockReserve = () => {
                     type="button"
                     onClick={() => setPage((current) => Math.max(1, current - 1))}
                     disabled={safePage === 1}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[9px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition disabled:cursor-not-allowed disabled:opacity-40 hover:border-slate-300"
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-[#111615] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-40 hover:border-rose-400/40"
                   >
                     <ChevronLeft size={14} />
                     Oldingi
@@ -318,10 +318,10 @@ export const MedicalStockReserve = () => {
                         key={pageNumber}
                         type="button"
                         onClick={() => setPage(pageNumber)}
-                        className={`h-8 min-w-8 shrink-0 rounded-lg px-2 text-[11px] font-black transition ${
+                        className={`h-8 min-w-8 shrink-0 rounded-lg px-2 text-[12px] font-black transition ${
                           safePage === pageNumber
-                            ? 'bg-slate-900 text-white shadow-md shadow-slate-900/10'
-                            : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                            ? 'bg-white text-[#08100f] shadow-md shadow-black/20'
+                            : 'bg-white/10 text-slate-200 hover:bg-white/15'
                         }`}
                       >
                         {pageNumber}
@@ -332,7 +332,7 @@ export const MedicalStockReserve = () => {
                     type="button"
                     onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                     disabled={safePage === totalPages}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[9px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition disabled:cursor-not-allowed disabled:opacity-40 hover:border-slate-300"
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-[#111615] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-40 hover:border-rose-400/40"
                   >
                     Keyingi
                     <ChevronRight size={14} />
@@ -349,11 +349,11 @@ export const MedicalStockReserve = () => {
 };
 
 const StatCard = ({ title, value, icon: Icon, color, bg }: { title: string; value: number; icon: any; color: string; bg: string }) => (
-  <div className="bg-white border border-slate-100 rounded-lg p-3 shadow-sm min-h-[86px]">
-    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${bg} ${color} mb-2`}>
+  <div className="bg-[#111615] border border-white/10 rounded-lg p-3 shadow-[0_16px_40px_rgba(0,0,0,0.22)] min-h-[86px]">
+    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${bg} ${color} mb-2 ring-1`}>
       <Icon size={16} />
     </div>
-    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{title}</p>
-    <h3 className="text-lg font-black text-slate-900 leading-none">{value}</h3>
+    <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-0.5">{title}</p>
+    <h3 className="text-lg font-black text-white leading-none">{value}</h3>
   </div>
 );
