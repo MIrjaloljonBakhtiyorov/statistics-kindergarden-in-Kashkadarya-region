@@ -98,20 +98,20 @@ const Sparkline = ({ color }: { color: string }) => {
 
 // в”Ђв”Ђв”Ђ KPI Card в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 const KpiCard = ({ title, value, sub, trend, icon: Icon, sparkColor }: any) => (
-  <div className="min-h-[148px] bg-gradient-to-br from-white via-white to-slate-50 rounded-2xl border border-white/80 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.07)] relative overflow-hidden">
-    <div className="absolute inset-x-5 top-0 h-0.5 rounded-full" style={{ backgroundColor: sparkColor }} />
-    <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-slate-100/70" />
-    <div className="flex justify-between items-start mb-4 relative">
-      <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/70 flex items-center justify-center text-slate-600 shadow-sm">
+  <div className="min-h-[136px] rounded-2xl border border-white/10 bg-[#181b1c] p-4 shadow-[0_18px_44px_rgba(0,0,0,0.22)] relative overflow-hidden">
+    <div className="absolute inset-x-4 top-0 h-px rounded-full" style={{ backgroundColor: sparkColor }} />
+    <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/[0.035]" />
+    <div className="flex justify-between items-start mb-3 relative">
+      <div className="w-9 h-9 rounded-xl bg-white/[0.045] border border-white/10 flex items-center justify-center text-slate-200 shadow-sm">
         <Icon size={18} />
       </div>
       <div className="opacity-90">
         <Sparkline color={sparkColor} />
       </div>
     </div>
-    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 relative">{title}</p>
+    <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.14em] mb-1.5 relative">{title}</p>
     <div className="flex items-baseline gap-2 relative">
-      <span className="text-[34px] leading-none font-black text-slate-950 tracking-tight">{value}</span>
+      <span className="text-[30px] leading-none font-black text-white tracking-tight">{value}</span>
       {trend !== undefined && trend !== 0 && (
         <span className={clsx("text-[10px] font-bold flex items-center gap-0.5", trend >= 0 ? "text-emerald-500" : "text-rose-500")}>
           {trend >= 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
@@ -119,7 +119,7 @@ const KpiCard = ({ title, value, sub, trend, icon: Icon, sparkColor }: any) => (
         </span>
       )}
     </div>
-    {sub && <p className="text-[12px] text-slate-400 font-semibold mt-2.5 relative">{sub}</p>}
+    {sub && <p className="text-[10px] text-slate-300/85 font-semibold mt-2 relative">{sub}</p>}
   </div>
 );
 
@@ -128,14 +128,14 @@ const DistrictCard = ({ d, onClick }: { d: DistrictStat; onClick: () => void }) 
   const pct = d.attendancePercentage;
   const isGood = pct >= 88;
   const hasKindergartens = d.totalMTTs > 0;
-  const barColor = pct >= 88 ? "bg-emerald-500" : pct >= 80 ? "bg-amber-400" : "bg-slate-300";
-  const textColor = pct >= 88 ? "text-emerald-500" : pct >= 80 ? "text-amber-500" : "text-slate-500";
+  const barColor = pct >= 88 ? "bg-emerald-500" : pct >= 80 ? "bg-amber-400" : "bg-slate-500";
+  const textColor = pct >= 88 ? "text-emerald-400" : pct >= 80 ? "text-amber-400" : "text-slate-300";
   const topColor = hasKindergartens
     ? "bg-gradient-to-r from-indigo-500 via-violet-500 to-teal-400"
-    : "bg-gradient-to-r from-slate-300 via-slate-200 to-teal-200";
+    : "bg-gradient-to-r from-slate-600 via-slate-500 to-teal-500";
   const iconColor = hasKindergartens
-    ? "bg-indigo-50 text-indigo-600 border-indigo-100"
-    : "bg-slate-50 text-slate-500 border-slate-100";
+    ? "bg-indigo-500/15 text-indigo-300 border-indigo-400/20"
+    : "bg-white/[0.045] text-slate-300 border-white/10";
 
   return (
     <motion.div
@@ -143,40 +143,40 @@ const DistrictCard = ({ d, onClick }: { d: DistrictStat; onClick: () => void }) 
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
       onClick={onClick}
-      className="min-h-[220px] bg-gradient-to-br from-white via-white to-slate-50 rounded-2xl border border-white/80 shadow-[0_16px_40px_rgba(15,23,42,0.08)] cursor-pointer group relative overflow-hidden transition-all hover:shadow-[0_24px_55px_rgba(79,70,229,0.14)] hover:border-indigo-100"
+      className="min-h-[206px] rounded-2xl border border-white/10 bg-[#181b1c] shadow-[0_16px_40px_rgba(0,0,0,0.22)] cursor-pointer group relative overflow-hidden transition-all hover:border-emerald-400/25 hover:shadow-[0_24px_55px_rgba(0,0,0,0.34)]"
     >
       {/* top color bar */}
       <div className={clsx("h-0.5 w-full", topColor)} />
-      <div className="absolute -right-12 -top-12 h-28 w-28 rounded-full bg-slate-100/60 transition-colors group-hover:bg-indigo-50" />
+      <div className="absolute -right-12 -top-12 h-28 w-28 rounded-full bg-white/[0.035] transition-colors group-hover:bg-emerald-400/[0.06]" />
 
-      <div className="p-5">
+      <div className="p-4">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start gap-3 min-w-0">
             <div className={clsx("w-9 h-9 rounded-xl border flex items-center justify-center shrink-0", iconColor)}>
               <MapPin size={16} />
             </div>
             <div className="min-w-0">
-              <h3 className="text-base font-black text-slate-950 uppercase tracking-tight group-hover:text-indigo-700 transition-colors leading-tight">
+              <h3 className="text-[13px] font-black text-white uppercase tracking-[0.06em] group-hover:text-emerald-200 transition-colors leading-tight">
                 {d.name}
               </h3>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+              <p className="text-[9px] font-black text-slate-300/80 uppercase tracking-widest mt-1">
                 Hududiy boshqaruv
               </p>
             </div>
           </div>
-          <div className="w-7 h-7 rounded-lg border border-slate-200/70 bg-white flex items-center justify-center text-slate-300 shadow-sm group-hover:border-indigo-200 group-hover:text-indigo-500 transition-all">
+          <div className="w-7 h-7 rounded-lg border border-white/10 bg-white/[0.035] flex items-center justify-center text-slate-300 shadow-sm group-hover:border-emerald-400/25 group-hover:text-white transition-all">
             <ChevronRight size={14} />
           </div>
         </div>
 
         <div className="flex items-end justify-between mb-3">
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">MTTlar soni</p>
-            <p className="text-[30px] font-black text-slate-950 leading-none">{d.totalMTTs}</p>
+            <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">MTTlar soni</p>
+            <p className="text-[28px] font-black text-white leading-none">{d.totalMTTs}</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Davomat</p>
-            <p className={clsx("text-2xl font-black flex items-center gap-1 justify-end leading-none", textColor)}>
+            <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Davomat</p>
+            <p className={clsx("text-[22px] font-black flex items-center gap-1 justify-end leading-none", textColor)}>
               {isGood ? <TrendingUp size={14} /> : <Activity size={14} />}
               {pct}%
             </p>
@@ -184,7 +184,7 @@ const DistrictCard = ({ d, onClick }: { d: DistrictStat; onClick: () => void }) 
         </div>
 
         {/* Progress bar */}
-        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mb-4">
+        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden mb-4">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${hasKindergartens ? Math.max(pct, 8) : 0}%` }}
@@ -195,13 +195,13 @@ const DistrictCard = ({ d, onClick }: { d: DistrictStat; onClick: () => void }) 
 
         {/* Mahallalar / Bog'chalar */}
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-white/90 rounded-xl p-3 text-center border border-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
-            <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Mahallalar</p>
-            <p className="text-base font-black text-indigo-600">{d.totalMahallas.toLocaleString()}</p>
+          <div className="bg-white/[0.045] rounded-xl p-3 text-center border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <p className="text-[8px] font-black text-slate-300 uppercase mb-1">Mahallalar</p>
+            <p className="text-[15px] font-black text-indigo-300">{d.totalMahallas.toLocaleString()}</p>
           </div>
-          <div className="bg-white/90 rounded-xl p-3 text-center border border-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
-            <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Bog'chalar</p>
-            <p className="text-base font-black text-emerald-600">{d.totalMTTs.toLocaleString()}</p>
+          <div className="bg-white/[0.045] rounded-xl p-3 text-center border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <p className="text-[8px] font-black text-slate-300 uppercase mb-1">Bog'chalar</p>
+            <p className="text-[15px] font-black text-emerald-300">{d.totalMTTs.toLocaleString()}</p>
           </div>
         </div>
       </div>
@@ -429,46 +429,46 @@ export const Districts = () => {
 
   if (selected && mahallaDetailOpen) {
     return (
-      <div className="space-y-6 pb-20">
+      <div className="districts-dark space-y-6 pb-20 bg-[#0b0f10] text-white">
         <button
           onClick={() => {
             setMahallaDetailOpen(false);
             setKindergartenSearch('');
             setKindergartenTypeFilter('all');
           }}
-          className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-black text-[10px] uppercase tracking-widest transition-all group"
+          className="flex items-center gap-2 text-slate-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all group"
         >
           <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
           Mahallalar sahifasiga qaytish
         </button>
 
-        <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-          <div className="px-6 py-5 border-b border-slate-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        <div className="bg-[#181b1c] border border-white/10 rounded-2xl shadow-sm overflow-hidden">
+          <div className="px-6 py-5 border-b border-white/10 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">{selected.name}</p>
-              <h2 className="text-2xl font-black text-slate-900 leading-tight">
+              <h2 className="text-2xl font-black text-white leading-tight">
                 {selectedMahalla?.name || "Mahalla tanlanmagan"} bog'chalari
               </h2>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+              <p className="text-[10px] font-bold text-slate-300/85 uppercase tracking-widest mt-1">
                 {selectedMahalla?.code ? `${selectedMahalla.code} kodi` : "Mahalla kodi mavjud emas"}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 shrink-0">
-              <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-5 py-3">
+              <div className="bg-indigo-500/15 border border-indigo-400/20 rounded-2xl px-5 py-3">
                 <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">MTTlar</p>
-                <p className="text-2xl font-black text-indigo-700">{selectedMahalla?.kindergartens.length || 0}</p>
+                <p className="text-2xl font-black text-white">{selectedMahalla?.kindergartens.length || 0}</p>
               </div>
-              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-3">
+              <div className="bg-emerald-500/15 border border-emerald-400/20 rounded-2xl px-5 py-3">
                 <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Bolalar</p>
-                <p className="text-2xl font-black text-emerald-700">{(selectedMahalla?.totalChildren || 0).toLocaleString()}</p>
+                <p className="text-2xl font-black text-white">{(selectedMahalla?.totalChildren || 0).toLocaleString()}</p>
               </div>
             </div>
           </div>
 
-          <div className="px-6 py-4 border-b border-slate-100 grid grid-cols-1 md:grid-cols-[1fr_1fr_220px] gap-3 bg-slate-50/60">
+          <div className="px-6 py-4 border-b border-white/10 grid grid-cols-1 md:grid-cols-[1fr_1fr_220px] gap-3 bg-[#202425]">
             <label className="block">
-              <span className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Mahalla filter</span>
+              <span className="block text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1.5">Mahalla filter</span>
               <select
                 value={selectedMahallaName}
                 onChange={(event) => {
@@ -476,7 +476,7 @@ export const Districts = () => {
                   setKindergartenSearch('');
                   setKindergartenTypeFilter('all');
                 }}
-                className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                className="w-full h-11 rounded-xl border border-white/10 bg-[#101415] px-3 text-sm font-bold text-white outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20"
               >
                 {selectedMahallaStats.map((mahalla) => (
                   <option key={mahalla.code || mahalla.name} value={mahalla.name}>
@@ -487,24 +487,24 @@ export const Districts = () => {
             </label>
 
             <label className="block">
-              <span className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Bog'cha qidirish</span>
+              <span className="block text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1.5">Bog'cha qidirish</span>
               <div className="relative">
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   value={kindergartenSearch}
                   onChange={(event) => setKindergartenSearch(event.target.value)}
                   placeholder="Nomi, manzili yoki direktor..."
-                  className="w-full h-11 rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm font-bold text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                  className="w-full h-11 rounded-xl border border-white/10 bg-[#101415] pl-10 pr-3 text-sm font-bold text-white outline-none placeholder:text-slate-500 focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
             </label>
 
             <label className="block">
-              <span className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Turi</span>
+              <span className="block text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1.5">Turi</span>
               <select
                 value={kindergartenTypeFilter}
                 onChange={(event) => setKindergartenTypeFilter(event.target.value as typeof kindergartenTypeFilter)}
-                className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                className="w-full h-11 rounded-xl border border-white/10 bg-[#101415] px-3 text-sm font-bold text-white outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20"
               >
                 <option value="all">Barchasi</option>
                 {KINDERGARTEN_TYPES.map((type) => (
@@ -515,31 +515,31 @@ export const Districts = () => {
           </div>
 
           {filteredMahallaKindergartens.length > 0 ? (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-white/10">
               {filteredMahallaKindergartens.map((kg) => (
-                <div key={kg.id || kg.systemId || kg.name} className="px-6 py-5 hover:bg-slate-50 transition-colors">
+                <div key={kg.id || kg.systemId || kg.name} className="px-6 py-5 hover:bg-white/[0.035] transition-colors">
                   <div className="grid grid-cols-1 xl:grid-cols-[1.5fr_1fr_repeat(3,0.55fr)] gap-4 xl:items-center">
                     <div className="min-w-0">
-                      <p className="text-base font-black text-slate-900 leading-tight">{kg.name || "Nomsiz bog'cha"}</p>
+                      <p className="text-base font-black text-white leading-tight">{kg.name || "Nomsiz bog'cha"}</p>
                       <p className="text-xs font-semibold text-slate-400 mt-1">
                         {kg.directorName ? `Direktor: ${kg.directorName}` : "Direktor kiritilmagan"}
                       </p>
                     </div>
                     <div>
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Manzil</p>
-                      <p className="text-sm font-bold text-slate-700 leading-snug">{kg.address || selectedMahalla?.name || "Manzil kiritilmagan"}</p>
+                      <p className="text-sm font-bold text-white leading-snug">{kg.address || selectedMahalla?.name || "Manzil kiritilmagan"}</p>
                     </div>
-                    <div className="bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                    <div className="bg-white/[0.045] rounded-xl px-4 py-3 border border-white/10">
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Turi</p>
-                      <p className="text-sm font-black text-slate-900 mt-1">{typeLabels[kg.type] || kg.type || "Kiritilmagan"}</p>
+                      <p className="text-sm font-black text-white mt-1">{typeLabels[kg.type] || kg.type || "Kiritilmagan"}</p>
                     </div>
-                    <div className="bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                    <div className="bg-white/[0.045] rounded-xl px-4 py-3 border border-white/10">
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bolalar</p>
-                      <p className="text-xl font-black text-slate-900 mt-1">{getRealChildrenCount(kg).toLocaleString()}</p>
+                      <p className="text-xl font-black text-white mt-1">{getRealChildrenCount(kg).toLocaleString()}</p>
                     </div>
-                    <div className="bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                    <div className="bg-white/[0.045] rounded-xl px-4 py-3 border border-white/10">
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Ishchilar</p>
-                      <p className="text-xl font-black text-slate-900 mt-1">{getStaffCount(kg).toLocaleString()}</p>
+                      <p className="text-xl font-black text-white mt-1">{getStaffCount(kg).toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -547,10 +547,10 @@ export const Districts = () => {
             </div>
           ) : (
             <div className="px-6 py-16 text-center">
-              <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-300">
+              <div className="w-14 h-14 bg-white/[0.045] border border-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-300">
                 <School size={26} />
               </div>
-              <p className="text-sm font-black text-slate-500">Bu filter bo'yicha bog'cha topilmadi</p>
+              <p className="text-sm font-black text-white">Bu filter bo'yicha bog'cha topilmadi</p>
               <p className="text-xs font-medium text-slate-400 mt-1">Mahalla, bog'cha nomi yoki turi filterini o'zgartirib ko'ring.</p>
             </div>
           )}
@@ -562,7 +562,7 @@ export const Districts = () => {
   // в”Ђв”Ђ Detail view в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
   if (selected) {
     return (
-      <div className="space-y-6 pb-20">
+      <div className="districts-dark min-h-screen space-y-6 bg-[#0b0f10] pb-20 text-white">
         <button
           onClick={() => {
             setSelected(null);
@@ -574,7 +574,7 @@ export const Districts = () => {
             setKindergartenSearch('');
             setKindergartenTypeFilter('all');
           }}
-          className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-black text-[10px] uppercase tracking-widest transition-all group"
+          className="flex items-center gap-2 text-slate-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all group"
         >
           <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
           Tumanlar ro'yxatiga qaytish
@@ -582,8 +582,8 @@ export const Districts = () => {
 
         <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div className="min-w-0">
-            <h2 className="text-2xl font-black text-slate-900">{selected.name}</h2>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Hududiy muassasalar tahlili</p>
+            <h2 className="text-2xl font-black text-white">{selected.name}</h2>
+            <p className="text-[10px] font-bold text-slate-300/85 uppercase tracking-widest mt-1">Hududiy muassasalar tahlili</p>
           </div>
 
           <form
@@ -599,32 +599,32 @@ export const Districts = () => {
                 value={mahallaSearchInput}
                 onChange={(event) => setMahallaSearchInput(event.target.value)}
                 placeholder="Mahalla nomi yoki kodi..."
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-white pl-10 pr-3 text-sm font-bold text-slate-700 shadow-sm outline-none transition-all focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50"
+                className="h-12 w-full rounded-2xl border border-white/10 bg-[#101415] pl-10 pr-3 text-sm font-bold text-white shadow-sm outline-none transition-all placeholder:text-slate-500 focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
             <button
               type="submit"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-indigo-700"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-teal-500 px-5 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-900/25 transition-all hover:from-indigo-500 hover:to-teal-400"
             >
               <Search size={15} />
               Qidirish
             </button>
           </form>
 
-          <div className="flex gap-6 bg-white border border-slate-100 rounded-2xl px-6 py-4 shadow-sm">
+          <div className="flex gap-6 bg-[#181b1c] border border-white/10 rounded-2xl px-6 py-4 shadow-[0_18px_50px_rgba(0,0,0,0.22)]">
             <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Davomat</p>
-              <p className={clsx("text-2xl font-black", selected.attendancePercentage >= 88 ? "text-emerald-600" : "text-amber-500")}>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Davomat</p>
+              <p className={clsx("text-2xl font-black", selected.attendancePercentage >= 88 ? "text-emerald-300" : "text-amber-400")}>
                 {selected.attendancePercentage}%
               </p>
             </div>
-            <div className="border-l border-slate-100 pl-6">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">MTTlar</p>
-              <p className="text-2xl font-black text-slate-900">{selected.totalMTTs}</p>
+            <div className="border-l border-white/10 pl-6">
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">MTTlar</p>
+              <p className="text-2xl font-black text-white">{selected.totalMTTs}</p>
             </div>
-            <div className="border-l border-slate-100 pl-6">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bolalar</p>
-              <p className="text-2xl font-black text-slate-900">{selected.totalChildren.toLocaleString()}</p>
+            <div className="border-l border-white/10 pl-6">
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Bolalar</p>
+              <p className="text-2xl font-black text-white">{selected.totalChildren.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -652,8 +652,8 @@ export const Districts = () => {
                 if (event.key === 'Enter' || event.key === ' ') setSelectedType(cat.key);
               }}
               className={clsx(
-                "bg-white border rounded-2xl p-6 shadow-sm cursor-pointer hover:shadow-lg transition-all group",
-                selectedType === cat.key ? "border-indigo-300 ring-4 ring-indigo-50" : "border-slate-100"
+                "bg-[#181b1c] border rounded-2xl p-5 shadow-[0_18px_48px_rgba(0,0,0,0.22)] cursor-pointer hover:border-emerald-400/25 transition-all group",
+                selectedType === cat.key ? "border-indigo-400/50 ring-2 ring-indigo-500/20" : "border-white/10"
               )}
             >
               <div className={clsx("w-12 h-12 rounded-2xl flex items-center justify-center mb-4 text-white shadow-lg",
@@ -661,14 +661,14 @@ export const Districts = () => {
               )}>
                 <cat.icon size={24} />
               </div>
-              <h3 className="text-base font-black text-slate-900 mb-1">{cat.label}</h3>
-              <div className="flex justify-between items-center mt-4 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-100">
-                <span className="text-[10px] font-black text-slate-400 uppercase">Muassasalar</span>
-                <span className="text-sm font-black text-slate-800">{cat.count} ta</span>
+              <h3 className="text-base font-black text-white mb-1 leading-snug">{cat.label}</h3>
+              <div className="flex justify-between items-center mt-4 bg-white/[0.045] px-4 py-2.5 rounded-xl border border-white/10">
+                <span className="text-[10px] font-black text-slate-300 uppercase">Muassasalar</span>
+                <span className="text-sm font-black text-white">{cat.count} ta</span>
               </div>
-              <div className="flex justify-between items-center mt-2 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-100">
-                <span className="text-[10px] font-black text-slate-400 uppercase">Davomat</span>
-                <span className={clsx("text-sm font-black", cat.attend >= 88 ? "text-emerald-600" : "text-amber-500")}>{cat.attend}%</span>
+              <div className="flex justify-between items-center mt-2 bg-white/[0.045] px-4 py-2.5 rounded-xl border border-white/10">
+                <span className="text-[10px] font-black text-slate-300 uppercase">Davomat</span>
+                <span className={clsx("text-sm font-black", cat.attend >= 88 ? "text-emerald-300" : "text-amber-400")}>{cat.attend}%</span>
               </div>
               <div className="mt-4 flex items-center gap-1 text-[10px] font-black text-indigo-500 uppercase tracking-widest">
                 Batafsil <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
@@ -680,28 +680,28 @@ export const Districts = () => {
 
         {selectedMahallaStats.length > 0 && (
           <div id="district-mahallas-section" className="space-y-5">
-            <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-              <div className="px-6 py-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="bg-[#181b1c] border border-white/10 rounded-2xl shadow-[0_24px_65px_rgba(0,0,0,0.25)] overflow-hidden">
+              <div className="px-6 py-5 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-lg font-black text-slate-900">Mahallalar</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                  <h3 className="text-lg font-black text-white">Mahallalar</h3>
+                  <p className="text-[10px] font-bold text-slate-300/85 uppercase tracking-widest mt-1">
                     {selected.name} bo'yicha {selectedMahallaStats.length} ta mahalla. Card ustiga bosing.
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2 text-emerald-600">
+                  <div className="flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-2 text-emerald-300">
                     <MapPin size={16} />
                     <span className="text-[10px] font-black uppercase tracking-widest">
                       {filteredSelectedMahallas.length}/{selectedMahallaStats.length} ko'rsatildi
                     </span>
                   </div>
-                  <div className="flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+                  <div className="flex rounded-xl border border-white/10 bg-[#101415] p-1">
                     <button
                       type="button"
                       onClick={() => setMahallaViewMode('cards')}
                       className={clsx(
                         "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all",
-                        mahallaViewMode === 'cards' ? "bg-slate-950 text-white shadow-sm" : "text-slate-500 hover:bg-white"
+                        mahallaViewMode === 'cards' ? "bg-gradient-to-r from-indigo-600 to-teal-500 text-white shadow-sm" : "text-slate-300 hover:text-white hover:bg-white/5"
                       )}
                     >
                       <LayoutGrid size={13} />
@@ -712,7 +712,7 @@ export const Districts = () => {
                       onClick={() => setMahallaViewMode('list')}
                       className={clsx(
                         "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all",
-                        mahallaViewMode === 'list' ? "bg-slate-950 text-white shadow-sm" : "text-slate-500 hover:bg-white"
+                        mahallaViewMode === 'list' ? "bg-gradient-to-r from-indigo-600 to-teal-500 text-white shadow-sm" : "text-slate-300 hover:text-white hover:bg-white/5"
                       )}
                     >
                       <List size={13} />
@@ -743,46 +743,46 @@ export const Districts = () => {
                           className={clsx(
                             "group min-h-[138px] rounded-2xl p-4 text-left border shadow-sm transition-all relative overflow-hidden",
                             active
-                              ? "bg-indigo-600 border-indigo-500 text-white ring-4 ring-indigo-100 shadow-lg shadow-indigo-600/20"
-                              : "bg-white border-slate-100 text-slate-900 hover:border-indigo-200 hover:shadow-md"
+                              ? "bg-[#241f65] border-indigo-400/50 text-white ring-2 ring-indigo-500/25 shadow-lg shadow-indigo-900/20"
+                              : "bg-[#101415] border-white/10 text-white hover:border-emerald-400/25 hover:bg-[#151a1b]"
                           )}
                         >
                           <div className={clsx(
                             "absolute right-0 top-0 h-20 w-20 rounded-bl-full transition-colors",
-                            active ? "bg-white/10" : hasMtt ? "bg-emerald-50" : "bg-slate-50"
+                            active ? "bg-white/10" : hasMtt ? "bg-emerald-500/10" : "bg-white/[0.035]"
                           )} />
                           <div className="relative flex h-full flex-col justify-between gap-4">
                             <div>
                               <div className="flex items-start justify-between gap-3 mb-3">
                                 <div className={clsx(
                                   "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
-                                  active ? "bg-white/15 text-white" : hasMtt ? "bg-emerald-50 text-emerald-600" : "bg-slate-50 text-slate-400"
+                                  active ? "bg-white/15 text-white" : hasMtt ? "bg-emerald-500/10 text-emerald-300" : "bg-white/[0.045] text-slate-300"
                                 )}>
                                   <MapPin size={17} />
                                 </div>
                                 <span className={clsx(
                                   "min-w-9 h-8 px-2 rounded-full inline-flex items-center justify-center text-xs font-black",
-                                  active ? "bg-white text-indigo-700" : hasMtt ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
+                                  active ? "bg-gradient-to-r from-indigo-400 to-teal-300 text-[#101415]" : hasMtt ? "bg-emerald-500/15 text-white" : "bg-white/10 text-white"
                                 )}>
                                   {mahalla.kindergartens.length}
                                 </span>
                               </div>
-                              <p className={clsx("text-sm font-black leading-snug line-clamp-2", active ? "text-white" : "text-slate-900")}>
+                              <p className="text-sm font-black leading-snug line-clamp-2 text-white">
                                 {mahalla.name}
                               </p>
-                              <p className={clsx("text-[10px] font-bold mt-1", active ? "text-indigo-100" : "text-slate-400")}>
+                              <p className={clsx("text-[10px] font-bold mt-1", active ? "text-indigo-100" : "text-slate-300/80")}>
                                 {mahalla.code ? `${mahalla.code} kodi` : "Kod kiritilmagan"}
                               </p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
-                              <div className={clsx("rounded-xl px-3 py-3 border", active ? "bg-white/10 border-white/10" : "bg-indigo-50 border-indigo-100")}>
-                                <p className={clsx("text-[8px] font-black uppercase tracking-widest", active ? "text-indigo-100" : "text-slate-400")}>MTT</p>
-                                <p className={clsx("text-xl font-black leading-none mt-1", active ? "text-white" : "text-indigo-700")}>{mahalla.kindergartens.length}</p>
+                              <div className={clsx("rounded-xl px-3 py-3 border", active ? "bg-white/10 border-white/10" : "bg-indigo-500/10 border-indigo-400/20")}>
+                                <p className={clsx("text-[8px] font-black uppercase tracking-widest", active ? "text-indigo-100" : "text-slate-300")}>MTT</p>
+                                <p className="text-xl font-black leading-none mt-1 text-white">{mahalla.kindergartens.length}</p>
                               </div>
-                              <div className={clsx("rounded-xl px-3 py-3 border", active ? "bg-white/10 border-white/10" : "bg-emerald-50 border-emerald-100")}>
-                                <p className={clsx("text-[8px] font-black uppercase tracking-widest", active ? "text-indigo-100" : "text-slate-400")}>Bolalar</p>
-                                <p className={clsx("text-xl font-black leading-none mt-1", active ? "text-white" : "text-emerald-700")}>{mahalla.totalChildren.toLocaleString()}</p>
+                              <div className={clsx("rounded-xl px-3 py-3 border", active ? "bg-white/10 border-white/10" : "bg-emerald-500/10 border-emerald-400/20")}>
+                                <p className={clsx("text-[8px] font-black uppercase tracking-widest", active ? "text-indigo-100" : "text-slate-300")}>Bolalar</p>
+                                <p className="text-xl font-black leading-none mt-1 text-white">{mahalla.totalChildren.toLocaleString()}</p>
                               </div>
                             </div>
                           </div>
@@ -791,15 +791,15 @@ export const Districts = () => {
                     })}
                   </div>
                 ) : (
-                  <div className="overflow-hidden rounded-2xl border border-slate-100">
-                    <div className="grid grid-cols-[minmax(0,1.5fr)_140px_110px_110px_100px] gap-3 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  <div className="overflow-hidden rounded-2xl border border-white/10">
+                    <div className="grid grid-cols-[minmax(0,1.5fr)_140px_110px_110px_100px] gap-3 bg-[#101415] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-300">
                       <span>Mahalla</span>
                       <span>Kod</span>
                       <span className="text-center">MTT</span>
                       <span className="text-center">Bolalar</span>
                       <span className="text-right">Ochish</span>
                     </div>
-                    <div className="divide-y divide-slate-100">
+                    <div className="divide-y divide-white/10">
                       {filteredSelectedMahallas.map((mahalla) => {
                         const active = selectedMahalla?.name === mahalla.name;
                         const hasMtt = mahalla.kindergartens.length > 0;
@@ -815,26 +815,26 @@ export const Districts = () => {
                               setMahallaDetailOpen(true);
                             }}
                             className={clsx(
-                              "grid w-full grid-cols-1 gap-3 px-4 py-3 text-left transition-all hover:bg-indigo-50/50 md:grid-cols-[minmax(0,1.5fr)_140px_110px_110px_100px] md:items-center",
-                              active ? "bg-indigo-50" : "bg-white"
+                              "grid w-full grid-cols-1 gap-3 px-4 py-3 text-left transition-all hover:bg-white/[0.035] md:grid-cols-[minmax(0,1.5fr)_140px_110px_110px_100px] md:items-center",
+                              active ? "bg-indigo-500/15" : "bg-[#181b1c]"
                             )}
                           >
                             <div className="flex min-w-0 items-center gap-3">
                               <span className={clsx(
                                 "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
-                                hasMtt ? "bg-emerald-50 text-emerald-600" : "bg-slate-50 text-slate-400"
+                                hasMtt ? "bg-emerald-500/10 text-emerald-300" : "bg-white/[0.045] text-slate-300"
                               )}>
                                 <MapPin size={16} />
                               </span>
                               <div className="min-w-0">
-                                <p className="truncate text-sm font-black text-slate-900">{mahalla.name}</p>
-                                <p className="mt-0.5 text-[10px] font-bold text-slate-400 md:hidden">{mahalla.code ? `${mahalla.code} kodi` : "Kod kiritilmagan"}</p>
+                                <p className="truncate text-sm font-black text-white">{mahalla.name}</p>
+                                <p className="mt-0.5 text-[10px] font-bold text-slate-300/80 md:hidden">{mahalla.code ? `${mahalla.code} kodi` : "Kod kiritilmagan"}</p>
                               </div>
                             </div>
-                            <span className="hidden text-xs font-black text-slate-500 md:block">{mahalla.code || '-'}</span>
-                            <span className="rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-center text-sm font-black text-indigo-700">{mahalla.kindergartens.length}</span>
-                            <span className="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-center text-sm font-black text-emerald-700">{mahalla.totalChildren.toLocaleString()}</span>
-                            <span className="inline-flex items-center justify-end gap-1 text-[10px] font-black uppercase tracking-widest text-indigo-600">
+                            <span className="hidden text-xs font-black text-slate-300 md:block">{mahalla.code || '-'}</span>
+                            <span className="rounded-xl border border-indigo-400/20 bg-indigo-500/10 px-3 py-2 text-center text-sm font-black text-white">{mahalla.kindergartens.length}</span>
+                            <span className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2 text-center text-sm font-black text-white">{mahalla.totalChildren.toLocaleString()}</span>
+                            <span className="inline-flex items-center justify-end gap-1 text-[10px] font-black uppercase tracking-widest text-indigo-300">
                               Batafsil <ChevronRight size={13} />
                             </span>
                           </button>
@@ -845,8 +845,8 @@ export const Districts = () => {
                 )}
 
                 {filteredSelectedMahallas.length === 0 && (
-                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center">
-                    <p className="text-sm font-black text-slate-500">Mahalla topilmadi</p>
+                  <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.035] px-6 py-10 text-center">
+                    <p className="text-sm font-black text-white">Mahalla topilmadi</p>
                     <p className="mt-1 text-xs font-semibold text-slate-400">Qidiruvni o'zgartiring yoki bo'sh qoldirib Qidirish bosing.</p>
                   </div>
                 )}
@@ -863,45 +863,45 @@ export const Districts = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 12 }}
-              className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden"
+              className="bg-[#181b1c] border border-white/10 rounded-2xl shadow-[0_24px_65px_rgba(0,0,0,0.25)] overflow-hidden"
             >
-              <div className="px-6 py-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="px-6 py-5 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-lg font-black text-slate-900">{typeLabels[selectedType]} ro'yxati</h3>
+                  <h3 className="text-lg font-black text-white">{typeLabels[selectedType]} ro'yxati</h3>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
                     {selected.name} bo'yicha {activeTypeKindergartens.length} ta muassasa
                   </p>
                 </div>
                 <button
                   onClick={() => setSelectedType(null)}
-                  className="self-start md:self-auto px-4 py-2 rounded-xl border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all"
+                  className="self-start md:self-auto px-4 py-2 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-widest text-slate-300 hover:bg-white/5 hover:text-white transition-all"
                 >
                   Yopish
                 </button>
               </div>
 
               {activeTypeKindergartens.length > 0 ? (
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-white/10">
                   {activeTypeKindergartens.map((kg) => (
-                    <div key={kg.id} className="px-6 py-5 hover:bg-slate-50 transition-colors">
+                    <div key={kg.id} className="px-6 py-5 hover:bg-white/[0.035] transition-colors">
                       <div className="grid grid-cols-1 xl:grid-cols-[1.4fr_1fr_repeat(2,0.55fr)] gap-4 xl:items-center">
                         <div>
-                          <p className="text-base font-black text-slate-900 leading-tight">{kg.name || "Nomsiz bog'cha"}</p>
+                          <p className="text-base font-black text-white leading-tight">{kg.name || "Nomsiz bog'cha"}</p>
                           <p className="text-xs font-semibold text-slate-400 mt-1">
                             {kg.directorName ? `Direktor: ${kg.directorName}` : "Direktor kiritilmagan"}
                           </p>
                         </div>
                         <div>
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Manzil</p>
-                          <p className="text-sm font-bold text-slate-700 leading-snug">{kg.address || kg.district || "Manzil kiritilmagan"}</p>
+                          <p className="text-sm font-bold text-white leading-snug">{kg.address || kg.district || "Manzil kiritilmagan"}</p>
                         </div>
-                        <div className="bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                        <div className="bg-white/[0.045] rounded-xl px-4 py-3 border border-white/10">
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bolalar</p>
-                          <p className="text-xl font-black text-slate-900 mt-1">{getRealChildrenCount(kg).toLocaleString()}</p>
+                          <p className="text-xl font-black text-white mt-1">{getRealChildrenCount(kg).toLocaleString()}</p>
                         </div>
-                        <div className="bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                        <div className="bg-white/[0.045] rounded-xl px-4 py-3 border border-white/10">
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Ishchilar</p>
-                          <p className="text-xl font-black text-slate-900 mt-1">{getStaffCount(kg).toLocaleString()}</p>
+                          <p className="text-xl font-black text-white mt-1">{getStaffCount(kg).toLocaleString()}</p>
                         </div>
                       </div>
                     </div>
@@ -909,7 +909,7 @@ export const Districts = () => {
                 </div>
               ) : (
                 <div className="px-6 py-10 text-center">
-                  <p className="text-sm font-black text-slate-500">{typeLabels[selectedType]} topilmadi</p>
+                  <p className="text-sm font-black text-white">{typeLabels[selectedType]} topilmadi</p>
                   <p className="text-xs font-medium text-slate-400 mt-1">Bu tuman uchun ushbu turdagi bog'cha bazaga kiritilmagan.</p>
                 </div>
               )}
@@ -922,37 +922,37 @@ export const Districts = () => {
 
   // в”Ђв”Ђ Main grid в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
   return (
-    <div className="space-y-6 pb-20 bg-[linear-gradient(180deg,#f8fafc_0%,#eef3f8_100%)] min-h-screen">
+    <div className="districts-dark space-y-4 pb-20 bg-[#0b0f10] min-h-screen text-white">
 
       {/* Header bar */}
-      <div className="bg-white/[0.92] border border-white/80 rounded-2xl px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur">
+      <div className="bg-[#181b1c] border border-white/10 rounded-2xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[0_18px_50px_rgba(0,0,0,0.24)]">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 bg-gradient-to-br from-indigo-600 to-teal-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/25">
-            <LayoutGrid size={20} />
+          <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/25">
+            <LayoutGrid size={18} />
           </div>
           <div>
-            <h2 className="text-lg font-black text-slate-900 tracking-tight">Hududiy boshqaruv markazi</h2>
+            <h2 className="text-[17px] font-black text-white tracking-tight">Hududiy boshqaruv markazi</h2>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Jonli hudud tahlili</p>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Jonli hudud tahlili</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Grid / Map toggle */}
-          <div className="flex p-1 bg-slate-100/80 rounded-xl border border-white">
+          <div className="flex p-1 bg-[#101415] rounded-xl border border-white/10">
             <button
               onClick={() => setViewMode('grid')}
               className={clsx("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all",
-                viewMode === 'grid' ? "bg-slate-950 text-white shadow" : "text-slate-500 hover:text-slate-800")}
+                viewMode === 'grid' ? "bg-gradient-to-r from-indigo-600 to-teal-500 text-white shadow" : "text-slate-300 hover:text-white")}
             >
               <LayoutGrid size={12} /> Jadval
             </button>
             <button
               onClick={() => setViewMode('map')}
               className={clsx("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all",
-                viewMode === 'map' ? "bg-slate-950 text-white shadow" : "text-slate-500 hover:text-slate-800")}
+                viewMode === 'map' ? "bg-gradient-to-r from-indigo-600 to-teal-500 text-white shadow" : "text-slate-300 hover:text-white")}
             >
               <MapIcon size={12} /> Xarita
             </button>
@@ -967,24 +967,24 @@ export const Districts = () => {
             className="flex items-center gap-2"
           >
             <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Hudud qidirish..."
-                className="h-10 w-56 rounded-xl border border-slate-200 bg-white pl-9 pr-4 text-sm font-semibold text-slate-700 shadow-sm outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200"
+                className="h-10 w-56 rounded-xl border border-white/10 bg-[#101415] pl-9 pr-4 text-[12px] font-semibold text-white shadow-sm outline-none placeholder:text-slate-500 focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
             <button
               type="submit"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-indigo-700"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-teal-500 px-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-900/25 transition-all hover:from-indigo-500 hover:to-teal-400"
             >
               <Search size={14} />
               Qidirish
             </button>
           </form>
 
-          <button className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 bg-white rounded-xl text-[10px] font-black text-slate-500 hover:bg-slate-50 transition-all shadow-sm">
+          <button className="flex h-10 items-center gap-1.5 px-3 border border-white/10 bg-[#101415] rounded-xl text-[10px] font-black text-slate-300 hover:text-white transition-all shadow-sm">
             <Filter size={13} />
           </button>
 
@@ -1003,14 +1003,14 @@ export const Districts = () => {
       </div>
 
       {/* Main content */}
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-12 gap-4">
 
         {/* Left: cards or map */}
         <div className="col-span-12 lg:col-span-8">
           <AnimatePresence mode="wait">
             {viewMode === 'grid' ? (
               <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {filtered.map(d => (
                   <DistrictCard key={d.id} d={d} onClick={() => {
                     setSelected(d);
@@ -1025,8 +1025,8 @@ export const Districts = () => {
               </motion.div>
             ) : (
               <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="bg-white border border-slate-100 rounded-2xl p-8 shadow-sm min-h-[500px] flex flex-col items-center justify-center">
-                <h3 className="text-xl font-black text-slate-900 mb-2">Interaktiv Xarita</h3>
+                className="bg-[#181b1c] border border-white/10 rounded-2xl p-8 shadow-sm min-h-[500px] flex flex-col items-center justify-center">
+                <h3 className="text-xl font-black text-white mb-2">Interaktiv Xarita</h3>
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Tez orada qo'shiladi</p>
               </motion.div>
             )}
@@ -1034,10 +1034,10 @@ export const Districts = () => {
         </div>
 
         {/* Right panel */}
-        <div className="col-span-12 lg:col-span-4 flex flex-col gap-5">
+        <div className="col-span-12 lg:col-span-4 flex flex-col gap-4">
 
           {/* AI Insights Node */}
-          <div className="bg-[linear-gradient(135deg,#0f172a_0%,#1e1b4b_50%,#0f766e_100%)] rounded-2xl p-6 text-white relative overflow-hidden flex flex-col gap-5 shadow-[0_24px_65px_rgba(15,23,42,0.22)]">
+          <div className="bg-[#181b1c] border border-white/10 rounded-2xl p-4 text-white relative overflow-hidden flex flex-col gap-4 shadow-[0_24px_65px_rgba(0,0,0,0.28)]">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
             <div className="flex items-center justify-between relative z-10">
@@ -1046,7 +1046,7 @@ export const Districts = () => {
                   <Sparkles size={16} className="text-teal-200 animate-pulse" />
                 </div>
                 <div>
-                  <h4 className="text-base font-black">AI tahlil markazi</h4>
+                  <h4 className="text-[14px] font-black">AI tahlil markazi</h4>
                   <p className="text-[10px] font-bold text-teal-200/80 uppercase tracking-widest">District Pulse Analysis</p>
                 </div>
               </div>
@@ -1062,7 +1062,7 @@ export const Districts = () => {
                 <Activity size={12} className="text-teal-300" />
                 <span className="text-[10px] font-black text-teal-300 uppercase tracking-widest">Ma'lumotlar sinxron</span>
               </div>
-              <p className="text-sm font-mono text-slate-200 leading-relaxed min-h-[64px]">
+              <p className="text-[12px] font-mono text-slate-200 leading-relaxed min-h-[64px]">
                 {aiText}<span className="inline-block w-0.5 h-3 bg-teal-300 ml-0.5 animate-pulse" />
               </p>
             </div>
@@ -1081,7 +1081,7 @@ export const Districts = () => {
             </div>
 
             <div className="space-y-2 relative z-10">
-              <button onClick={exportPDF} className="w-full py-3.5 bg-white text-slate-950 font-black text-[11px] uppercase tracking-widest rounded-xl hover:bg-slate-50 transition-all shadow-xl">
+              <button onClick={exportPDF} className="w-full py-3 bg-gradient-to-r from-indigo-600 to-teal-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:from-indigo-500 hover:to-teal-400 transition-all shadow-xl shadow-indigo-900/25">
                 Analitika PDF yuklash
               </button>
               <button className="w-full py-3 bg-white/10 text-teal-100 font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-white/15 transition-all border border-white/10">

@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { 
-  Building2, UserRound, Baby, UsersRound, UtensilsCrossed, Warehouse, 
+import {
+  Building2, UserRound, Baby, UsersRound, UtensilsCrossed, Warehouse,
   Settings, CheckCircle2, Save, AlertCircle, ChevronRight,
   FileText, Activity, Wallet
 } from 'lucide-react';
@@ -289,19 +289,19 @@ const FormField = ({ name, label, placeholder, type = "text", options = null, is
 
   return (
     <div className="space-y-1.5 group">
-      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center gap-2">
+      <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.15em] ml-1 flex items-center gap-2">
         {label} {isValid && <CheckCircle2 size={12} className="text-emerald-500" />}
       </label>
       <div className="relative">
         {options ? (
-          <select {...register(name)} disabled={disabled} className={clsx("w-full p-4 rounded-2xl border-2 transition-all outline-none font-bold text-sm appearance-none", disabled ? "bg-slate-50 text-slate-400" : error ? "border-rose-500 bg-rose-50" : isValid ? "border-emerald-500 bg-emerald-50" : "border-slate-100 focus:border-indigo-500")}>
+          <select {...register(name)} disabled={disabled} style={{ colorScheme: 'dark' }} className={clsx("w-full p-4 rounded-2xl border-2 transition-all outline-none font-bold text-sm appearance-none", disabled ? "bg-white/[0.035] text-slate-400 border-white/10" : error ? "border-rose-400/70 bg-[#101415] text-white" : isValid ? "border-emerald-400/60 bg-[#101415] text-white" : "bg-[#101415] text-white border-white/10 focus:border-indigo-400/70 focus:ring-2 focus:ring-indigo-500/20")}>
             <option value="">Tanlang...</option>
             {options.map((opt: any) => <option key={opt.value || opt} value={opt.value || opt}>{opt.label || opt}</option>)}
           </select>
         ) : isTextArea ? (
-            <textarea {...register(name)} placeholder={placeholder} className="w-full p-4 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 outline-none font-bold text-sm min-h-[100px]" />
+            <textarea {...register(name)} placeholder={placeholder} className="w-full p-4 rounded-2xl border-2 border-white/10 bg-[#101415] text-white placeholder:text-slate-500 focus:border-indigo-400/70 focus:ring-2 focus:ring-indigo-500/20 outline-none font-bold text-sm min-h-[100px]" />
         ) : (
-          <input {...register(name)} type={type} disabled={disabled} readOnly={readOnly} placeholder={placeholder} className={clsx("w-full p-4 rounded-2xl border-2 transition-all outline-none font-bold text-sm", disabled ? "bg-slate-50 text-slate-400" : readOnly ? "bg-slate-50 text-slate-700 border-slate-100" : error ? "border-rose-500 bg-rose-50" : isValid ? "border-emerald-500 bg-emerald-50" : "border-slate-100 focus:border-indigo-500")} />
+          <input {...register(name)} type={type} disabled={disabled} readOnly={readOnly} placeholder={placeholder} className={clsx("w-full p-4 rounded-2xl border-2 transition-all outline-none font-bold text-sm placeholder:text-slate-500", disabled ? "bg-white/[0.035] text-slate-400 border-white/10" : readOnly ? "bg-white/[0.045] text-slate-200 border-white/10" : error ? "border-rose-400/70 bg-rose-500/10 text-white" : isValid ? "border-emerald-400/60 bg-emerald-500/10 text-white" : "bg-[#101415] text-white border-white/10 focus:border-indigo-400/70 focus:ring-2 focus:ring-indigo-500/20")} />
         )}
         {error && <AlertCircle size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-rose-500" />}
       </div>
@@ -311,16 +311,16 @@ const FormField = ({ name, label, placeholder, type = "text", options = null, is
 };
 
 const SummaryCard = ({ icon: Icon, title, data }: any) => (
-    <div className="p-6 bg-white rounded-[32px] border border-slate-100 shadow-sm hover:shadow-md transition-shadow space-y-4">
+    <div className="p-6 bg-[#181b1c] rounded-[28px] border border-white/10 shadow-[0_18px_44px_rgba(0,0,0,0.22)] hover:border-emerald-400/25 transition-all space-y-4">
         <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600"><Icon size={20}/></div>
-            <h4 className="font-black text-slate-900 text-[11px] uppercase tracking-widest">{title}</h4>
+            <div className="p-3 bg-indigo-500/15 border border-indigo-400/20 rounded-2xl text-indigo-200"><Icon size={20}/></div>
+            <h4 className="font-black text-white text-[11px] uppercase tracking-widest">{title}</h4>
         </div>
         <div className="space-y-2">
             {Object.entries(data).map(([key, val]: any) => (
                 <div key={key} className="flex justify-between items-center">
-                    <span className="text-[11px] text-slate-400 font-bold uppercase">{key}:</span>
-                    <span className="text-xs font-black text-slate-800">{val || '-'}</span>
+                    <span className="text-[11px] text-slate-300 font-bold uppercase">{key}:</span>
+                    <span className="text-xs font-black text-white">{val || '-'}</span>
                 </div>
             ))}
         </div>
@@ -464,7 +464,11 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
         7: ['brokerageDocumentFile', 'commissionOrder', 'commissionApprovedDate', 'commissionValidUntil']
     };
     const isValid = await trigger(stepFields[step] || []);
-    if (isValid) setStep(prev => Math.min(prev + 1, 8));
+    if (isValid) {
+      setStep(prev => Math.min(prev + 1, 8));
+      return;
+    }
+    toast.error("Xato ma'lumot kiritildi");
   };
 
   const onSubmit = async (data: any) => {
@@ -493,22 +497,22 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
             });
             toast.success("Bog'cha ma'lumotlari muvaffaqiyatli yangilandi!");
         } else {
-            await kindergartenApi.create({ 
-                ...payload, 
+            await kindergartenApi.create({
+                ...payload,
                 rating: 100
             });
             toast.success("Yangi bog'cha muvaffaqiyatli qo'shildi!");
         }
         onSave();
         onClose();
-    } catch (e: any) { 
+    } catch (e: any) {
         console.error("Error saving kindergarten:", e);
         const message = e?.response?.data?.error || e?.response?.data?.message || "Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.";
         if (e?.response?.status === 409) {
             setStep(2);
             setError('name', { type: 'server', message });
         }
-        toast.error(message); 
+        toast.error("Xato ma'lumot kiritildi");
     }
   };
 
@@ -530,10 +534,10 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
     const firstField = Object.keys(errors)[0];
     if (firstField) {
       setStep(getStepByField(firstField));
-      toast.error(errors[firstField]?.message || "Ma'lumotlarni tekshirib qayta urinib ko'ring.");
+      toast.error("Xato ma'lumot kiritildi");
       return;
     }
-    toast.error("Ma'lumotlarni tekshirib qayta urinib ko'ring.");
+    toast.error("Xato ma'lumot kiritildi");
   };
 
   const handleBrokerageDocumentUpload = async (file?: File) => {
@@ -562,46 +566,46 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-transparent">
-      <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="bg-white rounded-[1px] shadow-2xl w-full max-w-6xl h-[95vh] sm:h-[92vh] overflow-hidden flex flex-col">
-        
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/45 backdrop-blur-md">
+      <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="mtt-form-modal bg-[#181b1c] text-white rounded-[8px] border border-white/10 shadow-2xl shadow-black/50 w-full max-w-6xl h-[95vh] sm:h-[92vh] overflow-hidden flex flex-col">
+
         {/* Header */}
-        <div className="bg-slate-50/50 px-6 sm:px-12 py-6 sm:py-8 border-b border-slate-100">
+        <div className="bg-[#101415] px-6 sm:px-12 py-6 sm:py-8 border-b border-white/10">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
                 <div>
                     <div className="flex items-center gap-2 sm:gap-3 mb-1">
-                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{isEdit ? "Bog'cha tahrirlash" : "Bog'cha qo'shish"}</h2>
-                        <span className="px-2.5 py-1 bg-indigo-600 text-white text-[8px] sm:text-[9px] font-black uppercase rounded-full tracking-widest">{isEdit ? 'Tahrirlash' : 'Yaratish'}</span>
+                        <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">{isEdit ? "Bog'cha tahrirlash" : "Bog'cha qo'shish"}</h2>
+                        <span className="px-2.5 py-1 bg-gradient-to-r from-indigo-600 to-teal-500 text-white text-[8px] sm:text-[9px] font-black uppercase rounded-full tracking-widest">{isEdit ? 'Tahrirlash' : 'Yaratish'}</span>
                     </div>
-                    <p className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-widest">Hududlar monitoringi</p>
+                    <p className="text-[10px] sm:text-xs text-slate-300 font-bold uppercase tracking-widest">Hududlar monitoringi</p>
                 </div>
                 <div className="flex items-center gap-3 sm:text-right">
-                    <div className="text-2xl sm:text-3xl font-black text-indigo-600 tracking-tighter">{completionPercentage}%</div>
-                    <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest sm:w-20">To'ldirish darajasi</p>
+                    <div className="text-2xl sm:text-3xl font-black text-teal-300 tracking-tighter">{completionPercentage}%</div>
+                    <p className="text-[8px] sm:text-[9px] font-black text-slate-300 uppercase tracking-widest sm:w-20">To'ldirish darajasi</p>
                 </div>
             </div>
 
             {/* Stepper */}
             <div className="relative flex justify-between overflow-x-auto no-scrollbar pb-2 px-1">
-                <div className="absolute top-5 sm:top-1/2 left-0 w-full h-0.5 bg-slate-200 sm:-translate-y-1/2 z-0" />
-                <motion.div animate={{ width: `${(step - 1) * (100 / 7)}%` }} className="absolute top-5 sm:top-1/2 left-0 h-1 bg-indigo-600 sm:-translate-y-1/2 z-10 rounded-full" />
-                
+                <div className="absolute top-5 sm:top-1/2 left-0 w-full h-0.5 bg-white/10 sm:-translate-y-1/2 z-0" />
+                <motion.div animate={{ width: `${(step - 1) * (100 / 7)}%` }} className="absolute top-5 sm:top-1/2 left-0 h-1 bg-gradient-to-r from-indigo-600 to-teal-500 sm:-translate-y-1/2 z-10 rounded-full" />
+
                 {STEPS.map((s) => (
                     <div key={s.id} className="relative z-20 flex flex-col items-center gap-2 sm:gap-3 shrink-0 px-2 sm:px-0">
-                        <motion.div 
-                          animate={{ scale: step === s.id ? 1.1 : 1, backgroundColor: step >= s.id ? '#4f46e5' : '#ffffff', color: step >= s.id ? '#ffffff' : '#94a3b8' }} 
-                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg border-4 border-white transition-all shrink-0"
+                        <motion.div
+                          animate={{ scale: step === s.id ? 1.1 : 1, backgroundColor: step >= s.id ? '#4f46e5' : '#101415', color: step >= s.id ? '#ffffff' : '#cbd5e1' }}
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg border-4 border-[#181b1c] transition-all shrink-0"
                         >
                             {step > s.id ? <CheckCircle2 size={16} /> : <s.icon size={16} className="sm:w-5 sm:h-5" />}
                         </motion.div>
-                        <span className={clsx("text-[7px] sm:text-[9px] font-black uppercase tracking-widest", step === s.id ? "text-indigo-600" : "text-slate-400")}>{s.title}</span>
+                        <span className={clsx("text-[7px] sm:text-[9px] font-black uppercase tracking-widest", step === s.id ? "text-teal-300" : "text-slate-300")}>{s.title}</span>
                     </div>
                 ))}
             </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-12 bg-[#FDFDFF]">
+        <div className="flex-1 overflow-y-auto p-6 sm:p-12 bg-[#0b0f10] custom-scrollbar">
             <FormProvider {...methods}>
                 <AnimatePresence mode="wait">
                     <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 sm:gap-y-8">
@@ -641,10 +645,10 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                             <FormField name="currentChildren" label="Bolalar soni *" type="number" />
                             <FormField name="groups" label="Guruhlar soni *" type="number" />
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Yosh toifalari *</label>
+                                <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Yosh toifalari *</label>
                                 <div className="flex gap-2 sm:gap-4">
-                                    <label className="flex-1 p-3 sm:p-4 bg-white border-2 border-slate-100 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 cursor-pointer"><input type="checkbox" {...methods.register('age13')} /> <span className="text-[10px] sm:text-xs font-bold whitespace-nowrap">1-3 yosh</span></label>
-                                    <label className="flex-1 p-3 sm:p-4 bg-white border-2 border-slate-100 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 cursor-pointer"><input type="checkbox" {...methods.register('age37')} /> <span className="text-[10px] sm:text-xs font-bold whitespace-nowrap">3-7 yosh</span></label>
+                                    <label className="flex-1 p-3 sm:p-4 bg-[#101415] border-2 border-white/10 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 cursor-pointer text-white"><input type="checkbox" {...methods.register('age13')} /> <span className="text-[10px] sm:text-xs font-bold whitespace-nowrap">1-3 yosh</span></label>
+                                    <label className="flex-1 p-3 sm:p-4 bg-[#101415] border-2 border-white/10 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 cursor-pointer text-white"><input type="checkbox" {...methods.register('age37')} /> <span className="text-[10px] sm:text-xs font-bold whitespace-nowrap">3-7 yosh</span></label>
                                 </div>
                             </div>
                         </>)}
@@ -662,29 +666,29 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                             <FormField name="water" label="Suv *" options={['Mavjud', 'Mavjud emas']} />
                             <FormField name="kitchenEq" label="Jihozlar *" options={["To'liq", 'Qisman', "Yo'q"]} />
                             <div className="md:col-span-2">
-                                <label className="p-3 sm:p-4 bg-white border border-slate-100 rounded-xl sm:rounded-2xl flex items-center gap-3"><input type="checkbox" {...methods.register('hasAllergyMenu')} /> <span className="text-[10px] sm:text-xs font-bold">Allergiya menyusi</span></label>
+                                <label className="p-3 sm:p-4 bg-[#101415] border border-white/10 rounded-xl sm:rounded-2xl flex items-center gap-3 text-white"><input type="checkbox" {...methods.register('hasAllergyMenu')} /> <span className="text-[10px] sm:text-xs font-bold">Allergiya menyusi</span></label>
                             </div>
                         </>)}
 
                         {step === 6 && (<>
-                            <div className="md:col-span-2"><label className="w-full p-4 sm:p-5 bg-indigo-50 border border-indigo-100 rounded-xl sm:rounded-2xl flex items-center justify-between cursor-pointer"><div className="flex items-center gap-3"><Warehouse className="text-indigo-600 sm:w-5 sm:h-5" size={18} /> <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Omborxona</span></div><input type="checkbox" {...methods.register('hasWarehouse')} /></label></div>
+                            <div className="md:col-span-2"><label className="w-full p-4 sm:p-5 bg-indigo-500/10 border border-indigo-400/20 rounded-xl sm:rounded-2xl flex items-center justify-between cursor-pointer text-white"><div className="flex items-center gap-3"><Warehouse className="text-indigo-200 sm:w-5 sm:h-5" size={18} /> <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Omborxona</span></div><input type="checkbox" {...methods.register('hasWarehouse')} /></label></div>
                             {allValues.hasWarehouse && <FormField name="warehouseManager" label="Ombor mas'uli" />}
                             <FormField name="financeType" label="Moliyalashtirish *" options={['Davlat', 'Xususiy', 'Aralash']} />
                             <FormField name="budget" label="Byudjet *" type="number" />
                         </>)}
 
                         {step === 7 && (<>
-                            <div className="md:col-span-2 p-5 sm:p-8 bg-indigo-50 border border-indigo-100 rounded-2xl sm:rounded-[32px] flex items-center gap-4 sm:gap-6">
-                                <div className="p-3 sm:p-4 bg-white rounded-xl sm:rounded-2xl shadow-sm text-indigo-600 shrink-0"><FileText size={24} className="sm:w-8 sm:h-8" /></div>
-                                <div><h4 className="font-black text-indigo-900 text-xs sm:text-sm">Hujjatlar</h4><p className="text-[10px] sm:text-xs text-indigo-800/60 font-medium">Brokerlash komissiyasi buyrug'i, tasdiqlangan kuni va amal qilish muddatini kiriting.</p></div>
+                            <div className="md:col-span-2 p-5 sm:p-8 bg-indigo-500/10 border border-indigo-400/20 rounded-2xl sm:rounded-[28px] flex items-center gap-4 sm:gap-6">
+                                <div className="p-3 sm:p-4 bg-white/[0.045] border border-white/10 rounded-xl sm:rounded-2xl shadow-sm text-indigo-200 shrink-0"><FileText size={24} className="sm:w-8 sm:h-8" /></div>
+                                <div><h4 className="font-black text-white text-xs sm:text-sm">Hujjatlar</h4><p className="text-[10px] sm:text-xs text-slate-300 font-medium">Brokerlash komissiyasi buyrug'i, tasdiqlangan kuni va amal qilish muddatini kiriting.</p></div>
                             </div>
-                            <label className="md:col-span-2 cursor-pointer p-5 sm:p-6 bg-white rounded-2xl border-2 border-dashed border-indigo-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <label className="md:col-span-2 cursor-pointer p-5 sm:p-6 bg-[#101415] rounded-2xl border-2 border-dashed border-indigo-400/25 flex flex-col sm:flex-row items-center justify-between gap-4">
                                 <input type="file" accept="application/pdf,image/*" className="hidden" onChange={(event) => handleBrokerageDocumentUpload(event.target.files?.[0])} />
                                 <div>
-                                    <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Brokerlash hujjati</p>
-                                    <p className="text-[10px] font-bold text-slate-400 mt-1">PDF yoki rasm yuklang. Fayl real bazaga URL sifatida yoziladi.</p>
+                                    <p className="text-xs font-black text-white uppercase tracking-widest">Brokerlash hujjati</p>
+                                    <p className="text-[10px] font-bold text-slate-300 mt-1">PDF yoki rasm yuklang. Fayl real bazaga URL sifatida yoziladi.</p>
                                 </div>
-                                <span className={clsx("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest", allValues.brokerageDocumentFile ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-slate-100 text-slate-500")}>
+                                <span className={clsx("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border", allValues.brokerageDocumentFile ? "bg-emerald-500/10 text-emerald-200 border-emerald-400/20" : "bg-white/[0.045] text-slate-300 border-white/10")}>
                                   {allValues.brokerageDocumentFile ? 'Yuklangan' : 'Yuklash'}
                                 </span>
                             </label>
@@ -704,9 +708,9 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
                                     <SummaryCard icon={Activity} title="Sanitariya" data={{'Ish vaqti': allValues.workHours ? `${allValues.workHours} soat` : 'Kiritilmagan', 'Holat': allValues.sanitation, 'Suv': allValues.water}} />
                                     <SummaryCard icon={Wallet} title="Moliya" data={{'Turi': allValues.financeType, 'Byudjet': allValues.budget === '' || allValues.budget == null ? 'Kiritilmagan' : Number(allValues.budget).toLocaleString()}} />
                                 </div>
-                                <div className="p-5 sm:p-8 bg-slate-900 rounded-2xl sm:rounded-[40px] text-white">
+                                <div className="p-5 sm:p-8 bg-gradient-to-r from-indigo-600 to-teal-500 rounded-2xl sm:rounded-[28px] text-white">
                                     <h3 className="text-xl sm:text-2xl font-black tracking-tight">Tayyor!</h3>
-                                    <p className="text-white/50 text-xs sm:text-sm mt-1">Ma'lumotlarni tasdiqlang va saqlang.</p>
+                                    <p className="text-white/80 text-xs sm:text-sm mt-1">Ma'lumotlarni tasdiqlang va saqlang.</p>
                                 </div>
                             </div>
                         )}
@@ -716,16 +720,16 @@ export const YangiBogchaQoshishModal = ({ onClose, onSave, initialData = null }:
         </div>
 
         {/* Footer */}
-        <div className="px-6 sm:px-12 py-6 sm:py-8 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
-            <button onClick={onClose} className="text-[10px] sm:text-xs font-black text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest">Bekor qilish</button>
+        <div className="px-6 sm:px-12 py-6 sm:py-8 border-t border-white/10 flex items-center justify-between bg-[#101415]">
+            <button onClick={onClose} className="text-[10px] sm:text-xs font-black text-slate-300 hover:text-white transition-colors uppercase tracking-widest">Bekor qilish</button>
             <div className="flex items-center gap-3 sm:gap-4">
-                {step > 1 && <button onClick={() => setStep(prev => prev - 1)} className="px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-slate-200 font-black text-[10px] sm:text-xs text-slate-600 hover:bg-white transition-all uppercase whitespace-nowrap">Orqaga</button>}
+                {step > 1 && <button onClick={() => setStep(prev => prev - 1)} className="px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/10 font-black text-[10px] sm:text-xs text-slate-200 hover:bg-white/5 transition-all uppercase whitespace-nowrap">Orqaga</button>}
                 {step < 8 ? (
-                    <button onClick={handleNext} className="px-6 sm:px-12 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-900 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all flex items-center gap-2 sm:gap-3 shadow-xl whitespace-nowrap">Keyingisi <ChevronRight size={16} /></button>
+                    <button onClick={handleNext} className="px-6 sm:px-12 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-indigo-600 to-teal-500 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest hover:from-indigo-500 hover:to-teal-400 transition-all flex items-center gap-2 sm:gap-3 shadow-xl shadow-indigo-900/25 whitespace-nowrap">Keyingisi <ChevronRight size={16} /></button>
                 ) : (
                     <button
                       onClick={handleSubmit(onSubmit, onInvalid)}
-                      className="px-6 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-emerald-600 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all flex items-center gap-2 sm:gap-3 shadow-xl whitespace-nowrap hover:bg-emerald-700"
+                      className="px-6 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all flex items-center gap-2 sm:gap-3 shadow-xl shadow-emerald-900/25 whitespace-nowrap hover:from-emerald-500 hover:to-teal-400"
                       title="Saqlash"
                     >
                       <Save size={16} /> Saqlash

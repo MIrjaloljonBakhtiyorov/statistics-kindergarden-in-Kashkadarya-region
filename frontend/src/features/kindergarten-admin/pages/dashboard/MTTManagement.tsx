@@ -211,51 +211,51 @@ const DeleteConfirmModal = ({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 12, scale: 0.98 }}
         transition={{ duration: 0.18, ease: "easeOut" }}
-        className="w-full max-w-[440px] overflow-hidden rounded-[24px] border border-white/80 bg-white shadow-2xl shadow-slate-950/25"
+        className="w-full max-w-[440px] overflow-hidden rounded-[24px] border border-white/10 bg-[#181b1c] text-white shadow-2xl shadow-black/45"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 pb-5 pt-6 sm:px-7">
+        <div className="flex items-start justify-between gap-4 border-b border-white/10 bg-[#101415] px-6 pb-5 pt-6 sm:px-7">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 ring-1 ring-rose-100">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-200 ring-1 ring-rose-400/20">
               <Trash2 size={18} />
             </div>
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">O'chirish</p>
-              <p className="truncate text-base font-black leading-tight text-slate-900">{item.name}</p>
+              <p className="truncate text-base font-black leading-tight text-white">{item.name}</p>
             </div>
           </div>
           <button
             onClick={onClose}
             disabled={isDeleting}
-            className="shrink-0 rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+            className="shrink-0 rounded-xl p-2 text-slate-300 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-50"
           >
             <X size={16} />
           </button>
         </div>
 
         <div className="space-y-4 px-6 py-5 sm:px-7">
-          <p className="text-sm font-bold leading-6 text-slate-600">
+          <p className="text-sm font-bold leading-6 text-slate-200">
             Ushbu bog'chani o'chirishni tasdiqlaysizmi?
           </p>
-          <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3">
+          <div className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3">
             <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">Tanlangan bog'cha</p>
-            <p className="mt-1 text-sm font-black text-slate-900">{item.name}</p>
-            <p className="mt-0.5 text-xs font-bold text-slate-500">{item.district || 'Tuman kiritilmagan'}</p>
+            <p className="mt-1 text-sm font-black text-white">{item.name}</p>
+            <p className="mt-0.5 text-xs font-bold text-slate-300">{item.district || 'Tuman kiritilmagan'}</p>
           </div>
         </div>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 px-6 py-5 sm:flex-row sm:justify-end sm:px-7">
+        <div className="flex flex-col-reverse gap-3 border-t border-white/10 bg-[#101415] px-6 py-5 sm:flex-row sm:justify-end sm:px-7">
           <button
             onClick={onClose}
             disabled={isDeleting}
-            className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-slate-100 disabled:opacity-50"
+            className="rounded-2xl border border-white/10 bg-white/[0.045] px-5 py-3 text-[10px] font-black uppercase tracking-widest text-slate-200 transition-all hover:bg-white/10 hover:text-white disabled:opacity-50"
           >
             Bekor qilish
           </button>
           <button
             onClick={onConfirm}
             disabled={isDeleting}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-rose-600 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-600/20 transition-all hover:bg-rose-700 disabled:opacity-70"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-900/25 transition-all hover:from-rose-500 hover:to-pink-500 disabled:opacity-70"
           >
             {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
             O'chirish
@@ -267,11 +267,11 @@ const DeleteConfirmModal = ({
 };
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string; iconBg: string }> = {
-  Public:       { label: 'Davlat',     color: 'text-blue-600',    bg: 'bg-blue-50 border-blue-100',       iconBg: 'bg-blue-600' },
-  Private:      { label: 'Xususiy',    color: 'text-purple-600',  bg: 'bg-purple-50 border-purple-100',   iconBg: 'bg-purple-500' },
-  PPP:          { label: 'DXSH',       color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100', iconBg: 'bg-emerald-500' },
-  Home:         { label: 'Oilaviy',    color: 'text-amber-600',   bg: 'bg-amber-50 border-amber-100',     iconBg: 'bg-amber-500' },
-  Organization: { label: 'Tashkilot',  color: 'text-sky-600',     bg: 'bg-sky-50 border-sky-100',         iconBg: 'bg-sky-500' },
+  Public:       { label: 'Davlat',     color: 'text-blue-200',    bg: 'bg-blue-500/10 border-blue-400/20',       iconBg: 'bg-blue-500' },
+  Private:      { label: 'Xususiy',    color: 'text-purple-200',  bg: 'bg-purple-500/10 border-purple-400/20',   iconBg: 'bg-purple-500' },
+  PPP:          { label: 'DXSH',       color: 'text-emerald-200', bg: 'bg-emerald-500/10 border-emerald-400/20', iconBg: 'bg-emerald-500' },
+  Home:         { label: 'Oilaviy',    color: 'text-amber-200',   bg: 'bg-amber-500/10 border-amber-400/20',     iconBg: 'bg-amber-500' },
+  Organization: { label: 'Tashkilot',  color: 'text-sky-200',     bg: 'bg-sky-500/10 border-sky-400/20',         iconBg: 'bg-sky-500' },
 };
 
 const TYPE_ORDER: string[] = KINDERGARTEN_TYPES.map((type) => type.value);
@@ -307,12 +307,12 @@ const getWorkHourLabel = (item: any) => {
 };
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; badge: string }> = {
-  Active:     { label: 'Aktiv',    dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  Monitoring: { label: 'Monitor',  dot: 'bg-amber-500',   badge: 'bg-amber-50 text-amber-700 border-amber-200' },
-  Issue:      { label: 'Muammo',   dot: 'bg-rose-500',    badge: 'bg-rose-50 text-rose-700 border-rose-200' },
-  Critical:   { label: 'Kritik',   dot: 'bg-rose-600',    badge: 'bg-rose-100 text-rose-800 border-rose-200' },
-  Noaktiv:    { label: 'Noaktiv',  dot: 'bg-slate-400',   badge: 'bg-slate-50 text-slate-500 border-slate-200' },
-  Aktiv:      { label: 'Aktiv',    dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  Active:     { label: 'Aktiv',    dot: 'bg-emerald-400', badge: 'bg-emerald-500/10 text-emerald-200 border-emerald-400/20' },
+  Monitoring: { label: 'Monitor',  dot: 'bg-amber-400',   badge: 'bg-amber-500/10 text-amber-200 border-amber-400/20' },
+  Issue:      { label: 'Muammo',   dot: 'bg-rose-400',    badge: 'bg-rose-500/10 text-rose-200 border-rose-400/20' },
+  Critical:   { label: 'Kritik',   dot: 'bg-rose-500',    badge: 'bg-rose-500/15 text-rose-100 border-rose-400/25' },
+  Noaktiv:    { label: 'Noaktiv',  dot: 'bg-slate-400',   badge: 'bg-white/[0.045] text-slate-300 border-white/10' },
+  Aktiv:      { label: 'Aktiv',    dot: 'bg-emerald-400', badge: 'bg-emerald-500/10 text-emerald-200 border-emerald-400/20' },
 };
 
 const StatusBadge = ({ status }: { status: string }) => {
@@ -448,7 +448,7 @@ export const MTTManagement = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-[#f4f6fb] space-y-6 pb-20">
+    <div className="min-h-screen bg-[#0b0f10] space-y-6 pb-20 text-white">
 
       {credItem && (
         <CredentialsModal
@@ -485,8 +485,8 @@ export const MTTManagement = () => {
       {/* в”Ђв”Ђ Header в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Bog'chalar ro'yxati</h1>
-          <p className="text-sm text-slate-400 font-medium flex items-center gap-2 mt-1">
+          <h1 className="text-3xl font-black text-white tracking-tight">Bog'chalar ro'yxati</h1>
+          <p className="text-sm text-slate-300/85 font-medium flex items-center gap-2 mt-1">
             <ShieldCheck size={14} className="text-indigo-500" />
             Tizimdagi barcha bog'chalar va ularning ma'lumotlari
           </p>
@@ -497,7 +497,7 @@ export const MTTManagement = () => {
               setEditData(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/25"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-teal-500 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:from-indigo-500 hover:to-teal-400 transition-all shadow-lg shadow-indigo-900/25"
           >
             <Plus size={15} strokeWidth={2.5} /> Bog'cha qo'shish
           </button>
@@ -512,14 +512,14 @@ export const MTTManagement = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.07 }}
-            className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4"
+            className="bg-[#181b1c] border border-white/10 rounded-2xl p-4 shadow-[0_18px_44px_rgba(0,0,0,0.22)] flex items-center gap-4"
           >
             <div className={clsx("w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0", s.iconBg)}>
               <s.icon size={20} />
             </div>
             <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{s.label}</p>
-              <p className="text-2xl font-black text-slate-900 tracking-tight">{s.val}</p>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{s.label}</p>
+              <p className="text-2xl font-black text-white tracking-tight">{s.val}</p>
             </div>
           </motion.div>
         ))}
@@ -532,22 +532,22 @@ export const MTTManagement = () => {
             key={item.label}
             onClick={() => setWorkHoursFilter(workHoursFilter === item.filterValue ? '' : item.filterValue)}
             className={clsx(
-              "bg-white border rounded-2xl p-4 shadow-sm flex items-center gap-3 text-left transition-all",
-              workHoursFilter === item.filterValue ? "border-indigo-300 ring-4 ring-indigo-500/10" : "border-slate-100 hover:border-indigo-200"
+              "bg-[#181b1c] border rounded-2xl p-4 shadow-[0_16px_40px_rgba(0,0,0,0.2)] flex items-center gap-3 text-left transition-all hover:bg-[#1d2122]",
+              workHoursFilter === item.filterValue ? "border-indigo-400/50 ring-2 ring-indigo-500/20" : "border-white/10 hover:border-emerald-400/25"
             )}
           >
             <div className={clsx("w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0", item.iconBg)}>
               <Clock size={18} />
             </div>
             <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{item.label}</p>
-              <p className="text-xl font-black text-slate-900">{item.val} ta</p>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{item.label}</p>
+              <p className="text-xl font-black text-white">{item.val} ta</p>
             </div>
           </button>
         ))}
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-2xl px-5 py-4 shadow-sm flex flex-col lg:flex-row gap-3 items-stretch lg:items-center">
+      <div className="bg-[#181b1c] border border-white/10 rounded-2xl px-5 py-4 shadow-[0_18px_48px_rgba(0,0,0,0.22)] flex flex-col lg:flex-row gap-3 items-stretch lg:items-center">
         {/* Search */}
         <div className="relative flex-1">
           <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -555,7 +555,7 @@ export const MTTManagement = () => {
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Qidirish..."
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-300 focus:bg-white transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#101415] border border-white/10 rounded-xl text-sm font-semibold text-white placeholder:text-slate-500 outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 transition-all"
           />
         </div>
 
@@ -564,7 +564,7 @@ export const MTTManagement = () => {
           <select
             value={districtFilter}
             onChange={e => setDistrictFilter(e.target.value)}
-            className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-wider outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
+            className="px-4 py-2.5 bg-[#101415] border border-white/10 rounded-xl text-xs font-black uppercase tracking-wider text-white outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
           >
             <option value="">Tumanlar</option>
             {DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
@@ -574,7 +574,7 @@ export const MTTManagement = () => {
           <select
             value={typeFilter}
             onChange={e => setTypeFilter(e.target.value)}
-            className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-wider outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
+            className="px-4 py-2.5 bg-[#101415] border border-white/10 rounded-xl text-xs font-black uppercase tracking-wider text-white outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
           >
             <option value="">Turlari</option>
             {KINDERGARTEN_TYPES.map((type) => (
@@ -585,7 +585,7 @@ export const MTTManagement = () => {
           <select
             value={workHoursFilter}
             onChange={e => setWorkHoursFilter(e.target.value)}
-            className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-wider outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
+            className="px-4 py-2.5 bg-[#101415] border border-white/10 rounded-xl text-xs font-black uppercase tracking-wider text-white outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
           >
             <option value="">Ish vaqti</option>
             {WORK_HOUR_OPTIONS.map((option) => (
@@ -598,7 +598,7 @@ export const MTTManagement = () => {
             <select
               value={sortMode}
               onChange={e => setSortMode(e.target.value)}
-              className="pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-wider outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
+              className="pl-8 pr-4 py-2.5 bg-[#101415] border border-white/10 rounded-xl text-xs font-black uppercase tracking-wider text-white outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
             >
               <option value="type-group">Turi bo'yicha</option>
               <option value="name-asc">Nomi A-Z</option>
@@ -610,26 +610,26 @@ export const MTTManagement = () => {
           </div>
 
           {/* View toggle */}
-          <div className="flex p-1 bg-slate-100 rounded-xl border border-slate-200">
+          <div className="flex p-1 bg-[#101415] rounded-xl border border-white/10">
             <button
               onClick={() => setViewMode('table')}
-              className={clsx("p-2 rounded-lg transition-all", viewMode === 'table' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600")}
+              className={clsx("p-2 rounded-lg transition-all", viewMode === 'table' ? "bg-gradient-to-r from-indigo-600 to-teal-500 text-white shadow-sm" : "text-slate-300 hover:text-white hover:bg-white/5")}
             >
               <List size={16} />
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={clsx("p-2 rounded-lg transition-all", viewMode === 'grid' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600")}
+              className={clsx("p-2 rounded-lg transition-all", viewMode === 'grid' ? "bg-gradient-to-r from-indigo-600 to-teal-500 text-white shadow-sm" : "text-slate-300 hover:text-white hover:bg-white/5")}
             >
               <Grid size={16} />
             </button>
           </div>
 
           {/* Export */}
-          <button className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition-all" title="Excel">
+          <button className="p-2.5 bg-[#101415] border border-white/10 rounded-xl text-slate-300 hover:text-white hover:border-emerald-400/25 hover:bg-white/5 transition-all" title="Excel">
             <FileSpreadsheet size={16} />
           </button>
-          <button className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition-all" title="PDF">
+          <button className="p-2.5 bg-[#101415] border border-white/10 rounded-xl text-slate-300 hover:text-white hover:border-emerald-400/25 hover:bg-white/5 transition-all" title="PDF">
             <Download size={16} />
           </button>
         </div>
@@ -639,29 +639,29 @@ export const MTTManagement = () => {
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div key="loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="py-24 text-center bg-white rounded-2xl border border-slate-100 shadow-sm">
+            className="py-24 text-center bg-[#181b1c] rounded-2xl border border-white/10 shadow-[0_18px_44px_rgba(0,0,0,0.22)]">
             <Loader2 className="animate-spin mx-auto text-indigo-500 mb-4" size={36} />
-            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Ma'lumotlar yuklanmoqda...</p>
+            <p className="text-xs font-black text-slate-300 uppercase tracking-widest">Ma'lumotlar yuklanmoqda...</p>
           </motion.div>
 
         ) : filtered.length === 0 ? (
           <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="py-24 text-center bg-white rounded-2xl border border-dashed border-slate-200 shadow-sm">
-            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Building2 size={28} className="text-slate-200" />
+            className="py-24 text-center bg-[#181b1c] rounded-2xl border border-dashed border-white/15 shadow-[0_18px_44px_rgba(0,0,0,0.22)]">
+            <div className="w-16 h-16 bg-white/[0.045] border border-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Building2 size={28} className="text-slate-300" />
             </div>
-            <h3 className="font-black text-slate-400 uppercase tracking-widest text-sm">Bog'chalar topilmadi</h3>
-            <p className="text-xs text-slate-400 mt-1.5">Qidiruv yoki filtrni o'zgartirib ko'ring</p>
+            <h3 className="font-black text-white uppercase tracking-widest text-sm">Bog'chalar topilmadi</h3>
+            <p className="text-xs text-slate-300 mt-1.5">Qidiruv yoki filtrni o'zgartirib ko'ring</p>
           </motion.div>
 
         ) : viewMode === 'table' ? (
           /* TABLE VIEW */
           <motion.div key="table" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            className="bg-[#181b1c] rounded-2xl border border-white/10 shadow-[0_24px_65px_rgba(0,0,0,0.25)] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[980px]">
                 <thead>
-                  <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 border-b border-slate-100">
+                  <tr className="text-[10px] font-black text-slate-300 uppercase tracking-widest bg-[#101415] border-b border-white/10">
                     <th className="px-6 py-4 text-left">Bog'cha nomi</th>
                     <th className="px-4 py-4 text-left">Tuman</th>
                     <th className="px-4 py-4 text-left">Turi</th>
@@ -672,20 +672,20 @@ export const MTTManagement = () => {
                     <th className="px-6 py-4 text-right">Amal</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-white/10">
                   {paged.map((item, i) => {
                     const tc = TYPE_CONFIG[item.type] || TYPE_CONFIG.Public;
                     const showTypeHeader = sortMode === 'type-group' && (i === 0 || paged[i - 1]?.type !== item.type);
                     return [
                       showTypeHeader ? (
-                        <tr key={`${item.type}-header`} className="bg-slate-100/70">
+                        <tr key={`${item.type}-header`} className="bg-white/[0.035]">
                           <td colSpan={8} className="px-6 py-3">
                             <div className="flex items-center gap-3">
                               <span className={clsx("w-2.5 h-2.5 rounded-full", tc.iconBg)} />
                               <span className={clsx("text-[11px] font-black uppercase tracking-[0.22em]", tc.color)}>
                                 {KINDERGARTEN_TYPE_GROUP_LABELS[item.type] || `${tc.label} bog'chalar`}
                               </span>
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
                                 {filtered.filter((row) => row.type === item.type).length} ta
                               </span>
                             </div>
@@ -698,7 +698,7 @@ export const MTTManagement = () => {
                         animate={{ opacity: 1 }}
                         transition={{ delay: i * 0.025 }}
                         onClick={() => {}}
-                        className="hover:bg-indigo-50/30 transition-all group cursor-pointer"
+                        className="hover:bg-white/[0.035] transition-all group cursor-pointer"
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -706,13 +706,13 @@ export const MTTManagement = () => {
                               <School size={18} />
                             </div>
                             <div>
-                              <p className="font-black text-slate-900 text-sm tracking-tight group-hover:text-indigo-600 transition-colors">{item.name}</p>
-                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">ID: {item.system_id || '-'}</p>
+                              <p className="font-black text-white text-sm tracking-tight group-hover:text-emerald-200 transition-colors">{item.name}</p>
+                              <p className="text-[9px] font-bold text-slate-300/80 uppercase tracking-widest mt-0.5">ID: {item.system_id || '-'}</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-4">
-                          <span className="text-xs font-bold text-slate-600">{item.district}</span>
+                          <span className="text-xs font-bold text-slate-200">{item.district}</span>
                         </td>
                         <td className="px-4 py-4">
                           <span className={clsx("text-[10px] font-black px-2.5 py-1 rounded-lg border uppercase tracking-wider", tc.bg, tc.color)}>
@@ -720,15 +720,15 @@ export const MTTManagement = () => {
                           </span>
                         </td>
                         <td className="px-4 py-4">
-                          <span className="inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 uppercase tracking-wider">
+                          <span className="inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-lg border border-white/10 bg-white/[0.045] text-slate-200 uppercase tracking-wider">
                             <Clock size={11} /> {getWorkHourLabel(item)}
                           </span>
                         </td>
                         <td className="px-4 py-4 text-center">
-                          <span className="text-sm font-black text-slate-900">{getChildrenCount(item)}</span>
+                          <span className="text-sm font-black text-white">{getChildrenCount(item)}</span>
                         </td>
                         <td className="px-4 py-4 text-center">
-                          <span className="text-sm font-black text-slate-900">{item.groups ?? 0}</span>
+                          <span className="text-sm font-black text-white">{item.groups ?? 0}</span>
                         </td>
                         <td className="px-4 py-4">
                           <StatusBadge status={item.status || 'Active'} />
@@ -737,20 +737,20 @@ export const MTTManagement = () => {
                           <div className="flex justify-end gap-2">
                             <button
                               onClick={e => { e.stopPropagation(); setCredItem(item); }}
-                              className="p-2 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-500 hover:text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 transition-all"
+                              className="p-2 bg-indigo-500/10 border border-indigo-400/20 rounded-xl text-indigo-200 hover:text-white hover:bg-indigo-500/20 hover:border-indigo-300/40 transition-all"
                               title="Ko'rish / Kirish"
                             >
                               <Eye size={15} />
                             </button>
                             <button
                               onClick={e => handleEdit(e, item)}
-                              className="p-2 bg-slate-50 border border-slate-100 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 transition-all"
+                              className="p-2 bg-white/[0.045] border border-white/10 rounded-xl text-slate-300 hover:text-white hover:bg-indigo-500/10 hover:border-indigo-400/30 transition-all"
                             >
                               <Edit size={15} />
                             </button>
                             <button
                               onClick={e => handleDelete(e, item)}
-                              className="p-2 bg-slate-50 border border-slate-100 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all"
+                              className="p-2 bg-white/[0.045] border border-white/10 rounded-xl text-slate-300 hover:text-rose-200 hover:bg-rose-500/10 hover:border-rose-400/30 transition-all"
                             >
                               <Trash2 size={15} />
                             </button>
@@ -778,7 +778,7 @@ export const MTTManagement = () => {
                     <h2 className={clsx("text-sm font-black uppercase tracking-[0.22em]", tc.color)}>
                       {KINDERGARTEN_TYPE_GROUP_LABELS[item.type] || `${tc.label} bog'chalar`}
                     </h2>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
                       {filtered.filter((row) => row.type === item.type).length} ta
                     </span>
                   </div>
@@ -790,7 +790,7 @@ export const MTTManagement = () => {
                   transition={{ delay: i * 0.03 }}
                   whileHover={{ y: -4 }}
                   onClick={() => setCredItem(item)}
-                  className="bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
+                  className="bg-[#181b1c] border border-white/10 rounded-2xl shadow-[0_18px_44px_rgba(0,0,0,0.22)] hover:border-emerald-400/25 hover:shadow-[0_24px_60px_rgba(0,0,0,0.34)] transition-all cursor-pointer group overflow-hidden"
                 >
                   {/* top stripe */}
                   <div className={clsx("h-1 w-full", tc.iconBg)} />
@@ -801,67 +801,67 @@ export const MTTManagement = () => {
                         <School size={20} />
                       </div>
                       <div className="flex items-center gap-2">
-                        <button onClick={e => { e.stopPropagation(); setCredItem(item); }} className="p-1.5 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all" title="Ko'rish">
+                        <button onClick={e => { e.stopPropagation(); setCredItem(item); }} className="p-1.5 rounded-lg text-indigo-300 hover:text-white hover:bg-indigo-500/10 transition-all" title="Ko'rish">
                           <Eye size={14} />
                         </button>
-                        <button onClick={e => handleEdit(e, item)} className="p-1.5 rounded-lg text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 transition-all">
+                        <button onClick={e => handleEdit(e, item)} className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-indigo-500/10 transition-all">
                           <Edit size={14} />
                         </button>
-                        <button onClick={e => handleDelete(e, item)} className="p-1.5 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all">
+                        <button onClick={e => handleDelete(e, item)} className="p-1.5 rounded-lg text-slate-300 hover:text-rose-200 hover:bg-rose-500/10 transition-all">
                           <Trash2 size={14} />
                         </button>
                         <StatusBadge status={item.status || 'Active'} />
                       </div>
                     </div>
 
-                    <h3 className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight mb-1">{item.name}</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 mb-4">
+                    <h3 className="text-sm font-black text-white group-hover:text-emerald-200 transition-colors leading-tight mb-1">{item.name}</h3>
+                    <p className="text-[10px] font-bold text-slate-300/85 uppercase tracking-widest flex items-center gap-1 mb-4">
                       <MapPin size={9} /> {item.district} / {tc.label}
                     </p>
 
                     <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
+                      <div className="bg-white/[0.045] rounded-xl p-3 border border-white/10">
+                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-wider flex items-center gap-1 mb-1">
                           <Users size={9} /> Bolalar
                         </p>
-                        <p className="text-lg font-black text-slate-900">{getChildrenCount(item)}</p>
+                        <p className="text-lg font-black text-white">{getChildrenCount(item)}</p>
                       </div>
-                      <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
+                      <div className="bg-white/[0.045] rounded-xl p-3 border border-white/10">
+                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-wider flex items-center gap-1 mb-1">
                           <Grid size={9} /> Guruhlar
                         </p>
-                        <p className="text-lg font-black text-slate-900">{item.groups ?? 0}</p>
+                        <p className="text-lg font-black text-white">{item.groups ?? 0}</p>
                       </div>
-                      <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 col-span-2">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
+                      <div className="bg-white/[0.045] rounded-xl p-3 border border-white/10 col-span-2">
+                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-wider flex items-center gap-1 mb-1">
                           <Clock size={9} /> Ish vaqti
                         </p>
-                        <p className="text-sm font-black text-slate-900">{getWorkHourLabel(item)}</p>
+                        <p className="text-sm font-black text-white">{getWorkHourLabel(item)}</p>
                       </div>
                     </div>
 
-                    <div className="border-t border-slate-50 pt-4 space-y-2">
+                    <div className="border-t border-white/10 pt-4 space-y-2">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                          <User size={11} className="text-slate-400" />
+                        <div className="w-7 h-7 rounded-full bg-white/[0.045] border border-white/10 flex items-center justify-center shrink-0">
+                          <User size={11} className="text-slate-300" />
                         </div>
                         <div>
-                          <p className="text-[8px] font-black text-slate-400 uppercase">Direktor</p>
-                          <p className="text-xs font-bold text-slate-700 leading-tight">{item.directorName || '-'}</p>
+                          <p className="text-[8px] font-black text-slate-300 uppercase">Direktor</p>
+                          <p className="text-xs font-bold text-white leading-tight">{item.directorName || '-'}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                          <Phone size={11} className="text-slate-400" />
+                        <div className="w-7 h-7 rounded-full bg-white/[0.045] border border-white/10 flex items-center justify-center shrink-0">
+                          <Phone size={11} className="text-slate-300" />
                         </div>
                         <div>
-                          <p className="text-[8px] font-black text-slate-400 uppercase">Telefon</p>
-                          <p className="text-xs font-bold text-slate-700">{item.phone || '-'}</p>
+                          <p className="text-[8px] font-black text-slate-300 uppercase">Telefon</p>
+                          <p className="text-xs font-bold text-white">{item.phone || '-'}</p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-4 flex justify-end items-center gap-1 text-[10px] font-black text-indigo-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="mt-4 flex justify-end items-center gap-1 text-[10px] font-black text-emerald-200 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
                       Batafsil <ChevronRight size={12} />
                     </div>
                   </div>
@@ -873,8 +873,8 @@ export const MTTManagement = () => {
       </AnimatePresence>
 
       {!loading && filtered.length > 0 && (
-        <div className="bg-white border border-slate-100 rounded-2xl px-5 py-4 shadow-sm flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+        <div className="bg-[#181b1c] border border-white/10 rounded-2xl px-5 py-4 shadow-[0_18px_44px_rgba(0,0,0,0.22)] flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
             {pageStart + 1}-{pageEnd} / {filtered.length} ta bog'cha
           </p>
 
@@ -883,7 +883,7 @@ export const MTTManagement = () => {
               type="button"
               onClick={() => setPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 transition-all hover:border-indigo-300 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-[#101415] text-slate-300 transition-all hover:border-indigo-400/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Oldingi sahifa"
             >
               <ChevronLeft size={16} />
@@ -897,8 +897,8 @@ export const MTTManagement = () => {
                 className={clsx(
                   "h-9 min-w-9 rounded-xl px-3 text-[11px] font-black transition-all",
                   item === currentPage
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
-                    : "border border-slate-200 bg-slate-50 text-slate-500 hover:border-indigo-300 hover:text-indigo-600"
+                    ? "bg-gradient-to-r from-indigo-600 to-teal-500 text-white shadow-lg shadow-indigo-900/25"
+                    : "border border-white/10 bg-[#101415] text-slate-300 hover:border-indigo-400/40 hover:text-white"
                 )}
               >
                 {item}
@@ -909,7 +909,7 @@ export const MTTManagement = () => {
               type="button"
               onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 transition-all hover:border-indigo-300 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-[#101415] text-slate-300 transition-all hover:border-indigo-400/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Keyingi sahifa"
             >
               <ChevronRight size={16} />
