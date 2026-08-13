@@ -9,13 +9,13 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] font-sans text-slate-900 flex overflow-hidden">
+    <div className="min-h-screen bg-[#0b0f10] font-sans text-slate-100 flex overflow-hidden">
       {/* Sidebar - Desktop is fixed, Mobile is toggleable */}
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       
-      <div className="flex-1 flex flex-col min-h-screen overflow-hidden lg:ml-80 w-full">
+      <div className="flex-1 flex flex-col min-h-screen overflow-hidden lg:ml-[284px] w-full">
         <Topbar onMenuClick={toggleSidebar} />
-        <main className="flex-1 p-3 sm:p-5 lg:p-8 overflow-auto custom-scrollbar">
+        <main className="admin-content flex-1 bg-[#0b0f10] p-3 sm:p-5 lg:p-8 overflow-auto custom-scrollbar">
           {children}
         </main>
       </div>

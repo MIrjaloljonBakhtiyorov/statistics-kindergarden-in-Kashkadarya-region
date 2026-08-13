@@ -2,7 +2,6 @@ import React from 'react';
 import { ArrowLeft, Bell, CalendarDays, Clock, Menu, LogOut, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ThemeToggle } from '@/shared/theme/theme';
 
 interface TopbarProps {
   onMenuClick: () => void;
@@ -52,87 +51,87 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
   const weekdayNames = ['yakshanba', 'dushanba', 'seshanba', 'chorshanba', 'payshanba', 'juma', 'shanba'];
   const formattedTime = `${pad(time.getHours())}:${pad(time.getMinutes())}`;
   const formattedSeconds = pad(time.getSeconds());
-  const formattedDate = `${pad(time.getDate())} ${monthNames[time.getMonth()]}, ${weekdayNames[time.getDay()]}`;
+  const formattedDate = `${pad(time.getDate())} ${monthNames[time.getMonth()]}, ${weekdayNames[time.getDay()]}`.toUpperCase();
   const formattedYear = time.getFullYear();
 
   return (
     <>
-    <header className="h-20 lg:h-24 bg-white/60 backdrop-blur-2xl border-b border-slate-200/40 sticky top-0 z-[80] flex items-center justify-between px-6 sm:px-10 w-full gap-4 transition-all">
-      <div className="flex items-center gap-6 overflow-hidden">
-        <button 
+    <div className="h-[77px] shrink-0" />
+    <div className="fixed left-1.5 right-1.5 top-1.5 z-[80] bg-[#0b0f10] pb-2 lg:left-[292px] lg:right-2">
+    <header className="h-[62px] w-full rounded-[2.9px] border border-[#2a2a2d] bg-[#151515] px-4 text-white shadow-[0_18px_44px_rgba(0,0,0,0.18)]">
+      <div className="flex h-full min-w-0 items-center justify-between gap-4">
+      <div className="flex min-w-0 items-center gap-3 sm:gap-5 overflow-hidden">
+        <button
           onClick={onMenuClick}
-          className="lg:hidden p-3 text-slate-600 hover:bg-slate-100 rounded-2xl transition-all shrink-0"
+          className="lg:hidden flex h-9 w-9 shrink-0 items-center justify-center rounded-[2.9px] border border-white/10 bg-white/[0.035] text-slate-200 transition-all hover:bg-white/[0.075] active:scale-95"
+          aria-label="Menyuni ochish"
         >
-          <Menu size={24} />
+          <Menu size={19} />
         </button>
 
-      </div>
-
-      <div className="flex items-center gap-4 sm:gap-8 shrink-0">
-        <div className="hidden xl:flex items-center gap-3 rounded-[1.4rem] border border-slate-200/70 bg-white/80 px-3.5 py-2.5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] ring-1 ring-white/70 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/80 dark:ring-white/5">
-          <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/25">
-            <Clock size={18} />
-            <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-400 dark:border-slate-900" />
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[2.9px] border border-white/10 bg-white/[0.035] text-emerald-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <Clock size={16} />
           </div>
-          <div className="min-w-[150px]">
-            <div className="flex items-end gap-1.5 leading-none text-slate-950 dark:text-white">
-              <span className="text-2xl font-black tabular-nums tracking-tight">{formattedTime}</span>
-              <span className="pb-0.5 text-[11px] font-black tabular-nums text-indigo-500">:{formattedSeconds}</span>
-            </div>
-            <div className="mt-1.5 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
-              <CalendarDays size={11} className="text-indigo-400" />
+          <div className="flex min-w-0 items-baseline gap-1.5 leading-none">
+            <span className="text-[18px] font-black tabular-nums tracking-normal text-white sm:text-[19px]">{formattedTime}</span>
+            <span className="text-[10px] font-black tabular-nums text-emerald-400">:{formattedSeconds}</span>
+          </div>
+          <div className="hidden h-8 w-px bg-white/10 sm:block" />
+          <div className="hidden min-w-0 items-center gap-2 sm:flex">
+            <CalendarDays size={14} className="shrink-0 text-emerald-400" />
+            <div className="min-w-0 truncate text-[11px] font-black uppercase tracking-normal text-slate-200">
               <span>{formattedDate}</span>
-              <span className="text-slate-300">/</span>
-              <span>{formattedYear}</span>
+              <span className="ml-2 text-[10px] text-slate-500">{formattedYear}</span>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="h-10 w-[1px] bg-slate-200/60 hidden sm:block"></div>
-
-        <div className="flex items-center gap-4 sm:gap-6">
-          <ThemeToggle className="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all relative group shadow-sm hover:shadow-indigo-500/10 active:scale-95 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-indigo-300" />
-
+      <div className="flex shrink-0 items-center gap-3 sm:gap-5">
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsRegionNotificationsOpen((value) => !value)}
               className={[
-                "p-3 rounded-2xl transition-all relative group shadow-sm hover:shadow-indigo-500/10 active:scale-95",
+                "relative flex h-11 w-11 items-center justify-center rounded-[2.9px] border border-white/10 bg-white/[0.035] text-slate-200 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:bg-white/[0.075] active:scale-95",
                 isRegionNotificationsOpen
-                  ? "bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100 shadow-indigo-500/10"
-                  : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-indigo-300"
+                  ? "text-emerald-300 ring-1 ring-emerald-400/30"
+                  : "hover:text-white"
               ].join(' ')}
               title="Hududlar"
             >
-              <Bell size={22} />
-              <span className="absolute right-2.5 top-2.5 h-3 w-3 rounded-full bg-rose-500 shadow-lg ring-4 ring-white"></span>
+              <Bell size={18} />
+              <span className="absolute right-2.5 top-2.5 h-2.5 w-2.5 rounded-full bg-rose-500 shadow-[0_0_14px_rgba(244,63,94,0.9)] ring-2 ring-[#151515]"></span>
             </button>
           </div>
-          
-          <div className="flex items-center gap-4 pl-2 group">
-            <div className="text-right hidden md:block select-none">
-              <span className="block text-sm font-black text-slate-900 leading-none group-hover:text-indigo-600 transition-colors">Mirjalol S.</span>
-              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Super Admin</span>
+
+          <div className="hidden h-8 w-px bg-white/10 md:block" />
+
+          <div className="flex items-center gap-3 group">
+            <div className="hidden items-center gap-6 md:flex select-none">
+              <span className="text-[13px] font-black uppercase leading-none tracking-normal text-slate-100">Mister Italiano</span>
+              <span className="text-[9px] font-black uppercase leading-none tracking-[0.34em] text-emerald-400">Super Admin</span>
             </div>
-            
+
             <div className="relative">
-              <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-white flex items-center justify-center text-slate-700 transition-all group-hover:scale-110 group-hover:rotate-3 shadow-xl shadow-slate-200/50 group-hover:shadow-indigo-500/10 cursor-pointer overflow-hidden ring-1 ring-slate-200/60">
-                <span className="text-xs font-black font-mono">MS</span>
+              <div className="flex h-10 w-10 items-center justify-center rounded-[2.9px] border border-white/10 bg-white/[0.035] text-slate-100 transition-all group-hover:bg-white/[0.075] cursor-pointer shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                <span className="text-[11px] font-black uppercase">MI</span>
               </div>
             </div>
 
-            <button 
+            <button
               onClick={handleLogout}
-              className="p-3 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-2xl transition-all shadow-sm hover:shadow-rose-500/10 active:scale-95"
+              className="flex h-10 w-10 items-center justify-center rounded-[2.9px] border border-white/10 bg-white/[0.035] text-slate-200 transition-all hover:bg-white/[0.075] hover:text-rose-300 active:scale-95"
               title="Chiqish"
             >
-              <LogOut size={20} />
+              <LogOut size={18} />
             </button>
           </div>
-        </div>
+      </div>
       </div>
     </header>
+    </div>
     {isRegionNotificationsOpen && (
       <>
         <button
@@ -149,15 +148,15 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
           role="dialog"
           aria-modal="true"
           aria-label="Hududlar oynasi"
-          className="fixed bottom-0 right-0 top-0 z-[120] flex w-full overflow-hidden rounded-[1px] border-l border-slate-200/80 bg-white p-3 shadow-[0_24px_80px_rgba(15,23,42,0.22)] sm:w-[520px]"
+          className="fixed bottom-0 right-0 top-0 z-[120] flex w-full overflow-hidden rounded-[1px] border-l border-white/10 bg-[#121719] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.42)] sm:w-[520px]"
         >
           <div className="flex min-h-0 w-full flex-col">
-            <div className="shrink-0 rounded-[1px] border border-slate-100 bg-white px-4 py-3 shadow-sm">
+            <div className="shrink-0 rounded-[1px] border border-white/10 bg-[#181b1c] px-4 py-3 shadow-sm">
               <div className="flex flex-col gap-3">
                 <button
                   type="button"
                   onClick={() => setIsRegionNotificationsOpen(false)}
-                  className="inline-flex w-fit items-center gap-2 rounded-[1px] border border-slate-200 bg-white px-3 py-2 text-[11px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition-all hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+                  className="inline-flex w-fit items-center gap-2 rounded-[1px] border border-white/10 bg-[#202425] px-3 py-2 text-[11px] font-black uppercase tracking-widest text-slate-200 shadow-sm transition-all hover:border-emerald-400/40 hover:bg-white/10 hover:text-white"
                 >
                   <ArrowLeft size={15} />
                   Qaytish
@@ -165,7 +164,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-400">Viloyat statistikasi</p>
-                    <h3 className="mt-1 text-sm font-black text-slate-950">Hududni tanlang</h3>
+                    <h3 className="mt-1 text-sm font-black text-white">Hududni tanlang</h3>
                     <p className="mt-1 text-[11px] font-bold text-slate-500">
                       14 ta hudud: viloyatlar, respublika va Toshkent shahri
                     </p>
@@ -191,20 +190,20 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
                     className={[
                       "group flex w-full items-start gap-3 rounded-[1px] border px-3 py-3 text-left transition-all duration-200",
                       isReady
-                        ? "border-indigo-200 bg-indigo-50/80 shadow-sm shadow-indigo-100"
-                        : "border-slate-100 bg-white shadow-sm shadow-slate-100/70 hover:border-indigo-100 hover:bg-slate-50 hover:shadow-md"
+                        ? "border-emerald-400/25 bg-emerald-500/10 shadow-sm"
+                        : "border-white/10 bg-[#181b1c] shadow-sm hover:border-emerald-400/25 hover:bg-white/5 hover:shadow-md"
                     ].join(' ')}
                   >
                     <div className={[
                       "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1px] transition-colors",
                       isReady
-                        ? "bg-white text-indigo-600 shadow-sm ring-1 ring-indigo-100"
-                        : "bg-indigo-50 text-indigo-500 group-hover:bg-indigo-600 group-hover:text-white"
+                        ? "bg-emerald-500/15 text-emerald-300 shadow-sm ring-1 ring-emerald-400/20"
+                        : "bg-white/5 text-emerald-300 group-hover:bg-emerald-500/15 group-hover:text-emerald-200"
                     ].join(' ')}>
                       <MapPin size={15} />
                     </div>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[12px] font-black leading-tight text-slate-950 group-hover:text-indigo-600">
+                      <span className="block truncate text-[12px] font-black leading-tight text-white group-hover:text-emerald-200">
                         {region.name}
                       </span>
                       <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
