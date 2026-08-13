@@ -55,14 +55,14 @@ export const GalleryImageUploader = ({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
+    <div className="rounded-2xl border border-white/10 bg-[#0b1110] p-3 sm:p-4">
       <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div className="min-w-0">
-          <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Bog'cha hayotidan lavhalar</h3>
-          <p className="mt-1 text-xs font-bold text-slate-500">{images.length}/{max} ta rasm yuklangan</p>
+          <h3 className="text-sm font-black uppercase tracking-widest text-white">Bog'cha hayotidan lavhalar</h3>
+          <p className="mt-1 text-xs font-bold text-slate-300">{images.length}/{max} ta rasm yuklangan</p>
         </div>
         <label className={`inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white transition-colors sm:w-auto ${
-          isFull || uploading ? 'bg-slate-300' : 'bg-emerald-600 hover:bg-emerald-700'
+          isFull || uploading ? 'bg-slate-700' : 'bg-emerald-600 hover:bg-emerald-500'
         }`}>
           {uploading ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
           Rasm yuklash
@@ -82,7 +82,7 @@ export const GalleryImageUploader = ({
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {images.map((image, index) => (
-          <div key={`${image}-${index}`} className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div key={`${image}-${index}`} className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/10 bg-[#111615]">
             <img src={displayAssetUrl(image)} alt="" className="h-full w-full object-cover" />
             <button
               type="button"
@@ -95,9 +95,9 @@ export const GalleryImageUploader = ({
           </div>
         ))}
         {!isFull && (
-          <label className="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white text-center transition-colors hover:border-emerald-300 hover:bg-emerald-50">
-            <Camera className="text-emerald-500" size={26} />
-            <span className="mt-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Rasm qo'shish</span>
+          <label className="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-emerald-400/25 bg-[#08100f] text-center transition-colors hover:border-emerald-400/50 hover:bg-emerald-400/10">
+            <Camera className="text-emerald-300" size={26} />
+            <span className="mt-2 text-[10px] font-black uppercase tracking-widest text-slate-300">Rasm qo'shish</span>
             <input
               type="file"
               accept="image/*"

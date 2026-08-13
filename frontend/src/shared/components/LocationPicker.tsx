@@ -217,7 +217,7 @@ export const LocationPicker = ({
       <div
         ref={inModal ? modalMapRef : mapRef}
         onClick={(event) => handleMapClick(event, inModal)}
-        className={`relative overflow-hidden rounded-lg border border-slate-200 bg-slate-100 ${inModal ? 'h-[64vh] min-h-[420px] w-full' : mapClassName} ${
+        className={`relative overflow-hidden rounded-lg border border-white/10 bg-[#08100f] ${inModal ? 'h-[64vh] min-h-[420px] w-full' : mapClassName} ${
           readOnly ? '' : expandable && !inModal ? 'cursor-zoom-in' : 'cursor-crosshair'
         }`}
       >
@@ -239,19 +239,19 @@ export const LocationPicker = ({
             style={{ left: marker.left, top: marker.top }}
           >
             <MapPin className="fill-blue-600 text-white drop-shadow-lg" size={inModal ? 42 : 32} />
-            <span className="mt-1 max-w-[160px] truncate rounded-full bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-blue-700 shadow-sm ring-1 ring-blue-100">
+            <span className="mt-1 max-w-[160px] truncate rounded-full bg-[#0b1110] px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-blue-200 shadow-sm ring-1 ring-blue-400/20">
               {marker.label}
             </span>
           </div>
         ))}
         <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-full flex-col items-center">
           <MapPin className="fill-emerald-600 text-white drop-shadow-lg" size={inModal ? 52 : 42} />
-          <span className="mt-1 rounded-full bg-white px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-emerald-700 shadow-sm">
+          <span className="mt-1 rounded-full bg-[#0b1110] px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-emerald-200 shadow-sm ring-1 ring-emerald-400/20">
             {markerLabel || (hasLocation ? 'Tanlangan joy' : 'Markaz')}
           </span>
         </div>
         {!readOnly && (
-          <div className="absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-lg bg-white/92 px-3 py-2 text-[12px] font-black uppercase tracking-widest text-slate-700 shadow-sm">
+          <div className="absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-lg bg-[#0b1110]/92 px-3 py-2 text-[12px] font-black uppercase tracking-widest text-white shadow-sm ring-1 ring-white/10">
             {expandable && !inModal ? <Maximize2 size={13} /> : <Crosshair size={13} />}
             {expandable && !inModal ? 'Xaritani kattalashtirish' : 'Xaritadan bosing'}
           </div>
@@ -264,32 +264,32 @@ export const LocationPicker = ({
               setZoom((value) => Math.max(value, 16));
               setIsMapModalOpen(true);
             }}
-            className="absolute right-14 top-3 flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+            className="absolute right-14 top-3 flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-[#0b1110] text-white shadow-sm transition-colors hover:bg-emerald-500/20 hover:text-emerald-200"
             aria-label="Xaritani kattalashtirish"
           >
             <Maximize2 size={16} />
           </button>
         )}
-        <div className="absolute right-3 top-3 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="absolute right-3 top-3 overflow-hidden rounded-lg border border-white/10 bg-[#0b1110] shadow-sm">
           <button
             type="button"
             onClick={(event) => {
               event.stopPropagation();
               setZoom((value) => Math.min(MAX_ZOOM, value + 1));
             }}
-            className="flex h-9 w-9 items-center justify-center text-slate-700 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+            className="flex h-9 w-9 items-center justify-center text-white transition-colors hover:bg-emerald-500/20 hover:text-emerald-200"
             aria-label="Xaritani kattalashtirish"
           >
             <Plus size={16} />
           </button>
-          <div className="h-px bg-slate-200" />
+          <div className="h-px bg-white/10" />
           <button
             type="button"
             onClick={(event) => {
               event.stopPropagation();
               setZoom((value) => Math.max(MIN_ZOOM, value - 1));
             }}
-            className="flex h-9 w-9 items-center justify-center text-slate-700 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+            className="flex h-9 w-9 items-center justify-center text-white transition-colors hover:bg-emerald-500/20 hover:text-emerald-200"
             aria-label="Xaritani kichiklashtirish"
           >
             <Minus size={16} />
@@ -300,11 +300,11 @@ export const LocationPicker = ({
   };
 
   return (
-    <div className={`rounded-lg border border-emerald-100 bg-white p-4 shadow-sm ${className}`}>
+    <div className={`rounded-2xl border border-white/10 bg-[#0b1110] p-4 shadow-sm ${className}`}>
       {!hideHeader && <div className="mb-3 flex flex-col gap-3">
         <div className="min-w-0">
-          <p className="text-[12px] font-black uppercase leading-snug tracking-[0.12em] text-emerald-700">{label}</p>
-          <p className="mt-1 break-words text-[13px] font-extrabold leading-snug text-slate-600">
+          <p className="text-[12px] font-black uppercase leading-snug tracking-[0.12em] text-emerald-200">{label}</p>
+          <p className="mt-1 break-words text-[13px] font-extrabold leading-snug text-slate-300">
             {locationText}
           </p>
         </div>
@@ -314,7 +314,7 @@ export const LocationPicker = ({
               type="button"
               onClick={useCurrentLocation}
               disabled={locating}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-center text-[12px] font-black uppercase tracking-[0.12em] text-emerald-700 disabled:cursor-wait disabled:opacity-70"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-center text-[12px] font-black uppercase tracking-[0.12em] text-emerald-200 disabled:cursor-wait disabled:opacity-70"
             >
               {locating ? <Loader2 size={14} className="animate-spin" /> : <LocateFixed size={14} />}
               {locating ? 'Aniqlanmoqda' : 'Joriy joy'}
@@ -329,7 +329,7 @@ export const LocationPicker = ({
       </div>}
 
       {locationError && (
-        <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[13px] font-bold text-amber-700">
+        <div className="mb-3 rounded-lg border border-amber-400/20 bg-amber-400/10 px-3 py-2 text-[13px] font-bold text-amber-200">
           {locationError}. Brauzerda lokatsiyaga ruxsat bering yoki xaritadan qo'lda belgilang.
         </div>
       )}
@@ -339,23 +339,23 @@ export const LocationPicker = ({
       {!readOnly && showCoordinateInputs && (
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <label>
-            <span className="text-[12px] font-black uppercase tracking-widest text-slate-500">Latitude</span>
+            <span className="text-[12px] font-black uppercase tracking-widest text-slate-300">Latitude</span>
             <input
               type="number"
               step="0.000001"
               value={selectedLat ?? ''}
               onChange={(event) => setLocation(event.target.value === '' ? null : Number(event.target.value), selectedLng)}
-              className="mt-2 h-12 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-base font-extrabold text-slate-900 outline-none focus:border-emerald-300"
+              className="mt-2 h-12 w-full rounded-lg border border-white/10 bg-[#08100f] px-3 text-base font-extrabold text-white outline-none focus:border-emerald-400/60"
             />
           </label>
           <label>
-            <span className="text-[12px] font-black uppercase tracking-widest text-slate-500">Longitude</span>
+            <span className="text-[12px] font-black uppercase tracking-widest text-slate-300">Longitude</span>
             <input
               type="number"
               step="0.000001"
               value={selectedLng ?? ''}
               onChange={(event) => setLocation(selectedLat, event.target.value === '' ? null : Number(event.target.value))}
-              className="mt-2 h-12 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-base font-extrabold text-slate-900 outline-none focus:border-emerald-300"
+              className="mt-2 h-12 w-full rounded-lg border border-white/10 bg-[#08100f] px-3 text-base font-extrabold text-white outline-none focus:border-emerald-400/60"
             />
           </label>
         </div>
@@ -370,18 +370,18 @@ export const LocationPicker = ({
           onClick={() => setIsMapModalOpen(false)}
         >
           <div
-            className="w-full max-w-5xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.22)]"
+            className="w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 bg-[#111615] shadow-[0_30px_90px_rgba(0,0,0,0.42)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-700">{label}</p>
-                <h3 className="text-lg font-black leading-tight text-slate-950">{modalTitle}</h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200">{label}</p>
+                <h3 className="text-lg font-black leading-tight text-white">{modalTitle}</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsMapModalOpen(false)}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:bg-slate-950 hover:text-white"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#0b1110] text-white shadow-sm transition-colors hover:bg-white/10"
                 aria-label="Modalni yopish"
               >
                 <X size={18} />
