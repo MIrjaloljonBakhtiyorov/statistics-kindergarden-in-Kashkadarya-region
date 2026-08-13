@@ -40,6 +40,13 @@ const emptyForm: AdvertisementForm = {
   text: '',
 };
 
+const inputClass =
+  'w-full rounded-2xl border border-white/10 bg-[#0b1110] px-4 text-sm font-bold text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/50 focus:ring-4 focus:ring-emerald-500/10';
+const inputH12Class = `h-12 ${inputClass}`;
+const inputH11Class = `h-11 ${inputClass}`;
+const panelClass = 'border border-white/10 bg-[#111615] shadow-[0_18px_55px_rgba(0,0,0,0.24)]';
+const chipClass = 'rounded-full border border-white/10 bg-[#0b1110] px-3 py-1 text-[10px] font-black text-slate-200';
+
 const apiRoot = String(apiClient.defaults.baseURL || '').replace(/\/api\/?$/, '');
 const mediaUrl = (url?: string) => {
   if (!url) return '';
@@ -138,7 +145,7 @@ export const Advertising = () => {
       description: 'Media, matn va havolani bitta joyda tayyorlang.',
       value: 'Yangi',
       icon: Plus,
-      tone: 'border-indigo-100 bg-indigo-50 text-indigo-700',
+      tone: 'border-violet-400/25 bg-violet-400/10 text-violet-300',
     },
     {
       id: 'active' as const,
@@ -146,7 +153,7 @@ export const Advertising = () => {
       description: 'Saqlangan va foydalanuvchilarga ko‘rinadigan reklamalar.',
       value: `${activeAds.length} ta`,
       icon: Eye,
-      tone: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+      tone: 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300',
     },
     {
       id: 'inactive' as const,
@@ -154,7 +161,7 @@ export const Advertising = () => {
       description: 'To‘xtatilgan yoki keyinroq ishlatiladigan reklamalar.',
       value: `${inactiveAds.length} ta`,
       icon: EyeOff,
-      tone: 'border-slate-200 bg-slate-50 text-slate-700',
+      tone: 'border-slate-400/25 bg-slate-400/10 text-slate-300',
     },
   ];
 
@@ -356,10 +363,10 @@ export const Advertising = () => {
   const shownAds = activePanel === 'inactive' ? inactiveAds : activeAds;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#08100f] p-4 text-white sm:p-6 lg:p-8">
       <div>
-        <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Reklama</h1>
-        <p className="mt-2 text-sm font-semibold text-slate-500">Reklamalarni yaratish, faollashtirish va boshqarish.</p>
+        <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">Reklama</h1>
+        <p className="mt-2 text-sm font-semibold text-slate-300">Reklamalarni yaratish, faollashtirish va boshqarish.</p>
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -368,28 +375,28 @@ export const Advertising = () => {
             key={card.id}
             type="button"
             onClick={() => setActivePanel(activePanel === card.id ? null : card.id)}
-            className={`group relative min-h-[190px] overflow-hidden rounded-3xl border bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-100/60 active:scale-[0.99] ${
-              activePanel === card.id ? 'border-indigo-200 ring-4 ring-indigo-50' : 'border-slate-200'
+            className={`group relative min-h-[180px] overflow-hidden rounded-[22px] p-5 text-left transition hover:-translate-y-0.5 hover:border-emerald-400/25 hover:shadow-[0_24px_72px_rgba(0,0,0,0.34)] active:scale-[0.99] ${panelClass} ${
+              activePanel === card.id ? 'ring-4 ring-emerald-500/10 border-emerald-400/35' : ''
             }`}
           >
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-slate-950 via-blue-800 to-indigo-600" />
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#533cff] via-[#1666ff] to-[#00b7a8]" />
             <div className="flex items-start justify-between gap-4">
               <span className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${card.tone}`}>
                 <card.icon size={22} />
               </span>
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-black text-slate-600">
+              <span className={chipClass}>
                 {loading && card.id !== 'create' ? '...' : card.value}
               </span>
             </div>
-            <h2 className="mt-5 text-lg font-black text-slate-950">{card.title}</h2>
-            <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">{card.description}</p>
+            <h2 className="mt-5 text-lg font-black text-white">{card.title}</h2>
+            <p className="mt-2 text-sm font-semibold leading-6 text-slate-300">{card.description}</p>
           </button>
         ))}
       </div>
 
       {activePanel === 'create' && (
-        <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 p-5 sm:p-6">
+        <section className={`mt-6 overflow-hidden rounded-[22px] ${panelClass}`}>
+          <div className="border-b border-white/10 p-5 sm:p-6">
           <PanelHeader title="Yangi reklama" label="Reklama yaratish" onClose={() => setActivePanel(null)} />
           </div>
 
@@ -399,7 +406,7 @@ export const Advertising = () => {
                 <input
                   value={form.name}
                   onChange={(event) => updateForm('name', event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                  className={inputH12Class}
                   placeholder="Masalan: Yozgi qabul reklamasi"
                 />
               </Field>
@@ -410,7 +417,7 @@ export const Advertising = () => {
                   min={0}
                   value={form.displayCount}
                   onChange={(event) => updateForm('displayCount', event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                  className={inputH12Class}
                 />
               </Field>
 
@@ -420,7 +427,7 @@ export const Advertising = () => {
                   min={1}
                   value={form.durationDays}
                   onChange={(event) => updateForm('durationDays', event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                  className={inputH12Class}
                 />
               </Field>
 
@@ -428,13 +435,13 @@ export const Advertising = () => {
                 <input
                   value={form.linkUrl}
                   onChange={(event) => updateForm('linkUrl', event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                  className={inputH12Class}
                   placeholder="Masalan: https://example.com"
                 />
               </Field>
 
               <Field label="Reklama rasmi yoki videosi">
-                <label className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-indigo-200 bg-indigo-50 px-4 text-sm font-black text-indigo-700 transition hover:bg-indigo-100">
+                <label className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-emerald-400/30 bg-emerald-400/10 px-4 text-sm font-black text-emerald-300 transition hover:bg-emerald-400/15">
                   {uploading ? <Loader2 className="animate-spin" size={17} /> : <Upload size={17} />}
                   {uploading ? 'Yuklanmoqda...' : form.imageUrl ? 'Media almashtirish' : 'Rasm/video yuklash'}
                   <input
@@ -454,54 +461,54 @@ export const Advertising = () => {
                     value={form.text}
                     onChange={(event) => updateForm('text', event.target.value)}
                     rows={5}
-                    className="w-full resize-none rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold leading-6 text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                    className={`${inputClass} resize-none py-3 leading-6`}
                     placeholder="Rasm yoki video bo‘lmasa, reklama matnini shu yerga kiriting."
                   />
                 </Field>
               </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-inner shadow-slate-200/60">
+            <div className="rounded-[22px] border border-white/10 bg-[#0b1110] p-4 shadow-inner">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Preview</p>
-                  <h3 className="mt-1 text-base font-black text-slate-950">Ota-ona portalida ko‘rinishi</h3>
+                  <h3 className="mt-1 text-base font-black text-white">Ota-ona portalida ko‘rinishi</h3>
                 </div>
-                <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-[10px] font-black text-emerald-700">
+                <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-[10px] font-black text-emerald-300">
                   Faol
                 </span>
               </div>
-              <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-                <div className="relative flex h-56 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
+              <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#111615] shadow-[0_14px_45px_rgba(0,0,0,0.28)]">
+                <div className="relative flex h-56 items-center justify-center overflow-hidden bg-gradient-to-br from-[#101817] via-[#11182b] to-[#07100f]">
                 {form.imageUrl && form.mediaType === 'video' ? (
                   <video src={mediaUrl(form.imageUrl)} className="h-full w-full object-cover" controls />
                 ) : form.imageUrl ? (
                   <img src={mediaUrl(form.imageUrl)} alt={form.name || 'Reklama rasmi'} className="h-full w-full object-cover" />
                 ) : (
                   <div className="text-center">
-                    <ImagePlus className="mx-auto text-slate-300" size={38} />
+                    <ImagePlus className="mx-auto text-slate-500" size={38} />
                     <p className="mt-3 text-sm font-black text-slate-400">Media preview</p>
                   </div>
                 )}
-                  <span className="absolute left-3 top-3 rounded-full border border-white/60 bg-white/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-slate-950 shadow-sm backdrop-blur">
+                  <span className="absolute left-3 top-3 rounded-full border border-white/10 bg-[#0b1110]/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-sm backdrop-blur">
                     Reklama
                   </span>
                 </div>
                 <div className="p-4">
                   <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-black text-slate-500">
+                    <span className={chipClass}>
                       {form.durationDays || 1} kun
                     </span>
-                    <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[10px] font-black text-blue-700">
+                    <span className="rounded-full border border-sky-400/25 bg-sky-400/10 px-3 py-1 text-[10px] font-black text-sky-300">
                       {form.displayCount || 0} marta
                     </span>
                   </div>
-                  <h4 className="mt-3 break-words text-lg font-black text-slate-950">
+                  <h4 className="mt-3 break-words text-lg font-black text-white">
                     {form.name.trim() || 'Reklama nomi'}
                   </h4>
-                  {form.text ? <p className="mt-2 line-clamp-4 text-sm font-semibold leading-6 text-slate-600">{form.text}</p> : null}
+                  {form.text ? <p className="mt-2 line-clamp-4 text-sm font-semibold leading-6 text-slate-300">{form.text}</p> : null}
                   {form.linkUrl ? (
-                    <div className="mt-4 inline-flex max-w-full items-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">
+                    <div className="mt-4 inline-flex max-w-full items-center gap-2 rounded-2xl border border-emerald-400/25 bg-emerald-400/10 px-3 py-2 text-xs font-black text-emerald-300">
                       <ExternalLink size={14} />
                       <span className="truncate">Havolaga o‘tish</span>
                     </div>
@@ -512,7 +519,7 @@ export const Advertising = () => {
                 type="button"
                 onClick={saveAdvertisement}
                 disabled={saving || uploading}
-                className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#533cff] to-[#00b7a8] px-5 text-sm font-black text-white shadow-lg shadow-cyan-950/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? <Loader2 className="animate-spin" size={17} /> : <Save size={17} />}
                 {saving ? 'Saqlanmoqda...' : 'Saqlash'}
@@ -523,7 +530,7 @@ export const Advertising = () => {
       )}
 
       {(activePanel === 'active' || activePanel === 'inactive') && (
-        <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className={`mt-6 rounded-[22px] p-5 sm:p-6 ${panelClass}`}>
           <PanelHeader
             title={activePanel === 'active' ? 'Faol reklamalar' : 'Nofaol reklamalar'}
             label={activePanel === 'active' ? `${activeAds.length} ta faol` : `${inactiveAds.length} ta nofaol`}
@@ -537,15 +544,15 @@ export const Advertising = () => {
               const plannedCount = Number(ad.displayCount || 0);
 
               return (
-              <article key={ad.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-100/60">
+              <article key={ad.id} className="overflow-hidden rounded-[22px] border border-white/10 bg-[#0b1110] shadow-[0_16px_50px_rgba(0,0,0,0.24)] transition hover:border-emerald-400/25">
                 {editingId === ad.id ? (
-                  <div className="grid gap-4 bg-slate-50 p-4">
+                  <div className="grid gap-4 bg-[#0b1110] p-4">
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <Field label="Reklama nomi">
                         <input
                           value={editForm.name}
                           onChange={(event) => updateEditForm('name', event.target.value)}
-                          className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                          className={inputH11Class}
                         />
                       </Field>
                       <Field label="Ota-onalarga necha marta ko‘rinishi">
@@ -554,7 +561,7 @@ export const Advertising = () => {
                           min={0}
                           value={editForm.displayCount}
                           onChange={(event) => updateEditForm('displayCount', event.target.value)}
-                          className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                          className={inputH11Class}
                         />
                       </Field>
                       <Field label="Necha kun reklama qilinishi">
@@ -563,19 +570,19 @@ export const Advertising = () => {
                           min={1}
                           value={editForm.durationDays}
                           onChange={(event) => updateEditForm('durationDays', event.target.value)}
-                          className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                          className={inputH11Class}
                         />
                       </Field>
                       <Field label="Reklama havolasi">
                         <input
                           value={editForm.linkUrl}
                           onChange={(event) => updateEditForm('linkUrl', event.target.value)}
-                          className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                          className={inputH11Class}
                           placeholder="https://example.com"
                         />
                       </Field>
                       <Field label="Media">
-                        <label className="flex h-11 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-indigo-200 bg-white px-4 text-xs font-black text-indigo-700 transition hover:bg-indigo-50">
+                        <label className="flex h-11 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-emerald-400/30 bg-emerald-400/10 px-4 text-xs font-black text-emerald-300 transition hover:bg-emerald-400/15">
                           {uploading ? <Loader2 className="animate-spin" size={15} /> : <Upload size={15} />}
                           Media almashtirish
                           <input
@@ -593,7 +600,7 @@ export const Advertising = () => {
                         value={editForm.text}
                         onChange={(event) => updateEditForm('text', event.target.value)}
                         rows={3}
-                        className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold leading-6 text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                        className={`${inputClass} resize-none py-3 leading-6`}
                       />
                     </Field>
                     <div className="flex flex-wrap gap-2">
@@ -601,7 +608,7 @@ export const Advertising = () => {
                         type="button"
                         onClick={() => saveEditedAdvertisement(ad)}
                         disabled={updatingId === ad.id || uploading}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-xs font-black text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#533cff] to-[#00b7a8] px-4 text-xs font-black text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {updatingId === ad.id ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
                         Saqlash
@@ -609,7 +616,7 @@ export const Advertising = () => {
                       <button
                         type="button"
                         onClick={cancelEdit}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-xs font-black text-slate-700 transition hover:bg-slate-100"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#111615] px-4 text-xs font-black text-slate-200 transition hover:bg-white/10"
                       >
                         <X size={14} />
                         Bekor qilish
@@ -619,15 +626,15 @@ export const Advertising = () => {
                 ) : (
                   <>
                     <div className="flex gap-4 p-4">
-                      <div className="relative flex h-28 w-32 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
+                      <div className="relative flex h-28 w-32 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#101817] via-[#11182b] to-[#07100f]">
                         {ad.imageUrl && ad.contentType === 'video' ? (
                           <video src={mediaUrl(ad.imageUrl)} className="h-full w-full object-cover" muted playsInline />
                         ) : ad.imageUrl ? (
                           <img src={mediaUrl(ad.imageUrl)} alt={ad.name} className="h-full w-full object-cover" />
                         ) : (
-                          <Video className="text-slate-300" size={28} />
+                          <Video className="text-slate-500" size={28} />
                         )}
-                        <span className="absolute left-2 top-2 rounded-full border border-white/60 bg-white/90 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-slate-950 shadow-sm">
+                        <span className="absolute left-2 top-2 rounded-full border border-white/10 bg-[#0b1110]/90 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-white shadow-sm">
                           {ad.contentType === 'video' ? 'Video' : ad.contentType === 'image' ? 'Rasm' : 'Matn'}
                         </span>
                       </div>
@@ -635,58 +642,56 @@ export const Advertising = () => {
                         <div className="flex flex-wrap gap-2">
                           <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${
                             ad.status === 'active'
-                              ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
-                              : 'bg-slate-100 text-slate-600 ring-1 ring-slate-200'
+                              ? 'bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/25'
+                              : 'bg-slate-400/10 text-slate-300 ring-1 ring-slate-400/25'
                           }`}>
                             {ad.status === 'active' ? 'Faol' : 'Nofaol'}
                           </span>
-                          <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-black text-blue-700 ring-1 ring-blue-100">
+                          <span className="rounded-full bg-sky-400/10 px-2.5 py-1 text-[10px] font-black text-sky-300 ring-1 ring-sky-400/25">
                             {timing.durationText}
                           </span>
-                          <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[10px] font-black text-slate-500 ring-1 ring-slate-200">
+                          <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black text-slate-300 ring-1 ring-white/10">
                             {plannedCount} marta reja
                           </span>
                         </div>
-                        <h3 className="mt-3 break-words text-lg font-black leading-snug text-slate-950">{ad.name}</h3>
+                        <h3 className="mt-3 break-words text-lg font-black leading-snug text-white">{ad.name}</h3>
                         {ad.linkUrl ? (
-                          <p className="mt-1 inline-flex max-w-full items-center gap-1.5 rounded-xl bg-indigo-50 px-2.5 py-1 text-xs font-black text-indigo-700">
+                          <p className="mt-1 inline-flex max-w-full items-center gap-1.5 rounded-xl border border-violet-400/25 bg-violet-400/10 px-2.5 py-1 text-xs font-black text-violet-300">
                             <ExternalLink size={12} />
                             <span className="truncate">{ad.linkUrl}</span>
                           </p>
                         ) : null}
-                        {ad.text ? <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6 text-slate-600">{ad.text}</p> : null}
+                        {ad.text ? <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6 text-slate-300">{ad.text}</p> : null}
                         {ad.status === 'active' ? (
                           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-2">
-                              <p className="text-[9px] font-black uppercase tracking-wider text-emerald-600">Ko‘rilgan</p>
-                              <p className="mt-1 text-sm font-black text-emerald-950">{viewCount} marta</p>
+                            <div className="rounded-2xl border border-emerald-400/25 bg-emerald-400/10 px-3 py-2">
+                              <p className="text-[9px] font-black uppercase tracking-wider text-emerald-300">Ko‘rilgan</p>
+                              <p className="mt-1 text-sm font-black text-white">{viewCount} marta</p>
                             </div>
-                            <div className="rounded-2xl border border-blue-100 bg-blue-50 px-3 py-2">
-                              <p className="text-[9px] font-black uppercase tracking-wider text-blue-600">Faollik davri</p>
-                              <p className="mt-1 text-sm font-black text-blue-950">{timing.durationText}</p>
+                            <div className="rounded-2xl border border-sky-400/25 bg-sky-400/10 px-3 py-2">
+                              <p className="text-[9px] font-black uppercase tracking-wider text-sky-300">Faollik davri</p>
+                              <p className="mt-1 text-sm font-black text-white">{timing.durationText}</p>
                             </div>
                             <div className={`rounded-2xl border px-3 py-2 ${
                               timing.isExpired
-                                ? 'border-rose-100 bg-rose-50'
-                                : 'border-amber-100 bg-amber-50'
+                                ? 'border-rose-400/25 bg-rose-400/10'
+                                : 'border-amber-400/25 bg-amber-400/10'
                             }`}>
                               <p className={`text-[9px] font-black uppercase tracking-wider ${
-                                timing.isExpired ? 'text-rose-600' : 'text-amber-600'
+                                timing.isExpired ? 'text-rose-300' : 'text-amber-300'
                               }`}>Qolgan vaqt</p>
-                              <p className={`mt-1 text-sm font-black ${
-                                timing.isExpired ? 'text-rose-950' : 'text-amber-950'
-                              }`}>{timing.remainingText}</p>
+                              <p className="mt-1 text-sm font-black text-white">{timing.remainingText}</p>
                             </div>
                           </div>
                         ) : null}
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 border-t border-slate-100 bg-slate-50 px-4 py-3">
+                    <div className="flex flex-wrap gap-2 border-t border-white/10 bg-[#111615] px-4 py-3">
                       <button
                         type="button"
                         onClick={() => changeStatus(ad, ad.status === 'active' ? 'inactive' : 'active')}
                         disabled={updatingId === ad.id}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-xs font-black text-slate-700 transition hover:border-indigo-200 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0b1110] px-4 text-xs font-black text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {updatingId === ad.id ? <Loader2 className="animate-spin" size={14} /> : null}
                         {ad.status === 'active' ? 'Nofaol qilish' : 'Faollashtirish'}
@@ -694,7 +699,7 @@ export const Advertising = () => {
                       <button
                         type="button"
                         onClick={() => startEdit(ad)}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-indigo-100 bg-indigo-50 px-4 text-xs font-black text-indigo-700 transition hover:bg-indigo-100"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-violet-400/25 bg-violet-400/10 px-4 text-xs font-black text-violet-300 transition hover:bg-violet-400/15"
                       >
                         <Edit3 size={14} />
                         Tahrirlash
@@ -703,7 +708,7 @@ export const Advertising = () => {
                         type="button"
                         onClick={() => deleteAdvertisement(ad)}
                         disabled={deletingId === ad.id}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-rose-100 bg-rose-50 px-4 text-xs font-black text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-rose-400/25 bg-rose-400/10 px-4 text-xs font-black text-rose-300 transition hover:bg-rose-400/15 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {deletingId === ad.id ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
                         O‘chirish
@@ -717,7 +722,7 @@ export const Advertising = () => {
           </div>
 
           {!loading && shownAds.length === 0 ? (
-            <p className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm font-bold text-slate-500">
+            <p className="mt-5 rounded-2xl border border-white/10 bg-[#0b1110] p-5 text-sm font-bold text-slate-300">
               Bu bo‘limda hozircha reklama yo‘q.
             </p>
           ) : null}
@@ -730,13 +735,13 @@ export const Advertising = () => {
 const PanelHeader = ({ title, label, onClose }: { title: string; label: string; onClose: () => void }) => (
   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-indigo-500">{label}</p>
-      <h2 className="mt-1 text-xl font-black text-slate-950">{title}</h2>
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">{label}</p>
+      <h2 className="mt-1 text-xl font-black text-white">{title}</h2>
     </div>
     <button
       type="button"
       onClick={onClose}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-[#0b1110] text-slate-300 transition hover:bg-white/10 hover:text-white"
       title="Yopish"
     >
       <X size={18} />
@@ -746,7 +751,7 @@ const PanelHeader = ({ title, label, onClose }: { title: string; label: string; 
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <label className="block">
-    <span className="mb-2 block text-xs font-black uppercase tracking-wider text-slate-500">{label}</span>
+    <span className="mb-2 block text-xs font-black uppercase tracking-wider text-slate-400">{label}</span>
     {children}
   </label>
 );
