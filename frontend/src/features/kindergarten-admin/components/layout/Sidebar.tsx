@@ -68,7 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
     const { scrollTop, scrollHeight, clientHeight } = menu;
     const hasScroll = scrollHeight > clientHeight + 2;
-    const trackInset = 14;
+    const trackInset = 10;
     const trackHeight = Math.max(clientHeight - trackInset * 2, 1);
     const thumbHeight = hasScroll
       ? Math.max(54, trackHeight * (clientHeight / scrollHeight))
@@ -125,28 +125,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <aside className={clsx(
-      "admin-sidebar isolate w-80 h-dvh max-h-dvh overflow-hidden border-r border-sky-200/10 bg-[linear-gradient(180deg,#020617_0%,#07152c_38%,#0b1632_72%,#080e1e_100%)] text-slate-300/80 flex flex-col fixed left-0 top-0 z-[100] transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-[18px_0_54px_rgba(2,6,23,0.34)]",
+      "admin-sidebar isolate w-[268px] max-w-[calc(100vw-16px)] h-[calc(100dvh-16px)] max-h-[calc(100dvh-16px)] overflow-hidden rounded-[8px] border border-white/[0.06] bg-[#181b1c] text-white flex flex-col fixed left-2 top-2 bottom-2 z-[100] transition-transform duration-300 ease-in-out lg:translate-x-0",
       isOpen ? "translate-x-0" : "-translate-x-full"
     )}>
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_14%_0%,rgba(14,165,233,0.11),transparent_34%),radial-gradient(circle_at_92%_18%,rgba(79,70,229,0.12),transparent_35%),radial-gradient(circle_at_45%_92%,rgba(30,64,175,0.08),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_24%)]" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-sky-300/28 via-indigo-300/10 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-sky-200/28 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[#181b1c]" />
 
       {/* Logo */}
-      <div className="sticky top-0 z-30 shrink-0 px-4 pt-4 pb-4 flex items-center justify-between bg-[#020617]/45 backdrop-blur-xl">
-        <div className="admin-sidebar-brand-card relative w-full min-w-0 overflow-hidden p-3.5">
-          <img
-            src="/raqamli-mtt-logo.svg"
-            alt="Raqamli MTT"
-            className="admin-sidebar-logo"
-          />
+      <div className="sticky top-0 z-30 shrink-0 bg-[#181b1c] px-5 pb-3 pt-5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[5px] border border-[#00c853]/35 bg-[#102019] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_18px_rgba(0,200,83,0.14)]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-[4px] bg-[#00c853] text-[#061811]">
+                <ClipboardCheck size={18} strokeWidth={2.8} />
+              </span>
+            </div>
+            <span className="truncate text-[20px] font-black leading-none tracking-normal text-white">
+              Raqamli MTT
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            className="lg:hidden flex h-8 w-8 shrink-0 items-center justify-center rounded-[2.9px] border border-white/10 bg-white/[0.035] text-white transition-colors hover:bg-white/[0.08]"
+            aria-label="Menyuni yopish"
+          >
+            <X size={17} />
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="lg:hidden ml-2 rounded-xl border border-white/10 bg-white/[0.04] p-2 text-slate-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors duration-200 hover:bg-white/[0.08] hover:text-white"
-        >
-          <X size={18} />
-        </button>
       </div>
 
       {/* Nav */}
@@ -154,9 +158,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <nav
           ref={menuRef}
           onScroll={updateScrollMetrics}
-          className="admin-sidebar-menu h-full min-h-0 overflow-x-hidden overflow-y-auto overscroll-contain pb-5 pt-2"
+          className="admin-sidebar-menu h-full min-h-0 overflow-x-hidden overflow-y-auto overscroll-contain pb-4 pt-1 [-ms-overflow-style:none] [scrollbar-width:none]"
         >
-          <div className="space-y-1.5">
+          <div className="space-y-0">
             {menuItems.map((item) => (
               <NavLink
                 key={item.path}
@@ -165,26 +169,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 onClick={() => { if (window.innerWidth < 1024) onClose(); }}
                 className={({ isActive }) =>
                   clsx(
-                    "group relative flex items-center gap-3 px-3.5 py-2.5 rounded-[13px] transition-all duration-200 ease-out text-[13.5px] font-extrabold overflow-hidden",
+                    "group relative mx-2 flex min-h-[43px] items-center gap-2.5 rounded-[5px] border-b border-white/[0.055] px-2 py-1.5 text-[13.2px] font-extrabold leading-[1.12] tracking-normal transition-colors duration-200 ease-out",
                     isActive
-                      ? "bg-[linear-gradient(135deg,#123766_0%,#243f90_54%,#4c2f9b_100%)] text-white ring-1 ring-sky-100/[0.13]"
-                      : "text-slate-300/76 hover:bg-sky-100/[0.052] hover:text-slate-50 hover:ring-1 hover:ring-slate-200/[0.08]"
+                      ? "border-[#00c853]/35 bg-[#00c853] text-[#051b0f] shadow-[inset_3px_0_0_#06391f,0_0_18px_rgba(0,200,83,0.22)]"
+                      : "text-white hover:bg-white/[0.035]"
                   )
                 }
               >
                 {({ isActive }) => (
                   <>
-                    {isActive && <span className="absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-sky-300" />}
-                    {isActive && <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.11),transparent_36%,rgba(255,255,255,0.035))]" />}
                     <span className={clsx(
-                      "relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border transition-all duration-200",
+                      "relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-[2.9px] text-[#00c853] transition-colors duration-200",
                       isActive
-                        ? "border-sky-100/[0.18] bg-sky-50/[0.13] text-white"
-                        : "border-slate-200/[0.08] bg-slate-100/[0.045] text-slate-500 group-hover:border-sky-200/[0.17] group-hover:bg-sky-300/[0.065] group-hover:text-sky-100"
+                        ? "bg-[#06391f] text-[#00ff75] ring-1 ring-[#00ff75]/35 shadow-[0_0_14px_rgba(0,200,83,0.26)]"
+                        : "group-hover:bg-[#00c853]/12"
                     )}>
-                      <item.icon size={15} />
+                      <item.icon size={17} strokeWidth={2.35} />
                     </span>
-                    <span className="relative z-10 min-w-0 flex-1 whitespace-normal break-words leading-snug">{item.label}</span>
+                    <span className={clsx(
+                      "relative z-10 min-w-0 flex-1 whitespace-normal break-words",
+                      isActive
+                        ? "text-[#051b0f]"
+                        : "text-white drop-shadow-[0_1px_0_rgba(255,255,255,0.1)]"
+                    )}>{item.label}</span>
                     {item.badge && (
                       <span className={clsx(
                         "relative z-10 ml-auto rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-wider",
@@ -196,7 +203,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                       </span>
                     )}
                     {item.label === "Alertlar" && alertCount > 0 && (
-                      <span className="relative z-10 ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-black text-white shadow-[0_0_14px_rgba(244,63,94,0.42)]">
+                      <span className="relative z-10 ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-black text-white shadow-[0_0_14px_rgba(244,63,94,0.65)]">
                         {alertCount > 99 ? '99+' : alertCount}
                       </span>
                     )}
@@ -218,13 +225,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       </div>
 
       {/* Bottom */}
-      <div className="sticky bottom-0 z-30 shrink-0 px-4 pb-4 pt-3 border-t border-cyan-200/10 bg-[#0b1225]/86 backdrop-blur-xl shadow-[0_-18px_38px_rgba(2,6,23,0.26)]">
+      <div className="sticky bottom-0 z-30 shrink-0 bg-[#181b1c] px-5 pb-5 pt-4">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-[13px] text-[12.5px] font-black text-rose-200 bg-rose-500/[0.08] hover:bg-rose-500/[0.13] hover:text-white transition-all duration-200 border border-rose-300/[0.12] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_12px_26px_rgba(2,6,23,0.18)]"
+          className="flex min-h-[42px] w-full items-center gap-2.5 border-b border-white/[0.055] px-0 py-1.5 text-[13.2px] font-extrabold text-rose-200 transition-colors duration-200 hover:text-white"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-rose-500/[0.12] text-rose-200 ring-1 ring-rose-300/[0.12] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-            <LogOut size={14} />
+          <span className="flex h-7 w-7 items-center justify-center rounded-[2.9px] text-[#00c853]">
+            <LogOut size={17} strokeWidth={2.35} />
           </span>
           <span>Chiqish</span>
         </button>
