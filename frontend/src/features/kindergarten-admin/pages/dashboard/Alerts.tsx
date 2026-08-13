@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle,
   AlertTriangle,
-  ArrowUpRight,
   Bell,
   CalendarDays,
   CheckCircle2,
@@ -85,41 +84,41 @@ const emptyPagination: AlertPagination = {
 const STATUS_CONFIG = {
   success: {
     label: 'Yaratildi',
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-100',
+    color: 'text-emerald-300',
+    bg: 'bg-emerald-400/10',
+    border: 'border-emerald-400/25',
     dot: 'bg-emerald-500',
     icon: CheckCircle2,
   },
   update: {
     label: 'Yangilandi',
-    color: 'text-blue-600',
-    bg: 'bg-blue-50',
-    border: 'border-blue-100',
+    color: 'text-sky-300',
+    bg: 'bg-sky-400/10',
+    border: 'border-sky-400/25',
     dot: 'bg-blue-500',
     icon: RefreshCw,
   },
   warning: {
     label: 'Ehtiyot',
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
-    border: 'border-amber-100',
+    color: 'text-amber-300',
+    bg: 'bg-amber-400/10',
+    border: 'border-amber-400/25',
     dot: 'bg-amber-500',
     icon: AlertTriangle,
   },
   error: {
     label: 'Muhim',
-    color: 'text-rose-600',
-    bg: 'bg-rose-50',
-    border: 'border-rose-100',
+    color: 'text-rose-300',
+    bg: 'bg-rose-400/10',
+    border: 'border-rose-400/25',
     dot: 'bg-rose-500',
     icon: AlertCircle,
   },
   ai: {
     label: 'AI',
-    color: 'text-indigo-300',
-    bg: 'bg-slate-900',
-    border: 'border-indigo-500/40',
+    color: 'text-violet-300',
+    bg: 'bg-violet-400/10',
+    border: 'border-violet-400/25',
     dot: 'bg-indigo-400',
     icon: ShieldCheck,
   },
@@ -245,11 +244,11 @@ export const Alerts = () => {
   }, [pagination.page, pagination.totalPages]);
 
   const summaryCards = [
-    { label: 'Jami alert', value: summary.total, color: 'text-slate-950 dark:text-white', bg: 'bg-white dark:bg-slate-900' },
-    { label: 'Muhim', value: summary.critical + summary.warning, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-950/30' },
-    { label: "Bog'chalar", value: summary.kindergartens, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/30' },
-    { label: 'Dorilar', value: summary.medical, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/30' },
-    { label: 'Taomnoma', value: summary.menus, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-950/30' },
+    { label: 'Jami alert', value: summary.total, color: 'text-white', bg: 'bg-[#151918]' },
+    { label: 'Muhim', value: summary.critical + summary.warning, color: 'text-rose-300', bg: 'bg-rose-950/25' },
+    { label: "Bog'chalar", value: summary.kindergartens, color: 'text-emerald-300', bg: 'bg-emerald-950/25' },
+    { label: 'Dorilar', value: summary.medical, color: 'text-amber-300', bg: 'bg-amber-950/25' },
+    { label: 'Taomnoma', value: summary.menus, color: 'text-sky-300', bg: 'bg-sky-950/25' },
   ];
 
   const runSearch = () => {
@@ -263,23 +262,23 @@ export const Alerts = () => {
   };
 
   return (
-    <div className="min-h-screen space-y-6 bg-slate-50 pb-20 text-slate-900 dark:bg-slate-950 dark:text-white">
-      <section className="overflow-hidden rounded-[2rem] border border-white/80 bg-white p-5 shadow-[0_24px_80px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900 sm:p-7">
+    <div className="min-h-screen space-y-5 bg-[#08100f] pb-20 text-white">
+      <section className="overflow-hidden rounded-[22px] border border-white/10 bg-[#111615] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.32)] sm:p-7">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
           <div className="max-w-3xl">
             <div className="mb-4 flex flex-wrap items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/25">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#533cff] to-[#00b7a8] text-white shadow-lg shadow-emerald-950/40">
                 <Bell size={24} />
               </div>
               <div>
-                <h1 className="text-[14px] font-black tracking-tight text-slate-950 dark:text-white">
+                <h1 className="text-[17px] font-black tracking-tight text-white">
                   Alertlar markazi
                 </h1>
-                <p className="mt-1 text-[14px] font-bold text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-[12px] font-bold text-slate-300">
                   Bog'cha yaratilishi, dori zaxirasi va taomnoma hodisalari real bazadan shakllanadi.
                 </p>
               </div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-[12px] font-black uppercase tracking-widest text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-emerald-300">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
                 real-time
               </span>
@@ -287,23 +286,23 @@ export const Alerts = () => {
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
               {summaryCards.map((card) => (
-                <div key={card.label} className={clsx('rounded-2xl border border-white/70 px-4 py-3 shadow-sm dark:border-slate-800', card.bg)}>
-                  <p className="text-[12px] font-black uppercase tracking-widest text-slate-400">{card.label}</p>
-                  <p className={clsx('mt-1.5 text-[14px] font-black tabular-nums', card.color)}>{card.value}</p>
+                <div key={card.label} className={clsx('rounded-2xl border border-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]', card.bg)}>
+                  <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">{card.label}</p>
+                  <p className={clsx('mt-1.5 text-[18px] font-black tabular-nums', card.color)}>{card.value}</p>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="w-full max-w-xl space-y-3 xl:w-[520px]">
-            <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-2 shadow-inner dark:border-slate-800 dark:bg-slate-950">
+            <div className="rounded-[18px] border border-white/10 bg-[#0b1110] p-2 shadow-inner">
               <div className="flex flex-col gap-2 sm:flex-row">
                 <div className="relative flex-1">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                   <input
                     type="text"
                     placeholder="Yaratilgan alertlarni qidirish..."
-                    className="h-13 w-full rounded-2xl border border-transparent bg-white pl-12 pr-10 text-[14px] font-bold text-slate-800 outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10 dark:bg-slate-900 dark:text-white"
+                    className="h-13 w-full rounded-2xl border border-white/10 bg-[#151918] pl-12 pr-10 text-[13px] font-bold text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/50 focus:ring-4 focus:ring-emerald-500/10"
                     value={draftSearch}
                     onChange={(event) => setDraftSearch(event.target.value)}
                     onKeyDown={(event) => {
@@ -314,7 +313,7 @@ export const Alerts = () => {
                     <button
                       type="button"
                       onClick={clearSearch}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 transition hover:bg-white/10 hover:text-white"
                       aria-label="Qidiruvni tozalash"
                     >
                       <X size={16} />
@@ -324,7 +323,7 @@ export const Alerts = () => {
                 <button
                   type="button"
                   onClick={runSearch}
-                  className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 text-[14px] font-black text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 active:scale-95"
+                  className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#533cff] to-[#00b7a8] px-5 text-[13px] font-black text-white shadow-lg shadow-cyan-950/30 transition hover:brightness-110 active:scale-95"
                 >
                   <Search size={17} />
                   Qidirish
@@ -341,7 +340,7 @@ export const Alerts = () => {
               <button
                 type="button"
                 onClick={() => loadAlerts()}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-[12px] font-black uppercase tracking-widest text-slate-600 shadow-sm transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#151918] px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-slate-200 shadow-sm transition hover:bg-white/10 disabled:opacity-50"
                 disabled={loading}
               >
                 <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
@@ -352,7 +351,7 @@ export const Alerts = () => {
         </div>
       </section>
 
-      <div className="sticky top-24 z-20 flex w-full max-w-full gap-2 overflow-x-auto rounded-[1.6rem] border border-slate-200 bg-white/90 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur-xl no-scrollbar dark:border-slate-800 dark:bg-slate-900/90">
+      <div className="sticky top-24 z-20 flex w-full max-w-full gap-2 overflow-x-auto rounded-[18px] border border-white/10 bg-[#111615]/95 p-2 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl no-scrollbar">
         {filterTabs.map((item) => (
           <button
             key={item.key}
@@ -364,8 +363,8 @@ export const Alerts = () => {
             className={clsx(
               'relative flex min-w-[104px] items-center justify-center rounded-xl px-4 py-2.5 text-[12px] font-black transition-all',
               filter === item.key
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800'
+                ? 'bg-gradient-to-r from-[#533cff] to-[#00b7a8] text-white shadow-lg shadow-cyan-950/30'
+                : 'text-slate-300 hover:bg-white/10'
             )}
           >
             {item.label}
@@ -373,8 +372,8 @@ export const Alerts = () => {
               className={clsx(
                 'absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border px-1.5 text-[12px] font-black tabular-nums',
                 filter === item.key
-                  ? 'border-indigo-500 bg-white text-indigo-600'
-                  : 'border-white bg-slate-950 text-white dark:border-slate-900 dark:bg-indigo-500'
+                  ? 'border-white/15 bg-[#0b1110] text-white'
+                  : 'border-[#111615] bg-[#050807] text-white'
               )}
             >
               {item.count}
@@ -390,7 +389,6 @@ export const Alerts = () => {
             const Icon = CATEGORY_ICONS[alert.iconKey || alert.category] || config.icon;
             const clockTime = formatClockTime(alert.createdAt);
             const dateText = formatAlertDate(alert.createdAt);
-            const isDarkCard = alert.status === 'ai';
 
             return (
               <motion.article
@@ -401,79 +399,61 @@ export const Alerts = () => {
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ delay: index * 0.02 }}
                 className={clsx(
-                  'grid gap-4 rounded-[2rem] border p-4 shadow-[0_20px_60px_rgba(15,23,42,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_26px_80px_rgba(15,23,42,0.12)] lg:grid-cols-[150px_1fr]',
-                  isDarkCard
-                    ? 'border-indigo-500/40 bg-slate-950 text-white'
-                    : 'border-white bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-white'
+                  'rounded-[20px] border border-white/10 bg-[#111615] p-4 text-white shadow-[0_18px_54px_rgba(0,0,0,0.24)] transition hover:-translate-y-0.5 hover:border-emerald-400/20 hover:shadow-[0_24px_72px_rgba(0,0,0,0.34)]'
                 )}
               >
-                <div className={clsx('flex flex-row items-center gap-4 rounded-[1.5rem] border p-4 lg:flex-col lg:items-start', isDarkCard ? 'border-white/10 bg-white/5' : 'border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-950')}>
-                  <div className="flex items-center gap-2">
-                    <span className={clsx('h-2.5 w-2.5 rounded-full', config.dot)} />
-                    <span className={clsx('text-[12px] font-black uppercase tracking-widest', config.color)}>{config.label}</span>
-                  </div>
-                  <div>
-                    <p className="font-mono text-[14px] font-black tabular-nums tracking-tight">
-                      {clockTime}
-                    </p>
-                    <p className={clsx('mt-1 text-[12px] font-black uppercase tracking-widest', isDarkCard ? 'text-slate-400' : 'text-slate-400')}>
-                      #{alert.orderNumber || pagination.from + index}
-                    </p>
-                  </div>
-                  <div className={clsx('flex items-center gap-2 text-[12px] font-bold lg:mt-auto', isDarkCard ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400')}>
-                    <CalendarDays size={14} />
-                    <span>{dateText}</span>
-                  </div>
-                </div>
-
-                <div className="min-w-0 p-1 sm:p-2">
-                  <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                    <div className="flex min-w-0 gap-4">
-                      <div className={clsx('flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border', config.bg, config.border, config.color)}>
-                        <Icon size={26} />
+                <div className="flex min-w-0 flex-col gap-3">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="flex min-w-0 items-start gap-3">
+                      <div className={clsx('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]', config.bg, config.border, config.color)}>
+                        <Icon size={21} />
                       </div>
                       <div className="min-w-0">
-                        <div className="mb-2 flex flex-wrap items-center gap-2">
-                          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[12px] font-black uppercase tracking-widest text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
-                            Alert #{alert.orderNumber || pagination.from + index}
+                        <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-white/10 bg-[#0b1110] px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-slate-300">
+                            #{alert.orderNumber || pagination.from + index}
                           </span>
-                          <span className={clsx('rounded-full border px-2.5 py-1 text-[12px] font-black uppercase tracking-widest', config.bg, config.border, config.color)}>
+                          <span className={clsx('inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-widest', config.bg, config.border, config.color)}>
+                            <span className={clsx('h-1.5 w-1.5 rounded-full', config.dot)} />
+                            {config.label}
+                          </span>
+                          <span className={clsx('rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-widest', config.bg, config.border, config.color)}>
                             {CATEGORY_LABELS[alert.category]}
                           </span>
-                          <span className={clsx('inline-flex items-center gap-1.5 text-[12px] font-bold', isDarkCard ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400')}>
-                            <Clock3 size={14} />
-                            {formatRelativeTime(alert.createdAt)}
-                          </span>
                         </div>
-                        <h2 className="text-[14px] font-black leading-snug tracking-tight text-inherit">
+                        <h2 className="text-[14px] font-black leading-snug tracking-tight text-white">
                           {alert.title}
                         </h2>
-                        <p className={clsx('mt-1.5 text-[12px] font-semibold leading-6', isDarkCard ? 'text-slate-300' : 'text-slate-600 dark:text-slate-300')}>
+                        <p className="mt-1 text-[12px] font-semibold leading-5 text-slate-300">
                           {alert.context}
                         </p>
                       </div>
                     </div>
 
-                    {alert.actionUrl && (
-                      <a
-                        href={alert.actionUrl}
-                        className={clsx('inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-[12px] font-black uppercase tracking-widest transition active:scale-95', isDarkCard ? 'border-white/10 text-white hover:bg-white/10' : 'border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800')}
-                      >
-                        Ochish
-                        <ArrowUpRight size={15} />
-                      </a>
-                    )}
+                    <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-[#0b1110] px-3 py-2 text-[11px] font-bold text-slate-300">
+                      <span className="font-mono font-black tabular-nums text-white">{clockTime}</span>
+                      <span className="h-1 w-1 rounded-full bg-slate-600" />
+                      <span className="inline-flex items-center gap-1.5">
+                        <Clock3 size={13} />
+                        {formatRelativeTime(alert.createdAt)}
+                      </span>
+                      <span className="hidden h-1 w-1 rounded-full bg-slate-600 sm:block" />
+                      <span className="hidden items-center gap-1.5 sm:inline-flex">
+                        <CalendarDays size={13} />
+                        {dateText}
+                      </span>
+                    </div>
                   </div>
 
                   {!!alert.details?.length && (
-                    <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
                       {alert.details.slice(0, 6).map((detail) => (
                         <div
                           key={`${alert.id}-${detail.label}`}
-                          className={clsx('rounded-2xl border px-4 py-3', isDarkCard ? 'border-white/10 bg-white/5' : 'border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-950')}
+                          className="min-w-0 rounded-2xl border border-white/10 bg-[#0b1110] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
                         >
-                          <p className="text-[12px] font-black uppercase tracking-widest text-slate-400">{detail.label}</p>
-                          <p className={clsx('mt-1 text-[14px] font-black leading-5', isDarkCard ? 'text-white' : 'text-slate-800 dark:text-white')}>{detail.value}</p>
+                          <p className="truncate text-[10px] font-black uppercase tracking-widest text-slate-400">{detail.label}</p>
+                          <p className="mt-1 truncate text-[12px] font-black leading-5 text-white" title={detail.value}>{detail.value}</p>
                         </div>
                       ))}
                     </div>
@@ -485,18 +465,18 @@ export const Alerts = () => {
         </AnimatePresence>
 
         {loading && (
-          <div className="rounded-[2rem] border border-white bg-white py-20 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="rounded-[22px] border border-white/10 bg-[#111615] py-20 text-center shadow-[0_20px_60px_rgba(0,0,0,0.24)]">
             <RefreshCw className="mx-auto animate-spin text-indigo-500" size={38} />
             <h3 className="mt-4 text-[14px] font-black uppercase tracking-widest text-slate-400">Alertlar yuklanmoqda</h3>
           </div>
         )}
 
         {!loading && (error || alerts.length === 0) && (
-          <div className="rounded-[2rem] border border-dashed border-slate-200 bg-white py-20 text-center dark:border-slate-800 dark:bg-slate-900">
-            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <Bell className="text-slate-300" size={34} />
+          <div className="rounded-[22px] border border-dashed border-white/10 bg-[#111615] py-20 text-center shadow-[0_20px_60px_rgba(0,0,0,0.24)]">
+            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border border-white/10 bg-[#0b1110]">
+              <Bell className="text-slate-500" size={34} />
             </div>
-            <h3 className="text-[14px] font-black uppercase tracking-widest text-slate-400">
+            <h3 className="text-[14px] font-black uppercase tracking-widest text-white">
               {error || "Hozircha alertlar yo'q"}
             </h3>
             <p className="mt-2 text-[14px] font-bold text-slate-400">
@@ -507,8 +487,8 @@ export const Alerts = () => {
       </section>
 
       {!loading && !error && pagination.totalPages > 1 && (
-        <nav className="flex flex-col gap-3 rounded-[1.6rem] border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center sm:justify-between">
-          <div className="px-2 text-[12px] font-black text-slate-500 dark:text-slate-400">
+        <nav className="flex flex-col gap-3 rounded-[18px] border border-white/10 bg-[#111615] p-3 shadow-[0_18px_50px_rgba(0,0,0,0.24)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="px-2 text-[12px] font-black text-slate-400">
             {pagination.from}-{pagination.to} ko'rsatildi. Jami: {pagination.total}
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -516,7 +496,7 @@ export const Alerts = () => {
               type="button"
               disabled={!pagination.hasPrev}
               onClick={() => setPage((value) => Math.max(1, value - 1))}
-              className="rounded-2xl border border-slate-200 px-4 py-2 text-[12px] font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="rounded-2xl border border-white/10 px-4 py-2 text-[12px] font-black text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Oldingi
             </button>
@@ -530,8 +510,8 @@ export const Alerts = () => {
                   className={clsx(
                     'h-10 min-w-10 rounded-2xl px-3 text-[12px] font-black tabular-nums transition',
                     item === pagination.page
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                      : 'border border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800'
+                      ? 'bg-gradient-to-r from-[#533cff] to-[#00b7a8] text-white shadow-lg shadow-cyan-950/30'
+                      : 'border border-white/10 text-slate-300 hover:bg-white/10'
                   )}
                 >
                   {item}
@@ -545,7 +525,7 @@ export const Alerts = () => {
               type="button"
               disabled={!pagination.hasNext}
               onClick={() => setPage((value) => Math.min(pagination.totalPages, value + 1))}
-              className="rounded-2xl border border-slate-200 px-4 py-2 text-[12px] font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="rounded-2xl border border-white/10 px-4 py-2 text-[12px] font-black text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Keyingi
             </button>
