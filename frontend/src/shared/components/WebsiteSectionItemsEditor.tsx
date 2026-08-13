@@ -50,16 +50,16 @@ export const WebsiteSectionItemsEditor = ({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+    <div className="rounded-2xl border border-white/10 bg-[#0b1110] p-4">
       <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
-          <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">{title}</h3>
-          <p className="mt-1 text-xs font-bold text-slate-500">{items.length} ta ma'lumot kiritilgan</p>
+          <h3 className="text-sm font-black uppercase tracking-widest text-white">{title}</h3>
+          <p className="mt-1 text-xs font-bold text-slate-300">{items.length} ta ma'lumot kiritilgan</p>
         </div>
         <button
           type="button"
           onClick={() => onChange([...items, emptyItem()])}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-[10px] font-black uppercase tracking-widest text-white transition-colors hover:bg-emerald-700"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-[10px] font-black uppercase tracking-widest text-white transition-colors hover:bg-emerald-500"
         >
           <Plus size={14} /> Qo'shish
         </button>
@@ -67,10 +67,10 @@ export const WebsiteSectionItemsEditor = ({
 
       <div className="space-y-4">
         {items.map((item, index) => (
-          <div key={item.id || index} className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div key={item.id || index} className="rounded-2xl border border-white/10 bg-[#111615] p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-xs font-black uppercase tracking-widest text-slate-500">#{index + 1}</p>
-              <button type="button" onClick={() => removeItem(index)} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 text-[10px] font-black uppercase tracking-widest text-rose-600">
+              <p className="text-xs font-black uppercase tracking-widest text-slate-300">#{index + 1}</p>
+              <button type="button" onClick={() => removeItem(index)} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-rose-400/20 bg-rose-500/10 px-3 text-[10px] font-black uppercase tracking-widest text-rose-200">
                 <Trash2 size={13} /> O'chirish
               </button>
             </div>
@@ -84,7 +84,7 @@ export const WebsiteSectionItemsEditor = ({
         ))}
 
         {items.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm font-bold text-slate-400">
+          <div className="rounded-2xl border border-dashed border-white/15 bg-[#111615] p-6 text-center text-sm font-bold text-slate-300">
             Hali ma'lumot qo'shilmagan
           </div>
         )}
@@ -95,12 +95,12 @@ export const WebsiteSectionItemsEditor = ({
 
 const Field = ({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string }) => (
   <label>
-    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</span>
+    <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">{label}</span>
     <input
       value={value || ''}
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
-      className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-emerald-300"
+      className="mt-2 w-full rounded-xl border border-white/10 bg-[#0b1110] px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-slate-500 focus:border-emerald-400/60"
     />
   </label>
 );
