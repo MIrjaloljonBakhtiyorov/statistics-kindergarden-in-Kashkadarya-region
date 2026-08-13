@@ -25,6 +25,25 @@ const run = (sql, params = []) => new Promise((resolve, reject) => {
   });
 });
 
+const assertSafeSqlIdentifier = (value) => {
+  if (!/^[a-z_][a-z0-9_]*$/i.test(value)) {
+    throw new Error(`Unsafe SQL identifier: ${value}`);
+  }
+  return value;
+};
+
+const tableExists = async (client, table) => {
+  const safeTable = assertSafeSqlIdentifier(table);
+  const result = await client.query('SELECT to_regclass($1) AS table_name', [`public.${safeTable}`]);
+  return Boolean(result.rows?.[0]?.table_name);
+};
+
+const deleteKindergartenRowsIfTableExists = async (client, table, kindergartenId) => {
+  const safeTable = assertSafeSqlIdentifier(table);
+  if (!(await tableExists(client, safeTable))) return;
+  await client.query(`DELETE FROM ${safeTable} WHERE kindergarten_id = $1`, [kindergartenId]);
+};
+
 const PARENT_PROFILE_NEWS_KINDERGARTEN_ID = '__parent_profile_news__';
 
 const normalizeDate = (value) => {
@@ -2020,7 +2039,7 @@ const deleteKindergartenCascade = async (kindergartenId) => {
   try {
     await client.query('BEGIN');
     for (const table of tables) {
-      await client.query(`DELETE FROM ${table} WHERE kindergarten_id = $1`, [kindergartenId]);
+      await deleteKindergartenRowsIfTableExists(client, table, kindergartenId);
     }
     const result = await client.query('DELETE FROM kindergartens WHERE id = $1', [kindergartenId]);
     await client.query('COMMIT');
