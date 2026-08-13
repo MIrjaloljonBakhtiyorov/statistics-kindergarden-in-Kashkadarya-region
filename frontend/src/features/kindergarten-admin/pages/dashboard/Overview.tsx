@@ -33,22 +33,22 @@ const REGIONAL_STAT_CARDS = [
 ];
 
 const DISTRICTS = [
-  { name: "Qarshi sh.", aliases: ["qarshi shahri"] },
-  { name: "Qarshi t.", aliases: ["qarshi tumani"] },
-  { name: "Shahrisabz sh.", aliases: ["shahrisabz shahri"] },
-  { name: "Shahrisabz t.", aliases: ["shahrisabz tumani"] },
-  { name: "Kitob", aliases: ["kitob tumani"] },
-  { name: "Koson", aliases: ["koson tumani"] },
-  { name: "Muborak", aliases: ["muborak tumani"] },
-  { name: "G'uzor", aliases: ["g'uzor tumani"] },
-  { name: "Nishon", aliases: ["nishon tumani"] },
-  { name: "Dehqonobod", aliases: ["dehqonobod tumani"] },
-  { name: "Qamashi", aliases: ["qamashi tumani"] },
-  { name: "Chiroqchi", aliases: ["chiroqchi tumani"] },
-  { name: "Kasbi", aliases: ["kasbi tumani"] },
-  { name: "Mirishkor", aliases: ["mirishkor tumani"] },
-  { name: "Yakkabog'", aliases: ["yakkabog' tumani"] },
-  { name: "Ko'kdala", aliases: ["ko'kdala tumani", "ko'kdala t."] },
+  { name: "Qarshi shahri", aliases: ["qarshi sh.", "qarshi shahri"] },
+  { name: "Qarshi tumani", aliases: ["qarshi t.", "qarshi tumani"] },
+  { name: "Shahrisabz shahri", aliases: ["shahrisabz sh.", "shahrisabz shahri"] },
+  { name: "Shahrisabz tumani", aliases: ["shahrisabz t.", "shahrisabz tumani"] },
+  { name: "Kitob tumani", aliases: ["kitob", "kitob tumani"] },
+  { name: "Koson tumani", aliases: ["koson", "koson tumani"] },
+  { name: "Muborak tumani", aliases: ["muborak", "muborak tumani"] },
+  { name: "G'uzor tumani", aliases: ["g'uzor", "g'uzor tumani"] },
+  { name: "Nishon tumani", aliases: ["nishon", "nishon tumani"] },
+  { name: "Dehqonobod tumani", aliases: ["dehqonobod", "dehqonobod tumani"] },
+  { name: "Qamashi tumani", aliases: ["qamashi", "qamashi tumani"] },
+  { name: "Chiroqchi tumani", aliases: ["chiroqchi", "chiroqchi tumani"] },
+  { name: "Kasbi tumani", aliases: ["kasbi", "kasbi tumani"] },
+  { name: "Mirishkor tumani", aliases: ["mirishkor", "mirishkor tumani"] },
+  { name: "Yakkabog' tumani", aliases: ["yakkabog'", "yakkabog' tumani"] },
+  { name: "Ko'kdala tumani", aliases: ["ko'kdala", "ko'kdala tumani", "ko'kdala t."] },
 ];
 
 const normalizeText = (value: unknown) => String(value || '')
@@ -74,6 +74,7 @@ const formatDistrictTodayTitle = (label: unknown) => {
   if (!name) return "Bugungi ma'lumot";
   if (name.endsWith('sh.')) return `${name.replace(/\s*sh\.$/, '')} shahridagi bugungi ma'lumot`;
   if (name.endsWith('t.')) return `${name.replace(/\s*t\.$/, '')} tumanidagi bugungi ma'lumot`;
+  if (name.endsWith('shahri') || name.endsWith('tumani')) return `${name}dagi bugungi ma'lumot`;
   return `${name} tumanidagi bugungi ma'lumot`;
 };
 const attendanceBreakdownOf = (kg: any) => {
@@ -95,19 +96,35 @@ const TYPE_KPI_META: Record<string, { icon: any; color: string; chartColor: stri
   Organization: { icon: LayoutGrid, color: 'violet', chartColor: '#8b5cf6' },
 };
 
+const DistrictAxisTick = ({ x, y, payload }: any) => {
+  const label = String(payload?.value || '');
+  const parts = label.split(' ');
+  const suffix = parts.length > 1 ? parts.pop() : '';
+  const prefix = parts.join(' ') || label;
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text textAnchor="middle" fill="#ffffff" fontSize={8.5} fontWeight={900}>
+        <tspan x={0} dy={10}>{prefix}</tspan>
+        {suffix && <tspan x={0} dy={11}>{suffix}</tspan>}
+      </text>
+    </g>
+  );
+};
+
 const KpiCard = ({ kpi }: { kpi: any }) => (
-  <div className="bg-white border border-slate-100 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-sm relative overflow-hidden min-h-[116px]">
+  <div className="bg-[#181b1c] border border-white/10 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-sm relative overflow-hidden min-h-[116px]">
     <div className="flex justify-between items-start">
       <div className={clsx(
         "w-10 h-10 rounded-xl flex items-center justify-center shadow-sm",
-        kpi.color === "indigo" && "bg-indigo-50 text-indigo-500",
-        kpi.color === "emerald" && "bg-emerald-50 text-emerald-500",
-        kpi.color === "amber" && "bg-amber-50 text-amber-500",
-        kpi.color === "rose" && "bg-rose-50 text-rose-500",
-        kpi.color === "violet" && "bg-violet-50 text-violet-500",
-        kpi.color === "orange" && "bg-orange-50 text-orange-500",
-        kpi.color === "blue" && "bg-blue-50 text-blue-500",
-        kpi.color === "teal" && "bg-teal-50 text-teal-500",
+        kpi.color === "indigo" && "bg-indigo-500/15 text-indigo-300",
+        kpi.color === "emerald" && "bg-emerald-500/15 text-emerald-300",
+        kpi.color === "amber" && "bg-amber-500/15 text-amber-300",
+        kpi.color === "rose" && "bg-rose-500/15 text-rose-300",
+        kpi.color === "violet" && "bg-violet-500/15 text-violet-300",
+        kpi.color === "orange" && "bg-orange-500/15 text-orange-300",
+        kpi.color === "blue" && "bg-blue-500/15 text-blue-300",
+        kpi.color === "teal" && "bg-teal-500/15 text-teal-300",
       )}>
         <kpi.icon size={19} />
       </div>
@@ -120,11 +137,11 @@ const KpiCard = ({ kpi }: { kpi: any }) => (
       </span>
     </div>
     <div>
-      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5">{kpi.title}</p>
-      <h3 className="text-2xl font-black text-slate-950 tracking-tight leading-none">{kpi.val}</h3>
+      <p className="mb-1.5 text-[9px] font-black uppercase leading-[1.15] tracking-[0.12em] text-slate-400">{kpi.title}</p>
+      <h3 className="text-2xl font-black text-white tracking-tight leading-none">{kpi.val}</h3>
     </div>
     {/* subtle bg icon */}
-    <div className="absolute -bottom-4 -right-3 opacity-[0.05]">
+    <div className="absolute -bottom-4 -right-3 text-white opacity-[0.06]">
       <kpi.icon size={72} />
     </div>
   </div>
@@ -227,7 +244,7 @@ export const Overview = () => {
         ...KINDERGARTEN_TYPES.map((type) => {
           const meta = TYPE_KPI_META[type.value] || TYPE_KPI_META.Public;
           return {
-            title: type.shortLabel,
+            title: type.groupLabel,
             val: Number(typeCounts[type.value] || 0).toLocaleString(),
             icon: meta.icon,
             color: meta.color,
@@ -236,7 +253,7 @@ export const Overview = () => {
       ],
       pieData: [
         ...KINDERGARTEN_TYPES.map((type) => ({
-          name: type.shortLabel,
+          name: type.groupLabel,
           value: typeCounts[type.value] || 0,
           color: (TYPE_KPI_META[type.value] || TYPE_KPI_META.Public).chartColor,
         })),
@@ -249,18 +266,18 @@ export const Overview = () => {
   }, [selectedRegionKindergartens]);
 
   return (
-    <div className="space-y-5 pb-12 bg-[#f4f6fb] min-h-screen">
+    <div className="space-y-5 pb-12 bg-[#0b0f10] min-h-screen text-slate-100">
 
       {/* Page Header */}
-      <div className="bg-white border border-slate-100 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+      <div className="bg-[#181b1c] border border-white/10 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div>
-          <h1 className="text-2xl font-black text-slate-950 tracking-tight">Viloyat statistikasi</h1>
+          <h1 className="text-2xl font-black text-white tracking-tight">Viloyat statistikasi</h1>
           <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">
             {selectedRegion.name} bo'yicha monitoring
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setStatsType('Viloyat kesimi')} className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
+          <button onClick={() => setStatsType('Viloyat kesimi')} className="flex items-center gap-2 px-4 py-2 border border-white/10 rounded-xl text-xs font-bold text-slate-200 hover:bg-white/5 transition-all">
             <Filter size={14} /> Filtr
           </button>
           <button onClick={() => setStatsType('Live Report')} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded-xl text-xs font-bold text-white hover:bg-indigo-700 transition-all shadow-md shadow-indigo-600/20">
@@ -270,12 +287,12 @@ export const Overview = () => {
       </div>
 
       {!isQashqadaryoRegion && (
-        <div className="bg-white border border-slate-100 rounded-xl p-8 shadow-sm text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+        <div className="bg-[#181b1c] border border-white/10 rounded-xl p-8 shadow-sm text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-300">
             <MapPin size={24} />
           </div>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{selectedRegion.type}</p>
-          <h2 className="mt-2 text-2xl font-black text-slate-900 tracking-tight">{selectedRegion.name} statistikasi</h2>
+          <h2 className="mt-2 text-2xl font-black text-white tracking-tight">{selectedRegion.name} statistikasi</h2>
           <p className="mx-auto mt-3 max-w-xl text-sm font-bold text-slate-400">
             Bu hudud uchun alohida statistika menyusi tayyorlanmoqda. Tez kunda ushbu qism qo'shiladi.
           </p>
@@ -297,50 +314,52 @@ export const Overview = () => {
 
       {/* Charts */}
       <div className={clsx("grid grid-cols-1 lg:grid-cols-12 gap-4", !isQashqadaryoRegion && "hidden")}>
-        <div className="lg:col-span-8 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="lg:col-span-8 bg-[#181b1c] border border-white/10 rounded-2xl p-4 pb-3 shadow-sm">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-sm font-black text-slate-700 uppercase tracking-widest">Tuman kesimida kunlik bolalar davomati</p>
-              <p className="mt-1 text-xs font-bold text-slate-400">Jami bolalar va bugungi 09:30 chegarasi bo'yicha kelish holati</p>
+              <p className="text-[12px] font-black text-white uppercase tracking-[0.16em]">Tuman kesimida kunlik bolalar davomati</p>
+              <p className="mt-1 text-[10px] font-bold text-slate-400">Jami bolalar va bugungi 09:30 chegarasi bo'yicha kelish holati</p>
             </div>
-            <div className="flex flex-wrap gap-2 text-[11px] font-black uppercase tracking-wider text-slate-500">
+            <div className="flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-[0.14em] text-white">
               <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-slate-300" /> Jami</span>
               <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500" /> 09:30 gacha</span>
               <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-amber-400" /> Keyin</span>
               <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-rose-500" /> Kelmagan</span>
             </div>
           </div>
-          <div className="w-full min-w-0 overflow-x-auto">
-            <div className="min-w-[920px]">
-              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0}>
-                <BarChart data={stats.districtData} margin={{ top: 8, right: 8, left: -10, bottom: 6 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+          <div className="chart-scroll w-full min-w-0 overflow-x-auto pb-2">
+            <div className="min-w-[1120px]">
+              <ResponsiveContainer width="100%" height={264} minWidth={0} minHeight={0}>
+                <BarChart data={stats.districtData} margin={{ top: 8, right: 12, left: -8, bottom: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#2a3033" />
                   <XAxis
                     dataKey="name"
-                    fontSize={11}
-                    fontWeight={700}
+                    height={48}
+                    interval={0}
+                    tickMargin={6}
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#94a3b8' }}
+                    tick={<DistrictAxisTick />}
                   />
                   <YAxis
-                    fontSize={11}
+                    fontSize={9}
+                    fontWeight={800}
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#94a3b8' }}
+                    tick={{ fill: '#ffffff' }}
                     tickFormatter={(value) => Number(value || 0).toLocaleString('uz-UZ')}
                   />
                   <Tooltip
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontSize: '11px' }}
+                    contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: '#181b1c', color: '#f8fafc', boxShadow: '0 10px 25px rgba(0,0,0,0.28)', fontSize: '11px' }}
                     formatter={(value, name) => [formatCount(value), name]}
                     labelFormatter={formatDistrictTodayTitle}
                   />
                   <Legend
                     verticalAlign="top"
-                    height={28}
+                    height={24}
                     iconType="circle"
-                    iconSize={8}
-                    formatter={(value) => <span style={{ color: '#64748b', fontSize: 11, fontWeight: 800 }}>{value}</span>}
+                    iconSize={7}
+                    formatter={(value) => <span style={{ color: '#ffffff', fontSize: 9, fontWeight: 900, letterSpacing: '0.03em' }}>{value}</span>}
                   />
                   <Bar dataKey="jami" name="Jami bolalar" fill="#cbd5e1" radius={[5, 5, 0, 0]} barSize={16} />
                   <Bar dataKey="before930" name="09:30 gacha kelgan" stackId="daily" fill="#10b981" radius={[0, 0, 5, 5]} barSize={18} />
@@ -352,8 +371,8 @@ export const Overview = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-4 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col">
-          <p className="text-sm font-black text-slate-700 uppercase tracking-widest mb-4">Bog'cha turlari</p>
+        <div className="lg:col-span-4 bg-[#181b1c] border border-white/10 rounded-2xl p-4 shadow-sm flex flex-col">
+          <p className="text-[12px] font-black text-white uppercase tracking-[0.16em] mb-3">Bog'cha turlari</p>
           <div className="flex-1 flex items-center justify-center">
             <div className="w-full min-w-0">
               <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0}>
@@ -373,9 +392,9 @@ export const Overview = () => {
                   <Legend
                     iconType="circle"
                     iconSize={8}
-                    formatter={(value) => <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>{value}</span>}
+                    formatter={(value) => <span style={{ fontSize: 8.5, fontWeight: 900, color: '#ffffff', letterSpacing: '0.02em' }}>{value}</span>}
                   />
-                  <Tooltip />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: '#181b1c', color: '#f8fafc', boxShadow: '0 10px 25px rgba(0,0,0,0.28)', fontSize: '11px' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -387,49 +406,49 @@ export const Overview = () => {
       <div className={clsx("grid grid-cols-1 lg:grid-cols-12 gap-4", !isQashqadaryoRegion && "hidden")}>
 
         <div className="lg:col-span-8 space-y-4">
-          <div className="bg-indigo-700 rounded-2xl p-5 text-white shadow-sm">
-            <div className="flex items-center gap-2 mb-2.5">
+          <div className="bg-[#181b1c] border border-indigo-400/20 rounded-2xl p-4 text-white shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
               <Zap size={17} className="text-yellow-300" />
-              <h3 className="font-black text-lg">AI Chuqur Analitika</h3>
+              <h3 className="font-black text-[13px] uppercase tracking-[0.14em]">AI Chuqur Analitika</h3>
             </div>
-            <p className="text-sm text-indigo-100 leading-relaxed italic">
+            <p className="text-[11px] font-semibold text-slate-300 leading-relaxed italic">
               "Viloyat statistikasi real bazaga kiritilgan bog'chalar ma'lumotlari asosida shakllanadi. Davomat ma'lumotlari kiritilmaguncha tegishli ko'rsatkichlar 0 bo'ladi."
             </p>
           </div>
 
-          <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
-            <p className="text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Eng past davomat - TOP 5</p>
+          <div className="bg-[#181b1c] border border-white/10 rounded-2xl p-4 shadow-sm">
+            <p className="text-[12px] font-black text-white uppercase tracking-[0.16em] mb-3">Eng past davomat - TOP 5</p>
             <div className="space-y-2">
               {stats.bottomDistricts.length === 0 && (
-                <div className="py-6 text-center text-xs font-black text-slate-400 uppercase tracking-widest">
+                <div className="py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                   Ma'lumot yo'q
                 </div>
               )}
               {stats.bottomDistricts.map((item: any, i: number) => (
-                <div key={i} className="flex items-center gap-3 py-2.5 border-b border-slate-50 last:border-0">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-xs font-black text-indigo-500">
+                <div key={i} className="flex items-center gap-3 py-2 border-b border-white/10 last:border-0">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-500/15 flex items-center justify-center text-[10px] font-black text-indigo-300">
                     #{i + 1}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-black text-slate-900">{item.name}</p>
-                    <p className="text-xs font-bold text-slate-400 flex items-center gap-1 mt-0.5">
+                    <p className="text-[12px] font-black text-white">{item.name}</p>
+                    <p className="text-[10px] font-bold text-slate-400 flex items-center gap-1 mt-0.5">
                       <MapPin size={11} /> {item.hudud}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-rose-500">{item.kechikkan} kechikkan</p>
-                    <p className="text-xs font-bold text-slate-400">{item.davomat}% davomat</p>
+                    <p className="text-[11px] font-black text-rose-400">{item.kechikkan} kechikkan</p>
+                    <p className="text-[10px] font-bold text-slate-400">{item.davomat}% davomat</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
-            <p className="text-sm font-black text-slate-600 uppercase tracking-widest mb-4">Hududiy boshqaruv monitori</p>
+          <div className="bg-[#181b1c] border border-white/10 rounded-2xl p-4 shadow-sm">
+            <p className="text-[12px] font-black text-white uppercase tracking-[0.16em] mb-3">Hududiy boshqaruv monitori</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {stats.districtMonitor.length === 0 && (
-                <div className="col-span-full py-6 text-center text-xs font-black text-slate-400 uppercase tracking-widest">
+                <div className="col-span-full py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                   Real ma'lumot yo'q
                 </div>
               )}
@@ -437,12 +456,12 @@ export const Overview = () => {
                 const barColor = d.davomat >= 93 ? "bg-emerald-500" : d.davomat >= 89 ? "bg-amber-400" : "bg-rose-500";
                 return (
                   <div key={i} className="space-y-1.5">
-                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{d.name}</p>
-                    <p className="text-lg font-black text-slate-900">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{d.name}</p>
+                    <p className="text-[15px] font-black text-white">
                       {d.davomat}%
                       <span className="text-[10px] font-black text-slate-400 ml-1">DAVOMAT</span>
                     </p>
-                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${d.davomat}%` }}
@@ -458,30 +477,30 @@ export const Overview = () => {
         </div>
 
         {/* Right: AI Command Center */}
-        <div className="lg:col-span-4 bg-[#0f172a] rounded-2xl p-5 text-white flex flex-col gap-4 shadow-sm">
+        <div className="lg:col-span-4 bg-[#181b1c] border border-white/10 rounded-2xl p-4 text-white flex flex-col gap-3 shadow-sm">
           <div className="flex items-center gap-2">
             <TrendingUp size={18} className="text-indigo-400" />
-            <p className="text-sm font-black text-slate-200 uppercase tracking-widest">AI boshqaruv markazi</p>
+            <p className="text-[12px] font-black text-white uppercase tracking-[0.16em]">AI boshqaruv markazi</p>
           </div>
 
-          <div className="space-y-3 flex-1">
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-              <p className="text-[11px] font-black text-amber-400 uppercase tracking-widest mb-1.5">Urgent Alert</p>
-              <p className="text-sm font-medium text-slate-300 leading-relaxed">Davomat o'zgarishi real ma'lumotlar asosida hisoblanadi.</p>
+          <div className="space-y-2.5 flex-1">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+              <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-1.5">Urgent Alert</p>
+              <p className="text-[11px] font-medium text-slate-300 leading-relaxed">Davomat o'zgarishi real ma'lumotlar asosida hisoblanadi.</p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-              <p className="text-[11px] font-black text-rose-400 uppercase tracking-widest mb-1.5">Risk Warning</p>
-              <p className="text-sm font-medium text-slate-300 leading-relaxed">Ta'minot xavfi real ombor ma'lumotlari asosida hisoblanadi.</p>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+              <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-1.5">Risk Warning</p>
+              <p className="text-[11px] font-medium text-slate-300 leading-relaxed">Ta'minot xavfi real ombor ma'lumotlari asosida hisoblanadi.</p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-              <p className="text-[11px] font-black text-emerald-400 uppercase tracking-widest mb-1.5">Good News</p>
-              <p className="text-sm font-medium text-slate-300 leading-relaxed">Ijobiy o'zgarishlar real davomat ma'lumotlari asosida ko'rinadi.</p>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+              <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5">Good News</p>
+              <p className="text-[11px] font-medium text-slate-300 leading-relaxed">Ijobiy o'zgarishlar real davomat ma'lumotlari asosida ko'rinadi.</p>
             </div>
           </div>
 
           <button
             onClick={() => setShowReport(true)}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-indigo-600/20"
+            className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-indigo-600/20"
           >
             Full Report
           </button>
@@ -494,15 +513,15 @@ export const Overview = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
             <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95 }}
-              className="bg-white rounded-2xl p-8 max-w-lg w-full shadow-2xl relative">
-              <button onClick={() => setShowReport(false)} className="absolute top-5 right-5 p-2 hover:bg-slate-100 rounded-xl transition-all">
+              className="bg-[#181b1c] border border-white/10 rounded-2xl p-8 max-w-lg w-full shadow-2xl relative">
+              <button onClick={() => setShowReport(false)} className="absolute top-5 right-5 p-2 hover:bg-white/10 rounded-xl transition-all">
                 <X size={18} className="text-slate-400" />
               </button>
-              <h3 className="text-xl font-black text-slate-900 mb-1">AI To'liq Hisobot</h3>
+              <h3 className="text-xl font-black text-white mb-1">AI To'liq Hisobot</h3>
               <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-6">May 2026</p>
               <div className="space-y-4">
                 {KINDERGARTEN_TYPES.map(type => (
-                  <div key={type.value} className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                  <div key={type.value} className="p-4 bg-[#202425] rounded-xl border border-white/10">
                     <p className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-3">{type.label}</p>
                     <div className="grid grid-cols-3 gap-3">
                       <div className="text-center"><p className="text-lg font-black text-emerald-600">{stats.reportCounts.excellent}</p><p className="text-[9px] font-black text-slate-400 uppercase">A'lo</p></div>
