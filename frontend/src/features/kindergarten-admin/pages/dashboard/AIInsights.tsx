@@ -200,21 +200,23 @@ const sanitizeAIMessage = (message?: string) => {
   return text.length > 180 ? `${text.slice(0, 177)}...` : text;
 };
 
+const TONE_STYLES = {
+  emerald: 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300',
+  rose: 'border-rose-400/25 bg-rose-400/10 text-rose-300',
+  amber: 'border-amber-400/25 bg-amber-400/10 text-amber-300',
+  indigo: 'border-violet-400/25 bg-violet-400/10 text-violet-300',
+  slate: 'border-white/10 bg-white/5 text-slate-300',
+};
+
 const KpiCard = ({ icon: Icon, label, value, sub, tone }: any) => (
-  <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+  <div className="rounded-[20px] border border-white/10 bg-[#111615] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.25)]">
     <div className="flex items-start justify-between gap-4">
       <div>
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</p>
-        <p className="mt-2 text-2xl font-black tracking-tight text-slate-950">{value}</p>
+        <p className="mt-2 text-2xl font-black tracking-tight text-white">{value}</p>
         <p className="mt-1 max-h-12 overflow-hidden break-words text-xs font-bold leading-4 text-slate-400">{sub}</p>
       </div>
-      <div className={clsx(
-        'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
-        tone === 'emerald' && 'bg-emerald-50 text-emerald-600',
-        tone === 'rose' && 'bg-rose-50 text-rose-600',
-        tone === 'amber' && 'bg-amber-50 text-amber-600',
-        tone === 'indigo' && 'bg-indigo-50 text-indigo-600',
-      )}>
+      <div className={clsx('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border', TONE_STYLES[tone as keyof typeof TONE_STYLES])}>
         <Icon size={21} />
       </div>
     </div>
@@ -222,17 +224,17 @@ const KpiCard = ({ icon: Icon, label, value, sub, tone }: any) => (
 );
 
 const DistrictRow = ({ item, rank, mode }: { item: DistrictInsight; rank: number; mode: 'low' | 'good' }) => (
-  <div className="grid gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:grid-cols-[44px_1fr_auto] sm:items-center">
+  <div className="grid gap-3 rounded-[18px] border border-white/10 bg-[#111615] p-4 shadow-[0_16px_48px_rgba(0,0,0,0.22)] sm:grid-cols-[44px_1fr_auto] sm:items-center">
     <div className={clsx(
-      'flex h-11 w-11 items-center justify-center rounded-2xl text-xs font-black',
-      mode === 'good' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+      'flex h-11 w-11 items-center justify-center rounded-2xl border text-xs font-black',
+      mode === 'good' ? TONE_STYLES.emerald : TONE_STYLES.rose
     )}>
       #{rank}
     </div>
     <div className="min-w-0">
       <div className="flex flex-wrap items-center gap-2">
-        <h3 className="text-sm font-black text-slate-950">{item.name}</h3>
-        <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">
+        <h3 className="text-sm font-black text-white">{item.name}</h3>
+        <span className="rounded-full border border-white/10 bg-[#0b1110] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-300">
           {item.kindergartens} MTT
         </span>
       </div>
@@ -241,7 +243,7 @@ const DistrictRow = ({ item, rank, mode }: { item: DistrictInsight; rank: number
       </p>
     </div>
     <div className="text-left sm:text-right">
-      <p className={clsx('text-lg font-black', mode === 'good' ? 'text-emerald-600' : 'text-rose-600')}>{item.attendance}%</p>
+      <p className={clsx('text-lg font-black', mode === 'good' ? 'text-emerald-300' : 'text-rose-300')}>{item.attendance}%</p>
       <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Davomat</p>
     </div>
   </div>
@@ -249,22 +251,22 @@ const DistrictRow = ({ item, rank, mode }: { item: DistrictInsight; rank: number
 
 const StageCard = ({ title, items, tone }: { title: string; items?: string[]; tone: 'indigo' | 'emerald' | 'amber' }) => (
   <div className={clsx(
-    'rounded-2xl border p-5 shadow-sm',
-    tone === 'indigo' && 'border-indigo-100 bg-indigo-50',
-    tone === 'emerald' && 'border-emerald-100 bg-emerald-50',
-    tone === 'amber' && 'border-amber-100 bg-amber-50',
+    'rounded-[20px] border bg-[#111615] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.24)]',
+    tone === 'indigo' && 'border-violet-400/25',
+    tone === 'emerald' && 'border-emerald-400/25',
+    tone === 'amber' && 'border-amber-400/25',
   )}>
     <p className={clsx(
       'mb-3 text-[10px] font-black uppercase tracking-widest',
-      tone === 'indigo' && 'text-indigo-700',
-      tone === 'emerald' && 'text-emerald-700',
-      tone === 'amber' && 'text-amber-700',
+      tone === 'indigo' && 'text-violet-300',
+      tone === 'emerald' && 'text-emerald-300',
+      tone === 'amber' && 'text-amber-300',
     )}>
       {title}
     </p>
     <div className="flex flex-wrap gap-2">
       {(items?.length ? items : ['Maʼlumot shakllanmoqda']).map((item) => (
-        <span key={item} className="rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-black text-slate-700 shadow-sm">
+        <span key={item} className="rounded-full border border-white/10 bg-[#0b1110] px-3 py-1.5 text-[11px] font-black text-white shadow-sm">
           {item}
         </span>
       ))}
@@ -273,24 +275,17 @@ const StageCard = ({ title, items, tone }: { title: string; items?: string[]; to
 );
 
 const InsightPanel = ({ icon: Icon, title, summary, items, tone = 'slate' }: any) => (
-  <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+  <div className="rounded-[20px] border border-white/10 bg-[#111615] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.24)]">
     <div className="mb-4 flex items-center gap-3">
-      <div className={clsx(
-        'flex h-10 w-10 items-center justify-center rounded-2xl',
-        tone === 'rose' && 'bg-rose-50 text-rose-600',
-        tone === 'emerald' && 'bg-emerald-50 text-emerald-600',
-        tone === 'amber' && 'bg-amber-50 text-amber-600',
-        tone === 'indigo' && 'bg-indigo-50 text-indigo-600',
-        tone === 'slate' && 'bg-slate-100 text-slate-600',
-      )}>
+      <div className={clsx('flex h-10 w-10 items-center justify-center rounded-2xl border', TONE_STYLES[tone as keyof typeof TONE_STYLES] || TONE_STYLES.slate)}>
         <Icon size={19} />
       </div>
-      <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">{title}</h2>
+      <h2 className="text-sm font-black uppercase tracking-widest text-white">{title}</h2>
     </div>
-    {summary && <p className="mb-4 text-sm font-bold leading-6 text-slate-700">{summary}</p>}
+    {summary && <p className="mb-4 text-sm font-bold leading-6 text-slate-300">{summary}</p>}
     <div className="space-y-2">
       {(items?.length ? items : ['AI xulosa uchun maʼlumot yigʻilmoqda']).slice(0, 5).map((item: string, index: number) => (
-        <div key={`${title}-${index}`} className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-bold leading-6 text-slate-600">
+        <div key={`${title}-${index}`} className="rounded-2xl border border-white/10 bg-[#0b1110] px-4 py-3 text-sm font-bold leading-6 text-slate-300">
           {item}
         </div>
       ))}
@@ -485,12 +480,12 @@ export const AIInsights = () => {
   };
 
   return (
-    <div className="min-h-screen space-y-6 bg-[#f4f6fb] pb-20">
-      <section className="overflow-hidden rounded-2xl bg-slate-950 p-6 text-white shadow-sm sm:p-8">
+    <div className="min-h-screen space-y-5 bg-[#08100f] pb-20 text-white">
+      <section className="overflow-hidden rounded-[22px] border border-white/10 bg-[#070b18] p-6 text-white shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:p-8">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
           <div className="max-w-3xl">
             <div className="mb-5 flex items-center gap-4">
-              <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/25">
+              <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-gradient-to-br from-[#533cff] to-[#00b7a8] text-white shadow-lg shadow-cyan-950/40">
                 <BrainCircuit size={27} />
               </div>
               <div>
@@ -537,13 +532,13 @@ export const AIInsights = () => {
       </div>
 
       {hasAIAnalysis && providerWarning && (
-        <section className="rounded-2xl border border-indigo-100 bg-indigo-50 p-5 text-sm font-bold leading-6 text-indigo-950">
+        <section className="rounded-[20px] border border-violet-400/25 bg-violet-400/10 p-5 text-sm font-bold leading-6 text-violet-100">
           {providerWarning}
         </section>
       )}
 
       {!hasAIAnalysis && (
-        <section className="rounded-2xl border border-amber-100 bg-amber-50 p-5 text-sm font-bold leading-6 text-amber-950">
+        <section className="rounded-[20px] border border-amber-400/25 bg-amber-400/10 p-5 text-sm font-bold leading-6 text-amber-100">
           {sanitizeAIMessage(aiError) || 'AI xulosa shakllantirilmadi. Davomat kiritilgandan va OpenAI + Gemini API sozlangandan keyin bu qism avtomatik chiqadi.'}
         </section>
       )}
@@ -557,23 +552,23 @@ export const AIInsights = () => {
       )}
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+        <div className="rounded-[22px] border border-white/10 bg-[#111615] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.28)]">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Davomat grafigi</p>
-              <h2 className="mt-1 text-lg font-black text-slate-950">Kelgan va kelmagan bolalar</h2>
+              <h2 className="mt-1 text-lg font-black text-white">Kelgan va kelmagan bolalar</h2>
             </div>
             <div className="flex items-center gap-2">
               <input
                 type="date"
                 value={date}
                 onChange={(event) => setDate(event.target.value)}
-                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 outline-none focus:border-indigo-400"
+                className="h-10 rounded-xl border border-white/10 bg-[#0b1110] px-3 text-xs font-black text-white outline-none [color-scheme:dark] focus:border-emerald-400/50"
               />
               <button
                 type="button"
                 onClick={refreshInsightWindow}
-                className="inline-flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-indigo-700"
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-[#533cff] to-[#00b7a8] px-3 text-xs font-black uppercase tracking-widest text-white transition hover:brightness-110"
               >
                 <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                 Yangilash
@@ -585,8 +580,8 @@ export const AIInsights = () => {
             <div style={{ height: chartHeight }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.chart} layout="vertical" margin={{ top: 10, right: 18, left: 12, bottom: 10 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                  <XAxis type="number" fontSize={10} fontWeight={800} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.08)" />
+                  <XAxis type="number" fontSize={10} fontWeight={800} tick={{ fill: '#cbd5e1' }} axisLine={false} tickLine={false} />
                   <YAxis
                     type="category"
                     dataKey="name"
@@ -594,13 +589,14 @@ export const AIInsights = () => {
                     width={118}
                     fontSize={10}
                     fontWeight={800}
-                    tick={{ fill: '#64748b' }}
+                    tick={{ fill: '#e2e8f0' }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <Tooltip
                     labelFormatter={(_, payload) => payload?.[0]?.payload?.fullName || ''}
-                    contentStyle={{ border: 'none', borderRadius: 14, boxShadow: '0 18px 45px rgba(15,23,42,.14)', fontSize: 12 }}
+                    contentStyle={{ background: '#111615', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 14, boxShadow: '0 18px 45px rgba(0,0,0,.35)', color: '#fff', fontSize: 12 }}
+                    cursor={{ fill: 'rgba(255,255,255,0.04)' }}
                   />
                   <Bar dataKey="kelgan" name="Kelgan" fill="#10b981" radius={[0, 6, 6, 0]} />
                   <Bar dataKey="kelmagan" name="Kelmagan" fill="#f43f5e" radius={[0, 6, 6, 0]} />
@@ -612,32 +608,32 @@ export const AIInsights = () => {
 
         {hasAIAnalysis && (
         <div className="space-y-4">
-          <div className="rounded-2xl border border-rose-100 bg-rose-50 p-5">
-            <div className="mb-3 flex items-center gap-2 text-rose-700">
+          <div className="rounded-[20px] border border-rose-400/25 bg-rose-400/10 p-5">
+            <div className="mb-3 flex items-center gap-2 text-rose-300">
               <TrendingDown size={18} />
               <h2 className="text-sm font-black uppercase tracking-widest">Past davomat bo'yicha xulosa</h2>
             </div>
-            <p className="text-sm font-bold leading-6 text-rose-950">
+            <p className="text-sm font-bold leading-6 text-rose-100">
               {aiAnalysis?.lowAttendanceDistricts?.[0] ? `${aiAnalysis.lowAttendanceDistricts[0].name}: ${aiAnalysis.lowAttendanceDistricts[0].reason} ${aiAnalysis.lowAttendanceDistricts[0].action}` : ''}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
-            <div className="mb-3 flex items-center gap-2 text-emerald-700">
+          <div className="rounded-[20px] border border-emerald-400/25 bg-emerald-400/10 p-5">
+            <div className="mb-3 flex items-center gap-2 text-emerald-300">
               <TrendingUp size={18} />
               <h2 className="text-sm font-black uppercase tracking-widest">Yaxshi davomat bo'yicha xulosa</h2>
             </div>
-            <p className="text-sm font-bold leading-6 text-emerald-950">
+            <p className="text-sm font-bold leading-6 text-emerald-100">
               {aiAnalysis?.goodAttendanceDistricts?.[0] ? `${aiAnalysis.goodAttendanceDistricts[0].name}: ${aiAnalysis.goodAttendanceDistricts[0].incentive}` : ''}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-amber-100 bg-amber-50 p-5">
-            <div className="mb-3 flex items-center gap-2 text-amber-700">
+          <div className="rounded-[20px] border border-amber-400/25 bg-amber-400/10 p-5">
+            <div className="mb-3 flex items-center gap-2 text-amber-300">
               <Banknote size={18} />
               <h2 className="text-sm font-black uppercase tracking-widest">Kelmaganlar hisobidan tejam</h2>
             </div>
-            <p className="text-sm font-bold leading-6 text-amber-950">
+            <p className="text-sm font-bold leading-6 text-amber-100">
               {aiAnalysis?.savingsAnalysis || ''}
             </p>
           </div>
@@ -709,14 +705,14 @@ export const AIInsights = () => {
       )}
 
       {hasAIAnalysis && Boolean(aiAnalysis?.strategicQuestions?.length) && (
-      <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+      <section className="rounded-[22px] border border-white/10 bg-[#111615] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.24)]">
         <div className="mb-4 flex items-center gap-2">
-          <ClipboardList className="text-indigo-600" size={18} />
-          <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Rahbar savollariga AI javob signallari</h2>
+          <ClipboardList className="text-violet-300" size={18} />
+          <h2 className="text-sm font-black uppercase tracking-widest text-white">Rahbar savollariga AI javob signallari</h2>
         </div>
         <div className="grid gap-3 md:grid-cols-3">
           {(aiAnalysis?.strategicQuestions || []).slice(0, 6).map((text, index) => (
-            <div key={`${text}-${index}`} className="rounded-2xl bg-slate-50 p-4 text-sm font-bold leading-6 text-slate-700">
+            <div key={`${text}-${index}`} className="rounded-2xl border border-white/10 bg-[#0b1110] p-4 text-sm font-bold leading-6 text-slate-300">
               {text}
             </div>
           ))}
@@ -727,11 +723,11 @@ export const AIInsights = () => {
       <section className="grid gap-6 xl:grid-cols-2">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="text-rose-600" size={18} />
-            <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Davomadi past tumanlar</h2>
+            <AlertTriangle className="text-rose-300" size={18} />
+            <h2 className="text-sm font-black uppercase tracking-widest text-white">Davomadi past tumanlar</h2>
           </div>
           {stats.lowDistricts.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-xs font-black uppercase tracking-widest text-slate-400">
+            <div className="rounded-2xl border border-dashed border-white/10 bg-[#111615] p-8 text-center text-xs font-black uppercase tracking-widest text-slate-400">
               Davomat ma'lumoti yo'q
             </div>
           )}
@@ -740,11 +736,11 @@ export const AIInsights = () => {
 
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Award className="text-emerald-600" size={18} />
-            <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Davomadi yaxshi tumanlar</h2>
+            <Award className="text-emerald-300" size={18} />
+            <h2 className="text-sm font-black uppercase tracking-widest text-white">Davomadi yaxshi tumanlar</h2>
           </div>
           {stats.goodDistricts.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-xs font-black uppercase tracking-widest text-slate-400">
+            <div className="rounded-2xl border border-dashed border-white/10 bg-[#111615] p-8 text-center text-xs font-black uppercase tracking-widest text-slate-400">
               Davomat ma'lumoti yo'q
             </div>
           )}
@@ -753,10 +749,10 @@ export const AIInsights = () => {
       </section>
 
       {hasAIAnalysis && Boolean(aiAnalysis?.childEngagementPlan?.length) && (
-      <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+      <section className="rounded-[22px] border border-white/10 bg-[#111615] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.24)]">
         <div className="mb-4 flex items-center gap-2">
-          <Clock3 className="text-indigo-600" size={18} />
-          <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Bolalarni kengroq jalb qilish bo'yicha AI tavsiyalar</h2>
+          <Clock3 className="text-violet-300" size={18} />
+          <h2 className="text-sm font-black uppercase tracking-widest text-white">Bolalarni kengroq jalb qilish bo'yicha AI tavsiyalar</h2>
         </div>
         <div className="grid gap-3 md:grid-cols-3">
           {(aiAnalysis?.childEngagementPlan || []).map((text, index) => (
@@ -765,10 +761,10 @@ export const AIInsights = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="rounded-2xl border border-slate-100 bg-slate-50 p-4"
+              className="rounded-2xl border border-white/10 bg-[#0b1110] p-4"
             >
-              <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-indigo-600">Tavsiya {index + 1}</p>
-              <p className="text-sm font-bold leading-6 text-slate-700">{text}</p>
+              <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-violet-300">Tavsiya {index + 1}</p>
+              <p className="text-sm font-bold leading-6 text-slate-300">{text}</p>
             </motion.div>
           ))}
         </div>

@@ -330,13 +330,21 @@ export const FinancialAnalytics = () => {
   }).sort((a, b) => (b.savedAmount - a.savedAmount) || (b.absent - a.absent));
 
   const kpis = [
-    { title: "Jami bolalar", value: stats.totalChildren.toLocaleString(), unit: "ta", icon: Users, color: "text-indigo-600", bg: "bg-indigo-50" },
-    { title: "Bugun kelganlar", value: stats.present.toLocaleString(), unit: "ta", icon: Clock, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { title: "Kelmaganlar", value: stats.absent.toLocaleString(), unit: "ta", icon: AlertTriangle, color: "text-rose-600", bg: "bg-rose-50" },
-    { title: "Davomat", value: `${stats.attendance}`, unit: "%", icon: Activity, color: "text-blue-600", bg: "bg-blue-50" },
-    { title: "Bog'chalar", value: kindergartens.length.toLocaleString(), unit: "ta", icon: Building2, color: "text-violet-600", bg: "bg-violet-50" },
-    { title: "Tejalgan mablag'", value: Math.round(dailySavedTotal).toLocaleString('uz-UZ'), unit: "so'm", icon: Wallet, color: "text-amber-600", bg: "bg-amber-50" },
+    { title: "Jami bolalar", value: stats.totalChildren.toLocaleString(), unit: "ta", icon: Users, color: "text-indigo-200", bg: "bg-indigo-500/15 ring-indigo-400/25" },
+    { title: "Bugun kelganlar", value: stats.present.toLocaleString(), unit: "ta", icon: Clock, color: "text-emerald-200", bg: "bg-emerald-500/15 ring-emerald-400/25" },
+    { title: "Kelmaganlar", value: stats.absent.toLocaleString(), unit: "ta", icon: AlertTriangle, color: "text-rose-200", bg: "bg-rose-500/15 ring-rose-400/25" },
+    { title: "Davomat", value: `${stats.attendance}`, unit: "%", icon: Activity, color: "text-blue-200", bg: "bg-blue-500/15 ring-blue-400/25" },
+    { title: "Bog'chalar", value: kindergartens.length.toLocaleString(), unit: "ta", icon: Building2, color: "text-violet-200", bg: "bg-violet-500/15 ring-violet-400/25" },
+    { title: "Tejalgan mablag'", value: Math.round(dailySavedTotal).toLocaleString('uz-UZ'), unit: "so'm", icon: Wallet, color: "text-amber-200", bg: "bg-amber-500/15 ring-amber-400/25" },
   ];
+
+  const darkTooltip = {
+    borderRadius: '14px',
+    border: '1px solid rgba(255,255,255,0.12)',
+    background: '#0b1110',
+    color: '#ffffff',
+    boxShadow: '0 18px 45px rgba(0,0,0,0.36)',
+  };
 
   const updateExpense = (district: string, changes: Partial<DailyExpenseEntry>) => {
     setExpenses((current) => {
@@ -380,21 +388,21 @@ export const FinancialAnalytics = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans text-slate-900">
-      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/70 shadow-sm">
+    <div className="min-h-screen bg-[#08100f] pb-20 font-sans text-white">
+      <header className="sticky top-0 z-30 bg-[#0b1110]/92 backdrop-blur-xl border-b border-white/10 shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-11 h-11 sm:w-12 sm:h-12 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-600/20 text-white">
               <Coins size={22} />
             </div>
             <div>
-              <h1 className="text-lg sm:text-2xl font-black tracking-tight text-slate-900 leading-none">Moliyaviy analitika</h1>
-              <p className="text-[9px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-[0.14em] mt-1.5">Real davomat bazasi asosidagi nazorat</p>
+              <h1 className="text-lg sm:text-2xl font-black tracking-tight text-white leading-none">Moliyaviy analitika</h1>
+              <p className="text-[9px] sm:text-[11px] font-bold text-slate-300 uppercase tracking-[0.14em] mt-1.5">Real davomat bazasi asosidagi nazorat</p>
             </div>
           </div>
 
-          <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] sm:text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
-            <Download size={14} className="text-slate-400" /> Export
+          <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#111615] border border-white/10 rounded-xl text-[10px] sm:text-xs font-bold text-white hover:bg-[#17201e] transition-all shadow-sm">
+            <Download size={14} className="text-slate-300" /> Export
           </button>
         </div>
       </header>
@@ -407,42 +415,42 @@ export const FinancialAnalytics = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.04 }}
               key={kpi.title}
-              className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all relative overflow-hidden"
+              className="bg-[#111615] p-4 sm:p-6 rounded-2xl border border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.22)] hover:border-emerald-400/25 transition-all relative overflow-hidden"
             >
-              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center ${kpi.bg} ${kpi.color} mb-4`}>
+              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center ${kpi.bg} ${kpi.color} mb-4 ring-1`}>
                 <kpi.icon size={18} strokeWidth={2.5} />
               </div>
-              <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 truncate">{kpi.title}</p>
+              <p className="text-[8px] sm:text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1 truncate">{kpi.title}</p>
               <div className="flex items-baseline gap-1.5">
-                <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">{loading ? "..." : kpi.value}</h3>
-                {kpi.unit && <span className="text-[8px] sm:text-[10px] font-bold text-slate-500">{kpi.unit}</span>}
+                <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight">{loading ? "..." : kpi.value}</h3>
+                {kpi.unit && <span className="text-[8px] sm:text-[10px] font-bold text-slate-300">{kpi.unit}</span>}
               </div>
             </motion.div>
           ))}
         </div>
 
-        <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-5 sm:p-7 flex flex-col xl:flex-row xl:items-center justify-between gap-5 border-b border-slate-100">
+        <section className="bg-[#111615] rounded-2xl border border-white/10 shadow-[0_20px_55px_rgba(0,0,0,0.24)] overflow-hidden">
+          <div className="p-5 sm:p-7 flex flex-col xl:flex-row xl:items-center justify-between gap-5 border-b border-white/10">
             <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+              <div className="w-11 h-11 rounded-xl bg-amber-500/15 text-amber-200 flex items-center justify-center border border-amber-400/25">
                 <Banknote size={22} />
               </div>
               <div>
-                <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">Bir kunlik real xarajat statistikasi</h2>
-                <p className="text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                <h2 className="text-base sm:text-xl font-black text-white tracking-tight">Bir kunlik real xarajat statistikasi</h2>
+                <p className="text-[9px] sm:text-[11px] font-bold text-slate-300 uppercase tracking-widest mt-1">
                   14 ta tuman va 2 ta shahar bo'yicha 1 bola / 1 kun xarajat kiritiladi
                 </p>
               </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-              <label className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600">
-                <CalendarDays size={16} className="text-slate-400 shrink-0" />
+              <label className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/10 bg-[#0b1110] text-slate-200">
+                <CalendarDays size={16} className="text-slate-300 shrink-0" />
                 <input
                   type="date"
                   value={expenseDate}
                   onChange={(event) => setExpenseDate(event.target.value)}
-                  className="bg-transparent text-xs font-black text-slate-800 outline-none min-w-[140px]"
+                  className="bg-transparent text-xs font-black text-white outline-none min-w-[140px] [color-scheme:dark]"
                 />
               </label>
               <button
@@ -457,56 +465,56 @@ export const FinancialAnalytics = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-slate-100 border-b border-slate-100">
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/10 border-b border-white/10 bg-[#0d1312]">
             <div className="p-4 sm:p-5">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Kunlik jami xarajat</p>
-              <p className="text-base sm:text-xl font-black text-slate-900">{money(dailyExpenseTotal)}</p>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Kunlik jami xarajat</p>
+              <p className="text-base sm:text-xl font-black text-white">{money(dailyExpenseTotal)}</p>
             </div>
             <div className="p-4 sm:p-5">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">O'rtacha 1 bola</p>
-              <p className="text-base sm:text-xl font-black text-slate-900">{money(dailyExpenseAverage)}</p>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">O'rtacha 1 bola</p>
+              <p className="text-base sm:text-xl font-black text-white">{money(dailyExpenseAverage)}</p>
             </div>
             <div className="p-4 sm:p-5">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">To'ldirilgan tuman</p>
-              <p className="text-base sm:text-xl font-black text-slate-900">{filledDistricts} / {DISTRICTS.length}</p>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">To'ldirilgan tuman</p>
+              <p className="text-base sm:text-xl font-black text-white">{filledDistricts} / {DISTRICTS.length}</p>
             </div>
             <div className="p-4 sm:p-5">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Qamrab olingan bolalar</p>
-              <p className="text-base sm:text-xl font-black text-slate-900">{coveredChildren.toLocaleString()} ta</p>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Qamrab olingan bolalar</p>
+              <p className="text-base sm:text-xl font-black text-white">{coveredChildren.toLocaleString()} ta</p>
             </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1320px] text-left">
-              <thead className="bg-slate-50 border-b border-slate-100">
+              <thead className="bg-[#0b1110] border-b border-white/10">
                 <tr>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Tuman</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Umumiy bola</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">09:30 gacha</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">09:30 dan keyin</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Jami kelgan</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Kelmagan</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Davomat</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">1 bola / 1 kun</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Kunlik jami</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Tejalgan</th>
-                  <th className="px-5 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Izoh</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Tuman</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Umumiy bola</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">09:30 gacha</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">09:30 dan keyin</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Jami kelgan</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Kelmagan</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Davomat</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">1 bola / 1 kun</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Kunlik jami</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Tejalgan</th>
+                  <th className="px-5 py-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Izoh</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-white/10">
                 {dailyRows.map((row) => (
-                  <tr key={row.name} className="hover:bg-slate-50/70 transition-colors">
+                  <tr key={row.name} className="hover:bg-white/[0.04] transition-colors">
                     <td className="px-5 py-4">
-                      <p className="text-sm font-black text-slate-900">{row.name}</p>
-                      <p className="text-[10px] font-bold text-slate-400 mt-0.5">{row.present.toLocaleString()} kelgan, {row.absent.toLocaleString()} kelmagan</p>
+                      <p className="text-sm font-black text-white">{row.name}</p>
+                      <p className="text-[10px] font-bold text-slate-300 mt-0.5">{row.present.toLocaleString()} kelgan, {row.absent.toLocaleString()} kelmagan</p>
                     </td>
-                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-slate-900">{row.children.toLocaleString()} ta</td>
-                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-emerald-700">{row.before930.toLocaleString()} ta</td>
-                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-amber-700">{row.after930.toLocaleString()} ta</td>
-                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-slate-900">{row.present.toLocaleString()} ta</td>
-                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-rose-700">{row.absent.toLocaleString()} ta</td>
+                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-white">{row.children.toLocaleString()} ta</td>
+                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-emerald-300">{row.before930.toLocaleString()} ta</td>
+                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-amber-300">{row.after930.toLocaleString()} ta</td>
+                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-white">{row.present.toLocaleString()} ta</td>
+                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-rose-300">{row.absent.toLocaleString()} ta</td>
                     <td className="px-5 py-4 whitespace-nowrap">
-                      <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-black">{row.attendance}%</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-blue-500/15 text-blue-200 text-[10px] font-black ring-1 ring-blue-400/20">{row.attendance}%</span>
                     </td>
                     <td className="px-5 py-4">
                       <input
@@ -516,18 +524,18 @@ export const FinancialAnalytics = () => {
                         value={row.costPerChild || ''}
                         onChange={(event) => updateExpense(row.name, { costPerChild: toNumber(event.target.value) })}
                         placeholder="0"
-                        className="w-40 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-black text-slate-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                        className="w-40 rounded-xl border border-white/10 bg-[#0b1110] px-3 py-2.5 text-sm font-black text-white outline-none placeholder:text-slate-500 focus:border-emerald-400/70 focus:ring-4 focus:ring-emerald-500/10"
                       />
                     </td>
-                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-emerald-700">{money(row.totalExpense)}</td>
-                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-amber-700">{money(row.savedAmount)}</td>
+                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-emerald-300">{money(row.totalExpense)}</td>
+                    <td className="px-5 py-4 whitespace-nowrap text-sm font-black text-amber-300">{money(row.savedAmount)}</td>
                     <td className="px-5 py-4">
                       <input
                         type="text"
                         value={row.note}
                         onChange={(event) => updateExpense(row.name, { note: event.target.value })}
                         placeholder="Masalan: bozor narxi yangilandi"
-                        className="w-64 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                        className="w-64 rounded-xl border border-white/10 bg-[#0b1110] px-3 py-2.5 text-xs font-bold text-white outline-none placeholder:text-slate-500 focus:border-emerald-400/70 focus:ring-4 focus:ring-emerald-500/10"
                       />
                     </td>
                   </tr>
@@ -538,13 +546,13 @@ export const FinancialAnalytics = () => {
         </section>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          <section className="xl:col-span-2 bg-white p-5 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+          <section className="xl:col-span-2 bg-[#111615] p-5 sm:p-8 rounded-2xl border border-white/10 shadow-[0_20px_55px_rgba(0,0,0,0.24)]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <div>
-                <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">Tumanlar bo'yicha real davomat</h2>
-                <p className="text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">Moliyaviy hisoblar shu real sonlarga tayanishi kerak</p>
+                <h2 className="text-base sm:text-xl font-black text-white tracking-tight">Tumanlar bo'yicha real davomat</h2>
+                <p className="text-[9px] sm:text-[11px] font-bold text-slate-300 uppercase tracking-widest mt-1">Moliyaviy hisoblar shu real sonlarga tayanishi kerak</p>
               </div>
-              <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-100 w-fit">
+              <div className="px-4 py-2 bg-emerald-500/15 text-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-400/25 w-fit">
                 {stats.present.toLocaleString()} porsiya
               </div>
             </div>
@@ -552,7 +560,7 @@ export const FinancialAnalytics = () => {
             <div className="h-[380px] min-w-0">
               <ResponsiveContainer width="100%" height={380}>
                 <BarChart data={dailyRows} margin={{ top: 10, right: 12, left: 0, bottom: 68 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.08)" />
                   <XAxis
                     dataKey="name"
                     interval={0}
@@ -563,10 +571,10 @@ export const FinancialAnalytics = () => {
                     tickFormatter={shortDistrictName}
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }}
+                    tick={{ fontSize: 10, fill: '#cbd5e1', fontWeight: 700 }}
                   />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} />
-                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#cbd5e1', fontWeight: 700 }} />
+                  <Tooltip contentStyle={darkTooltip} />
                   <Bar dataKey="before930" name="09:30 gacha" stackId="arrivals" fill="#10b981" radius={[0, 0, 4, 4]} barSize={18} />
                   <Bar dataKey="after930" name="09:30 dan keyin" stackId="arrivals" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={18} />
                   <Bar dataKey="absent" name="Kelmaganlar" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={18} />
@@ -575,102 +583,102 @@ export const FinancialAnalytics = () => {
             </div>
           </section>
 
-          <aside className="bg-slate-950 rounded-2xl p-6 text-white shadow-sm">
+          <aside className="bg-[#101827] rounded-2xl p-6 text-white border border-white/10 shadow-[0_20px_55px_rgba(0,0,0,0.24)]">
             <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center border border-amber-500/20 mb-5">
               <Calculator size={24} className="text-amber-400" />
             </div>
             <h3 className="text-xl font-black tracking-tight mb-2">Real moliyaviy hisob</h3>
-            <p className="text-sm font-medium text-slate-400 leading-relaxed">
+            <p className="text-sm font-medium text-slate-300 leading-relaxed">
               Kunlik jami xarajat real bolalar soni va admin kiritgan 1 kunlik xarajat asosida hisoblanadi. Saqlangan qiymatlar sana va tuman bo'yicha bazada qoladi.
             </p>
             <div className="mt-6 grid grid-cols-2 gap-3">
               <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">09:30 gacha</p>
+                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">09:30 gacha</p>
                 <p className="text-xl font-black text-emerald-400">{stats.before930.toLocaleString()}</p>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">09:30 dan keyin</p>
+                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">09:30 dan keyin</p>
                 <p className="text-xl font-black text-amber-400">{stats.after930.toLocaleString()}</p>
               </div>
             </div>
           </aside>
         </div>
 
-        <section className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <section className="bg-[#111615] p-5 sm:p-8 rounded-2xl border border-white/10 shadow-[0_20px_55px_rgba(0,0,0,0.24)]">
           <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-5 mb-6">
             <div className="max-w-3xl">
-              <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">Kelmagan bolalar va tejalgan mablag'</h2>
-              <p className="text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+              <h2 className="text-base sm:text-xl font-black text-white tracking-tight">Kelmagan bolalar va tejalgan mablag'</h2>
+              <p className="text-[9px] sm:text-[11px] font-bold text-slate-300 uppercase tracking-widest mt-1">
                 14 ta tuman va 2 ta shahar kesimida kelmagan bolalar soni va ular hisobidan tejaladigan summa
               </p>
-              <div className="mt-4 inline-flex flex-wrap items-center gap-2 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-xs font-black text-amber-900">
+              <div className="mt-4 inline-flex flex-wrap items-center gap-2 rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-xs font-black text-amber-100">
                 <Calculator size={15} />
                 Formula: kelmagan bolalar x 1 bola / 1 kun xarajat = tejalgan mablag'
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 xl:min-w-[720px] xl:grid-cols-3">
-              <div className="rounded-xl border border-rose-100 bg-rose-50 p-4">
-                <p className="text-[9px] font-black uppercase tracking-widest text-rose-500">Kelmagan bolalar</p>
-                <p className="mt-1 text-xl font-black text-rose-700">{stats.absent.toLocaleString('uz-UZ')} ta</p>
-                <p className="mt-1 text-[10px] font-bold text-rose-400">{mostAbsentDistrict?.name || "Ma'lumot yo'q"}</p>
+              <div className="rounded-xl border border-rose-400/25 bg-rose-500/10 p-4">
+                <p className="text-[9px] font-black uppercase tracking-widest text-rose-200">Kelmagan bolalar</p>
+                <p className="mt-1 text-xl font-black text-white">{stats.absent.toLocaleString('uz-UZ')} ta</p>
+                <p className="mt-1 text-[10px] font-bold text-rose-200">{mostAbsentDistrict?.name || "Ma'lumot yo'q"}</p>
               </div>
-              <div className="rounded-xl border border-amber-100 bg-amber-50 p-4">
-                <p className="text-[9px] font-black uppercase tracking-widest text-amber-500">Jami tejalgan mablag'</p>
-                <p className="mt-1 text-xl font-black text-amber-700">{money(dailySavedTotal)}</p>
-                <p className="mt-1 text-[10px] font-bold text-amber-500">O'rtacha: {money(dailySavedAverage)}</p>
+              <div className="rounded-xl border border-amber-400/25 bg-amber-500/10 p-4">
+                <p className="text-[9px] font-black uppercase tracking-widest text-amber-200">Jami tejalgan mablag'</p>
+                <p className="mt-1 text-xl font-black text-white">{money(dailySavedTotal)}</p>
+                <p className="mt-1 text-[10px] font-bold text-amber-200">O'rtacha: {money(dailySavedAverage)}</p>
               </div>
-              <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-                <p className="text-[9px] font-black uppercase tracking-widest text-blue-500">7 kunlik tejam</p>
-                <p className="mt-1 text-xl font-black text-blue-700">{weeklyLoading ? '...' : money(weeklySavedTotal)}</p>
-                <p className="mt-1 text-[10px] font-bold text-blue-500">
+              <div className="rounded-xl border border-blue-400/25 bg-blue-500/10 p-4">
+                <p className="text-[9px] font-black uppercase tracking-widest text-blue-200">7 kunlik tejam</p>
+                <p className="mt-1 text-xl font-black text-white">{weeklyLoading ? '...' : money(weeklySavedTotal)}</p>
+                <p className="mt-1 text-[10px] font-bold text-blue-200">
                   Kunlik o'rtacha: {money(weeklyDailyAverage)} | Bugun {todayVsWeeklyAverage >= 0 ? '+' : ''}{todayVsWeeklyAverage}%
                 </p>
               </div>
-              <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-                <p className="text-[9px] font-black uppercase tracking-widest text-indigo-500">7 kunlik kelmaganlar</p>
-                <p className="mt-1 text-xl font-black text-indigo-700">{weeklyLoading ? '...' : `${weeklyAbsentTotal.toLocaleString('uz-UZ')} ta`}</p>
-                <p className="mt-1 text-[10px] font-bold text-indigo-500">1 bola o'rtacha: {money(weeklySavedPerAbsent)}</p>
+              <div className="rounded-xl border border-indigo-400/25 bg-indigo-500/10 p-4">
+                <p className="text-[9px] font-black uppercase tracking-widest text-indigo-200">7 kunlik kelmaganlar</p>
+                <p className="mt-1 text-xl font-black text-white">{weeklyLoading ? '...' : `${weeklyAbsentTotal.toLocaleString('uz-UZ')} ta`}</p>
+                <p className="mt-1 text-[10px] font-bold text-indigo-200">1 bola o'rtacha: {money(weeklySavedPerAbsent)}</p>
               </div>
-              <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
-                <p className="text-[9px] font-black uppercase tracking-widest text-emerald-500">Eng katta tejam</p>
-                <p className="mt-1 text-xl font-black text-emerald-700">{money(topSavingDistrict?.savedAmount || 0)}</p>
-                <p className="mt-1 text-[10px] font-bold text-emerald-500">{topSavingDistrict?.name || "Ma'lumot yo'q"}</p>
+              <div className="rounded-xl border border-emerald-400/25 bg-emerald-500/10 p-4">
+                <p className="text-[9px] font-black uppercase tracking-widest text-emerald-200">Eng katta tejam</p>
+                <p className="mt-1 text-xl font-black text-white">{money(topSavingDistrict?.savedAmount || 0)}</p>
+                <p className="mt-1 text-[10px] font-bold text-emerald-200">{topSavingDistrict?.name || "Ma'lumot yo'q"}</p>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Xarajatsiz hudud</p>
-                <p className="mt-1 text-xl font-black text-slate-900">{missingCostRows.length} ta</p>
-                <p className="mt-1 text-[10px] font-bold text-slate-400">{missingCostAbsent.toLocaleString('uz-UZ')} kelmagan bola hisoblanmagan</p>
+              <div className="rounded-xl border border-white/10 bg-[#0b1110] p-4">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-300">Xarajatsiz hudud</p>
+                <p className="mt-1 text-xl font-black text-white">{missingCostRows.length} ta</p>
+                <p className="mt-1 text-[10px] font-bold text-slate-300">{missingCostAbsent.toLocaleString('uz-UZ')} kelmagan bola hisoblanmagan</p>
               </div>
             </div>
           </div>
 
           {missingCostRows.length > 0 && (
-            <div className="mb-6 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold leading-6 text-amber-950">
+            <div className="mb-6 rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm font-bold leading-6 text-amber-100">
               {missingCostRows.length} ta hududda 1 bola / 1 kun xarajat kiritilmagan. Bu hududlarda tejam summasi 0 bo'lib turadi: {missingCostRows.map((row) => shortDistrictName(row.name)).join(', ')}.
             </div>
           )}
 
           <div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
-            <div className="min-w-0 rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+            <div className="min-w-0 rounded-2xl border border-white/10 bg-[#0b1110] p-4">
               <div className="mb-4 flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-rose-600">
+                <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-rose-200">
                   <span className="h-3 w-3 rounded-sm bg-rose-500" /> Kelmagan bolalar
                 </span>
-                <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-amber-600">
+                <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-amber-200">
                   <span className="h-3 w-3 rounded-sm bg-amber-500" /> Tejalgan mablag'
                 </span>
               </div>
               <div className="h-[640px] min-w-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={savingsRows} layout="vertical" margin={{ top: 12, right: 42, left: 28, bottom: 12 }}>
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.08)" />
                     <XAxis
                       xAxisId="children"
                       type="number"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }}
+                      tick={{ fontSize: 10, fill: '#cbd5e1', fontWeight: 700 }}
                     />
                     <XAxis
                       xAxisId="money"
@@ -679,7 +687,7 @@ export const FinancialAnalytics = () => {
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(value) => `${Math.round(Number(value || 0) / 1000000)} mln`}
-                      tick={{ fontSize: 10, fill: '#b45309', fontWeight: 800 }}
+                      tick={{ fontSize: 10, fill: '#fbbf24', fontWeight: 800 }}
                     />
                     <YAxis
                       type="category"
@@ -689,7 +697,7 @@ export const FinancialAnalytics = () => {
                       tickFormatter={shortDistrictName}
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 10, fill: '#475569', fontWeight: 800 }}
+                      tick={{ fontSize: 10, fill: '#e2e8f0', fontWeight: 800 }}
                     />
                     <Tooltip
                       formatter={(value, name) => [
@@ -697,7 +705,7 @@ export const FinancialAnalytics = () => {
                         name,
                       ]}
                       labelFormatter={(label) => String(label)}
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                      contentStyle={darkTooltip}
                     />
                     <Bar xAxisId="children" dataKey="absent" name="Kelmagan bolalar" fill="#f43f5e" radius={[0, 4, 4, 0]} barSize={14} />
                     <Bar xAxisId="money" dataKey="savedAmount" name="Tejalgan mablag'" fill="#f59e0b" radius={[0, 4, 4, 0]} barSize={14} />
@@ -707,52 +715,52 @@ export const FinancialAnalytics = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border border-white/10 bg-[#0b1110] p-5 shadow-sm">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-sm font-black text-slate-900">TOP tejam hududlari</h3>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Eng katta summa bo'yicha</p>
+                    <h3 className="text-sm font-black text-white">TOP tejam hududlari</h3>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">Eng katta summa bo'yicha</p>
                   </div>
                   <Banknote size={20} className="text-amber-500" />
                 </div>
                 <div className="space-y-3">
                   {savingsRows.slice(0, 5).map((row, index) => (
-                    <div key={row.name} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-3">
+                    <div key={row.name} className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.04] px-3 py-3 ring-1 ring-white/10">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-slate-900">#{index + 1} {row.name}</p>
-                        <p className="text-[10px] font-bold text-slate-400">{row.absent.toLocaleString('uz-UZ')} kelmagan x {money(row.costPerChild)}</p>
+                        <p className="truncate text-sm font-black text-white">#{index + 1} {row.name}</p>
+                        <p className="text-[10px] font-bold text-slate-300">{row.absent.toLocaleString('uz-UZ')} kelmagan x {money(row.costPerChild)}</p>
                       </div>
-                      <p className="shrink-0 text-sm font-black text-amber-700">{money(row.savedAmount)}</p>
+                      <p className="shrink-0 text-sm font-black text-amber-300">{money(row.savedAmount)}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-5 shadow-sm">
+              <div className="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-5 shadow-sm">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-sm font-black text-blue-950">Haftalik tejam dinamikasi</h3>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-blue-400">
+                    <h3 className="text-sm font-black text-white">Haftalik tejam dinamikasi</h3>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-blue-200">
                       {formatShortDate(addDaysToInputDate(expenseDate, -6))} - {formatShortDate(expenseDate)}
                     </p>
                   </div>
                   <CalendarDays size={20} className="text-blue-500" />
                 </div>
                 <div className="mb-4 grid grid-cols-2 gap-3">
-                  <div className="rounded-xl bg-white/80 p-3">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-blue-400">Jami</p>
-                    <p className="mt-1 text-sm font-black text-blue-900">{weeklyLoading ? '...' : money(weeklySavedTotal)}</p>
+                  <div className="rounded-xl bg-[#0b1110] p-3 ring-1 ring-white/10">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-blue-200">Jami</p>
+                    <p className="mt-1 text-sm font-black text-white">{weeklyLoading ? '...' : money(weeklySavedTotal)}</p>
                   </div>
-                  <div className="rounded-xl bg-white/80 p-3">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-blue-400">Kelmagan</p>
-                    <p className="mt-1 text-sm font-black text-blue-900">{weeklyLoading ? '...' : `${weeklyAbsentTotal.toLocaleString('uz-UZ')} ta`}</p>
+                  <div className="rounded-xl bg-[#0b1110] p-3 ring-1 ring-white/10">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-blue-200">Kelmagan</p>
+                    <p className="mt-1 text-sm font-black text-white">{weeklyLoading ? '...' : `${weeklyAbsentTotal.toLocaleString('uz-UZ')} ta`}</p>
                   </div>
                 </div>
                 <div className="h-48">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={weeklyRows} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#bfdbfe" />
-                      <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#2563eb', fontWeight: 800 }} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.08)" />
+                      <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#bfdbfe', fontWeight: 800 }} />
                       <YAxis hide />
                       <Tooltip
                         formatter={(value, name) => [
@@ -760,39 +768,39 @@ export const FinancialAnalytics = () => {
                           name,
                         ]}
                         labelFormatter={(label) => `${label} sana`}
-                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                        contentStyle={darkTooltip}
                       />
                       <Bar dataKey="savedAmount" name="Tejalgan mablag'" fill="#2563eb" radius={[5, 5, 0, 0]} barSize={18} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
                 {weeklyMissingCostDistrictDays > 0 && (
-                  <p className="mt-3 text-xs font-bold leading-5 text-blue-700">
+                  <p className="mt-3 text-xs font-bold leading-5 text-blue-100">
                     {weeklyMissingCostDistrictDays} hudud-kunda xarajat kiritilmagan, {weeklyMissingCostAbsent.toLocaleString('uz-UZ')} kelmagan bola haftalik tejamga qo'shilmagan.
                   </p>
                 )}
               </div>
 
-              <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border border-indigo-400/20 bg-indigo-500/10 p-5 shadow-sm">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-sm font-black text-slate-900">Haftalik TOP hududlar</h3>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">7 kunlik tejam bo'yicha</p>
+                    <h3 className="text-sm font-black text-white">Haftalik TOP hududlar</h3>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">7 kunlik tejam bo'yicha</p>
                   </div>
                   <Wallet size={20} className="text-indigo-500" />
                 </div>
                 <div className="space-y-3">
                   {weeklyDistrictRows.slice(0, 5).map((row, index) => (
-                    <div key={row.name} className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-3">
+                    <div key={row.name} className="rounded-xl border border-white/10 bg-[#0b1110] px-3 py-3">
                       <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-slate-900">#{index + 1} {row.name}</p>
-                          <p className="text-[10px] font-bold text-slate-400">{row.absent.toLocaleString('uz-UZ')} kelmagan bola</p>
+                          <p className="truncate text-sm font-black text-white">#{index + 1} {row.name}</p>
+                          <p className="text-[10px] font-bold text-slate-300">{row.absent.toLocaleString('uz-UZ')} kelmagan bola</p>
                         </div>
-                        <p className="shrink-0 text-sm font-black text-indigo-700">{money(row.savedAmount)}</p>
+                        <p className="shrink-0 text-sm font-black text-indigo-200">{money(row.savedAmount)}</p>
                       </div>
                       {row.missingCostDays > 0 && (
-                        <p className="mt-2 text-[10px] font-bold text-amber-600">
+                        <p className="mt-2 text-[10px] font-bold text-amber-200">
                           {row.missingCostDays} kunda xarajat kiritilmagan, {row.missingCostAbsent.toLocaleString('uz-UZ')} bola hisobdan tashqarida.
                         </p>
                       )}
@@ -801,12 +809,12 @@ export const FinancialAnalytics = () => {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-100 bg-slate-950 p-5 text-white shadow-sm">
+              <div className="rounded-2xl border border-white/10 bg-[#0b1110] p-5 text-white shadow-sm">
                 <div className="mb-4 flex items-center gap-3">
                   <AlertTriangle size={20} className="text-rose-300" />
                   <div>
                     <h3 className="text-sm font-black">E'tibor kerak</h3>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Xarajat kiritilmaganlar</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">Xarajat kiritilmaganlar</p>
                   </div>
                 </div>
                 {missingCostRows.length === 0 ? (
@@ -820,7 +828,7 @@ export const FinancialAnalytics = () => {
                       </div>
                     ))}
                     {missingCostRows.length > 6 && (
-                      <p className="text-xs font-bold text-slate-500">Yana {missingCostRows.length - 6} ta hudud bor.</p>
+                      <p className="text-xs font-bold text-slate-300">Yana {missingCostRows.length - 6} ta hudud bor.</p>
                     )}
                   </div>
                 )}
